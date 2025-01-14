@@ -1,0 +1,63 @@
+#:schema https://json.schemastore.org/pyproject.json
+# https://packaging.python.org/en/latest/specifications/pyproject-toml/
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[dependency-groups]
+dev = ["icecream~=2.1.4"]
+exp = ["comet-ml~=3.47.6", "pytetwild~=0.1.dev1", "timerit~=1.1.0"]
+
+[project]
+authors = [
+  { email = "30631553+liblaf@users.noreply.github.com", name = "liblaf" },
+]
+dependencies = [
+  "felupe>=9.1.0,<10",
+  "jaxtyping>=0.2.36,<0.3",
+  "lazy-loader>=0.4,<0.5",
+  "pyvista>=0.44.2,<0.45",
+  "scipy",
+]
+description = "Add your description here"
+keywords = []
+license = "MIT"
+name = "liblaf.apple"
+readme = "docs/README.md"
+requires-python = ">=3.12"
+version = "0.0.0"
+
+[project.urls]
+"Changelog" = "https://github.com/liblaf/apple/blob/main/CHANGELOG.md"
+"Homepage" = "https://github.com/liblaf/apple"
+"Issue Tracker" = "https://github.com/liblaf/apple/issues"
+"Release Notes" = "https://github.com/liblaf/apple/releases"
+"Source Code" = "https://github.com/liblaf/apple"
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/liblaf"]
+
+[tool.pixi.dependencies]
+jax = ">=0.4.35,<0.5"
+jaxlib = { build = "*cuda*", version = ">=0.4.35,<0.5" }
+python = ">=3.12,<3.13"
+
+[tool.pixi.environments]
+default = { features = ["dev", "exp"] }
+
+[tool.pixi.project]
+channel-priority = "disabled"
+channels = ["anaconda", "conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+"liblaf.apple" = { editable = true, path = "." }
+
+[tool.pixi.system-requirements]
+cuda = "12"
+libc = { family = "glibc", version = "2.40" }
+linux = "6.6"

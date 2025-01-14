@@ -1,2 +1,6 @@
 #:schema https://json.schemastore.org/ruff.json
 extend = ".github/linters/.ruff.toml"
+target-version = "py312"
+
+[lint]
+extend-ignore = ["F722"]

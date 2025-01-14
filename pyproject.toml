@@ -6,14 +6,19 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [dependency-groups]
-dev = ["icecream~=2.1.4"]
-exp = ["comet-ml~=3.47.6", "pytetwild~=0.1.dev1", "timerit~=1.1.0"]
+dev = ["icecream>=2.1.4,<3"]
+experiment = [
+  "comet-ml>=3.47.6,<4",
+  "pytetwild>=0.1.dev1,<0.2",
+  "timerit>=1.1.0,<2",
+]
 
 [project]
 authors = [
   { email = "30631553+liblaf@users.noreply.github.com", name = "liblaf" },
 ]
 dependencies = [
+  "etils>=1.11.0,<2",
   "felupe>=9.1.0,<10",
   "jaxtyping>=0.2.36,<0.3",
   "lazy-loader>=0.4,<0.5",
@@ -47,7 +52,7 @@ jaxlib = { build = "*cuda*", version = ">=0.4.35,<0.5" }
 python = ">=3.12,<3.13"
 
 [tool.pixi.environments]
-default = { features = ["dev", "exp"] }
+default = { features = ["dev", "experiment"] }
 
 [tool.pixi.project]
 channel-priority = "disabled"

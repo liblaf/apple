@@ -100,6 +100,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ba/99/6794142b90b853a9155316c8f470d2e4821fe6f086b03e372aca848227dd/contourpy-1.3.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/72/5a/73c7e9b9845ff351ceade642b16410e573eaef0647fe917feb5c8457b780/dulwich-0.22.7-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/4a/ff8aa2c57300613b69905308c5afe92c5b01112d766c25a305fd6796170a/etils-1.11.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/91/9a/d882fd7562208456236fb2e62b762bf16fbc9ecde842bb871f676ca0f7e1/everett-3.1.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b5/fd/afcd0496feca3276f509df3dbd5dae726fcc756f1a08d9e25abe1733f962/executing-2.1.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/3c/358043214f54ae4208b4144f9d2e7964af5c8e57f76ba1fcc380863f98b8/felupe-9.1.0-py3-none-any.whl
@@ -522,6 +523,78 @@ packages:
   - ruff==0.8.3 ; extra == 'dev'
   - mypy==1.13.0 ; extra == 'dev'
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/4f/4a/ff8aa2c57300613b69905308c5afe92c5b01112d766c25a305fd6796170a/etils-1.11.0-py3-none-any.whl
+  name: etils
+  version: 1.11.0
+  sha256: a394cf3476bcec51c221426a70c39cd1006e889456ba41e4d7f12fd6814be7a5
+  requires_dist:
+  - etils[array-types] ; extra == 'all'
+  - etils[eapp] ; extra == 'all'
+  - etils[ecolab] ; extra == 'all'
+  - etils[edc] ; extra == 'all'
+  - etils[enp] ; extra == 'all'
+  - etils[epath] ; extra == 'all'
+  - etils[epath-gcs] ; extra == 'all'
+  - etils[epath-s3] ; extra == 'all'
+  - etils[epy] ; extra == 'all'
+  - etils[etqdm] ; extra == 'all'
+  - etils[etree] ; extra == 'all'
+  - etils[etree-dm] ; extra == 'all'
+  - etils[etree-jax] ; extra == 'all'
+  - etils[etree-tf] ; extra == 'all'
+  - etils[enp] ; extra == 'array-types'
+  - pytest ; extra == 'dev'
+  - pytest-subtests ; extra == 'dev'
+  - pytest-xdist ; extra == 'dev'
+  - pyink ; extra == 'dev'
+  - pylint>=2.6.0 ; extra == 'dev'
+  - chex ; extra == 'dev'
+  - fiddle ; extra == 'dev'
+  - torch ; extra == 'dev'
+  - optree ; extra == 'dev'
+  - tensorflow-datasets ; extra == 'dev'
+  - pydantic ; extra == 'dev'
+  - sphinx-apitree[ext] ; extra == 'docs'
+  - etils[dev,all] ; extra == 'docs'
+  - absl-py ; extra == 'eapp'
+  - simple-parsing ; extra == 'eapp'
+  - etils[epy] ; extra == 'eapp'
+  - jupyter ; extra == 'ecolab'
+  - numpy ; extra == 'ecolab'
+  - mediapy ; extra == 'ecolab'
+  - packaging ; extra == 'ecolab'
+  - protobuf ; extra == 'ecolab'
+  - etils[enp] ; extra == 'ecolab'
+  - etils[epy] ; extra == 'ecolab'
+  - etils[etree] ; extra == 'ecolab'
+  - etils[epy] ; extra == 'edc'
+  - numpy ; extra == 'enp'
+  - etils[epy] ; extra == 'enp'
+  - fsspec ; extra == 'epath'
+  - importlib-resources ; extra == 'epath'
+  - typing-extensions ; extra == 'epath'
+  - zipp ; extra == 'epath'
+  - etils[epy] ; extra == 'epath'
+  - gcsfs ; extra == 'epath-gcs'
+  - etils[epath] ; extra == 'epath-gcs'
+  - s3fs ; extra == 'epath-s3'
+  - etils[epath] ; extra == 'epath-s3'
+  - typing-extensions ; extra == 'epy'
+  - absl-py ; extra == 'etqdm'
+  - tqdm ; extra == 'etqdm'
+  - etils[epy] ; extra == 'etqdm'
+  - etils[array-types] ; extra == 'etree'
+  - etils[epy] ; extra == 'etree'
+  - etils[enp] ; extra == 'etree'
+  - etils[etqdm] ; extra == 'etree'
+  - dm-tree ; extra == 'etree-dm'
+  - etils[etree] ; extra == 'etree-dm'
+  - jax[cpu] ; extra == 'etree-jax'
+  - etils[etree] ; extra == 'etree-jax'
+  - tensorflow ; extra == 'etree-tf'
+  - etils[etree] ; extra == 'etree-tf'
+  - etils[ecolab] ; extra == 'lazy-imports'
+  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/91/9a/d882fd7562208456236fb2e62b762bf16fbc9ecde842bb871f676ca0f7e1/everett-3.1.0-py2.py3-none-any.whl
   name: everett
   version: 3.1.0
@@ -694,8 +767,6 @@ packages:
   - scipy >=1.9
   constrains:
   - jax >=0.4.35
-  arch: x86_64
-  platform: linux
   license: Apache-2.0
   license_family: APACHE
   purls:
@@ -1086,14 +1157,15 @@ packages:
 - pypi: .
   name: liblaf-apple
   version: 0.0.0
-  sha256: 560b5bab32863ac27c524873797dfd02492179d847bf64843ba22289ecf7bf42
+  sha256: aa9dc97811e15140d2a07599ed3151b6229d24a3cddcb3cf42be6ddec9ae833e
   requires_dist:
-  - felupe
-  - jaxtyping
-  - lazy-loader
-  - pyvista
+  - etils>=1.11.0,<2
+  - felupe>=9.1.0,<10
+  - jaxtyping>=0.2.36,<0.3
+  - lazy-loader>=0.4,<0.5
+  - pyvista>=0.44.2,<0.45
   - scipy
-  requires_python: ~=3.12
+  requires_python: '>=3.12'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-20_linux64_mkl.conda
   build_number: 20

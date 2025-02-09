@@ -1,19 +1,20 @@
-from . import math, opt, problem, utils
-from .math import HVPMethod, hvp
-from .opt import METHODS, MinimizeMethod, MinimizeMethodInfo, Problem, minimize
-from .utils import as_array_dict
+from . import elem, math, opt, preset, problem, region
+from .math import hvp
+from .opt import minimize
+from .problem import Problem, ProblemPrepared
+from .region import Region, RegionTetra
 
 __all__ = [
-    "METHODS",
-    "HVPMethod",
-    "MinimizeMethod",
-    "MinimizeMethodInfo",
     "Problem",
-    "as_array_dict",
+    "ProblemPrepared",
+    "Region",
+    "RegionTetra",
+    "elem",
     "hvp",
     "math",
     "minimize",
     "opt",
+    "preset",
     "problem",
-    "utils",
+    "region",
 ]

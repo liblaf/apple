@@ -3,7 +3,7 @@
 # vim: syntax=yaml
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
-site_name: "liblaf.apple"
+site_name: "liblaf-apple"
 site_url:
   !ENV [
     READTHEDOCS_CANONICAL_URL,

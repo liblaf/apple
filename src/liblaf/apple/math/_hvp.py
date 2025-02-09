@@ -1,39 +1,60 @@
-import enum
 from collections.abc import Callable
+from typing import Literal
 
+import autoregistry
 import jax
 import jax.numpy as jnp
+from jaxtyping import Float, Scalar
 
-
-class HVPMethod(enum.StrEnum):
-    GRAD_OF_GRAD = "grad-of-grad"
-    FORWARD_OVER_REVERSE = "forward-over-reverse"
-    REVERSE_OVER_FORWARD = "reverse-over-forward"
-    REVERSE_OVER_REVERSE = "reverse-over-reverse"
+type HvpMethod = Literal[
+    "forward-over-reverse", "reverse-over-forward", "reverse-over-reverse", "naive"
+]
+hvp_method_registry = autoregistry.Registry(prefix="hvp_", hyphen=True)
 
 
 def hvp(
-    fun: Callable,
-    x: jax.Array,
+    fun: Callable[[jax.Array], Scalar],
+    u: jax.Array,
     v: jax.Array,
-    *,
-    method: HVPMethod = HVPMethod.FORWARD_OVER_REVERSE,
+    method: HvpMethod = "forward-over-reverse",
 ) -> jax.Array:
-    """Hessian-vector products.
+    return hvp_method_registry[method](fun, u, v)
 
-    References:
-        [1] [The Autodiff Cookbook — JAX documentation](https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html)
-    """
-    match method:
-        case HVPMethod.GRAD_OF_GRAD:
-            return jax.grad(lambda x: jnp.vdot(jax.grad(fun)(x), v))(x)
-        case HVPMethod.FORWARD_OVER_REVERSE:
-            return jax.jvp(jax.grad(fun), (x,), (v,))[1]
-        case HVPMethod.REVERSE_OVER_FORWARD:
-            g = lambda primals: jax.jvp(fun, primals, (v,))[1]  # noqa: E731
-            return jax.grad(g)((x,))
-        case HVPMethod.REVERSE_OVER_REVERSE:
-            return jax.grad(lambda x: jnp.vdot(jax.grad(fun)(x), v))(x)
-        case _:
-            msg = f"Unknown method '{method}' for Hessians-vector products"
-            raise ValueError(msg)
+
+@hvp_method_registry
+def hvp_forward_over_reverse(
+    fun: Callable[[Float[jax.Array, " N"]], Scalar],
+    u: Float[jax.Array, " N"],
+    v: Float[jax.Array, " N"],
+) -> Float[jax.Array, " N"]:
+    return jax.jvp(jax.grad(fun), (u,), (v,))[1]
+
+
+@hvp_method_registry
+def hvp_reverse_over_forward(
+    fun: Callable[[Float[jax.Array, " N"]], Scalar],
+    u: Float[jax.Array, " N"],
+    v: Float[jax.Array, " N"],
+) -> Float[jax.Array, " N"]:
+    def g(u: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+        return jax.jvp(fun, (u,), (v,))[1]
+
+    return jax.grad(g)(u)
+
+
+@hvp_method_registry
+def hvp_reverse_over_reverse(
+    fun: Callable[[Float[jax.Array, " N"]], Scalar],
+    u: Float[jax.Array, " N"],
+    v: Float[jax.Array, " N"],
+) -> Float[jax.Array, " N"]:
+    return jax.grad(lambda x: jnp.vdot(jax.grad(fun)(x), v))(u)
+
+
+@hvp_method_registry
+def hvp_naive(
+    fun: Callable[[Float[jax.Array, " N"]], Scalar],
+    u: Float[jax.Array, " N"],
+    v: Float[jax.Array, " N"],
+) -> Float[jax.Array, " N"]:
+    return jnp.tensordot(jax.hessian(fun)(u), v, axes=2)

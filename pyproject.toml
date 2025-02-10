@@ -32,7 +32,7 @@ dependencies = [
   "jaxtyping>=0.2.37,<0.3",
   "lazy-loader>=0.4,<0.5",
   "liblaf-cherries>=0.0.2,<0.0.3",
-  "liblaf-grapes>=0.0.3,<0.0.4",
+  "liblaf-grapes>=0.0.4,<0.0.5",
   "liblaf-melon>=0.1.0,<0.2",
   "numpy",
   "pytetwild",

@@ -30,7 +30,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-      - if: !cancelled()
+      - if: ${{ !cancelled() }}
         name: Upload Test Results
         uses: codecov/test-results-action@v1
         with:

@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.0.1](https://github.com/liblaf/apple/compare/v0.0.0...v0.0.1) (2025-02-14)
+
+
+### ✨ Features
+
+* add tetrahedral element FEM and rotation-variant SVD ([ef11295](https://github.com/liblaf/apple/commit/ef11295ba1f85ef18f89063abcd7694de0d0af73))
+* **opt:** add PNCG minimization algorithm and refactor strain test ([91208b7](https://github.com/liblaf/apple/commit/91208b7c382933586e8900419195c939b397f5ad))
+
+
+### ⬆️ Dependencies
+
+* **deps:** update dependency liblaf-grapes to &gt;=0.0.4,&lt;0.0.5 ([#4](https://github.com/liblaf/apple/issues/4)) ([7db122f](https://github.com/liblaf/apple/commit/7db122f9f585ac6ba3ca6900e41d1ba059e37abd))
+
+
+### ♻ Code Refactoring
+
+* reorganize apple module structure and optimize physics simulation ([cd42fa4](https://github.com/liblaf/apple/commit/cd42fa4423b9ac8b8faeddebaad842d0a1eb8ac9))
+
+
+### 🔧 Continuous Integration
+
+* correct syntax for `if` condition in test workflow ([b88f52e](https://github.com/liblaf/apple/commit/b88f52e6c02433c5df5148ca578d831493c18b4f))
+
 ## 0.0.0 (2025-01-19)
 
 ### ✨ Features

@@ -42,7 +42,7 @@ dependencies = [
   "felupe>=9.1.0,<10",
   "jaxtyping>=0.2.38,<0.3",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=0.1.0,<0.1.1",
+  "liblaf-grapes>=0.1.1,<0.1.2",
   "liblaf-melon>=0.1.1,<0.2",
   "numpy",
   "pytetwild>=0.1.dev1,<0.2",

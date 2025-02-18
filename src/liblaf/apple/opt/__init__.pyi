@@ -1,3 +1,3 @@
-from ._minimize import minimize
+from ._minimize import MinimizeAlgorithm, MinimizePNCG, MinimizeScipy, minimize
 
-__all__ = ["minimize"]
+__all__ = ["MinimizeAlgorithm", "MinimizePNCG", "MinimizeScipy", "minimize"]

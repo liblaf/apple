@@ -11,8 +11,15 @@ build = [
   "hatch>=1.14.0,<2",
   "twine>=6.1.0,<7",
 ]
-dev = ["icecream>=2.1.4,<3", "pytetwild>=0.1.dev1,<0.2", "typer>=0.15.1,<0.16"]
+dev = [
+  "icecream>=2.1.4,<3",
+  "ipykernel>=6.29.5,<7",
+  "ipython>=8.32.0,<9",
+  "pytetwild>=0.1.dev1,<0.2",
+  "typer>=0.15.1,<0.16",
+]
 docs = [
+  "gitpython>=3.1.44,<4",
   "mdx-truly-sane-lists>=1.3,<2",
   "mkdocs-autorefs>=1.3.0,<2",
   "mkdocs-gen-files>=0.5.0,<0.6",
@@ -24,8 +31,14 @@ docs = [
   "mkdocs>=1.6.1,<2",
   "mkdocstrings[python]>=0.28.0,<0.29",
   "pymdown-extensions>=10.14.3,<11",
+  "ruff>=0.9.6,<0.10",
 ]
-test = ["pytest-cov>=6.0.0,<7", "pytest-xdist>=3.6.1,<4", "pytest>=8.3.4,<9"]
+test = [
+  "pytest-codspeed>=3.2.0,<4",
+  "pytest-cov>=6.0.0,<7",
+  "pytest-xdist>=3.6.1,<4",
+  "pytest>=8.3.4,<9",
+]
 
 [project]
 authors = [
@@ -42,8 +55,8 @@ dependencies = [
   "felupe>=9.1.0,<10",
   "jaxtyping>=0.2.38,<0.3",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=0.1.0,<0.1.1",
-  "liblaf-melon>=0.1.1,<0.2",
+  "liblaf-grapes>=0.1.1,<0.2",
+  "liblaf-melon>=0.1.3,<0.2",
   "numpy",
   "pytetwild>=0.1.dev1,<0.2",
   "pyvista>=0.44.2,<0.45",
@@ -67,6 +80,12 @@ requires-python = ">=3.12"
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/liblaf/apple/_version.py"
 
 [tool.hatch.build.targets.sdist]
 only-packages = true
@@ -99,5 +118,6 @@ libc = { family = "glibc", version = "2.40" }
 linux = "6.6"
 
 [tool.pytest.ini_options]
+addopts = ["--numprocesses=auto"]
 junit_family = "legacy"
-testpaths = ["tests"]
+testpaths = ["tests/"]

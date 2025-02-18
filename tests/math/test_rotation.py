@@ -13,7 +13,7 @@ def test_svd_rv(n: int = 10) -> None:
     U: Float[jax.Array, "*c 3 3"]
     S_diag: Float[jax.Array, "*c 3"]
     VH: Float[jax.Array, "*c 3 3"]
-    U, S_diag, VH = apple.math.svd_rv(F)
+    U, S_diag, VH = jax.jit(apple.math.svd_rv)(F)
     S: Float[jax.Array, "*c 3 3"] = jax.vmap(jnp.diagflat)(S_diag)
     F_actual: Float[jax.Array, "*c 3 3"] = U @ S @ VH
     assert F_actual == pytest.approx(F)
@@ -30,7 +30,7 @@ def test_polar_rv(n: int = 10) -> None:
     F: Float[jax.Array, "*c 3 3"] = jax.random.uniform(key, (n, 3, 3))
     R: Float[jax.Array, "*c 3 3"]
     S: Float[jax.Array, "*c 3 3"]
-    R, S = apple.math.polar_rv(F)
+    R, S = jax.jit(apple.math.polar_rv)(F)
     F_actual: Float[jax.Array, "*c 3 3"] = R @ S
     assert F_actual == pytest.approx(F)
     identity: Float[jax.Array, "*c 3 3"] = einops.repeat(

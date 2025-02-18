@@ -4,6 +4,7 @@ from typing import Protocol
 import attrs
 import jax
 import jax.numpy as jnp
+import scipy.optimize
 from jaxtyping import Float
 
 from . import MinimizeAlgorithm
@@ -22,19 +23,29 @@ class AbstractHessian(Protocol):
 
 @attrs.frozen
 class MinimizePNCG(MinimizeAlgorithm):
-    jac: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]]
-    hess: Callable[[Float[jax.Array, " N"]], AbstractHessian]
     eps: float = 1e-3
     iter_max: int = 100
 
-    def minimize(self, x0: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+    def _minimize(
+        self,
+        x0: Float[jax.Array, " N"],
+        fun: Callable | None = None,
+        jac: Callable | None = None,
+        hess: Callable | None = None,
+        hessp: Callable | None = None,
+        *,
+        callback: Callable,
+    ) -> scipy.optimize.OptimizeResult:
+        assert jac
+        assert hess
+        result = scipy.optimize.OptimizeResult()
         x: Float[jax.Array, " N"] = x0
         Delta_E0: Float[jax.Array, ""] = jnp.asarray(0.0)
-        g: Float[jax.Array, " N"] = self.jac(x)
+        g: Float[jax.Array, " N"] = jac(x)
         p: Float[jax.Array, " N"] = jnp.zeros_like(x)
         for k in range(self.iter_max):
-            g_next: Float[jax.Array, " N"] = self.jac(x)
-            H: AbstractHessian = self.hess(x)
+            g_next: Float[jax.Array, " N"] = jac(x)
+            H: AbstractHessian = hess(x)
             P_diag: Float[jax.Array, " N"] | None = self.preconditioning(x)
             beta: Float[jax.Array, ""] = (
                 jnp.asarray(0.0) if k == 0 else self.compute_beta(g_next, g, p, P_diag)
@@ -47,11 +58,12 @@ class MinimizePNCG(MinimizeAlgorithm):
             alpha: Float[jax.Array, ""] = -gp / pHp
             x = x + alpha * p
             Delta_E: Float[jax.Array, ""] = -alpha * gp - 0.5 * alpha**2 * pHp
+            callback(result)
             if k == 0:
                 Delta_E0 = Delta_E
             elif Delta_E < self.eps * Delta_E0:
                 break
-        return x
+        return result
 
     def compute_beta(
         self,

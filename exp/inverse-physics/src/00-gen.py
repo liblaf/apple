@@ -10,7 +10,7 @@ from liblaf import grapes
 
 def main() -> None:
     grapes.init_logging()
-    boundary: pv.PolyData = pv.Box(bounds=(0, 5, 0, 1, 0, 1), quads=False)  # pyright: ignore[reportAssignmentType]
+    boundary: pv.PolyData = pv.Cylinder(height=1.0)  # pyright: ignore[reportAssignmentType]
     mesh: pv.UnstructuredGrid = pytetwild.tetrahedralize_pv(
         boundary, edge_length_fac=0.1
     )
@@ -28,10 +28,17 @@ def main() -> None:
         np.full((cells.shape[0],), pv.CellType.TETRA),
         points,
     )
-    fixed_mask: Bool[np.ndarray, " P"] = mesh.points[:, 0] < 1e-3
+    xmin: float
+    xmax: float
+    xmin, xmax, _, _, _, _ = mesh.bounds
+    left_mask: Bool[np.ndarray, " P"] = mesh.points[:, 0] < xmin + 1e-3
+    right_mask: Bool[np.ndarray, " P"] = mesh.points[:, 0] > xmax - 1e-3
     fixed_disp: Float[np.ndarray, "P 3"] = np.zeros((mesh.n_points, 3))
-    mesh.point_data["fixed_mask"] = fixed_mask
+    fixed_disp[left_mask] = [-0.5, 0.0, 0.0]
+    fixed_disp[right_mask] = [0.5, 0.0, 0.0]
+    mesh.point_data["fixed_mask"] = left_mask | right_mask
     mesh.point_data["fixed_disp"] = fixed_disp
+    mesh.point_data["is_surface"] = np.ones((mesh.n_points,), bool)
     mesh.save("data/input.vtu")
 
 

@@ -11,10 +11,10 @@ from liblaf import apple
 
 @jax.tree_util.register_pytree_node_class
 @attrs.define
-class Fixed(apple.PhysicsProblem):
+class Fixed(apple.AbstractPhysicsProblem):
     fixed_mask: Bool[np.ndarray, " D"]
     fixed_values: Float[jax.Array, " D"]
-    problem: apple.PhysicsProblem
+    problem: apple.AbstractPhysicsProblem
 
     @property
     def free_mask(self) -> Bool[np.ndarray, " D"]:

@@ -11,7 +11,7 @@ from liblaf import apple
 
 
 class InversePhysicsProblem(abc.ABC):
-    forward_problem: apple.PhysicsProblem
+    forward_problem: apple.AbstractPhysicsProblem
 
     def forward(
         self, p: Mapping[str, Float[jax.Array, "..."]]
@@ -40,7 +40,7 @@ class InversePhysicsProblem(abc.ABC):
         hess: Float[jax.Array, "DoF DoF"] = self.forward_problem.hess(u, p)
         dJ_du: Float[jax.Array, " DoF"] = self.dJ_du(u, p)
         q: Float[jax.Array, " DoF"] = -jnp.linalg.solve(hess, dJ_du)
-        dh_dp: Mapping[str, Float[jax.Array, " ..."]] = self.forward_problem.dJ_dp(u, p)
+        dh_dp: Mapping[str, Float[jax.Array, " ..."]] = self.forward_problem.dh_dq(u, p)
         dJ_dp: Mapping[str, Float[jax.Array, " ..."]] = self.dJ_dp(u, p)
         return jax.tree.map(
             lambda dJ_dq, dh_dq: dJ_dq

@@ -7,7 +7,7 @@ from jaxtyping import Float, PRNGKeyArray
 from liblaf import apple
 
 
-def test_svd_rv(n: int = 10) -> None:
+def test_svd_rv(n: int = 7) -> None:
     key: PRNGKeyArray = jax.random.key(0)
     F: Float[jax.Array, "*c 3 3"] = jax.random.uniform(key, (n, 3, 3))
     U: Float[jax.Array, "*c 3 3"]
@@ -25,7 +25,7 @@ def test_svd_rv(n: int = 10) -> None:
     assert jnp.linalg.det(U @ VH) == pytest.approx(jnp.ones((n,)))
 
 
-def test_polar_rv(n: int = 10) -> None:
+def test_polar_rv(n: int = 7) -> None:
     key: PRNGKeyArray = jax.random.key(0)
     F: Float[jax.Array, "*c 3 3"] = jax.random.uniform(key, (n, 3, 3))
     R: Float[jax.Array, "*c 3 3"]

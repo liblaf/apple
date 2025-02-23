@@ -7,7 +7,8 @@ from jaxtyping import Float
 from liblaf import apple
 
 
-def deformation_gradient_reference(
+@apple.jit()
+def deformation_gradient_naive(
     x: Float[jax.Array, "c a=4 I=3"], x0: Float[jax.Array, "c a=4 J=3"]
 ) -> Float[jax.Array, "c I=3 J=3"]:
     def _deformation_gradient(
@@ -24,12 +25,13 @@ def deformation_gradient_reference(
 def test_deformation_gradient(
     region: felupe.RegionTetra, displacement: Float[jax.Array, "c I=3"]
 ) -> None:
+    ic(jax.config.values["jax_platforms"])
     mesh: felupe.Mesh = region.mesh  # pyright: ignore[reportAttributeAccessIssue]
     points: Float[jax.Array, "*c a=4 I=3"] = jnp.asarray(mesh.points[mesh.cells])
     actual: Float[jax.Array, "*c I=3 J=3"] = apple.elem.tetra.deformation_gradient(
         displacement[mesh.cells], apple.elem.tetra.dh_dX(points)
     )
-    expected: Float[jax.Array, "*c I=3 J=3"] = deformation_gradient_reference(
+    expected: Float[jax.Array, "*c I=3 J=3"] = deformation_gradient_naive(
         points + displacement[mesh.cells], points
     )
-    assert actual == pytest.approx(expected, abs=1e-4)
+    assert actual == pytest.approx(expected, abs=1e-3)

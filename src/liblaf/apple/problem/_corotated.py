@@ -13,7 +13,7 @@ from liblaf import apple
 
 @jax.tree_util.register_pytree_node_class
 @attrs.define
-class Corotated(apple.PhysicsProblem):
+class Corotated(apple.AbstractPhysicsProblem):
     mesh: felupe.Mesh
     p: Mapping[str, Float[jax.Array, "..."]] = attrs.field(
         factory=lambda: {"lambda": jnp.asarray(3.0), "mu": jnp.asarray(1.0)}

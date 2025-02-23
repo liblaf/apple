@@ -86,7 +86,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/fc/30/d4986a882011f9df997a55e6becd864812ccfcd821d64aac8570ee39f719/attrs-25.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/65/77/ffbe51fd4594ac4ff714453dcbe232a59865e864e86443f4ba10bc2b83b5/autoregistry-1.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/64/69/f6db6e4cb2fe2f887dead40b76caa91af4844cb647dd2c7223bb010aa416/beartype-0.19.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/61/ce/9cf60b72e3fbd36a6dd16e31ecbe9ae137a8ead77cb24a5f75302adfc9a9/beartype-0.20.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/45/7f/0e961cf3908bc4c1c3e027de2794f867c6c89fb4916fc7dba295a0e80a2d/boltons-25.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/93/d8/ba13451aa6b745c49536e87b6bf8f629b950e84bd0e8308f7dc6883b67e2/cairocffi-1.7.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/01/a5/1866b42151f50453f1a0d28fc4c39f5be5f412a2e914f33449c42daafdf1/CairoSVG-2.7.1-py3-none-any.whl
@@ -386,18 +386,20 @@ packages:
   - pytz ; extra == 'dev'
   - setuptools ; extra == 'dev'
   requires_python: '>=3.8'
-- pypi: https://files.pythonhosted.org/packages/64/69/f6db6e4cb2fe2f887dead40b76caa91af4844cb647dd2c7223bb010aa416/beartype-0.19.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/61/ce/9cf60b72e3fbd36a6dd16e31ecbe9ae137a8ead77cb24a5f75302adfc9a9/beartype-0.20.0-py3-none-any.whl
   name: beartype
-  version: 0.19.0
-  sha256: 33b2694eda0daf052eb2aff623ed9a8a586703bbf0a90bbc475a83bbf427f699
+  version: 0.20.0
+  sha256: 090d10e3540b3fca209a0ab5f1c15f9652a075da0a7249c2e6713011e9e5f6ef
   requires_dist:
   - autoapi>=0.9.0 ; extra == 'dev'
+  - click ; extra == 'dev'
   - coverage>=5.5 ; extra == 'dev'
   - equinox ; sys_platform == 'linux' and extra == 'dev'
   - jax[cpu] ; sys_platform == 'linux' and extra == 'dev'
   - jaxtyping ; sys_platform == 'linux' and extra == 'dev'
+  - langchain ; extra == 'dev'
   - mypy>=0.800 ; platform_python_implementation != 'PyPy' and extra == 'dev'
-  - numba ; extra == 'dev'
+  - numba ; python_full_version < '3.13' and extra == 'dev'
   - numpy ; platform_python_implementation != 'PyPy' and sys_platform != 'darwin' and extra == 'dev'
   - pandera ; extra == 'dev'
   - pydata-sphinx-theme<=0.7.2 ; extra == 'dev'
@@ -409,16 +411,19 @@ packages:
   - sphinxext-opengraph>=0.7.5 ; extra == 'dev'
   - tox>=3.20.1 ; extra == 'dev'
   - typing-extensions>=3.10.0.0 ; extra == 'dev'
+  - xarray ; extra == 'dev'
   - autoapi>=0.9.0 ; extra == 'doc-rtd'
   - pydata-sphinx-theme<=0.7.2 ; extra == 'doc-rtd'
   - sphinx>=4.2.0,<6.0.0 ; extra == 'doc-rtd'
   - sphinxext-opengraph>=0.7.5 ; extra == 'doc-rtd'
+  - click ; extra == 'test'
   - coverage>=5.5 ; extra == 'test'
   - equinox ; sys_platform == 'linux' and extra == 'test'
   - jax[cpu] ; sys_platform == 'linux' and extra == 'test'
   - jaxtyping ; sys_platform == 'linux' and extra == 'test'
+  - langchain ; extra == 'test'
   - mypy>=0.800 ; platform_python_implementation != 'PyPy' and extra == 'test'
-  - numba ; extra == 'test'
+  - numba ; python_full_version < '3.13' and extra == 'test'
   - numpy ; platform_python_implementation != 'PyPy' and sys_platform != 'darwin' and extra == 'test'
   - pandera ; extra == 'test'
   - pygments ; extra == 'test'
@@ -427,11 +432,14 @@ packages:
   - sphinx ; python_full_version >= '3.8' and extra == 'test'
   - tox>=3.20.1 ; extra == 'test'
   - typing-extensions>=3.10.0.0 ; extra == 'test'
+  - xarray ; extra == 'test'
+  - click ; extra == 'test-tox'
   - equinox ; sys_platform == 'linux' and extra == 'test-tox'
   - jax[cpu] ; sys_platform == 'linux' and extra == 'test-tox'
   - jaxtyping ; sys_platform == 'linux' and extra == 'test-tox'
+  - langchain ; extra == 'test-tox'
   - mypy>=0.800 ; platform_python_implementation != 'PyPy' and extra == 'test-tox'
-  - numba ; extra == 'test-tox'
+  - numba ; python_full_version < '3.13' and extra == 'test-tox'
   - numpy ; platform_python_implementation != 'PyPy' and sys_platform != 'darwin' and extra == 'test-tox'
   - pandera ; extra == 'test-tox'
   - pygments ; extra == 'test-tox'
@@ -439,8 +447,9 @@ packages:
   - pytest>=4.0.0 ; extra == 'test-tox'
   - sphinx ; python_full_version >= '3.8' and extra == 'test-tox'
   - typing-extensions>=3.10.0.0 ; extra == 'test-tox'
+  - xarray ; extra == 'test-tox'
   - coverage>=5.5 ; extra == 'test-tox-coverage'
-  requires_python: '>=3.8'
+  requires_python: '>=3.9'
 - pypi: https://files.pythonhosted.org/packages/45/7f/0e961cf3908bc4c1c3e027de2794f867c6c89fb4916fc7dba295a0e80a2d/boltons-25.0.0-py3-none-any.whl
   name: boltons
   version: 25.0.0
@@ -1932,11 +1941,11 @@ packages:
   timestamp: 1735584856826
 - pypi: .
   name: liblaf-apple
-  version: 0.0.2.dev2+g60fb1d0.d20250218
-  sha256: 1647d7e515466642d57f80f9af46159c333c2cc94b23d3237394487ae729c4e0
+  version: 0.0.2.dev6+g434a66b.d20250223
+  sha256: 58d8d973c287d083ae257d7ec78b9a3e23394b0310679bd2a1a3106a696ddab4
   requires_dist:
   - autoregistry>=1.1.2,<2
-  - beartype>=0.19.0,<0.20
+  - beartype>=0.20,<0.21
   - einops>=0.8.1,<0.9
   - felupe>=9.1.0,<10
   - jaxtyping>=0.2.38,<0.3

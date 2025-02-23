@@ -83,6 +83,7 @@ ignore = ["W002"]
 
 [tool.coverage.run]
 branch = true
+source = ["src/"]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/liblaf/apple/_version.py"

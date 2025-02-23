@@ -25,7 +25,6 @@ def deformation_gradient_naive(
 def test_deformation_gradient(
     region: felupe.RegionTetra, displacement: Float[jax.Array, "c I=3"]
 ) -> None:
-    ic(jax.config.values["jax_platforms"])
     mesh: felupe.Mesh = region.mesh  # pyright: ignore[reportAttributeAccessIssue]
     points: Float[jax.Array, "*c a=4 I=3"] = jnp.asarray(mesh.points[mesh.cells])
     actual: Float[jax.Array, "*c I=3 J=3"] = apple.elem.tetra.deformation_gradient(

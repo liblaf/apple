@@ -1,6 +1,27 @@
 # Changelog
 
-## [0.0.1](https://github.com/liblaf/apple/compare/v0.0.0..v0.0.1) - 2025-02-14
+## [0.0.2](https://github.com/liblaf/apple/compare/v0.0.1..v0.0.2) - 2025-02-23
+
+### ✨ Features
+
+- refactor physics simulation and add inverse problem solver - ([e7ea071](https://github.com/liblaf/apple/commit/e7ea07113d2fa8ee4adee2ab5c1637cd81ca9aee))
+
+### ⬆️ Dependencies
+
+- **deps:** update dependency beartype to >=0.20,<0.21 (#8) - ([df34ec2](https://github.com/liblaf/apple/commit/df34ec25a774e7c6858cd579747ec972da40926b))
+- **deps:** update dependency liblaf-grapes to >=0.1.0,<0.1.1 (#5) - ([60fb1d0](https://github.com/liblaf/apple/commit/60fb1d09e62d7f10e520f40c7c4a22956a041ce9))
+
+### ♻ Code Refactoring
+
+- remove unnecessary JAX configuration log - ([2587b4e](https://github.com/liblaf/apple/commit/2587b4ee542fe3e47eafcefe58c9f4ca7bafd5a8))
+- reorganize and enhance abstract classes and utilities - ([5f16903](https://github.com/liblaf/apple/commit/5f169036cd636ab9480e4f29004075e6af8f6939))
+
+### ❤️ New Contributors
+
+- @liblaf made their first contribution
+- @renovate[bot] made their first contribution in [#8](https://github.com/liblaf/apple/pull/8)
+
+## [0.0.1](https://github.com/liblaf/apple/compare/v0.0.0..v0.0.1) - 2025-02-16
 
 ### ✨ Features
 
@@ -21,7 +42,7 @@
 
 ### ❤️ New Contributors
 
-- @liblaf made their first contribution
+- @github-actions[bot] made their first contribution in [#3](https://github.com/liblaf/apple/pull/3)
 - @renovate[bot] made their first contribution in [#4](https://github.com/liblaf/apple/pull/4)
 
 ## [0.0.0] - 2025-01-19

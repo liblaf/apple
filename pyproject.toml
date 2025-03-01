@@ -14,7 +14,7 @@ build = [
 dev = [
   "icecream>=2.1.4,<3",
   "ipykernel>=6.29.5,<7",
-  "ipython>=8.32.0,<9",
+  "ipython>=9,<10",
   "pytetwild>=0.1.dev1,<0.2",
   "typer>=0.15.1,<0.16",
 ]

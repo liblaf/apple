@@ -4,11 +4,13 @@ import beartype
 import jax
 import jax.numpy as jnp
 import jaxtyping
+import pylops
 from jaxtyping import Float
 
 from liblaf import apple
 
 
+@apple.jit(static_argnames=["fun"])
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hess_diag(
     fun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, ""]],
@@ -25,15 +27,17 @@ def hess_diag(
 
 
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
-def hess_as_linear_operator(
+def hess_as_operator(
     fun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, ""]],
     x: Float[jax.Array, " N"],
-) -> apple.LinearOperator:
-    f_hvp: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]] = hvp_fun(fun, x)
-    y: jax.ShapeDtypeStruct = jax.eval_shape(f_hvp, x)
-    return apple.LinearOperator(dtype=y.dtype, shape=(*y.shape, *x.shape), matvec=f_hvp)
+) -> pylops.LinearOperator:
+    hvp: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]] = hvp_fun(fun, x)
+    return pylops.JaxOperator(
+        pylops.FunctionOperator(hvp, hvp, x.size, x.size, dtype=x.dtype)
+    )
 
 
+@apple.jit(static_argnames=["fun"])
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hvp(
     fun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, ""]],
@@ -52,29 +56,10 @@ def hvp_fun(
 ) -> Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]]:
     f_hvp: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]]
     _y, f_hvp = jax.linearize(jax.grad(fun), x)
-    return f_hvp
+    f_hvp = jax.jit(f_hvp)
 
+    def hvp(v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+        v = jnp.asarray(v, dtype=x.dtype)
+        return f_hvp(v)
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
-def vhp(
-    fun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, ""]],
-    x: Float[jax.Array, " N"],
-    v: Float[jax.Array, " N"],
-) -> Float[jax.Array, " N"]:
-    return hvp_fun(fun, x)(v)
-
-
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
-def vhp_fun(
-    fun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, ""]],
-    x: Float[jax.Array, " N"],
-) -> Callable[[Float[jax.Array, " N"]], Float[jax.Array, " N"]]:
-    vhpfun: Callable[[Float[jax.Array, " N"]], tuple[Float[jax.Array, " N"]]]
-    _primals_out, vhpfun = jax.vjp(jax.grad(fun), x)
-
-    def vhp_fun(v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
-        result: Float[jax.Array, " N"]
-        (result,) = vhpfun(v)
-        return result
-
-    return vhp_fun
+    return hvp

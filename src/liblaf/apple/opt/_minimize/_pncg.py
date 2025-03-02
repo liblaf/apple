@@ -1,29 +1,20 @@
-from collections.abc import Callable
-from typing import Protocol
+from collections.abc import Callable, Sequence
 
 import attrs
 import jax
 import jax.numpy as jnp
+import pylops
 import scipy.optimize
 from jaxtyping import Float
+
+from liblaf import apple
 
 from . import MinimizeAlgorithm
 
 
-class AbstractHessian(Protocol):
-    def __matmul__(self, other: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
-        raise NotImplementedError
-
-    def __rmatmul__(self, other: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
-        raise NotImplementedError
-
-    def diagonal(self) -> Float[jax.Array, " N"]:
-        raise NotImplementedError
-
-
 @attrs.frozen
 class MinimizePNCG(MinimizeAlgorithm):
-    eps: float = 1e-3
+    eps: float = 1e-10
     iter_max: int = 100
 
     def _minimize(
@@ -34,10 +25,12 @@ class MinimizePNCG(MinimizeAlgorithm):
         hess: Callable | None = None,
         hessp: Callable | None = None,
         *,
+        bounds: Sequence | None = None,
         callback: Callable,
     ) -> scipy.optimize.OptimizeResult:
-        assert jac
-        assert hess
+        assert fun is not None
+        assert jac is not None
+        assert hess is not None
         result = scipy.optimize.OptimizeResult()
         x: Float[jax.Array, " N"] = x0
         Delta_E0: Float[jax.Array, ""] = jnp.asarray(0.0)
@@ -45,8 +38,8 @@ class MinimizePNCG(MinimizeAlgorithm):
         p: Float[jax.Array, " N"] = jnp.zeros_like(x)
         for k in range(self.iter_max):
             g_next: Float[jax.Array, " N"] = jac(x)
-            H: AbstractHessian = hess(x)
-            P_diag: Float[jax.Array, " N"] | None = self.preconditioning(x)
+            H: pylops.LinearOperator = hess(x)
+            P_diag: Float[jax.Array, " N"] | None = self.preconditioning(H)
             beta: Float[jax.Array, ""] = (
                 jnp.asarray(0.0) if k == 0 else self.compute_beta(g_next, g, p, P_diag)
             )
@@ -54,10 +47,12 @@ class MinimizePNCG(MinimizeAlgorithm):
             Pg: Float[jax.Array, " N"] = g if P_diag is None else P_diag * g
             p: Float[jax.Array, " N"] = -Pg + beta * p
             gp: Float[jax.Array, ""] = jnp.dot(g, p)
-            pHp: Float[jax.Array, ""] = jnp.dot(p, H @ p)
+            pHp: Float[jax.Array, ""] = jnp.dot(p, H @ p)  # pyright: ignore[reportArgumentType]
             alpha: Float[jax.Array, ""] = -gp / pHp
             x = x + alpha * p
+            result["x"] = x
             Delta_E: Float[jax.Array, ""] = -alpha * gp - 0.5 * alpha**2 * pHp
+            Delta_E = jnp.abs(Delta_E)  # TODO: fix this workaround
             callback(result)
             if k == 0:
                 Delta_E0 = Delta_E
@@ -80,8 +75,7 @@ class MinimizePNCG(MinimizeAlgorithm):
         ) * (jnp.dot(p, g_next) / yp)
         return beta
 
-    def preconditioning(self, H: AbstractHessian) -> Float[jax.Array, " N"] | None:
-        try:
-            return 1.0 / H.diagonal()
-        except NotImplementedError:
-            return None
+    def preconditioning(
+        self, H: pylops.LinearOperator
+    ) -> Float[jax.Array, " N"] | None:
+        return apple.diagonal(H)

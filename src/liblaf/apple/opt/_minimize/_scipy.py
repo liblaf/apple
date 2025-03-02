@@ -1,10 +1,16 @@
+import functools
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 import attrs
 import jax
+import jax.numpy as jnp
+import numpy as np
 import scipy
+import scipy.linalg
 import scipy.optimize
+import scipy.sparse
+import scipy.sparse.linalg
 from jaxtyping import Float
 
 from . import MinimizeAlgorithm
@@ -14,7 +20,6 @@ from . import MinimizeAlgorithm
 class MinimizeScipy(MinimizeAlgorithm):
     method: str | None = None
     options: Mapping[str, Any] = {"disp": True}
-    bounds: Sequence | None = None
 
     def _minimize(
         self,
@@ -24,8 +29,24 @@ class MinimizeScipy(MinimizeAlgorithm):
         hess: Callable | None = None,
         hessp: Callable | None = None,
         *,
+        bounds: Sequence | None = None,
         callback: Callable | None = None,
     ) -> scipy.optimize.OptimizeResult:
+        if (
+            self.method
+            and (self.method.lower() in ["newton-cg", "trust-constr"])
+            and (hess is not None)
+        ):
+            hess_raw = hess
+
+            @functools.wraps(hess_raw)
+            def hess(x: Float[jax.Array, " N"]) -> scipy.sparse.linalg.LinearOperator:
+                x = jnp.asarray(x, dtype=float)
+                H = hess_raw(x)
+                if isinstance(H, jax.Array):
+                    H = np.asarray(H)
+                return scipy.sparse.linalg.aslinearoperator(H)
+
         return scipy.optimize.minimize(
             fun=fun,
             x0=x0,
@@ -33,7 +54,7 @@ class MinimizeScipy(MinimizeAlgorithm):
             jac=jac,
             hess=hess,
             hessp=hessp,
-            bounds=self.bounds,
+            bounds=bounds,
             options=self.options,
             callback=callback,
         )

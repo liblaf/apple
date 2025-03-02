@@ -1,16 +1,12 @@
 import abc
-from collections.abc import Callable
-from typing import NoReturn, Protocol
+from collections.abc import Callable, Sequence
+from typing import Protocol
 
 import jax
 import scipy.optimize
 from jaxtyping import Float
 
 from liblaf import grapes
-
-
-def NOT_IMPLEMENTED() -> NoReturn:
-    raise NotImplementedError
 
 
 class Callback(Protocol):
@@ -22,31 +18,33 @@ class MinimizeAlgorithm(abc.ABC):
         self,
         x0: Float[jax.Array, " N"],
         fun: Callable | None = None,
-        *,
         jac: Callable | None = None,
         hess: Callable | None = None,
         hessp: Callable | None = None,
+        *,
+        bounds: Sequence | None = None,
         callback: Callback | None = None,
     ) -> scipy.optimize.OptimizeResult:
-        fun = grapes.timer()(fun) if fun else None
-        jac = grapes.timer()(jac) if jac else None
-        hess = grapes.timer()(hess) if hess else None
-        hessp = grapes.timer()(hessp) if hessp else None
+        fun = grapes.timer(label="fun()")(fun) if fun is not None else None
+        jac = grapes.timer(label="jac()")(jac) if jac is not None else None
+        hess = grapes.timer(label="hess()")(hess) if hess is not None else None
+        hessp = grapes.timer(label="hessp()")(hessp) if hessp is not None else None
 
-        @grapes.timer()
+        @grapes.timer(label="callback()")
         def callback_wrapped(
             intermediate_result: scipy.optimize.OptimizeResult,
         ) -> None:
             if callback:
                 callback(intermediate_result)
 
-        with grapes.timer() as timer:
+        with grapes.timer(label="minimize") as timer:
             result: scipy.optimize.OptimizeResult = self._minimize(
-                fun=fun,
                 x0=x0,
+                fun=fun,
                 jac=jac,
                 hess=hess,
                 hessp=hessp,
+                bounds=bounds,
                 callback=callback_wrapped,
             )
         for key, value in timer.row(-1).items():
@@ -54,12 +52,16 @@ class MinimizeAlgorithm(abc.ABC):
         result["n_iter"] = callback_wrapped.count
         if fun:
             result["n_fun"] = fun.count
+            fun.log_summary()
         if jac:
             result["n_jac"] = jac.count
+            jac.log_summary()
         if hess:
             result["n_hess"] = hess.count
+            hess.log_summary()
         if hessp:
             result["n_hessp"] = hessp.count
+            hessp.log_summary()
         return result
 
     @abc.abstractmethod
@@ -71,5 +73,6 @@ class MinimizeAlgorithm(abc.ABC):
         hess: Callable | None = None,
         hessp: Callable | None = None,
         *,
+        bounds: Sequence | None = None,
         callback: Callable,
     ) -> scipy.optimize.OptimizeResult: ...

@@ -33,4 +33,4 @@ def test_deformation_gradient(
     expected: Float[jax.Array, "*c I=3 J=3"] = deformation_gradient_naive(
         points + displacement[mesh.cells], points
     )
-    assert actual == pytest.approx(expected, abs=1e-3)
+    assert actual == pytest.approx(expected, abs=1e-4)

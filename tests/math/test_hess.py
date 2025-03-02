@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+import pylops
 import pytest
 from jaxtyping import Float, PRNGKeyArray
 
@@ -31,11 +32,11 @@ def test_hess_diag(hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"]) -> N
     assert actual == pytest.approx(expected)
 
 
-def test_hess_as_linear_opearator(
+def test_hess_as_opearator(
     hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
 ) -> None:
-    op: apple.LinearOperator = apple.hess_as_linear_operator(apple.rosen, x)
-    actual: Float[jax.Array, " N"] = op.matvec(v)
+    op: pylops.LinearOperator = apple.hess_as_operator(apple.rosen, x)
+    actual: Float[jax.Array, " N"] = op @ v  # pyright: ignore[reportAssignmentType]
     expected: Float[jax.Array, " N"] = hess @ v
     assert actual == pytest.approx(expected)
 
@@ -48,25 +49,9 @@ def test_hvp(
     assert actual == pytest.approx(expected)
 
 
-def test_hvp_linearize(
+def test_hvp_fun(
     hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
 ) -> None:
     actual: Float[jax.Array, " N"] = apple.hvp_fun(apple.rosen, x)(v)
     expected: Float[jax.Array, " N"] = hess @ v
-    assert actual == pytest.approx(expected)
-
-
-def test_vhp(
-    hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
-) -> None:
-    actual: Float[jax.Array, " N"] = apple.vhp(apple.rosen, x, v)
-    expected: Float[jax.Array, " N"] = v @ hess
-    assert actual == pytest.approx(expected)
-
-
-def test_vhp_linearize(
-    hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
-) -> None:
-    actual: Float[jax.Array, " N"] = apple.vhp_fun(apple.rosen, x)(v)
-    expected: Float[jax.Array, " N"] = v @ hess
     assert actual == pytest.approx(expected)

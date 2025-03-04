@@ -1,10 +1,9 @@
 from collections.abc import Callable, Sequence
 
 import jax
-import scipy.optimize
 from jaxtyping import Float
 
-from . import MinimizeAlgorithm, MinimizeScipy
+from . import MinimizeAlgorithm, MinimizeResult, MinimizeScipy
 
 
 def minimize(
@@ -17,11 +16,12 @@ def minimize(
     algo: MinimizeAlgorithm | None = None,
     bounds: Sequence | None = None,
     callback: Callable | None = None,
-) -> scipy.optimize.OptimizeResult:
+) -> MinimizeResult:
     if algo is None:
         algo = MinimizeScipy(
             method="trust-constr", options={"disp": True, "verbose": 3}
         )
+        # algo = MinimizePNCG()
     return algo.minimize(
         fun=fun,
         x0=x0,

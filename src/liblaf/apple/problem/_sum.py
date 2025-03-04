@@ -32,6 +32,11 @@ class Sum(apple.AbstractPhysicsProblem):
             jnp.asarray([problem.fun_flat(u_flat, q_flat) for problem in self.problems])
         )
 
+    def prepare(self, q: PyTree | None = None) -> None:
+        super().prepare(q)
+        for prob in self.problems:
+            prob.prepare(q)
+
     @override
     def ravel_u(self, u: PyTree) -> Float[jax.Array, " DoF"]:
         return self.problems[0].ravel_u(u)
@@ -39,17 +44,3 @@ class Sum(apple.AbstractPhysicsProblem):
     @override
     def unravel_u(self, u_flat: Float[jax.Array, " DoF"]) -> PyTree:
         return self.problems[0].unravel_u(u_flat)
-
-
-@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
-class SumBuilder(apple.AbstractPhysicsProblemBuilder):
-    name: str = attrs.field(default="sum", metadata={"static": True})
-    problems: list[apple.AbstractPhysicsProblemBuilder]
-
-    def build(self, q: PyTree | None = None) -> Sum:
-        super().build(q)
-        return Sum(
-            name=self.name,
-            problems=[problem.build(q) for problem in self.problems],
-            _q_unravel=self._q_unravel,
-        )

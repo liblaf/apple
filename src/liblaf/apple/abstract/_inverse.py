@@ -3,8 +3,8 @@ import abc
 import attrs
 import jax
 import jax.flatten_util
-import jax.numpy as jnp
 import pylops
+import pylops.optimization.basic
 import scipy.optimize
 from jaxtyping import Float, PyTree
 
@@ -15,9 +15,14 @@ from liblaf import apple
 @attrs.define(kw_only=True)
 class InversePhysicsProblem(abc.ABC):
     forward_problem: apple.AbstractPhysicsProblem
+    forward_algo: apple.MinimizeAlgorithm | None = attrs.field(
+        default=apple.MinimizeScipy(method="trust-constr"), metadata={"static": True}
+    )
 
     def forward(self, q: PyTree) -> Float[jax.Array, " DoF"]:
-        result: scipy.optimize.OptimizeResult = self.forward_problem.solve(q=q)
+        result: scipy.optimize.OptimizeResult = self.forward_problem.solve(
+            q=q, algo=self.forward_algo
+        )
         return result["x"]
 
     def forward_flat(self, q_flat: Float[jax.Array, " Q"]) -> Float[jax.Array, " DoF"]:
@@ -51,18 +56,18 @@ class InversePhysicsProblem(abc.ABC):
         p: PyTree = self.unravel_q(q_flat)
         return self.objective(u, p)
 
-    @apple.jit()
     def _jac(
         self, u_flat: Float[jax.Array, " DoF"], q_flat: Float[jax.Array, " Q"]
     ) -> Float[jax.Array, " Q"]:
         hess: pylops.LinearOperator = self.forward_problem.hess_flat(u_flat, q_flat)
         dJ_du: Float[jax.Array, " DoF"] = self.dJ_du_flat(u_flat, q_flat)
-        p: Float[jax.Array, " DoF"] = -jnp.linalg.solve(hess, dJ_du)
+        result: apple.LinearResult = apple.cgls(hess, dJ_du)
+        p: Float[jax.Array, " DoF"] = result["x"]
         dh_dq: Float[pylops.LinearOperator, "DoF Q"] = self.forward_problem.dh_dq_flat(
             u_flat, q_flat
         )
         dJ_dq: Float[jax.Array, " Q"] = self.dJ_dq_flat(u_flat, q_flat)
-        return dJ_dq + p @ dh_dq  # pyright: ignore[reportReturnType]
+        return dJ_dq + dh_dq.rmatvec(p)  # pyright: ignore[reportReturnType]
 
     @apple.jit()
     def dJ_du_flat(

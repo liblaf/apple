@@ -4,18 +4,19 @@ import attrs
 import jax
 import jax.numpy as jnp
 import pylops
-import scipy.optimize
 from jaxtyping import Float
+from loguru import logger
 
 from liblaf import apple
 
-from . import MinimizeAlgorithm
+from . import MinimizeAlgorithm, MinimizeResult
 
 
 @attrs.frozen
 class MinimizePNCG(MinimizeAlgorithm):
     eps: float = 1e-10
     iter_max: int = 100
+    d_hat: float = 0.004
 
     def _minimize(
         self,
@@ -27,11 +28,11 @@ class MinimizePNCG(MinimizeAlgorithm):
         *,
         bounds: Sequence | None = None,
         callback: Callable,
-    ) -> scipy.optimize.OptimizeResult:
+    ) -> MinimizeResult:
         assert fun is not None
         assert jac is not None
         assert hess is not None
-        result = scipy.optimize.OptimizeResult()
+        result = MinimizeResult()
         x: Float[jax.Array, " N"] = x0
         Delta_E0: Float[jax.Array, ""] = jnp.asarray(0.0)
         g: Float[jax.Array, " N"] = jac(x)
@@ -48,11 +49,15 @@ class MinimizePNCG(MinimizeAlgorithm):
             p: Float[jax.Array, " N"] = -Pg + beta * p
             gp: Float[jax.Array, ""] = jnp.dot(g, p)
             pHp: Float[jax.Array, ""] = jnp.dot(p, H @ p)  # pyright: ignore[reportArgumentType]
-            alpha: Float[jax.Array, ""] = -gp / pHp
+            alpha: Float[jax.Array, ""] = jnp.minimum(
+                self.d_hat / (2 * jnp.max(jnp.abs(p))), -gp / pHp
+            )
             x = x + alpha * p
             result["x"] = x
             Delta_E: Float[jax.Array, ""] = -alpha * gp - 0.5 * alpha**2 * pHp
-            Delta_E = jnp.abs(Delta_E)  # TODO: fix this workaround
+            if Delta_E < 0:
+                logger.warning(f"Delta_E = {Delta_E}")
+                Delta_E = jnp.abs(Delta_E)  # TODO: fix this workaround
             callback(result)
             if k == 0:
                 Delta_E0 = Delta_E

@@ -13,7 +13,6 @@ from . import (
 from ._version import __version__, __version_tuple__, version, version_tuple
 from .abstract import (
     AbstractPhysicsProblem,
-    AbstractPhysicsProblemBuilder,
     InversePhysicsProblem,
     LinearOperator,
     as_linear_operator,
@@ -29,45 +28,57 @@ from .math import (
     polar_rv,
     svd_rv,
 )
-from .opt import MinimizeAlgorithm, MinimizePNCG, MinimizeScipy, minimize
+from .opt import (
+    LinearResult,
+    MinimizeAlgorithm,
+    MinimizePNCG,
+    MinimizeResult,
+    MinimizeScipy,
+    cgls,
+    minimize,
+)
 from .problem import (
     Corotated,
-    CorotatedBuilder,
     Fixed,
-    FixedBuilder,
     Gravity,
-    GravityBuilder,
     Sum,
-    SumBuilder,
 )
 from .region import Region, RegionTetra
 from .types import Unraveler
-from .utils import as_jax, clone, jit, merge, register_dataclass, rosen, tetwild
+from .utils import (
+    RichResult,
+    as_jax,
+    clone,
+    jit,
+    merge,
+    register_dataclass,
+    rosen,
+    tetwild,
+)
 
 __all__ = [
     "AbstractPhysicsProblem",
-    "AbstractPhysicsProblemBuilder",
     "Corotated",
-    "CorotatedBuilder",
     "Fixed",
-    "FixedBuilder",
     "Gravity",
-    "GravityBuilder",
     "InversePhysicsProblem",
     "LinearOperator",
+    "LinearResult",
     "MinimizeAlgorithm",
     "MinimizePNCG",
+    "MinimizeResult",
     "MinimizeScipy",
     "Region",
     "RegionTetra",
+    "RichResult",
     "Sum",
-    "SumBuilder",
     "Unraveler",
     "__version__",
     "__version_tuple__",
     "abstract",
     "as_jax",
     "as_linear_operator",
+    "cgls",
     "clone",
     "constitution",
     "diagonal",

@@ -13,12 +13,13 @@ import scipy.sparse
 import scipy.sparse.linalg
 from jaxtyping import Float
 
-from . import MinimizeAlgorithm
+from . import MinimizeAlgorithm, MinimizeResult
 
 
 @attrs.frozen
 class MinimizeScipy(MinimizeAlgorithm):
     method: str | None = None
+    tol: float | None = None
     options: Mapping[str, Any] = {"disp": True}
 
     def _minimize(
@@ -31,7 +32,7 @@ class MinimizeScipy(MinimizeAlgorithm):
         *,
         bounds: Sequence | None = None,
         callback: Callable | None = None,
-    ) -> scipy.optimize.OptimizeResult:
+    ) -> MinimizeResult:
         if (
             self.method
             and (self.method.lower() in ["newton-cg", "trust-constr"])
@@ -47,7 +48,7 @@ class MinimizeScipy(MinimizeAlgorithm):
                     H = np.asarray(H)
                 return scipy.sparse.linalg.aslinearoperator(H)
 
-        return scipy.optimize.minimize(
+        scipy_result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
             fun=fun,
             x0=x0,
             method=self.method,
@@ -55,6 +56,9 @@ class MinimizeScipy(MinimizeAlgorithm):
             hess=hess,
             hessp=hessp,
             bounds=bounds,
+            tol=self.tol,
             options=self.options,
             callback=callback,
         )
+        scipy_result["x"] = jnp.asarray(scipy_result["x"])
+        return MinimizeResult(scipy_result)

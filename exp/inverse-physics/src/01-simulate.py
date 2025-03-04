@@ -22,24 +22,22 @@ def main() -> None:
     fixed_values: Float[jax.Array, " D"] = jnp.asarray(
         mesh.point_data["fixed_disp"].flatten()
     )
-    builder: apple.AbstractPhysicsProblemBuilder = apple.FixedBuilder(
-        problem=apple.SumBuilder(
+    problem: apple.AbstractPhysicsProblem = apple.Fixed(
+        problem=apple.Sum(
             problems=[
-                apple.CorotatedBuilder(
+                apple.Corotated(
                     mesh=mesh_felupe,
-                    lambda_=mesh.cell_data["lambda"],
+                    lmbda=mesh.cell_data["lmbda"],
                     mu=mesh.cell_data["mu"],
                 ),
-                apple.GravityBuilder(
-                    mass=apple.elem.tetra.mass(mesh), n_points=mesh.n_points
-                ),
+                apple.Gravity(mass=apple.elem.tetra.mass(mesh), n_points=mesh.n_points),
             ]
         ),
         fixed_mask=fixed_mask,
         fixed_values=fixed_values,
     )
     q: PyTree = {}
-    problem: apple.Fixed = builder.build(q)
+    problem.prepare(q)
     result: scipy.optimize.OptimizeResult = problem.solve(q)
     ic(result)
     u: Float[jax.Array, " D"] = problem.fill(result["x"])

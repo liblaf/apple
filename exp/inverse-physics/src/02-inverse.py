@@ -21,19 +21,29 @@ def load_forward_physics() -> apple.Fixed:
     fixed_values: Float[jax.Array, " D"] = jnp.asarray(
         mesh.point_data["fixed_disp"].flatten()
     )
-    problem: apple.AbstractPhysicsProblem = apple.Fixed(
-        problem=apple.Corotated(
-            mesh=mesh_felupe,
-            params={"lambda": jnp.asarray(3e3), "mu": jnp.asarray(1e3)},
+    builder: apple.AbstractPhysicsProblem = apple.Fixed(
+        problem=apple.Sum(
+            problems=[
+                apple.Corotated(
+                    mesh=mesh_felupe,
+                    lmbda=mesh.cell_data["lmbda"],
+                    mu=mesh.cell_data["mu"],
+                ),
+                apple.Gravity(mass=apple.elem.tetra.mass(mesh), n_points=mesh.n_points),
+            ]
         ),
         fixed_mask=fixed_mask,
         fixed_values=fixed_values,
     )
-    return problem
+    return builder
+
+
+def regularization(q: Float[jax.Array, " N"]) -> Float[jax.Array, ""]:
+    return jnp.var(q)
 
 
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
 class InverseProblem(apple.InversePhysicsProblem):
     forward_problem: apple.Fixed  # pyright: ignore[reportIncompatibleVariableOverride]
     target: pv.UnstructuredGrid = attrs.field(metadata={"static": True})
@@ -51,8 +61,10 @@ class InverseProblem(apple.InversePhysicsProblem):
             )
             ** 2
         )
-        regular: Float[jax.Array, ""] = jnp.sum(q["lambda"] ** 2)
-        return loss
+        loss_regular: Float[jax.Array, ""] = regularization(
+            q["corotated"]["lmbda"]
+        ) + regularization(q["corotated"]["mu"])
+        return loss + 1e-10 * loss_regular
 
 
 def main() -> None:
@@ -60,25 +72,56 @@ def main() -> None:
     undeformed: pv.UnstructuredGrid = pv.read("data/input.vtu")  # pyright: ignore[reportAssignmentType]
     target: pv.UnstructuredGrid = pv.read("data/target.vtu")  # pyright: ignore[reportAssignmentType]
     forward: apple.Fixed = load_forward_physics()
-    forward.prepare()
     inverse = InverseProblem(forward_problem=forward, target=target)
-    q0: PyTree = {"lambda": jnp.asarray(0.0)}
+    q0: PyTree = {
+        "corotated": {
+            "lmbda": jnp.full((undeformed.n_cells,), 3e3),
+            "mu": jnp.full((undeformed.n_cells,), 1e3),
+        }
+    }
+    forward.prepare(q0)
+    q0_flat: Float[jax.Array, " Q"] = inverse.ravel_q(q0)
+    x0_flat: Float[jax.Array, " Q"] = jnp.log(q0_flat)
+
+    def composite(x_flat: Float[jax.Array, " Q"]) -> Float[jax.Array, " Q"]:
+        return jnp.exp(x_flat)
+
+    def fun(x_flat: Float[jax.Array, " Q"]) -> Float[jax.Array, ""]:
+        x_flat = jnp.asarray(x_flat)
+        q_flat: Float[jax.Array, " Q"] = composite(x_flat)
+        return inverse.fun_flat(q_flat)
+
+    def jac(x_flat: Float[jax.Array, " Q"]) -> Float[jax.Array, " Q"]:
+        x_flat = jnp.asarray(x_flat)
+        q_flat: Float[jax.Array, " Q"] = composite(x_flat)
+        dJ_dq: Float[jax.Array, " Q"] = inverse.jac_flat(q_flat)
+        dJ_dx: Float[jax.Array, " Q"] = apple.math.vjp_fun(composite, x_flat)(dJ_dq)
+        return dJ_dx
 
     def callback(intermediate_result: scipy.optimize.OptimizeResult) -> None:
         ic(intermediate_result)
 
     result: scipy.optimize.OptimizeResult = apple.minimize(
-        x0=inverse.ravel_q(q0),
-        fun=inverse.fun_flat,
-        jac=inverse.jac_flat,
-        algo=apple.opt.MinimizeScipy(method="L-BFGS-B"),
+        x0=x0_flat,
+        fun=fun,
+        jac=jac,
+        algo=apple.opt.MinimizeScipy(
+            method="L-BFGS-B", tol=1e-10, options={"disp": True}
+        ),
         callback=callback,
     )
     ic(result)
-    q: PyTree = inverse.unravel_q(result["x"])
+    x_flat: Float[jax.Array, " Q"] = result["x"]
+    q_flat: Float[jax.Array, " Q"] = composite(x_flat)
+    q: PyTree = inverse.unravel_q(q_flat)
     ic(q)
     u: PyTree = inverse.forward(q)
     undeformed.point_data["solution"] = forward.fill(u)
+    undeformed.cell_data["lmbda"] = q["corotated"]["lmbda"]
+    undeformed.cell_data["mu"] = q["corotated"]["mu"]
+    undeformed.cell_data["E"], undeformed.cell_data["nu"] = (
+        apple.constitution.lame_to_E_nu(q["corotated"]["lmbda"], q["corotated"]["mu"])
+    )
     undeformed.warp_by_vector("solution", inplace=True)
     undeformed.save("data/inverse.vtu")
 

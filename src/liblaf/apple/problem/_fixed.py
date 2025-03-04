@@ -1,8 +1,7 @@
-from typing import overload
+from typing import overload, override
 
 import attrs
 import jax
-import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Bool, Float, PyTree
 
@@ -13,9 +12,9 @@ from liblaf import apple
 @attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
 class Fixed(apple.AbstractPhysicsProblem):
     name: str = attrs.field(default="fixed", metadata={"static": True})
-    problem: apple.AbstractPhysicsProblem
+    problem: apple.AbstractPhysicsProblem = attrs.field()
     fixed_mask: Bool[np.ndarray, " D"] = attrs.field(metadata={"static": True})
-    fixed_values: Float[jax.Array, " D"]
+    fixed_values: Float[jax.Array, " D"] = attrs.field()
 
     @property
     def free_mask(self) -> Bool[np.ndarray, " D"]:
@@ -51,6 +50,12 @@ class Fixed(apple.AbstractPhysicsProblem):
         u_flat: Float[jax.Array, " D"] = self.fill_flat(u_flat)
         return self.problem.fun_flat(u_flat, q_flat)
 
+    @override
+    def prepare(self, q: PyTree | None = None) -> None:
+        super().prepare(q)
+        self.problem.prepare(q)
+        self.fixed_values = self.get_param("fixed_values", q)
+
     @overload
     def ravel_q(self, q: PyTree) -> Float[jax.Array, " Q"]: ...
     @overload
@@ -60,21 +65,3 @@ class Fixed(apple.AbstractPhysicsProblem):
 
     def unravel_q(self, q_flat: Float[jax.Array, " Q"] | None) -> PyTree | None:
         return self.problem.unravel_q(q_flat)
-
-
-@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
-class FixedBuilder(apple.AbstractPhysicsProblemBuilder):
-    name: str = attrs.field(default="fixed", metadata={"static": True})
-    problem: apple.AbstractPhysicsProblemBuilder
-    fixed_mask: Bool[np.ndarray, " D"] = attrs.field(converter=np.asarray)
-    fixed_values: Float[jax.Array, " D"] = attrs.field(converter=jnp.asarray)
-
-    def build(self, q: PyTree | None = None) -> Fixed:
-        super().build(q)
-        return Fixed(
-            name=self.name,
-            fixed_mask=self.fixed_mask,
-            fixed_values=self.get_param("fixed_values", q),
-            problem=self.problem.build(q),
-            _q_unravel=self._q_unravel,
-        )

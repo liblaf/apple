@@ -16,15 +16,15 @@ class Corotated(apple.AbstractPhysicsProblem):
     name: str = attrs.field(default="corotated", metadata={"static": True})
     mesh: felupe.Mesh = attrs.field(metadata={"static": True})
     # Auxiliaries
-    dh_dX: Float[jax.Array, " C 4 3"] = attrs.field(converter=jnp.asarray)
-    dV: Float[jax.Array, " C"] = attrs.field(converter=jnp.asarray)
+    dh_dX: Float[jax.Array, " C 4 3"] = attrs.field(default=None, converter=jnp.asarray)
+    dV: Float[jax.Array, " C"] = attrs.field(default=None, converter=jnp.asarray)
     # Parameters
-    lambda_: Float[jax.Array, "..."] = attrs.field(
-        converter=jnp.asarray, factory=lambda: jnp.asarray(3.0)
+    lmbda: Float[jax.Array, "..."] = attrs.field(
+        converter=jnp.asarray, factory=lambda: jnp.asarray(3e3)
     )
     """Lamé's first parameter."""
     mu: Float[jax.Array, "..."] = attrs.field(
-        converter=jnp.asarray, factory=lambda: jnp.asarray(1.0)
+        converter=jnp.asarray, factory=lambda: jnp.asarray(1e3)
     )
     """Lamé's second parameter."""
 
@@ -52,60 +52,40 @@ class Corotated(apple.AbstractPhysicsProblem):
     def points(self) -> Float[jax.Array, "P 3"]:
         return jnp.asarray(self.mesh.points)
 
-    @apple.jit()
     @override
+    @apple.jit()
     def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]:
         u: Float[jax.Array, "C 4 3"] = u[self.cells]
-        lambda_: Float[jax.Array, " ..."] = self.get_param("lambda_", q)
+        lmbda: Float[jax.Array, " ..."] = self.get_param("lmbda", q)
         mu: Float[jax.Array, " ..."] = self.get_param("mu", q)
-        lambda_: Float[jax.Array, " C"] = jnp.broadcast_to(lambda_, (self.n_cells,))
+        lmbda: Float[jax.Array, " C"] = jnp.broadcast_to(lmbda, (self.n_cells,))
         mu: Float[jax.Array, " C"] = jnp.broadcast_to(mu, (self.n_cells,))
         F: Float[jax.Array, "C 3 3"] = apple.elem.tetra.deformation_gradient(
             u, self.dh_dX
         )
-        Psi: Float[jax.Array, " C"] = jax.vmap(corotated)(F, lambda_, mu)
+        Psi: Float[jax.Array, " C"] = jax.vmap(corotated)(F, lmbda, mu)
         return jnp.sum(Psi * self.dV)
+
+    @override
+    def prepare(self, q: PyTree | None = None) -> None:
+        super().prepare(q)
+        self.lmbda = self.get_param("lmbda", q)
+        self.mu = self.get_param("mu", q)
+        self.dh_dX = apple.elem.tetra.dh_dX(self.cell_points)
+        self.dV = apple.elem.tetra.dV(self.cell_points)
 
     @override
     def unravel_u(self, u_flat: Float[jax.Array, " DoF"]) -> Float[jax.Array, "P 3"]:
         return u_flat.reshape(self.n_points, 3)
 
 
-@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
-class CorotatedBuilder(apple.AbstractPhysicsProblemBuilder):
-    name: str = attrs.field(default="corotated", metadata={"static": True})
-    mesh: felupe.Mesh = attrs.field(metadata={"static": True})
-    lambda_: Float[jax.Array, "..."] = attrs.field(
-        converter=jnp.asarray, factory=lambda: jnp.asarray(3e3)
-    )
-    mu: Float[jax.Array, "..."] = attrs.field(
-        converter=jnp.asarray, factory=lambda: jnp.asarray(1e3)
-    )
-
-    @override
-    def build(self, q: PyTree | None = None) -> Corotated:
-        super().build(q)
-        cell_points: Float[jax.Array, "C 4 3"] = jnp.asarray(
-            self.mesh.points[self.mesh.cells]
-        )
-        return Corotated(
-            name=self.name,
-            mesh=self.mesh,
-            dh_dX=apple.elem.tetra.dh_dX(cell_points),
-            dV=apple.elem.tetra.dV(cell_points),
-            lambda_=self.get_param("lambda_", q),
-            mu=self.get_param("mu", q),
-            _q_unravel=self._q_unravel,
-        )
-
-
 def corotated(
-    F: Float[jax.Array, "3 3"], lambda_: Float[jax.Array, ""], mu: Float[jax.Array, ""]
+    F: Float[jax.Array, "3 3"], lmbda: Float[jax.Array, ""], mu: Float[jax.Array, ""]
 ) -> Float[jax.Array, ""]:
     R: Float[jax.Array, "3 3"]
     R, _S = apple.polar_rv(F)
     R = jax.lax.stop_gradient(R)  # TODO: support gradient of `polar_rv()`
     Psi: Float[jax.Array, ""] = (
-        mu * jnp.sum((F - R) ** 2) + lambda_ * (jnp.linalg.det(F) - 1) ** 2
+        mu * jnp.sum((F - R) ** 2) + lmbda * (jnp.linalg.det(F) - 1) ** 2
     )
     return Psi

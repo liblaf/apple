@@ -3,15 +3,16 @@ from collections.abc import Callable, Sequence
 from typing import Protocol
 
 import jax
-import scipy.optimize
 from jaxtyping import Float
 
 import liblaf.apple as apple  # noqa: PLR0402
 import liblaf.grapes as grapes  # noqa: PLR0402
 
+from . import MinimizeResult
+
 
 class Callback(Protocol):
-    def __call__(self, intermediate_result: scipy.optimize.OptimizeResult) -> None: ...
+    def __call__(self, intermediate_result: MinimizeResult) -> None: ...
 
 
 class MinimizeAlgorithm(abc.ABC):
@@ -25,7 +26,7 @@ class MinimizeAlgorithm(abc.ABC):
         *,
         bounds: Sequence | None = None,
         callback: Callback | None = None,
-    ) -> scipy.optimize.OptimizeResult:
+    ) -> MinimizeResult:
         fun = (
             grapes.timer(label="fun()")(apple.utils.block_until_ready()(fun))
             if fun is not None
@@ -37,7 +38,9 @@ class MinimizeAlgorithm(abc.ABC):
             else None
         )
         hess = (
-            grapes.timer(label="hess()")(apple.utils.block_until_ready()(hess))
+            grapes.timer(label="hess()", record_log_level="TRACE")(
+                apple.utils.block_until_ready()(hess)
+            )
             if hess is not None
             else None
         )
@@ -49,13 +52,13 @@ class MinimizeAlgorithm(abc.ABC):
 
         @grapes.timer(label="callback()")
         def callback_wrapped(
-            intermediate_result: scipy.optimize.OptimizeResult,
+            intermediate_result: MinimizeResult,
         ) -> None:
-            if callback:
+            if callback is not None:
                 callback(intermediate_result)
 
         with grapes.timer(label="minimize") as timer:
-            result: scipy.optimize.OptimizeResult = self._minimize(
+            result: MinimizeResult = self._minimize(
                 x0=x0,
                 fun=fun,
                 jac=jac,
@@ -92,4 +95,4 @@ class MinimizeAlgorithm(abc.ABC):
         *,
         bounds: Sequence | None = None,
         callback: Callable,
-    ) -> scipy.optimize.OptimizeResult: ...
+    ) -> MinimizeResult: ...

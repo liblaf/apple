@@ -18,13 +18,15 @@ def gen_surface_mask(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
 def gen_params(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     centers: pv.PolyData = mesh.cell_centers()  # pyright: ignore[reportAssignmentType]
     xmin, xmax, ymin, ymax, zmin, zmax = mesh.bounds
-    mesh.cell_data["E"] = np.exp(
-        np.interp(centers.points[:, 0], [xmin, xmax], [np.log(1), np.log(1e5)])
+    mesh.cell_data["log(E)"] = np.interp(
+        centers.points[:, 0], [xmin, xmax], [np.log(1e3), np.log(1e5)]
     )
+    mesh.cell_data["E"] = np.exp(mesh.cell_data["log(E)"])
     mesh.cell_data["nu"] = np.interp(centers.points[:, 1], [ymin, ymax], [0.0, 0.49])
-    mesh.cell_data["lambda"], mesh.cell_data["mu"] = apple.constitution.E_nu_to_lame(
+    mesh.cell_data["lmbda"], mesh.cell_data["mu"] = apple.constitution.E_nu_to_lame(
         mesh.cell_data["E"], mesh.cell_data["nu"]
     )
+    mesh.cell_data
     mesh.cell_data["density"] = 1e3  # pyright: ignore[reportArgumentType]
     return mesh
 

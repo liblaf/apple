@@ -1,7 +1,19 @@
-from . import abstract, elem, math, opt, preset, problem, region, utils
+from . import (
+    abstract,
+    constitution,
+    elem,
+    math,
+    opt,
+    preset,
+    problem,
+    region,
+    types,
+    utils,
+)
 from ._version import __version__, __version_tuple__, version, version_tuple
 from .abstract import (
     AbstractPhysicsProblem,
+    AbstractPhysicsProblemBuilder,
     InversePhysicsProblem,
     LinearOperator,
     as_linear_operator,
@@ -18,14 +30,29 @@ from .math import (
     svd_rv,
 )
 from .opt import MinimizeAlgorithm, MinimizePNCG, MinimizeScipy, minimize
-from .problem import Corotated, Fixed
+from .problem import (
+    Corotated,
+    CorotatedBuilder,
+    Fixed,
+    FixedBuilder,
+    Gravity,
+    GravityBuilder,
+    Sum,
+    SumBuilder,
+)
 from .region import Region, RegionTetra
-from .utils import clone, jit, merge, register_dataclass, rosen, tetwild
+from .types import Unraveler
+from .utils import as_jax, clone, jit, merge, register_dataclass, rosen, tetwild
 
 __all__ = [
     "AbstractPhysicsProblem",
+    "AbstractPhysicsProblemBuilder",
     "Corotated",
+    "CorotatedBuilder",
     "Fixed",
+    "FixedBuilder",
+    "Gravity",
+    "GravityBuilder",
     "InversePhysicsProblem",
     "LinearOperator",
     "MinimizeAlgorithm",
@@ -33,11 +60,16 @@ __all__ = [
     "MinimizeScipy",
     "Region",
     "RegionTetra",
+    "Sum",
+    "SumBuilder",
+    "Unraveler",
     "__version__",
     "__version_tuple__",
     "abstract",
+    "as_jax",
     "as_linear_operator",
     "clone",
+    "constitution",
     "diagonal",
     "elem",
     "hess_as_operator",
@@ -59,6 +91,7 @@ __all__ = [
     "rosen",
     "svd_rv",
     "tetwild",
+    "types",
     "utils",
     "version",
     "version_tuple",

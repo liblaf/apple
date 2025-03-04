@@ -1,5 +1,8 @@
+from typing import overload
+
 import attrs
 import jax
+import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Bool, Float, PyTree
 
@@ -7,11 +10,12 @@ from liblaf import apple
 
 
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
 class Fixed(apple.AbstractPhysicsProblem):
+    name: str = attrs.field(default="fixed", metadata={"static": True})
+    problem: apple.AbstractPhysicsProblem
     fixed_mask: Bool[np.ndarray, " D"] = attrs.field(metadata={"static": True})
     fixed_values: Float[jax.Array, " D"]
-    problem: apple.AbstractPhysicsProblem
 
     @property
     def free_mask(self) -> Bool[np.ndarray, " D"]:
@@ -25,20 +29,18 @@ class Fixed(apple.AbstractPhysicsProblem):
     def n_fixed(self) -> int:
         return np.count_nonzero(self.fixed_mask)
 
-    def fill(self, u: PyTree) -> PyTree:
+    def fill(self, u: PyTree, q: PyTree | None = None) -> PyTree:
         u_flat: Float[jax.Array, " DoF"] = self.ravel_u(u)
-        u_flat: Float[jax.Array, " D"] = self.fill_flat(u_flat)
+        u_flat: Float[jax.Array, " D"] = self.fill_flat(u_flat, q)
         u: PyTree = self.problem.unravel_u(u_flat)
         return u
 
-    def fill_flat(self, u_flat: Float[jax.Array, " D"]) -> Float[jax.Array, " D"]:
-        u_new: Float[jax.Array, " D"] = self.fixed_values.copy()
-        u_new: Float[jax.Array, " D"] = u_new.at[self.free_mask].set(u_flat)
-        return u_new
-
-    @apple.jit()
-    def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]:
-        return self.fun_flat(self.ravel_u(u), self.ravel_q(q))
+    def fill_flat(
+        self, u_flat: Float[jax.Array, " D"], q: PyTree | None = None
+    ) -> Float[jax.Array, " D"]:
+        fixed_values: Float[jax.Array, " D"] = self.get_param("fixed_values", q)
+        u_filled: Float[jax.Array, " D"] = fixed_values.at[self.free_mask].set(u_flat)
+        return u_filled
 
     @apple.jit()
     def fun_flat(
@@ -49,23 +51,30 @@ class Fixed(apple.AbstractPhysicsProblem):
         u_flat: Float[jax.Array, " D"] = self.fill_flat(u_flat)
         return self.problem.fun_flat(u_flat, q_flat)
 
-    def prepare(self, params: PyTree | None = None) -> None:
-        self.problem.prepare(params)
-
-    def ravel_params(self, params: PyTree) -> jax.Array:
-        return self.problem.ravel_params(params)
-
-    def ravel_q(self, q: PyTree | None) -> Float[jax.Array, " Q"] | None:  # pyright: ignore[reportIncompatibleMethodOverride]
+    @overload
+    def ravel_q(self, q: PyTree) -> Float[jax.Array, " Q"]: ...
+    @overload
+    def ravel_q(self, q: None) -> None: ...  # pyright: ignore[reportOverlappingOverload]
+    def ravel_q(self, q: PyTree | None) -> Float[jax.Array, " Q"] | None:
         return self.problem.ravel_q(q)
 
-    def ravel_u(self, u: PyTree) -> Float[jax.Array, " DoF"]:
-        return u
+    def unravel_q(self, q_flat: Float[jax.Array, " Q"] | None) -> PyTree | None:
+        return self.problem.unravel_q(q_flat)
 
-    def unravel_params(self, params_flat: Float[jax.Array, " P"]) -> PyTree:
-        return self.problem.ravel_params(params_flat)
 
-    def unravel_q(self, q: Float[jax.Array, " Q"] | None) -> PyTree | None:
-        return self.problem.unravel_q(q)
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
+class FixedBuilder(apple.AbstractPhysicsProblemBuilder):
+    name: str = attrs.field(default="fixed", metadata={"static": True})
+    problem: apple.AbstractPhysicsProblemBuilder
+    fixed_mask: Bool[np.ndarray, " D"] = attrs.field(converter=np.asarray)
+    fixed_values: Float[jax.Array, " D"] = attrs.field(converter=jnp.asarray)
 
-    def unravel_u(self, u: Float[jax.Array, " DoF"]) -> PyTree:
-        return u
+    def build(self, q: PyTree | None = None) -> Fixed:
+        super().build(q)
+        return Fixed(
+            name=self.name,
+            fixed_mask=self.fixed_mask,
+            fixed_values=self.get_param("fixed_values", q),
+            problem=self.problem.build(q),
+            _q_unravel=self._q_unravel,
+        )

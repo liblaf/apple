@@ -6,7 +6,7 @@ import numpy as np
 import pyvista as pv
 import scipy.optimize
 import typer
-from jaxtyping import Bool, Float
+from jaxtyping import Bool, Float, PyTree
 
 import liblaf.apple as apple  # noqa: PLR0402
 import liblaf.grapes as grapes  # noqa: PLR0402
@@ -22,19 +22,25 @@ def main() -> None:
     fixed_values: Float[jax.Array, " D"] = jnp.asarray(
         mesh.point_data["fixed_disp"].flatten()
     )
-    problem: apple.AbstractPhysicsProblem = apple.Fixed(
-        problem=apple.Corotated(
-            mesh=mesh_felupe,
-            params={
-                "lambda": jnp.asarray(mesh.cell_data["lambda"]),
-                "mu": jnp.asarray(mesh.cell_data["mu"]),
-            },
+    builder: apple.AbstractPhysicsProblemBuilder = apple.FixedBuilder(
+        problem=apple.SumBuilder(
+            problems=[
+                apple.CorotatedBuilder(
+                    mesh=mesh_felupe,
+                    lambda_=mesh.cell_data["lambda"],
+                    mu=mesh.cell_data["mu"],
+                ),
+                apple.GravityBuilder(
+                    mass=apple.elem.tetra.mass(mesh), n_points=mesh.n_points
+                ),
+            ]
         ),
         fixed_mask=fixed_mask,
         fixed_values=fixed_values,
     )
-    problem.prepare()
-    result: scipy.optimize.OptimizeResult = problem.solve()
+    q: PyTree = {}
+    problem: apple.Fixed = builder.build(q)
+    result: scipy.optimize.OptimizeResult = problem.solve(q)
     ic(result)
     u: Float[jax.Array, " D"] = problem.fill(result["x"])
     mesh.point_data["solution"] = np.asarray(u)

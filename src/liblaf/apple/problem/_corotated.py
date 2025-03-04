@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from typing import override
 
 import attrs
 import felupe
@@ -11,12 +11,22 @@ from liblaf import apple
 
 
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
 class Corotated(apple.AbstractPhysicsProblem):
+    name: str = attrs.field(default="corotated", metadata={"static": True})
     mesh: felupe.Mesh = attrs.field(metadata={"static": True})
-    params: Mapping[str, Float[jax.Array, "..."]] = attrs.field(
-        factory=lambda: {"lambda": jnp.asarray(3.0), "mu": jnp.asarray(1.0)}
+    # Auxiliaries
+    dh_dX: Float[jax.Array, " C 4 3"] = attrs.field(converter=jnp.asarray)
+    dV: Float[jax.Array, " C"] = attrs.field(converter=jnp.asarray)
+    # Parameters
+    lambda_: Float[jax.Array, "..."] = attrs.field(
+        converter=jnp.asarray, factory=lambda: jnp.asarray(3.0)
     )
+    """Lamé's first parameter."""
+    mu: Float[jax.Array, "..."] = attrs.field(
+        converter=jnp.asarray, factory=lambda: jnp.asarray(1.0)
+    )
+    """Lamé's second parameter."""
 
     @property
     def n_cells(self) -> int:
@@ -42,44 +52,59 @@ class Corotated(apple.AbstractPhysicsProblem):
     def points(self) -> Float[jax.Array, "P 3"]:
         return jnp.asarray(self.mesh.points)
 
-    @property
-    def dV(self) -> Float[jax.Array, " C"]:
-        return self.aux["dV"]
-
-    @property
-    def dh_dX(self) -> Float[jax.Array, " C 4 3"]:
-        return self.aux["dh_dX"]
-
     @apple.jit()
+    @override
     def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]:
-        params: Mapping = apple.merge(self.params, q)
-        u: Float[jax.Array, "P 3"] = jnp.asarray(u).reshape(self.n_points, 3)
         u: Float[jax.Array, "C 4 3"] = u[self.cells]
-        lambda_: Float[jax.Array, " C"] = jnp.broadcast_to(
-            params["lambda"], (self.n_cells,)
-        )
-        mu: Float[jax.Array, " C"] = jnp.broadcast_to(params["mu"], (self.n_cells,))
+        lambda_: Float[jax.Array, " ..."] = self.get_param("lambda_", q)
+        mu: Float[jax.Array, " ..."] = self.get_param("mu", q)
+        lambda_: Float[jax.Array, " C"] = jnp.broadcast_to(lambda_, (self.n_cells,))
+        mu: Float[jax.Array, " C"] = jnp.broadcast_to(mu, (self.n_cells,))
         F: Float[jax.Array, "C 3 3"] = apple.elem.tetra.deformation_gradient(
             u, self.dh_dX
         )
-        Psi: Float[jax.Array, " C"] = jax.vmap(corotational)(F, lambda_, mu)
+        Psi: Float[jax.Array, " C"] = jax.vmap(corotated)(F, lambda_, mu)
         return jnp.sum(Psi * self.dV)
 
-    def prepare(self, params: PyTree | None = None) -> None:
-        super().prepare(params)
-        self.aux["dh_dX"] = apple.elem.tetra.dh_dX(self.cell_points)
-        self.aux["dV"] = apple.elem.tetra.dV(self.cell_points)
-
-    def unravel_u(self, u: Float[jax.Array, " DoF"]) -> Float[jax.Array, "P 3"]:
-        return u.reshape(self.n_points, 3)
+    @override
+    def unravel_u(self, u_flat: Float[jax.Array, " DoF"]) -> Float[jax.Array, "P 3"]:
+        return u_flat.reshape(self.n_points, 3)
 
 
-def corotational(
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
+class CorotatedBuilder(apple.AbstractPhysicsProblemBuilder):
+    name: str = attrs.field(default="corotated", metadata={"static": True})
+    mesh: felupe.Mesh = attrs.field(metadata={"static": True})
+    lambda_: Float[jax.Array, "..."] = attrs.field(
+        converter=jnp.asarray, factory=lambda: jnp.asarray(3e3)
+    )
+    mu: Float[jax.Array, "..."] = attrs.field(
+        converter=jnp.asarray, factory=lambda: jnp.asarray(1e3)
+    )
+
+    @override
+    def build(self, q: PyTree | None = None) -> Corotated:
+        super().build(q)
+        cell_points: Float[jax.Array, "C 4 3"] = jnp.asarray(
+            self.mesh.points[self.mesh.cells]
+        )
+        return Corotated(
+            name=self.name,
+            mesh=self.mesh,
+            dh_dX=apple.elem.tetra.dh_dX(cell_points),
+            dV=apple.elem.tetra.dV(cell_points),
+            lambda_=self.get_param("lambda_", q),
+            mu=self.get_param("mu", q),
+            _q_unravel=self._q_unravel,
+        )
+
+
+def corotated(
     F: Float[jax.Array, "3 3"], lambda_: Float[jax.Array, ""], mu: Float[jax.Array, ""]
 ) -> Float[jax.Array, ""]:
     R: Float[jax.Array, "3 3"]
     R, _S = apple.polar_rv(F)
-    R = jax.lax.stop_gradient(R)
+    R = jax.lax.stop_gradient(R)  # TODO: support gradient of `polar_rv()`
     Psi: Float[jax.Array, ""] = (
         mu * jnp.sum((F - R) ** 2) + lambda_ * (jnp.linalg.det(F) - 1) ** 2
     )

@@ -3,6 +3,7 @@ from collections.abc import Callable
 from typing import overload
 
 import attrs
+import glom
 import jax
 import jax.flatten_util
 import jax.numpy as jnp
@@ -13,40 +14,25 @@ from jaxtyping import Float, PyTree
 from liblaf import apple
 
 
+class NotSetError(ValueError):
+    def __init__(self, name: str) -> None:
+        super().__init__(f"`{name}` not set")
+
+
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
-class AbstractPhysicsProblem:
-    aux: PyTree = attrs.field(factory=dict)
-    params: PyTree = attrs.field(factory=dict)
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
+class AbstractPhysicsProblem(abc.ABC):
+    name: str = attrs.field(default="physics", metadata={"static": True})
     _q_unravel: Callable[[Float[jax.Array, " Q"]], PyTree] | None = attrs.field(
         default=None, metadata={"static": True}, alias="_q_unravel"
-    )
-    _u_unravel: Callable[[Float[jax.Array, " DoF"]], PyTree] | None = attrs.field(
-        default=None, metadata={"static": True}, alias="_u_unravel"
     )
 
     @property
     @abc.abstractmethod
     def n_dof(self) -> int: ...
 
-    @property
-    def params_flat(self) -> Float[jax.Array, " P"]:
-        params_flat: Float[jax.Array, " P"]
-        params_flat, _unravel = jax.flatten_util.ravel_pytree(self.params)
-        return params_flat
-
-    @params_flat.setter
-    def params_flat(self, params_flat: Float[jax.Array, " P"]) -> None:
-        self.params = self.unravel_params(params_flat)
-
-    @property
-    def _params_unravel(self) -> Callable[[Float[jax.Array, " P"]], PyTree]:
-        params_unravel: Callable[[Float[jax.Array, " P"]], PyTree]
-        _params_flat, params_unravel = jax.flatten_util.ravel_pytree(self.params)
-        return params_unravel
-
     def solve(
-        self, u0: PyTree | None = None, q: PyTree | None = None
+        self, q: PyTree | None = None, u0: PyTree | None = None
     ) -> scipy.optimize.OptimizeResult:
         u0_flat: Float[jax.Array, " DoF"]
         u0_flat = self.ravel_u(u0) if u0 is not None else jnp.zeros((self.n_dof,))
@@ -59,48 +45,52 @@ class AbstractPhysicsProblem:
         )
         return result
 
-    @abc.abstractmethod
-    def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]: ...
+    def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]:
+        if type(self).fun_flat is not AbstractPhysicsProblem.fun_flat:
+            # `fun_flat()` is overridden
+            return self.fun_flat(self.ravel_u(u), self.ravel_q(q))
+        raise NotImplementedError
 
-    @apple.jit()
     def fun_flat(
         self,
         u_flat: Float[jax.Array, " DoF"],
         q_flat: Float[jax.Array, " Q"] | None = None,
     ) -> Float[jax.Array, ""]:
-        return self.fun(self.unravel_u(u_flat), self.unravel_q(q_flat))
+        if type(self).fun is not AbstractPhysicsProblem.fun:
+            # `fun()` is overridden
+            return self.fun(self.unravel_u(u_flat), self.unravel_q(q_flat))
+        raise NotImplementedError
 
-    @apple.jit()
     def jac(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, " DoF"]:
-        u_flat: Float[jax.Array, " DoF"] = self.ravel_u(u)
-        q_flat: Float[jax.Array, " Q"] | None = self.ravel_q(q)
-        return self.jac_flat(u_flat, q_flat)
+        return self.jac_flat(self.ravel_u(u), self.ravel_q(q))
 
-    @apple.jit()
     def jac_flat(
         self,
         u_flat: Float[jax.Array, " DoF"],
         q_flat: Float[jax.Array, " Q"] | None = None,
     ) -> Float[jax.Array, " DoF"]:
+        if type(self).jac is not AbstractPhysicsProblem.jac:
+            # `jac()` is overridden
+            return self.jac(self.unravel_u(u_flat), self.unravel_q(q_flat))
         return jax.jacobian(self.fun_flat)(u_flat, q_flat)
 
     @apple.jit()
-    def hess(self, u: PyTree, q: PyTree | None = None) -> pylops.LinearOperator:
-        u_flat: Float[jax.Array, " DoF"] = self.ravel_u(u)
-        q_flat: Float[jax.Array, " Q"] | None = self.ravel_q(q)
-        return self.hess_flat(u_flat, q_flat)
+    def hess(
+        self, u: PyTree, q: PyTree | None = None
+    ) -> Float[pylops.LinearOperator, "DoF DoF"]:
+        return self.hess_flat(self.ravel_u(u), self.ravel_q(q))
 
     @apple.jit()
     def hess_flat(
         self,
         u_flat: Float[jax.Array, " DoF"],
         q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> pylops.LinearOperator:
-        return jax.hessian(self.fun_flat)(u_flat, q_flat)
+    ) -> Float[pylops.LinearOperator, "DoF DoF"]:
+        if type(self).hess is not AbstractPhysicsProblem.hess:
+            # `hess()` is overridden
+            return self.hess(self.unravel_u(u_flat), self.unravel_q(q_flat))
         # TODO: replace with linear operator
-        return apple.hess_as_operator(
-            lambda u_flat: self.fun_flat(u_flat, q_flat), u_flat
-        )
+        return jax.hessian(self.fun_flat)(u_flat, q_flat)
 
     @apple.jit()
     def dh_dq(self, u: PyTree, q: PyTree) -> Float[pylops.LinearOperator, "DoF Q"]:
@@ -110,20 +100,59 @@ class AbstractPhysicsProblem:
     def dh_dq_flat(
         self, u_flat: Float[jax.Array, " DoF"], q_flat: Float[jax.Array, " Q"]
     ) -> Float[pylops.LinearOperator, "DoF Q"]:
+        if type(self).dh_dq is not AbstractPhysicsProblem.dh_dq:
+            # `dh_dq()` is overridden
+            return self.dh_dq(self.unravel_u(u_flat), self.unravel_q(q_flat))
         # TODO: replace with linear operator
         return jax.jacobian(lambda q_flat: self.jac_flat(u_flat, q_flat))(q_flat)
-        return apple.jac_as_operator(
-            lambda q_flat: self.jac_flat(u_flat, q_flat), q_flat
+
+    def get_param(self, name: str, q: PyTree | None = None) -> Float[jax.Array, "..."]:
+        return glom.glom(
+            {"q": q, "self": self},
+            glom.Coalesce(glom.Path("q", self.name, name), glom.Path("self", name)),
         )
 
-    def prepare(self, params: PyTree | None = None) -> None:
-        self.params = params or self.params
-        self.aux = {}
+    @overload
+    def ravel_q(self, q: PyTree) -> Float[jax.Array, " Q"]: ...
+    @overload
+    def ravel_q(self, q: None) -> None: ...  # pyright: ignore[reportOverlappingOverload]
+    def ravel_q(self, q: PyTree | None) -> Float[jax.Array, " Q"] | None:
+        q_flat: Float[jax.Array, " Q"]
+        q_flat, self._q_unravel = jax.flatten_util.ravel_pytree(q)
+        return q_flat
 
-    def ravel_params(self, params: PyTree) -> Float[jax.Array, " P"]:
-        params_flat: Float[jax.Array, " P"]
-        params_flat, self._q_unravel = jax.flatten_util.ravel_pytree(params)
-        return params_flat
+    def ravel_u(self, u: PyTree) -> Float[jax.Array, " DoF"]:
+        u_flat: Float[jax.Array, " DoF"]
+        u_flat, _u_unravel = jax.flatten_util.ravel_pytree(u)
+        return u_flat
+
+    def unravel_q(self, q_flat: Float[jax.Array, " Q"] | None) -> PyTree | None:
+        if q_flat is None:
+            return None
+        if self._q_unravel is None:
+            raise NotSetError("_q_unravel")  # noqa: EM101
+        return self._q_unravel(q_flat)
+
+    def unravel_u(self, u_flat: Float[jax.Array, " DoF"]) -> PyTree:
+        return u_flat
+
+
+@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
+class AbstractPhysicsProblemBuilder(abc.ABC):
+    name: str = attrs.field(default="physics", metadata={"static": True})
+    _q_unravel: Callable[[Float[jax.Array, " Q"]], PyTree] | None = attrs.field(
+        default=None, metadata={"static": True}, alias="_q_unravel"
+    )
+
+    @abc.abstractmethod
+    def build(self, q: PyTree | None = None) -> AbstractPhysicsProblem:
+        self.ravel_q(q)
+
+    def get_param(self, name: str, q: PyTree | None = None) -> PyTree:
+        return glom.glom(
+            {"q": q, "self": self},
+            glom.Coalesce(glom.Path("q", self.name, name), glom.Path("self", name)),
+        )
 
     @overload
     def ravel_q(self, q: PyTree) -> Float[jax.Array, " Q"]: ...
@@ -136,24 +165,9 @@ class AbstractPhysicsProblem:
         q_flat, self._q_unravel = jax.flatten_util.ravel_pytree(q)
         return q_flat
 
-    def ravel_u(self, u: PyTree) -> Float[jax.Array, " DoF"]:
-        u_flat: Float[jax.Array, " DoF"]
-        u_flat, self._u_unravel = jax.flatten_util.ravel_pytree(u)
-        return u_flat
-
-    def unravel_params(self, params_flat: Float[jax.Array, " Q"]) -> PyTree:
-        return self._params_unravel(params_flat)
-
-    def unravel_q(self, q: Float[jax.Array, " Q"] | None) -> PyTree | None:
-        if q is None:
+    def unravel_q(self, q_flat: Float[jax.Array, " Q"] | None) -> PyTree | None:
+        if q_flat is None:
             return None
         if self._q_unravel is None:
-            msg: str = "`q_unravel` not set"
-            raise ValueError(msg)
-        return self._q_unravel(q)
-
-    def unravel_u(self, u: Float[jax.Array, " DoF"]) -> PyTree:
-        if self._u_unravel is None:
-            msg: str = "`u_unravel` not set"
-            raise ValueError(msg)
-        return self._u_unravel(u)
+            raise NotSetError("_q_unravel")  # noqa: EM101
+        return self._q_unravel(q_flat)

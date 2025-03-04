@@ -6,7 +6,8 @@ import jax
 import scipy.optimize
 from jaxtyping import Float
 
-from liblaf import grapes
+import liblaf.apple as apple  # noqa: PLR0402
+import liblaf.grapes as grapes  # noqa: PLR0402
 
 
 class Callback(Protocol):
@@ -25,10 +26,26 @@ class MinimizeAlgorithm(abc.ABC):
         bounds: Sequence | None = None,
         callback: Callback | None = None,
     ) -> scipy.optimize.OptimizeResult:
-        fun = grapes.timer(label="fun()")(fun) if fun is not None else None
-        jac = grapes.timer(label="jac()")(jac) if jac is not None else None
-        hess = grapes.timer(label="hess()")(hess) if hess is not None else None
-        hessp = grapes.timer(label="hessp()")(hessp) if hessp is not None else None
+        fun = (
+            grapes.timer(label="fun()")(apple.utils.block_until_ready()(fun))
+            if fun is not None
+            else None
+        )
+        jac = (
+            grapes.timer(label="jac()")(apple.utils.block_until_ready()(jac))
+            if jac is not None
+            else None
+        )
+        hess = (
+            grapes.timer(label="hess()")(apple.utils.block_until_ready()(hess))
+            if hess is not None
+            else None
+        )
+        hessp = (
+            grapes.timer(label="hessp()")(apple.utils.block_until_ready()(hessp))
+            if hessp is not None
+            else None
+        )
 
         @grapes.timer(label="callback()")
         def callback_wrapped(

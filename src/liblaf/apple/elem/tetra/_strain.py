@@ -8,16 +8,16 @@ from jaxtyping import Float
 from liblaf import apple
 
 
-@apple.jit()
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
+@apple.jit()
 def gradient(
     u: Float[jax.Array, "*c a=4 I=3"], dh_dX: Float[jax.Array, "*c a=4 J=3"]
 ) -> Float[jax.Array, "*c I=3 J=3"]:
     return einops.einsum(u, dh_dX, "... a I, ... a J -> ... I J")
 
 
-@apple.jit()
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
+@apple.jit()
 def deformation_gradient(
     u: Float[jax.Array, "*c a=4 I=3"], dh_dX: Float[jax.Array, "*c a=4 J=3"]
 ) -> Float[jax.Array, "*c I=3 J=3"]:

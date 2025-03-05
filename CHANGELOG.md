@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2...v0.0.3) (2025-03-05)
+
+
+### ✨ Features
+
+* add triangle element support and Koiter shell problem ([e23525c](https://github.com/liblaf/apple/commit/e23525ce50312a3271baba8cccf706f36ca517ee))
+* **physics:** add gravity support and refactor physics problem architecture ([4f50caa](https://github.com/liblaf/apple/commit/4f50caa40dbe7ba810d311b5540b57f10293f721))
+
+
+### ♻ Code Refactoring
+
+* restructure physics problem implementation and optimization ([e98f4c5](https://github.com/liblaf/apple/commit/e98f4c5733f6911e24815e8b1f544c5214623a65))
+* simplify physics problem builder pattern ([1aff338](https://github.com/liblaf/apple/commit/1aff33837cac11433ed80cd4b6f3488edf88119f))
+
 ## [0.0.2](https://github.com/liblaf/apple/compare/v0.0.1..v0.0.2) - 2025-02-23
 
 ### ✨ Features

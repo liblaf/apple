@@ -37,12 +37,7 @@ from .opt import (
     cgls,
     minimize,
 )
-from .problem import (
-    Corotated,
-    Fixed,
-    Gravity,
-    Sum,
-)
+from .problem import Corotated, Fixed, Gravity, Koiter, Sum
 from .region import Region, RegionTetra
 from .types import Unraveler
 from .utils import (
@@ -62,6 +57,7 @@ __all__ = [
     "Fixed",
     "Gravity",
     "InversePhysicsProblem",
+    "Koiter",
     "LinearOperator",
     "LinearResult",
     "MinimizeAlgorithm",

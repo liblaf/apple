@@ -8,15 +8,15 @@ from jaxtyping import Float, Integer
 
 from liblaf import apple
 
-from . import dV as compute_dV
-from . import segment_sum
+from . import area, first_fundamental_form, segment_sum
 
 
-def mass(mesh: pv.UnstructuredGrid) -> Float[jax.Array, " P"]:
+def mass(mesh: pv.PolyData) -> Float[jax.Array, " P"]:
     return mass_points(
         points=jnp.asarray(mesh.points),
-        cells=jnp.asarray(mesh.cells_dict[pv.CellType.TETRA]),
+        cells=jnp.asarray(mesh.regular_faces),
         density=jnp.asarray(mesh.cell_data["density"]),
+        thickness=jnp.asarray(mesh.cell_data["thickness"]),
         n_points=mesh.n_points,
     )
 
@@ -25,12 +25,14 @@ def mass(mesh: pv.UnstructuredGrid) -> Float[jax.Array, " P"]:
 @apple.jit(static_argnames=["n_points"])
 def mass_points(
     points: Float[jax.Array, "P 3"],
-    cells: Integer[jax.Array, "C 4"],
+    cells: Integer[jax.Array, "C 3"],
     density: Float[jax.Array, " C"],
+    thickness: Float[jax.Array, " C"],
     n_points: int,
 ) -> Float[jax.Array, " P"]:
-    dV: Float[jax.Array, " C"] = compute_dV(points[cells])
-    dm: Float[jax.Array, " C"] = density * dV
-    dm: Float[jax.Array, "C 4"] = einops.repeat(0.25 * dm, "C -> C 4")
+    I_u: Float[jax.Array, " C"] = first_fundamental_form(points[cells])
+    dA: Float[jax.Array, " C"] = area(I_u)
+    dm: Float[jax.Array, " C"] = density * thickness * dA
+    dm: Float[jax.Array, "C 4"] = einops.repeat(dm / 3, "C -> C 3")
     dm: Float[jax.Array, " P"] = segment_sum(dm, cells=cells, n_points=n_points)
     return dm

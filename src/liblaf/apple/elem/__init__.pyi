@@ -1,3 +1,3 @@
-from . import tetra
+from . import tetra, triangle
 
-__all__ = ["tetra"]
+__all__ = ["tetra", "triangle"]

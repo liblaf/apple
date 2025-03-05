@@ -10,7 +10,7 @@ from liblaf import apple
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 @apple.jit(static_argnames=["n_points"])
 def segment_sum(
-    data: Float[jax.Array, "C 4 *D"], cells: Integer[jax.Array, "C 4"], n_points: int
+    data: Float[jax.Array, "C 3 *D"], cells: Integer[jax.Array, "C 3"], n_points: int
 ) -> Float[jax.Array, " P *D"]:
     return jax.ops.segment_sum(
         einops.rearrange(data, "C points_per_cell ... -> (C points_per_cell) ..."),

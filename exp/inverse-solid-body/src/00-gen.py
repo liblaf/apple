@@ -26,7 +26,6 @@ def gen_params(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     mesh.cell_data["lmbda"], mesh.cell_data["mu"] = apple.constitution.E_nu_to_lame(
         mesh.cell_data["E"], mesh.cell_data["nu"]
     )
-    mesh.cell_data
     mesh.cell_data["density"] = 1e3  # pyright: ignore[reportArgumentType]
     return mesh
 

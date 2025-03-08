@@ -44,6 +44,20 @@ def main() -> None:
     mesh.point_data["solution"] = np.asarray(u)
     mesh.warp_by_vector("solution", inplace=True)
     mesh.save("data/target.vtu")
+    q0: PyTree = {
+        "corotated": {
+            "lmbda": jnp.full((mesh.n_cells,), 3e3),
+            "mu": jnp.full((mesh.n_cells,), 1e3),
+        }
+    }
+    problem.prepare(q0)
+    result: scipy.optimize.OptimizeResult = problem.solve(q0)
+    ic(result)
+    u: Float[jax.Array, " D"] = problem.fill(result["x"])
+    mesh: pv.UnstructuredGrid = pv.read("data/input.vtu")  # pyright: ignore[reportAssignmentType]
+    mesh.point_data["solution"] = np.asarray(u)
+    mesh.warp_by_vector("solution", inplace=True)
+    mesh.save("data/initial.vtu")
 
 
 if __name__ == "__main__":

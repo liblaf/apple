@@ -179,6 +179,8 @@ _version.py
 junit.xml
 playground/
 
+*.png
+
 *.obj
 *.ply
 *.stl

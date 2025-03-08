@@ -13,6 +13,7 @@ from liblaf import apple
 @apple.register_dataclass()
 @attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
 class Koiter(apple.AbstractPhysicsProblem):
+    name: str = attrs.field(default="koiter", metadata={"static": True})
     mesh: pv.PolyData = attrs.field(metadata={"static": True})
     # auxiliaries
     dA: Float[jax.Array, " C"] = attrs.field(default=None, converter=jnp.asarray)

@@ -31,6 +31,7 @@ from .math import (
 from .opt import (
     LinearResult,
     MinimizeAlgorithm,
+    MinimizeGradientDescent,
     MinimizePNCG,
     MinimizeResult,
     MinimizeScipy,
@@ -61,6 +62,7 @@ __all__ = [
     "LinearOperator",
     "LinearResult",
     "MinimizeAlgorithm",
+    "MinimizeGradientDescent",
     "MinimizePNCG",
     "MinimizeResult",
     "MinimizeScipy",

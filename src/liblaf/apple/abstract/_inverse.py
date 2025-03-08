@@ -61,7 +61,7 @@ class InversePhysicsProblem(abc.ABC):
     ) -> Float[jax.Array, " Q"]:
         hess: pylops.LinearOperator = self.forward_problem.hess_flat(u_flat, q_flat)
         dJ_du: Float[jax.Array, " DoF"] = self.dJ_du_flat(u_flat, q_flat)
-        result: apple.LinearResult = apple.cgls(hess, dJ_du)
+        result: apple.LinearResult = apple.cgls(hess, -dJ_du)
         p: Float[jax.Array, " DoF"] = result["x"]
         dh_dq: Float[pylops.LinearOperator, "DoF Q"] = self.forward_problem.dh_dq_flat(
             u_flat, q_flat

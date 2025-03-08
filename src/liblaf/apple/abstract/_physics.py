@@ -90,9 +90,9 @@ class AbstractPhysicsProblem(abc.ABC):
         if type(self).hess is not AbstractPhysicsProblem.hess:
             # `hess()` is overridden
             return self.hess(self.unravel_u(u_flat), self.unravel_q(q_flat))
-        # return apple.hess_as_operator(
-        #     lambda u_flat: self.fun_flat(u_flat, q_flat), u_flat
-        # )
+        return apple.hess_as_operator(
+            lambda u_flat: self.fun_flat(u_flat, q_flat), u_flat
+        )
         # TODO: replace with linear operator
         return self.hess_flat_autodiff_matrix(u_flat, q_flat)
 

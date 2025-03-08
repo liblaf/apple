@@ -32,4 +32,8 @@ def vjp_fun(
 ) -> Callable[[Float[jax.Array, " N"]], Float[jax.Array, " M"]]:
     vjpfun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " M"]]
     _primals_out, vjpfun = jax.vjp(fun, x)
-    return vjpfun
+
+    def vjpfun_(y: Float[jax.Array, " N"]) -> Float[jax.Array, " M"]:
+        return vjpfun(y)[0]
+
+    return vjpfun_

@@ -179,10 +179,14 @@ _version.py
 junit.xml
 playground/
 
+*.log
+*.log.jsonl
+
 *.png
 
 *.obj
 *.ply
+*.pvd
 *.stl
 *.vtp
 *.vtu

@@ -31,7 +31,7 @@ docs = [
   "mkdocs>=1.6.1,<2",
   "mkdocstrings[python]>=0.28.0,<0.29",
   "pymdown-extensions>=10.14.3,<11",
-  "ruff>=0.9.6,<0.10",
+  "ruff>=0.11,<0.12",
 ]
 test = [
   "pytest-codspeed>=3.2.0,<4",

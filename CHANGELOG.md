@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2...v0.0.3) (2025-03-20)
+
+
+### ✨ Features
+
+* add gradient descent optimizer and update inverse problem logic ([ae27101](https://github.com/liblaf/apple/commit/ae27101f950d915e315a9659cec79a16b11ebeb3))
+* add triangle element support and Koiter shell problem ([e23525c](https://github.com/liblaf/apple/commit/e23525ce50312a3271baba8cccf706f36ca517ee))
+* **phace:** add animation script and simulation modules ([468c982](https://github.com/liblaf/apple/commit/468c982da85847ffe63d7deaee6d17ba22edf4f9))
+* **physics:** add gravity support and refactor physics problem architecture ([4f50caa](https://github.com/liblaf/apple/commit/4f50caa40dbe7ba810d311b5540b57f10293f721))
+
+
+### ⬆️ Dependencies
+
+* **deps:** update dependency jaxtyping to &gt;=0.3,&lt;0.4 ([#14](https://github.com/liblaf/apple/issues/14)) ([467d4dd](https://github.com/liblaf/apple/commit/467d4dd7a2996f3d4c6fa377a40a72f2d611a0aa))
+* **deps:** update dependency liblaf-cherries to &gt;=0.0.6,&lt;0.0.7 ([#13](https://github.com/liblaf/apple/issues/13)) ([d773f0f](https://github.com/liblaf/apple/commit/d773f0f1aa4052bcba86f2f70d95c839b058efc9))
+* **deps:** update dependency liblaf-cherries to &gt;=0.0.8,&lt;0.0.9 ([#15](https://github.com/liblaf/apple/issues/15)) ([67099cd](https://github.com/liblaf/apple/commit/67099cda79614cc8cf2c1036ceefbffeacec10f2))
+
+
+### ♻ Code Refactoring
+
+* restructure physics problem implementation and optimization ([e98f4c5](https://github.com/liblaf/apple/commit/e98f4c5733f6911e24815e8b1f544c5214623a65))
+* simplify physics problem builder pattern ([1aff338](https://github.com/liblaf/apple/commit/1aff33837cac11433ed80cd4b6f3488edf88119f))
+
 ## [0.0.2](https://github.com/liblaf/apple/compare/v0.0.1..v0.0.2) - 2025-02-23
 
 ### ✨ Features

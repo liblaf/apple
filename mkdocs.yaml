@@ -1,13 +1,12 @@
-# vim: syntax=yaml
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
-INHERIT: .github/copier/mkdocs.yaml
-site_name: "liblaf-apple"
+INHERIT: .config/copier/mkdocs.yaml
+site_name: Apple
 site_description: TODO
 
 plugins:
   mkdocstrings:
     handlers:
       python:
-        import:
+        inventories:
           - https://docs.python.org/3/objects.inv

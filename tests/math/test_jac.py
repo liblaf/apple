@@ -1,8 +1,8 @@
 from collections.abc import Callable
 
 import jax
+import numpy as np
 import pylops
-import pytest
 from jaxtyping import Float, PRNGKeyArray
 
 from liblaf import apple
@@ -27,7 +27,7 @@ def test_jvp_fun() -> None:
     )
     actual: Float[jax.Array, " M"] = jvp_fun(v)
     expected: Float[jax.Array, " M"] = jax.jvp(fun, (x,), (v,))[1]
-    assert actual == pytest.approx(expected)
+    np.testing.assert_allclose(actual, expected)
 
 
 def test_jac_as_operator() -> None:
@@ -40,4 +40,4 @@ def test_jac_as_operator() -> None:
     jac: pylops.LinearOperator = apple.jac_as_operator(fun, x)
     actual: Float[jax.Array, " M"] = jac @ v  # pyright: ignore[reportAssignmentType]
     expected: Float[jax.Array, " M"] = jax.jvp(fun, (x,), (v,))[1]
-    assert actual == pytest.approx(expected)
+    np.testing.assert_allclose(actual, expected)

@@ -10,7 +10,7 @@ from . import (
     problem,
     region,
     testing,
-    types,
+    typed,
     utils,
 )
 from ._version import __version__, __version_tuple__, version, version_tuple
@@ -43,11 +43,13 @@ from .opt import (
 )
 from .problem import Corotated, Fixed, Gravity, Koiter, Sum
 from .region import Region, RegionTetra
-from .types import Unraveler
+from .typed import Unraveler
 from .utils import (
     RichResult,
     as_jax,
+    block_until_ready,
     clone,
+    fix_winding,
     jit,
     merge,
     register_dataclass,
@@ -79,12 +81,14 @@ __all__ = [
     "abstract",
     "as_jax",
     "as_linear_operator",
+    "block_until_ready",
     "cgls",
     "clone",
     "constitution",
     "creation",
     "diagonal",
     "elem",
+    "fix_winding",
     "hess_as_operator",
     "hess_diag",
     "hvp",
@@ -106,7 +110,7 @@ __all__ = [
     "svd_rv",
     "testing",
     "tetwild",
-    "types",
+    "typed",
     "utils",
     "version",
     "version_tuple",

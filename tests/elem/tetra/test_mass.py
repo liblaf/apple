@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pytest
 import pyvista as pv
 from jaxtyping import Float, PRNGKeyArray
 
@@ -27,4 +26,4 @@ def test_mass(mesh_pv: pv.UnstructuredGrid) -> None:
     mesh_pv.cell_data["density"] = np.asarray(random_density(mesh_pv.n_cells))
     actual: Float[jax.Array, " P"] = apple.elem.tetra.mass(mesh_pv)
     expected: Float[jax.Array, " P"] = mass_naive(mesh_pv)
-    assert actual == pytest.approx(expected)
+    np.testing.assert_allclose(actual, expected)

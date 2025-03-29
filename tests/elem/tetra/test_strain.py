@@ -1,7 +1,7 @@
 import felupe
 import jax
 import jax.numpy as jnp
-import pytest
+import numpy as np
 from jaxtyping import Float
 
 from liblaf import apple
@@ -33,4 +33,4 @@ def test_deformation_gradient(
     expected: Float[jax.Array, "*c I=3 J=3"] = deformation_gradient_naive(
         points + displacement[mesh.cells], points
     )
-    assert actual == pytest.approx(expected, abs=1e-4)
+    np.testing.assert_allclose(actual, expected, atol=6e-5)

@@ -1,5 +1,6 @@
 from ._as_jax import as_jax
 from ._block_until_ready import block_until_ready
+from ._fix_winding import fix_winding
 from ._jit import jit
 from ._merge import clone, merge
 from ._register_dataclass import register_dataclass
@@ -12,6 +13,7 @@ __all__ = [
     "as_jax",
     "block_until_ready",
     "clone",
+    "fix_winding",
     "jit",
     "merge",
     "register_dataclass",

@@ -16,7 +16,7 @@ def register_dataclass(
 ) -> RegisterDataclassDecorater:
     def decorater[T: type](cls: T) -> T:
         nonlocal data_fields, meta_fields
-        if jax.__version_info__ >= (0, 5, 0):
+        if jax.__version_info__ >= (1, 0, 0):
             return jax.tree_util.register_dataclass(
                 cls,
                 data_fields=data_fields,  # pyright: ignore[reportArgumentType]

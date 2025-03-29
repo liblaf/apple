@@ -138,6 +138,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/fb/84/ebb89749ca5d41c8244670520f7ba0a40063bcfdafb94c97c16fd1f7d6c8/liblaf_cherries-0.0.8-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/d1/2fdbc16dff338e399d3c856a399bb6c2634bae451c2c42770249701e0c65/liblaf_grapes-0.1.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e0/8c/f64cf0aa121d56695168cf2778139589fce46c8fe346caea4bb9e973a0d0/liblaf_melon-0.1.5-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/7a/1c/8e9c092e0faa0eb5ac8f5e859a62bd82239eba0259c05f6fd9bb6ddd6b91/logging_tree-1.10-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c5/f8/309546aec092434166a6e11c7dcecb5c2d0a787c18c072d61e18da9eba57/lxml-5.3.1-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/2c/a25117175bd6306521ad03abbcd392fce235fefe3e1138c3d834e0c64ee1/manifold3d-3.0.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
@@ -1882,8 +1883,8 @@ packages:
   timestamp: 1740240588123
 - pypi: .
   name: liblaf-apple
-  version: 0.0.4.dev0+g4c42001.d20250324
-  sha256: 664737f9286d2832ab80d1f5ca25c6c36b8a6ac32971a162477c1731f7d17034
+  version: 0.0.4.dev1+gb4e8d32.d20250324
+  sha256: d9c4870106d67b6f290cf74163b5bacaa4a87bca62628bf8dd472fdafd9d575d
   requires_dist:
   - autoregistry>=1.1.2,<2
   - beartype>=0.20.2,<0.21
@@ -1895,6 +1896,7 @@ packages:
   - liblaf-cherries>=0.0.8,<0.0.9
   - liblaf-grapes>=0.1.11,<0.2
   - liblaf-melon>=0.1.5,<0.2
+  - logging-tree>=1.10,<2
   - numpy
   - pytest-benchmark>=5.1.0,<6
   - pytetwild>=0.1.dev1,<0.2
@@ -2071,6 +2073,10 @@ packages:
   purls: []
   size: 60963
   timestamp: 1727963148474
+- pypi: https://files.pythonhosted.org/packages/7a/1c/8e9c092e0faa0eb5ac8f5e859a62bd82239eba0259c05f6fd9bb6ddd6b91/logging_tree-1.10-py2.py3-none-any.whl
+  name: logging-tree
+  version: '1.10'
+  sha256: f0e9f4645e6476e48c563ba2b858286079f886b2d5ad8abeaffd38e536a387d8
 - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
   name: loguru
   version: 0.7.3

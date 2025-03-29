@@ -61,6 +61,7 @@ dependencies = [
   "liblaf-cherries>=0.0.8,<0.0.9",
   "liblaf-grapes>=0.1.11,<0.2",
   "liblaf-melon>=0.1.5,<0.2",
+  "logging-tree>=1.10,<2",
   "numpy",
   "pytest-benchmark>=5.1.0,<6",
   "pytetwild>=0.1.dev1,<0.2",
@@ -125,4 +126,4 @@ linux = "6.6"
 [tool.pytest.ini_options]
 addopts = ["--numprocesses=auto"]
 junit_family = "legacy"
-testpaths = ["tests/"]
+testpaths = ["benches/", "tests/"]

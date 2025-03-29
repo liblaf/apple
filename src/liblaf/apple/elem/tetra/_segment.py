@@ -14,7 +14,6 @@ def segment_sum(
 ) -> Float[jax.Array, " P *D"]:
     return jax.ops.segment_sum(
         einops.rearrange(data, "C points_per_cell ... -> (C points_per_cell) ..."),
-        # data.reshape((data.shape[0] * data.shape[1], *data.shape[2:])),
         einops.rearrange(cells, "C points_per_cell -> (C points_per_cell)"),
         num_segments=n_points,
     )

@@ -1,54 +1,124 @@
-import functools
-
-import felupe
+import attrs
+import einops
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pylops
 import pyvista as pv
-from jaxtyping import Float, Integer
+from jaxtyping import Bool, Float, Integer, PyTree
 
-from . import Region
+from liblaf import apple
 
 
-class RegionTetra(Region):
-    mesh: pv.UnstructuredGrid
-    _region: felupe.RegionTetra
-
-    def __init__(self, mesh: pv.UnstructuredGrid) -> None:
-        self.mesh = mesh
-        mesh_felupe = felupe.Mesh(
-            mesh.points, mesh.cells_dict[pv.CellType.TETRA], cell_type="tetra"
-        )
-        region = felupe.RegionTetra(mesh_felupe, grad=True, hess=True)
-        self._region = region
+@apple.register_dataclass()
+@attrs.define(kw_only=True)
+class RegionTetra:
+    aux: PyTree = attrs.field(factory=dict)
+    params: PyTree = attrs.field(factory=dict)
+    dirichlet_values: Float[jax.Array, "V 3"] = attrs.field(converter=jnp.asarray)
+    dirichlet_mask: Bool[np.ndarray, "V 3"] = attrs.field(
+        metadata={"static": True}, converter=np.asarray
+    )
+    material: apple.material.MaterialTetra = attrs.field(metadata={"static": True})
+    mesh: pv.UnstructuredGrid = attrs.field(metadata={"static": True})
 
     @property
-    def cells(self) -> Integer[np.ndarray, "c a"]:
-        return self.mesh.cells_dict[pv.CellType.TETRA]
+    def cells(self) -> Integer[jax.Array, "c a"]:
+        return jnp.asarray(self.mesh.cells_dict[pv.CellType.TETRA])
+
+    @property
+    def free_mask(self) -> Bool[np.ndarray, "V 3"]:
+        return ~self.dirichlet_mask
+
+    @property
+    def n_dof(self) -> int:
+        return jnp.count_nonzero(self.free_mask)  # pyright: ignore[reportReturnType]
+
+    @property
+    def n_cells(self) -> int:
+        return self.mesh.n_cells
 
     @property
     def n_points(self) -> int:
         return self.mesh.n_points
 
     @property
-    def n_cells(self) -> int:
-        return self.mesh.n_cells
+    def points(self) -> Float[jax.Array, "V 3"]:
+        return jnp.asarray(self.mesh.points)
 
-    @functools.cached_property
-    def h(self) -> Float[jax.Array, "a q"]:
-        """Element shape function array `h_aq` of shape function `a` evaluated at quadrature point `q`."""
-        return jnp.asarray(self._region.h).reshape(4, 1)  # pyright: ignore[reportAttributeAccessIssue]
+    def prepare(self) -> None:
+        self.aux = {
+            "dh_dX": apple.elem.tetra.dh_dX(self.points[self.cells]),
+            "dV": apple.elem.tetra.dV(self.points[self.cells]),
+        }
 
-    @functools.cached_property
-    def dV(self) -> Float[jax.Array, "q c"]:
-        """Numeric *differential volume element* as product of determinant of geometric gradient `dV_qc = det(dXdr)_qc w_q` and quadrature weight `w_q`, evaluated at quadrature point `q` for every cell `c`."""
-        return jnp.asarray(self._region.dV)  # pyright: ignore[reportAttributeAccessIssue]
+    @apple.jit()
+    def fun(self, u: Float[jax.Array, " F"], q: PyTree) -> Float[jax.Array, ""]:
+        u: Float[jax.Array, "V 3"] = self.fill(u)
+        return self.material.fun(u[self.cells], q, self.aux)
 
-    @functools.cached_property
-    def dhdX(self) -> Float[jax.Array, "a J q c"]:
-        """Partial derivative of element shape functions `dhdX_aJqc` of shape function `a` w.r.t. undeformed coordinate `J` evaluated at quadrature point `q` for every cell `c`."""
-        return jnp.asarray(self._region.dhdX)  # pyright: ignore[reportAttributeAccessIssue]
+    @apple.jit()
+    def jac(self, u: Float[jax.Array, " F"], q: PyTree) -> Float[jax.Array, " F"]:
+        u: Float[jax.Array, "V 3"] = self.fill(u)
+        jac: Float[jax.Array, "C 3"] = self.material.jac(u[self.cells], q, self.aux)
+        jac: Float[jax.Array, "V 3"] = apple.elem.tetra.segment_sum(
+            jac, self.cells, self.n_points
+        )
+        return jac[self.free_mask]
 
-    @functools.cached_property
-    def d2hdXdX(self) -> Float[jax.Array, "a I J q c"]:
-        return jnp.asarray(self._region.d2hdXdX)  # pyright: ignore[reportAttributeAccessIssue]
+    @apple.jit()
+    def fun_jac(
+        self, u: Float[jax.Array, " F"], q: PyTree
+    ) -> tuple[Float[jax.Array, ""], Float[jax.Array, " F"]]:
+        u: Float[jax.Array, "V 3"] = self.fill(u)
+        fun: Float[jax.Array, ""]
+        jac: Float[jax.Array, "C 4 3"]
+        fun, jac = self.material.fun_jac(u[self.cells], q, self.aux)
+        jac = apple.elem.tetra.segment_sum(jac, self.cells, self.n_points)
+        return fun, jac[self.free_mask]
+
+    def hess(
+        self, u: Float[jax.Array, " F"], q: PyTree
+    ) -> Float[pylops.LinearOperator, "F F"]:
+        u: Float[jax.Array, "V 3"] = self.fill(u)
+        hess: Float[jax.Array, "C 4 3 4 3"] = self.material.hess(
+            u[self.cells], q, self.aux
+        )
+
+        def matvec(v: Float[jax.Array, " F"]) -> Float[jax.Array, " F"]:
+            v: Float[jax.Array, " F"] = jnp.asarray(v, dtype=hess.dtype)
+            return self._hvp(hess, v)
+
+        return pylops.FunctionOperator(
+            matvec, matvec, self.n_dof, self.n_dof, dtype=hess.dtype, name="hessian"
+        )
+
+    @apple.jit()
+    def hess_diag(self, u: Float[jax.Array, " F"], q: PyTree) -> Float[jax.Array, " F"]:
+        u: Float[jax.Array, "V 3"] = self.fill(u)
+        hess_diag: Float[jax.Array, "C 4 3"] = self.material.hess_diag(
+            u[self.cells], q, self.aux
+        )
+        hess_diag: Float[jax.Array, "V 3"] = apple.elem.tetra.segment_sum(
+            hess_diag, self.cells, self.n_points
+        )
+        return hess_diag[self.free_mask]
+
+    def fill(self, u_free: Float[jax.Array, " F"]) -> Float[jax.Array, "V 3"]:
+        u: Float[jax.Array, "V 3"] = self.dirichlet_values.copy()
+        u = u.at[self.free_mask].set(u_free)
+        return u
+
+    @apple.jit()
+    def _hvp(
+        self, hess: Float[jax.Array, "C 4 3 4 3"], v: Float[jax.Array, " F"]
+    ) -> Float[jax.Array, " F"]:
+        ic("compiling ...")
+        v: Float[jax.Array, "V 3"] = self.fill(v)
+        hvp: Float[jax.Array, "C 4 3"] = einops.einsum(
+            hess, v[self.cells], "C i j k l, C i j -> C k l"
+        )
+        hvp: Float[jax.Array, "V 3"] = apple.elem.tetra.segment_sum(
+            hvp, self.cells, self.n_points
+        )
+        return hvp[self.free_mask]

@@ -1,13 +1,57 @@
+import abc
 from collections.abc import Callable
 
 import beartype
 import jax
 import jax.numpy as jnp
 import jaxtyping
+import numpy as np
 import pylops
+import scipy.sparse.linalg
 from jaxtyping import Float
 
 from liblaf import apple
+
+
+class AbstractHessian:
+    @property
+    @abc.abstractmethod
+    def dtype(self) -> np.dtype: ...
+
+    @property
+    @abc.abstractmethod
+    def n(self) -> int: ...
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return (self.n, self.n)
+
+    def as_scipy(self) -> scipy.sparse.linalg.LinearOperator:
+        return scipy.sparse.linalg.LinearOperator(
+            shape=self.shape,
+            matvec=self.matvec,  # pyright: ignore[reportCallIssue]
+            rmatvec=self.rmatvec,  # pyright: ignore[reportCallIssue]
+            dtype=jnp.float64,
+        )
+
+    def as_pylops(self) -> pylops.LinearOperator:
+        return pylops.JaxOperator(
+            pylops.FunctionOperator(self.matvec, self.matvec, self.n, self.n)
+        )
+
+    def matvec(self, v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+        v = jnp.asarray(v, dtype=self.dtype)
+        return self._matvec(v)
+
+    def rmatvec(self, v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+        v = jnp.asarray(v, dtype=self.dtype)
+        return self._rmatvec(v)
+
+    @abc.abstractmethod
+    def _matvec(self, v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]: ...
+
+    def _rmatvec(self, v: Float[jax.Array, " N"]) -> Float[jax.Array, " N"]:
+        return self._matvec(v)
 
 
 @apple.jit(static_argnames=["fun"])

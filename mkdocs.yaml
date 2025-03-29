@@ -1,7 +1,8 @@
+# -*- mode: yaml; -*-
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 INHERIT: .config/copier/mkdocs.yaml
-site_name: Apple
+site_name: "Apple"
 site_description: TODO
 
 plugins:

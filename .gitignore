@@ -175,22 +175,27 @@ poetry.toml
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
+# pytest-codspeed
+.codspeed/
+
+# pytest-benchmark
+.benchmarks/
+
 _version.py
 *.log.*
 junit.xml
 playground/
 
-*.jpeg
 *.jpg
+*.pdf
 *.png
 *.svg
 
-*.npy
-*.npz
-
+*.mtl
 *.obj
 *.ply
 *.pvd
 *.stl
+*.vtk
 *.vtp
 *.vtu

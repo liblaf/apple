@@ -6,7 +6,7 @@ import jax
 from jaxtyping import Float
 
 import liblaf.apple as apple  # noqa: PLR0402
-import liblaf.grapes as grapes  # noqa: PLR0402
+from liblaf import grapes
 
 from . import MinimizeResult
 
@@ -38,9 +38,7 @@ class MinimizeAlgorithm(abc.ABC):
             else None
         )
         hess = (
-            grapes.timer(label="hess()", record_log_level="TRACE")(
-                apple.utils.block_until_ready()(hess)
-            )
+            grapes.timer(label="hess()")(apple.utils.block_until_ready()(hess))
             if hess is not None
             else None
         )

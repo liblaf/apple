@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.0.4](https://github.com/liblaf/apple/compare/v0.0.3...v0.0.4) (2025-03-29)
+
+
+### ✨ Features
+
+* add benchmark tests and material models for FEM analysis ([888ffd8](https://github.com/liblaf/apple/commit/888ffd899714559008f5a7b6ee1b0fd47d8faa5b))
+* **apple:** add AbstractMinimizeProblem and fix_winding utility ([c661b07](https://github.com/liblaf/apple/commit/c661b07ad722c844e4fc1d52f53aebeec3d4a237))
+
+
+### ♻ Code Refactoring
+
+* reorganize configuration files and update dependencies ([b4e8d32](https://github.com/liblaf/apple/commit/b4e8d320b29592c945fa690edfe90e65ffac366a))
+
+
+### 👷 Build System
+
+* update project configuration and dependencies ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
+
 ## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-20
 
 ### ✨ Features

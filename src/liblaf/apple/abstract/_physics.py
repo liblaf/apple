@@ -1,202 +1,196 @@
 import abc
-from collections.abc import Callable
-from typing import overload
+from typing import Protocol
 
 import attrs
 import glom
 import jax
 import jax.flatten_util
 import jax.numpy as jnp
-import pylops
-from jaxtyping import Float, PyTree
+from jaxtyping import Bool, Float, PyTree
 
 from liblaf import apple
 
 
-class NotSetError(ValueError):
-    def __init__(self, name: str) -> None:
-        super().__init__(f"`{name}` not set")
+class Unraveler(Protocol):
+    def __call__(self, flat: Float[jax.Array, " DoF"]) -> PyTree: ...
 
 
-@apple.register_dataclass()
-@attrs.define(kw_only=True, on_setattr=attrs.setters.convert)
-class AbstractPhysicsProblem(abc.ABC):
-    name: str = attrs.field(default="physics", metadata={"static": True})
-    _q_unravel: Callable[[Float[jax.Array, " Q"]], PyTree] | None = attrs.field(
-        default=None, metadata={"static": True}, alias="_q_unravel"
+type UFull = Float[jax.Array, " F"]
+type QFlat = Float[jax.Array, " Q"]
+type QTree = PyTree
+type Q = QFlat | QTree
+type UFlat = Float[jax.Array, " N"]
+type UTree = PyTree
+type U = UFlat | UTree
+type H = Float[jax.Array, " N N"]
+type HFull = Float[jax.Array, " F F"]
+type Scalar = Float[jax.Array, " "]
+
+
+@attrs.define(kw_only=True)
+class AbstractObject(abc.ABC):
+    """...
+
+    Annotations:
+        - `F`: number of degrees of freedom in the system after applying constraints
+        - `N`: number of degrees of freedom in the object without constraints (usually `N = V * 3`)
+        - `Q`: number of parameters in the system
+        - `V`: number of points / vertices in the object
+    """
+
+    name: str = attrs.field(metadata={"static": True})
+    aux: PyTree = attrs.field(factory=dict)
+    params: PyTree = attrs.field(factory=dict)
+    dof_selection: Bool[jax.Array, " F"] = attrs.field(
+        metadata={"static": True}, converter=jnp.asarray
+    )
+    _unravel_q: Unraveler = attrs.field(
+        default=None, metadata={"static": True}, alias="unravel_q"
+    )
+    _unravel_u: Unraveler = attrs.field(
+        default=None, metadata={"static": True}, alias="unravel_u"
     )
 
-    @property
-    @abc.abstractmethod
-    def n_dof(self) -> int: ...
+    def select_dof(self, u_full: UFull) -> U:
+        return u_full[self.dof_selection]
 
-    def solve(
-        self,
-        q: PyTree | None = None,
-        u0: PyTree | None = None,
-        algo: apple.MinimizeAlgorithm | None = None,
-    ) -> apple.MinimizeResult:
-        u0_flat: Float[jax.Array, " DoF"]
-        u0_flat = self.ravel_u(u0) if u0 is not None else jnp.zeros((self.n_dof,))
-        q_flat: Float[jax.Array, " Q"] | None = self.ravel_q(q)
-        result: apple.MinimizeResult = apple.minimize(
-            x0=u0_flat,
-            fun=lambda u_flat: self.fun_flat(u_flat, q_flat),
-            jac=lambda u_flat: self.jac_flat(u_flat, q_flat),
-            hess=lambda u_flat: self.hess_flat(u_flat, q_flat),
-            algo=algo,
-        )
-        return result
-
-    def fun(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, ""]:
-        if type(self).fun_flat is not AbstractPhysicsProblem.fun_flat:
-            # `fun_flat()` is overridden
-            return self.fun_flat(self.ravel_u(u), self.ravel_q(q))
-        raise NotImplementedError
-
-    def fun_flat(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[jax.Array, ""]:
-        if type(self).fun is not AbstractPhysicsProblem.fun:
-            # `fun()` is overridden
-            return self.fun(self.unravel_u(u_flat), self.unravel_q(q_flat))
-        raise NotImplementedError
-
-    def jac(self, u: PyTree, q: PyTree | None = None) -> Float[jax.Array, " DoF"]:
-        return self.jac_flat(self.ravel_u(u), self.ravel_q(q))
-
-    def jac_flat(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[jax.Array, " DoF"]:
-        if type(self).jac is not AbstractPhysicsProblem.jac:
-            # `jac()` is overridden
-            return self.jac(self.unravel_u(u_flat), self.unravel_q(q_flat))
-        return self.jac_flat_autodiff(u_flat, q_flat)
-
-    def hess(
-        self, u: PyTree, q: PyTree | None = None
-    ) -> Float[pylops.LinearOperator, "DoF DoF"]:
-        return self.hess_flat(self.ravel_u(u), self.ravel_q(q))
-
-    def hess_flat(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[pylops.LinearOperator, "DoF DoF"]:
-        if type(self).hess is not AbstractPhysicsProblem.hess:
-            # `hess()` is overridden
-            return self.hess(self.unravel_u(u_flat), self.unravel_q(q_flat))
-        return apple.hess_as_operator(
-            lambda u_flat: self.fun_flat(u_flat, q_flat), u_flat
-        )
-        # TODO: replace with linear operator
-        return self.hess_flat_autodiff_matrix(u_flat, q_flat)
-
-    def dh_dq(self, u: PyTree, q: PyTree) -> Float[pylops.LinearOperator, "DoF Q"]:
-        return self.dh_dq_flat(self.ravel_u(u), self.ravel_q(q))
-
-    def dh_dq_flat(
-        self, u_flat: Float[jax.Array, " DoF"], q_flat: Float[jax.Array, " Q"]
-    ) -> Float[pylops.LinearOperator, "DoF Q"]:
-        if type(self).dh_dq is not AbstractPhysicsProblem.dh_dq:
-            # `dh_dq()` is overridden
-            return self.dh_dq(self.unravel_u(u_flat), self.unravel_q(q_flat))
-        # TODO: replace with linear operator
-        return self.dh_dq_flat_autodiff_matrix(u_flat, q_flat)
-
-    def get_param(self, name: str, q: PyTree | None = None) -> Float[jax.Array, "..."]:
+    def get_param(self, key: str, q: PyTree | None = None) -> PyTree:
         return glom.glom(
-            {"q": q, "self": self},
-            glom.Coalesce(glom.Path("q", self.name, name), glom.Path("self", name)),
+            {"q": q, "self": self.params},
+            glom.Coalesce(glom.Path("q", self.name, key), glom.Path("self", key)),
         )
 
-    def prepare(self, q: PyTree | None = None) -> None:
-        self.ravel_q(q)
+    def fun(self, u_full: UFull, q: Q | None = None) -> Scalar:
+        u_flat: UFlat = self.select_dof(u_full)
+        return self._fun(u_flat, q)
 
-    @overload
-    def ravel_q(self, q: PyTree) -> Float[jax.Array, " Q"]: ...
-    @overload
-    def ravel_q(self, q: None) -> None: ...  # pyright: ignore[reportOverlappingOverload]
-    def ravel_q(self, q: PyTree | None) -> Float[jax.Array, " Q"] | None:
-        q_flat: Float[jax.Array, " Q"]
-        q_flat, self._q_unravel = jax.flatten_util.ravel_pytree(q)
+    def jac(self, u_full: UFull, q: Q | None = None) -> UFull:
+        u_flat: UFlat = self.select_dof(u_full)
+        jac: UFlat = self._jac(u_flat, q)
+        jac_full: UFull = jnp.zeros_like(u_full)
+        jac_full = jac_full.at[self.dof_selection].set(jac)
+        return jac
+
+    def hess(self, u_full: UFull, q: Q | None = None) -> HFull:
+        u_flat: U = self.select_dof(u_full)
+        u: PyTree = self.unravel_u(u_flat)
+        hess: H = self._hess(u, q)
+        hess_full: HFull = jnp.zeros((u_full.size, u_full.size))
+        hess_full = hess_full.at[self.dof_selection, self.dof_selection].set(hess)
+        return hess_full
+
+    def hessp(self, u_full: UFull, p_full: UFull, q: Q | None = None) -> UFull:
+        u_flat: UFlat = self.select_dof(u_full)
+        p_flat: UFlat = self.select_dof(p_full)
+        hessp: UFlat = self._hessp(u_flat, p_flat, q)
+        hessp_full: UFull = jnp.zeros_like(u_full)
+        hessp_full = hessp_full.at[self.dof_selection].set(hessp)
+        return hessp_full
+
+    def hess_diag(self, u_full: UFull, q: Q | None = None) -> UFull:
+        u_flat: UFlat = self.select_dof(u_full)
+        hess_diag: UFlat = self._hess_diag(u_flat, q)
+        hess_diag_full: UFull = jnp.zeros_like(u_full)
+        hess_diag_full = hess_diag_full.at[self.dof_selection].set(hess_diag)
+        return hess_diag_full
+
+    def hess_quad(self, u_full: UFull, p_full: UFull, q: Q | None = None) -> Scalar:
+        u_flat: UFlat = self.select_dof(u_full)
+        p_flat: UFlat = self.select_dof(p_full)
+        hess_quad: UFull = self._hess_quad(u_flat, p_flat, q)
+        hess_quad_full: UFull = jnp.zeros_like(u_full)
+        hess_quad_full = hess_quad_full.at[self.dof_selection].set(hess_quad)
+        return hess_quad_full
+
+    def prepare(self) -> None:
+        self.aux = {}
+
+    def ravel_q(self, q: Q | None) -> QFlat | None:
+        if q is None:
+            return None
+        if apple.is_flat(q):
+            return q
+        q_flat: QFlat
+        q_flat, self._unravel_q = jax.flatten_util.ravel_pytree(q)
         return q_flat
 
-    def ravel_u(self, u: PyTree) -> Float[jax.Array, " DoF"]:
-        u_flat: Float[jax.Array, " DoF"]
-        u_flat, _u_unravel = jax.flatten_util.ravel_pytree(u)
+    def ravel_u(self, u: U) -> UFlat:
+        if apple.is_flat(u):
+            return u
+        u_flat: UFlat
+        u_flat, self._unravel_u = jax.flatten_util.ravel_pytree(u)
         return u_flat
 
-    def unravel_q(self, q_flat: Float[jax.Array, " Q"] | None) -> PyTree | None:
-        if q_flat is None:
+    def unravel_q(self, q: Q | None) -> QTree | None:
+        if q is None:
             return None
-        if self._q_unravel is None:
-            raise NotSetError("_q_unravel")  # noqa: EM101
-        return self._q_unravel(q_flat)
+        if not apple.is_flat(q):
+            return q
+        return self._unravel_q(q)
 
-    def unravel_u(self, u_flat: Float[jax.Array, " DoF"]) -> PyTree:
-        return u_flat
+    def unravel_u(self, u: U) -> UTree:
+        if not apple.is_flat(u):
+            return u
+        return self._unravel_u(u)
 
-    @apple.jit()
-    def jac_flat_autodiff(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[jax.Array, " DoF"]:
-        return jax.jacobian(self.fun_flat)(u_flat, q_flat)
+    @abc.abstractmethod
+    def _fun(self, u: U, q: Q | None = None) -> Scalar: ...
 
-    def hess_flat_autodiff_matrix(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[pylops.LinearOperator, " DoF DoF"]:
-        hess: Float[jax.Array, " DoF DoF"] = self._hess_flat_autodiff_matrix(
-            u_flat, q_flat
-        )
-        return pylops.LinearOperator(
-            pylops.FunctionOperator(
-                lambda v: hess @ v,
-                lambda v: hess @ v,
-                hess.shape[0],
-                hess.shape[1],
-                dtype=hess.dtype,
-            )
-        )
+    def _jac(self, u: U, q: Q | None = None) -> UFlat:
+        u_flat: UFlat = self.ravel_u(u)
+        return jax.grad(self._fun)(u_flat, q)
 
-    def dh_dq_flat_autodiff_matrix(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"],
-    ) -> Float[pylops.LinearOperator, " DoF Q"]:
-        dh_dq: Float[jax.Array, " DoF Q"] = self._dh_dq_flat_autodiff_matrix(
-            u_flat, q_flat
-        )
-        return pylops.LinearOperator(
-            pylops.FunctionOperator(
-                lambda v: dh_dq @ v,
-                lambda v: dh_dq.T @ v,
-                dh_dq.shape[0],
-                dh_dq.shape[1],
-                dtype=dh_dq.dtype,
-            )
+    def _hess(self, u: U, q: Q | None = None) -> H:
+        u_flat: UFlat = self.ravel_u(u)
+        return jax.hessian(self._fun)(u_flat, q)
+
+    def _hessp(self, u: U, p: U, q: Q | None = None) -> UFlat:
+        u_flat: UFlat = self.ravel_u(u)
+        p_flat: UFlat = self.ravel_u(p)
+        return apple.hvp(lambda u_flat: self._fun(u_flat, q), u_flat, p_flat)
+
+    def _hess_diag(self, u: U, q: Q | None = None) -> UFlat:
+        u_flat: UFlat = self.ravel_u(u)
+        return apple.hess_diag(lambda u_flat: self._fun(u_flat, q), u_flat)
+
+    def _hess_quad(self, u: U, p: U, q: Q | None = None) -> Scalar:
+        u_flat: UFlat = self.ravel_u(u)
+        p_flat: UFlat = self.ravel_u(p)
+        return jnp.dot(p_flat, self._hessp(u_flat, p_flat, q))
+
+
+class PhysicsProblem:
+    objects: list[AbstractObject] = attrs.field(factory=list)
+    dirichlet_mask: Bool[jax.Array, " F"] = attrs.field(metadata={"static": True})
+    dirichlet_values: Float[jax.Array, " F"] = attrs.field(converter=jnp.asarray)
+
+    def fun(self, u_full: UFull, q: Q | None = None) -> Scalar:
+        return jnp.sum(
+            jnp.asarray([obj.fun(u_full, q) for obj in self.objects]), axis=0
         )
 
-    @apple.jit()
-    def _hess_flat_autodiff_matrix(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"] | None = None,
-    ) -> Float[jax.Array, " DoF DoF"]:
-        return jax.hessian(self.fun_flat)(u_flat, q_flat)
+    def jac(self, u_full: UFull, q: Q | None = None) -> UFull:
+        return jnp.sum(
+            jnp.asarray([obj.jac(u_full, q) for obj in self.objects]), axis=0
+        )
 
-    @apple.jit()
-    def _dh_dq_flat_autodiff_matrix(
-        self,
-        u_flat: Float[jax.Array, " DoF"],
-        q_flat: Float[jax.Array, " Q"],
-    ) -> Float[jax.Array, " DoF Q"]:
-        return jax.jacobian(lambda q_flat: self.jac_flat(u_flat, q_flat))(q_flat)
+    def hess(self, u_full: UFull, q: Q | None = None) -> Float[jax.Array, "F F"]:
+        return jnp.sum(
+            jnp.asarray([obj.hess(u_full, q) for obj in self.objects]), axis=0
+        )
+
+    def hessp(self, u_full: UFull, p_full: UFull, q: Q | None = None) -> UFull:
+        return jnp.sum(
+            jnp.asarray([obj.hessp(u_full, p_full, q) for obj in self.objects]), axis=0
+        )
+
+    def hess_diag(self, u_full: UFull, q: Q | None = None) -> UFull:
+        return jnp.sum(
+            jnp.asarray([obj.hess_diag(u_full, q) for obj in self.objects]), axis=0
+        )
+
+    def hess_quad(self, u_full: UFull, p_full: UFull, q: Q | None = None) -> Scalar:
+        return jnp.sum(
+            jnp.asarray([obj.hess_quad(u_full, p_full, q) for obj in self.objects]),
+            axis=0,
+        )

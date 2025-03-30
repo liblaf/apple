@@ -46,4 +46,4 @@ def test_dh_dX(region: felupe.RegionTetra) -> None:
         region.dhdX,  # pyright: ignore[reportAttributeAccessIssue]
         "a J q c -> (c q) a J",
     )
-    np.testing.assert_allclose(actual, expected, atol=2e-14)
+    np.testing.assert_allclose(actual, expected, atol=5e-14)

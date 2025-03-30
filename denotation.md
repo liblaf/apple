@@ -8,6 +8,15 @@
 - `nu`: Poisson's ratio
 - `q`: parameters (e.g. material properties)
 
+## Array Annotations
+
+- `C`: number of cells / elements / faces / tetras / triangles
+- `D`: number of Dirichlet boundary conditions
+- `F`: number of DoF after applying Dirichlet boundary conditions
+- `N`: number of DoF without boundary conditions, usually `N = 3 * V`
+- `Q`: number of parameters
+- `V`: number of points / vertices
+
 ## Variables
 
 - `dV`: volume per element

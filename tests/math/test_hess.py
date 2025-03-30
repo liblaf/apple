@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pylops
 import pytest
 from jaxtyping import Float, PRNGKeyArray
 
@@ -33,15 +32,6 @@ def test_hess_diag(hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"]) -> N
     np.testing.assert_allclose(actual, expected)
 
 
-def test_hess_as_opearator(
-    hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
-) -> None:
-    op: pylops.LinearOperator = apple.hess_as_operator(apple.rosen, x)
-    actual: Float[jax.Array, " N"] = op @ v  # pyright: ignore[reportAssignmentType]
-    expected: Float[jax.Array, " N"] = hess @ v
-    np.testing.assert_allclose(actual, expected)
-
-
 def test_hvp(
     hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
 ) -> None:
@@ -50,9 +40,9 @@ def test_hvp(
     np.testing.assert_allclose(actual, expected)
 
 
-def test_hvp_fun(
+def test_hvp_op(
     hess: Float[jax.Array, "N N"], x: Float[jax.Array, "N"], v: Float[jax.Array, "N"]
 ) -> None:
-    actual: Float[jax.Array, " N"] = apple.hvp_fun(apple.rosen, x)(v)
+    actual: Float[jax.Array, " N"] = apple.hvp_op(apple.rosen, x)(v)
     expected: Float[jax.Array, " N"] = hess @ v
     np.testing.assert_allclose(actual, expected)

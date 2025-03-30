@@ -49,4 +49,4 @@ def dV(points: Float[jax.Array, "*c a=4 I=3"]) -> Float[jax.Array, "*c"]:
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 @apple.jit()
 def dh_dX(points: Float[jax.Array, "*c a=4 I=3"]) -> Float[jax.Array, "*c a=4 J=3"]:
-    return einops.einsum(dh_dr(), dr_dX(points), "a I, c I J -> c a J")
+    return einops.einsum(dh_dr(), dr_dX(points), "a I, ... I J -> ... a J")

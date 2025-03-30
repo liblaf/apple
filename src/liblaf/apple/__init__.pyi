@@ -15,21 +15,25 @@ from . import (
 )
 from ._version import __version__, __version_tuple__, version, version_tuple
 from .abstract import (
-    AbstractPhysicsProblem,
+    AbstractObject,
     InversePhysicsProblem,
     LinearOperator,
+    PhysicsProblem,
     as_linear_operator,
 )
 from .math import (
     diagonal,
-    hess_as_operator,
     hess_diag,
+    hess_quad,
+    hess_quad_op,
     hvp,
-    hvp_fun,
+    hvp_op,
     jac_as_operator,
     jvp_fun,
+    norm_sqr,
     polar_rv,
     svd_rv,
+    vjp_fun,
 )
 from .opt import (
     LinearResult,
@@ -50,6 +54,7 @@ from .utils import (
     block_until_ready,
     clone,
     fix_winding,
+    is_flat,
     jit,
     merge,
     register_dataclass,
@@ -58,7 +63,7 @@ from .utils import (
 )
 
 __all__ = [
-    "AbstractPhysicsProblem",
+    "AbstractObject",
     "Corotated",
     "Fixed",
     "Gravity",
@@ -71,6 +76,7 @@ __all__ = [
     "MinimizePNCG",
     "MinimizeResult",
     "MinimizeScipy",
+    "PhysicsProblem",
     "Region",
     "RegionTetra",
     "RichResult",
@@ -89,10 +95,12 @@ __all__ = [
     "diagonal",
     "elem",
     "fix_winding",
-    "hess_as_operator",
     "hess_diag",
+    "hess_quad",
+    "hess_quad_op",
     "hvp",
-    "hvp_fun",
+    "hvp_op",
+    "is_flat",
     "jac_as_operator",
     "jit",
     "jvp_fun",
@@ -100,6 +108,7 @@ __all__ = [
     "math",
     "merge",
     "minimize",
+    "norm_sqr",
     "opt",
     "polar_rv",
     "preset",
@@ -114,4 +123,5 @@ __all__ = [
     "utils",
     "version",
     "version_tuple",
+    "vjp_fun",
 ]

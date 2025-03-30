@@ -1,4 +1,4 @@
-from ._abc import MaterialTetra
-from ._arap import AsRigidAsPossible
+from ._abc import MaterialTetra, MaterialTetraElement
+from ._corotated import Corotated, CorotatedElement
 
-__all__ = ["AsRigidAsPossible", "MaterialTetra"]
+__all__ = ["Corotated", "CorotatedElement", "MaterialTetra", "MaterialTetraElement"]

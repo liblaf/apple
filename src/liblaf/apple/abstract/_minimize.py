@@ -1,7 +1,6 @@
 import abc
 
 import jax
-import jax.numpy as jnp
 from jaxtyping import Float
 
 from liblaf import apple
@@ -31,11 +30,11 @@ class AbstractMinimizeProblem(abc.ABC):
     ) -> Float[jax.Array, " N"]:
         return apple.hess_diag(lambda x: self.fun(x, *args, **kwargs), x)
 
-    def hess_pHp(
+    def hess_quad(
         self,
         x: Float[jax.Array, " N"],
         p: Float[jax.Array, " N"],
         *args,
         **kwargs,
     ) -> Float[jax.Array, ""]:
-        return jnp.vdot(p, self.hessp(x, p, *args, **kwargs))
+        return apple.hess_quad(self.fun, x, p, *args, **kwargs)

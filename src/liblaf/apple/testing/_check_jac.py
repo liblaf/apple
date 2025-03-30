@@ -35,13 +35,16 @@ def check_jac_finite_diff(
     **kwargs,
 ) -> None:
     x_flat: jax.Array
-    x_unravel: Callable[[jax.Array], PyTree]
-    x_flat, x_unravel = jax.flatten_util.ravel_pytree(x)
+    unravel_x: Callable[[jax.Array], PyTree]
+    x_flat, unravel_x = jax.flatten_util.ravel_pytree(x)
+
+    def fun_flat(x_flat: jax.Array) -> jax.Array:
+        x: PyTree = unravel_x(x_flat)
+        result: jax.Array = fun(x)
+        return result
 
     def fun_flat_batch(x_flat_batch: jax.Array) -> jax.Array:
-        return jnp.apply_along_axis(
-            lambda x_flat: fun(x_unravel(x_flat)), axis=0, arr=x_flat_batch
-        )
+        return jnp.apply_along_axis(fun_flat, axis=0, arr=x_flat_batch)
 
     actual: jax.Array = jac(x)
     result: Mapping[str, Any] = scipy.differentiate.jacobian(fun_flat_batch, x_flat)

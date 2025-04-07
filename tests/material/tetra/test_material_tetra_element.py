@@ -1,3 +1,5 @@
+from typing import override
+
 import beartype
 import jax
 import jax.numpy as jnp
@@ -9,21 +11,20 @@ from jaxtyping import Float, PRNGKeyArray, PyTree
 from liblaf import apple
 
 
-class MaterialElement(apple.material.tetra.MaterialTetraElement):
+class MaterialTetraElementNaive(apple.material.tetra.MaterialTetraElement):
     @jaxtyping.jaxtyped(typechecker=beartype.beartype)
+    @override
     def strain_energy_density(
-        self,
-        F: Float[jax.Array, "3 3"],
-        q: PyTree,  # noqa: ARG002
-        aux: PyTree,  # noqa: ARG002
+        self, F: Float[jax.Array, "3 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, ""]:
         return apple.math.norm_sqr(F)
 
 
 @pytest.mark.parametrize(
-    "material", [MaterialElement(), apple.material.tetra.CorotatedElement()]
+    "material",
+    [MaterialTetraElementNaive(), apple.material.tetra.AsRigidAsPossibleElement()],
 )
-class TestMaterial:
+class TestMaterialTetraElement:
     aux: PyTree
     p: Float[jax.Array, "4 3"]
     points: Float[jax.Array, "4 3"]
@@ -38,26 +39,28 @@ class TestMaterial:
         }
 
     @pytest.fixture(scope="class")
-    def points(self, rng: PRNGKeyArray) -> Float[jax.Array, "4 3"]:
-        return jax.random.uniform(rng, (4, 3))
+    def points(self) -> Float[jax.Array, "4 3"]:
+        key: PRNGKeyArray = jax.random.key(1)
+        return jax.random.uniform(key, (4, 3))
 
     @pytest.fixture(scope="class")
-    def p(self, rng: PRNGKeyArray) -> Float[jax.Array, "4 3"]:
-        return jax.random.uniform(rng, (4, 3))
+    def p(self) -> Float[jax.Array, "4 3"]:
+        key: PRNGKeyArray = jax.random.key(2)
+        return jax.random.uniform(key, (4, 3))
 
     @pytest.fixture(scope="class")
-    def q(self, rng: PRNGKeyArray) -> PyTree:
+    def q(self) -> PyTree:
         q: PyTree = {}
-        subkey: PRNGKeyArray
-        rng, subkey = jax.random.split(rng)
-        q["lambda"] = jax.random.uniform(subkey, ())
-        rng, subkey = jax.random.split(rng)
-        q["mu"] = jax.random.uniform(subkey, ())
+        key: PRNGKeyArray = jax.random.key(3)
+        q["lambda"] = jax.random.uniform(key, ())
+        key = jax.random.key(4)
+        q["mu"] = jax.random.uniform(key, ())
         return q
 
     @pytest.fixture(scope="class")
-    def u(self, rng: PRNGKeyArray) -> Float[jax.Array, "4 3"]:
-        return jax.random.uniform(rng, (4, 3))
+    def u(self) -> Float[jax.Array, "4 3"]:
+        key: PRNGKeyArray = jax.random.key(5)
+        return jax.random.uniform(key, (4, 3))
 
     def test_jac(
         self,

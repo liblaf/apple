@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 
 import jax
 import jax.flatten_util
@@ -19,10 +19,13 @@ def vdot_tree[T: PyTree](a: T, b: T) -> Float[jax.Array, ""]:
 
 @apple.jit(static_argnames=["fun"])
 def hess_diag[T: PyTree](
-    fun: Callable[..., Float[jax.Array, ""]], x: T, *args, **kwargs
+    fun: Callable[..., Float[jax.Array, ""]],
+    x: T,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
 ) -> T:
     hess_quad_op_: Callable[[T], Float[jax.Array, ""]] = hess_quad_op(
-        fun, x, *args, **kwargs
+        fun, x, args=args, kwargs=kwargs
     )
     x_flat, unravel_x = jax.flatten_util.ravel_pytree(x)
 
@@ -37,19 +40,23 @@ def hess_diag[T: PyTree](
 
 @apple.jit(static_argnames=["fun"])
 def hess_quad[T](
-    fun: Callable[..., Float[jax.Array, ""]], x: T, v: T, *args, **kwargs
+    fun: Callable[..., Float[jax.Array, ""]],
+    x: T,
+    v: T,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
 ) -> Float[jax.Array, ""]:
-    Hv: T = hvp(fun, x, v, *args, **kwargs)
+    Hv: T = hvp(fun, x, v, args=args, kwargs=kwargs)
     return vdot_tree(v, Hv)
 
 
 def hess_quad_op[T: PyTree](
     func: Callable[..., Float[jax.Array, ""]],
     x: T,
-    *args,
-    **kwargs,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
 ) -> Callable[[T], Float[jax.Array, ""]]:
-    hvp_op_: Callable[[T], T] = hvp_op(func, x, *args, **kwargs)
+    hvp_op_: Callable[[T], T] = hvp_op(func, x, args=args, kwargs=kwargs)
 
     @apple.jit()
     def op(v: T) -> Float[jax.Array, ""]:
@@ -63,9 +70,14 @@ def hvp[T: PyTree](
     fun: Callable[..., Float[jax.Array, ""]],
     x: T,
     v: T,
-    *args,
-    **kwargs,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
 ) -> T:
+    if args is None:
+        args = ()
+    if kwargs is None:
+        kwargs = {}
+
     def f(x: T) -> Float[jax.Array, ""]:
         return fun(x, *args, **kwargs)
 
@@ -75,8 +87,16 @@ def hvp[T: PyTree](
 
 
 def hvp_op[T](
-    fun: Callable[..., Float[jax.Array, ""]], x: T, *args, **kwargs
+    fun: Callable[..., Float[jax.Array, ""]],
+    x: T,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
 ) -> Callable[[T], T]:
+    if args is None:
+        args = ()
+    if kwargs is None:
+        kwargs = {}
+
     def f(x: T) -> Float[jax.Array, ""]:
         return fun(x, *args, **kwargs)
 

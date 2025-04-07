@@ -1,5 +1,4 @@
-# -*- mode: toml; -*-
-# :schema https://json.schemastore.org/pyproject.json
+#:schema https://json.schemastore.org/pyproject.json
 # ref: <https://packaging.python.org/en/latest/specifications/pyproject-toml/>
 
 [build-system]
@@ -8,7 +7,7 @@ requires = ["hatch-vcs", "hatchling"]
 
 [dependency-groups]
 build = ["check-wheel-contents", "hatch", "twine"]
-dev = ["icecream"]
+dev = ["icecream", "sympy>=1.13.3,<2"]
 docs = [
   "gitpython",
   "mdx-truly-sane-lists",
@@ -60,23 +59,26 @@ dependencies = [
   "glom>=24.11.0,<25",
   "jax[cuda12]>=0.5.3,<0.6",
   "jaxtyping>=0.3.0,<0.4",
-  "lazy-loader",
-  "liblaf-cherries>=0.0.8,<0.0.9",
-  "liblaf-grapes>=0.1.13,<0.2",
-  "liblaf-melon>=0.1.5,<0.2",
-  "loguru",
-  "numpy>=2.2.4,<3",
+  "lazy-loader>=0.4,<0.5",
+  "liblaf-cherries>=0.0.9,<0.0.10",
+  "liblaf-grapes>=0.1.17,<0.2",
+  "liblaf-melon>=0.1.9,<0.2",
+  "loguru>=0.7.3,<0.8",
+  "numpy",
   "pyvista>=0.44.2,<0.45",
-  "rich",
-  "scipy>=1.15.2,<2",
+  "rich>=14,<15",
+  "scipy",
 ]
 description = "Add your description here"
 dynamic = ["version"]
 keywords = []
 license = "MIT"
 name = "liblaf-apple"
-readme = "docs/README.md"
+readme = "README.md"
 requires-python = ">=3.12"
+
+[project.optional-dependencies]
+all = ["pytetwild>=0.1.dev1,<0.2"]
 
 [project.urls]
 "Changelog" = "https://github.com/liblaf/apple/blob/main/CHANGELOG.md"
@@ -110,7 +112,7 @@ pylops = ">=2.4.0,<3"
 python = ">=3.12,<3.13"
 
 [tool.pixi.environments]
-default = { features = ["build", "dev", "docs", "test"] }
+default = { features = ["all", "build", "dev", "docs", "test"] }
 
 [tool.pixi.project]
 channel-priority = "disabled"
@@ -127,5 +129,4 @@ linux = "6.13"
 
 [tool.pytest.ini_options]
 addopts = ["--showlocals", "--strict-config", "--strict-markers"]
-junit_family = "legacy"
 testpaths = ["benches/", "tests/"]

@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 
 import jax
 import pylops
@@ -15,6 +15,42 @@ def jac_as_operator(
     return pylops.JaxOperator(
         pylops.FunctionOperator(jvp, vjp, y.size, x.size, dtype=y.dtype)
     )
+
+
+def jvp(
+    fun: Callable[..., Float[jax.Array, " N"]],
+    x: Float[jax.Array, " M"],
+    v: Float[jax.Array, " M"],
+    *,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
+) -> Float[jax.Array, " N"]:
+    if args is None:
+        args = ()
+    if kwargs is None:
+        kwargs = {}
+    tangents_out: Float[jax.Array, " N"]
+    _primals_out, tangents_out = jax.jvp(lambda x: fun(x, *args, **kwargs), (x,), (v,))
+    return tangents_out
+
+
+def vjp(
+    fun: Callable[..., Float[jax.Array, " N"]],
+    x: Float[jax.Array, " M"],
+    v: Float[jax.Array, " N"],
+    *,
+    args: Sequence | None = None,
+    kwargs: Mapping | None = None,
+) -> Float[jax.Array, " M"]:
+    if args is None:
+        args = ()
+    if kwargs is None:
+        kwargs = {}
+    vjpfun: Callable[[Float[jax.Array, " N"]], Float[jax.Array, " M"]]
+    _primals_out, vjpfun = jax.vjp(lambda x: fun(x, *args, **kwargs), (x,))
+    vjp: Float[jax.Array, " M"]
+    (vjp,) = vjpfun(v)
+    return vjp
 
 
 def jvp_fun(

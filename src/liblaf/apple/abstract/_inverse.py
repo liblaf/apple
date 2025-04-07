@@ -14,7 +14,7 @@ from liblaf import apple
 @apple.register_dataclass()
 @attrs.define(kw_only=True)
 class InversePhysicsProblem(abc.ABC):
-    forward_problem: apple.AbstractPhysicsProblem
+    forward_problem: apple.PhysicsProblem
     forward_algo: apple.MinimizeAlgorithm | None = attrs.field(
         default=apple.MinimizeScipy(method="trust-constr"), metadata={"static": True}
     )

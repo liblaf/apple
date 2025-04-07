@@ -9,6 +9,7 @@ type F9 = Float[jax.Array, "9"]
 type F99 = Float[jax.Array, "9 9"]
 
 
+@jax.jit
 def svd_rv(
     F: Float[jax.Array, "*C 3 3"],
 ) -> tuple[
@@ -35,14 +36,13 @@ def _svd_rv(F: F33) -> tuple[F33, F3, F33]:
     U, S_diag, VH = jnp.linalg.svd(F, full_matrices=False)
     detU: Float[jax.Array, ""] = jnp.linalg.det(U)
     detV: Float[jax.Array, ""] = jnp.linalg.det(VH)
-    L_diag: F3 = jnp.asarray([1.0, 1.0, detU * detV])
-    L: F33 = jnp.diagflat(L_diag)
-    U = jax.lax.cond((detU < 0) & (detV > 0), lambda: U @ L, lambda: U)
-    VH = jax.lax.cond((detU > 0) & (detV < 0), lambda: L @ VH, lambda: VH)
-    S_diag = S_diag * L_diag
+    U = U.at[:, 2].set(U[:, 2] * detU)
+    VH = VH.at[2, :].set(VH[2, :] * detV)
+    S_diag = S_diag.at[2].set(S_diag[2] * detU * detV)
     return U, S_diag, VH
 
 
+@jax.jit
 def polar_rv(
     F: Float[jax.Array, "*C 3 3"],
 ) -> tuple[Float[jax.Array, "*C 3 3"], Float[jax.Array, "*C 3 3"]]:
@@ -125,9 +125,9 @@ def _dR_dF(U: F33, S_diag: F3, VH: F33) -> F99:
     sy: Float[jax.Array, ""] = S_diag[1]
     sz: Float[jax.Array, ""] = S_diag[2]
     H: Float[jax.Array, "9 9"] = (
-        (2 / (sx + sy)) * jnp.outer(t0, t0)
-        + (2 / (sy + sz)) * (jnp.outer(t1, t1))
-        + (2 / (sx + sz)) * (jnp.outer(t2, t2))
+        (2.0 / (sx + sy)) * jnp.outer(t0, t0)
+        + (2.0 / (sy + sz)) * (jnp.outer(t1, t1))
+        + (2.0 / (sx + sz)) * (jnp.outer(t2, t2))
     )
     return H
 

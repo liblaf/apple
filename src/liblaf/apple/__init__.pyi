@@ -5,6 +5,7 @@ from . import (
     elem,
     material,
     math,
+    obj,
     opt,
     preset,
     problem,
@@ -38,7 +39,6 @@ from .math import (
 from .opt import (
     LinearResult,
     MinimizeAlgorithm,
-    MinimizeGradientDescent,
     MinimizePNCG,
     MinimizeResult,
     MinimizeScipy,
@@ -60,6 +60,7 @@ from .utils import (
     register_dataclass,
     rosen,
     tetwild,
+    timer_jax,
 )
 
 __all__ = [
@@ -72,7 +73,6 @@ __all__ = [
     "LinearOperator",
     "LinearResult",
     "MinimizeAlgorithm",
-    "MinimizeGradientDescent",
     "MinimizePNCG",
     "MinimizeResult",
     "MinimizeScipy",
@@ -109,6 +109,7 @@ __all__ = [
     "merge",
     "minimize",
     "norm_sqr",
+    "obj",
     "opt",
     "polar_rv",
     "preset",
@@ -119,6 +120,7 @@ __all__ = [
     "svd_rv",
     "testing",
     "tetwild",
+    "timer_jax",
     "typed",
     "utils",
     "version",

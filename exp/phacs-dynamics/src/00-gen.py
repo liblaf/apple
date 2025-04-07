@@ -60,13 +60,26 @@ def gen_surface_mask(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     return mesh
 
 
+DATASET_DIR: Path = Path(
+    "~/mnt/SeaDrive/My Libraries/dataset/2024-09-13-template-head/sculptor/"
+).expanduser()
+
+
 class Config(cherries.BaseConfig):
+    face: Path = DATASET_DIR / "face.ply"
+    cranium: Path = DATASET_DIR / "cranium.ply"
+    mandible: Path = DATASET_DIR / "mandible.ply"
     output: Path = grapes.find_project_dir() / "data/input.vtu"
     edge_length_fac: float = 0.05
 
 
 def main(cfg: Config) -> None:
-    surface: pv.PolyData = pv.Box()  # pyright: ignore[reportAssignmentType]
+    face: pv.PolyData = melon.load_poly_data(cfg.face)
+    cranium: pv.PolyData = melon.load_poly_data(cfg.cranium)
+    mandible: pv.PolyData = melon.load_poly_data(cfg.mandible)
+    skull: pv.PolyData = pv.merge([cranium, mandible])
+    skull.flip_normals()
+    surface: pv.PolyData = pv.merge([face, skull])
     surface.triangulate(inplace=True)
     mesh: pv.UnstructuredGrid = apple.tetwild(
         surface, edge_length_fac=cfg.edge_length_fac

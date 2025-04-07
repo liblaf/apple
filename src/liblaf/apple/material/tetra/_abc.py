@@ -10,7 +10,7 @@ from liblaf import apple
 
 
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class MaterialTetraElement(abc.ABC):
     @property
     def required_aux(self) -> Sequence[str]:
@@ -42,7 +42,9 @@ class MaterialTetraElement(abc.ABC):
         dV: Float[jax.Array, ""] = aux["dV"]
         F: Float[jax.Array, "3 3"] = apple.elem.tetra.deformation_gradient(u, dh_dX)
         PK1: Float[jax.Array, "3 3"] = self.first_piola_kirchhoff_stress(F, q, aux)
-        jac: Float[jax.Array, "4 3"] = dh_dX @ PK1
+        jac: Float[jax.Array, "4 3"] = apple.elem.tetra.deformation_gradient_vjp(
+            dh_dX, PK1
+        )
         return jac * dV
 
     def hess(
@@ -57,12 +59,21 @@ class MaterialTetraElement(abc.ABC):
         q: PyTree,
         aux: PyTree,
     ) -> Float[jax.Array, "4 3"]:
-        return apple.hvp(self.fun, u, p, q, aux)
+        return apple.hvp(self.fun, u, p, args=(q, aux))
 
     def hess_diag(
         self, u: Float[jax.Array, "4 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, "4 3"]:
-        return apple.hess_diag(self.fun, u, q, aux)
+        if (
+            type(self).strain_energy_density_hess_diag
+            is MaterialTetraElement.strain_energy_density_hess_diag
+        ):
+            return apple.hess_diag(self.fun, u, args=(q, aux))
+        dh_dX: Float[jax.Array, "4 3"] = aux["dh_dX"]
+        dV: Float[jax.Array, ""] = aux["dV"]
+        F: Float[jax.Array, "3 3"] = apple.elem.tetra.deformation_gradient(u, dh_dX)
+        diag: Float[jax.Array, "4 3"] = self.strain_energy_density_hess_diag(F, q, aux)
+        return diag * dV
 
     def hess_quad(
         self,
@@ -71,7 +82,16 @@ class MaterialTetraElement(abc.ABC):
         q: PyTree,
         aux: PyTree,
     ) -> Float[jax.Array, ""]:
-        return apple.hess_quad(self.fun, u, p, q, aux)
+        if (
+            type(self).strain_energy_density_hess_quad
+            is MaterialTetraElement.strain_energy_density_hess_quad
+        ):
+            return apple.hess_quad(self.fun, u, p, args=(q, aux))
+        dh_dX: Float[jax.Array, "4 3"] = aux["dh_dX"]
+        dV: Float[jax.Array, ""] = aux["dV"]
+        F: Float[jax.Array, "3 3"] = apple.elem.tetra.deformation_gradient(u, dh_dX)
+        quad: Float[jax.Array, ""] = self.strain_energy_density_hess_quad(F, p, q, aux)
+        return quad * dV
 
     @abc.abstractmethod
     def strain_energy_density(
@@ -88,9 +108,23 @@ class MaterialTetraElement(abc.ABC):
     ) -> Float[jax.Array, "3 3 3 3"]:
         return jax.hessian(self.strain_energy_density)(F, q, aux)
 
+    def strain_energy_density_hess_diag(
+        self, F: Float[jax.Array, "3 3"], q: PyTree, aux: PyTree
+    ) -> Float[jax.Array, "4 3"]:
+        raise NotImplementedError
+
+    def strain_energy_density_hess_quad(
+        self,
+        F: Float[jax.Array, "3 3"],
+        p: Float[jax.Array, "4 3"],
+        q: PyTree,
+        aux: PyTree,
+    ) -> Float[jax.Array, ""]:
+        raise NotImplementedError
+
 
 @apple.register_dataclass()
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class MaterialTetra:
     elem: MaterialTetraElement = attrs.field(default=None, metadata={"static": True})
 

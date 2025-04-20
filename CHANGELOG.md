@@ -1,6 +1,27 @@
 # Changelog
 
-## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-20
+## [0.0.4](https://github.com/liblaf/apple/compare/v0.0.3..v0.0.4) - 2025-04-20
+
+### ✨ Features
+
+- **apple:** add AbstractMinimizeProblem and fix_winding utility - ([c661b07](https://github.com/liblaf/apple/commit/c661b07ad722c844e4fc1d52f53aebeec3d4a237))
+- add dynamic simulation capabilities and improve physics modeling - ([07b0d1c](https://github.com/liblaf/apple/commit/07b0d1c18aa5833d9d324d4992573433cf4eb4fe))
+- add benchmark tests and material models for FEM analysis - ([888ffd8](https://github.com/liblaf/apple/commit/888ffd899714559008f5a7b6ee1b0fd47d8faa5b))
+
+### ♻ Code Refactoring
+
+- **physics:** restructure physics problem abstraction and material models - ([7a4b236](https://github.com/liblaf/apple/commit/7a4b236d24c1e8cce2c738d0552baeb64fb11572))
+- reorganize configuration files and update dependencies - ([b4e8d32](https://github.com/liblaf/apple/commit/b4e8d320b29592c945fa690edfe90e65ffac366a))
+
+### 👷 Build System
+
+- update project configuration and dependencies - ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
+
+### ❤️ New Contributors
+
+- @liblaf made their first contribution
+
+## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-23
 
 ### ✨ Features
 
@@ -19,11 +40,6 @@
 
 - simplify physics problem builder pattern - ([1aff338](https://github.com/liblaf/apple/commit/1aff33837cac11433ed80cd4b6f3488edf88119f))
 - restructure physics problem implementation and optimization - ([e98f4c5](https://github.com/liblaf/apple/commit/e98f4c5733f6911e24815e8b1f544c5214623a65))
-
-### ❤️ New Contributors
-
-- @renovate[bot] made their first contribution in [#15](https://github.com/liblaf/apple/pull/15)
-- @liblaf made their first contribution
 
 ## [0.0.2](https://github.com/liblaf/apple/compare/v0.0.1..v0.0.2) - 2025-02-24
 

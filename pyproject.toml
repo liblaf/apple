@@ -116,7 +116,7 @@ source = "vcs"
 
 [tool.pixi.dependencies]
 pylops = ">=2.4.0,<3"
-python = ">=3.12.9,<3.13"
+python = ">=3.13.3,<3.14"
 
 [tool.pixi.environments]
 default = { features = ["all", "build", "dev", "docs", "test"] }

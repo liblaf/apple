@@ -54,6 +54,7 @@ class MinimizePNCG(MinimizeAlgorithm):
             # g_next: Float[jax.Array, " N"] = jac(x, *args, **kwargs)
             # H_diag: Float[jax.Array, " N"] = hess_diag(x, *args, **kwargs)
             g_next, H_diag = jac_and_hess_diag(x, *args, **kwargs)
+            H_diag: Float[jax.Array, " N"] = jnp.maximum(H_diag, self.eps)
             P_diag: Float[jax.Array, " N"] = 1.0 / H_diag
             if k == 0:
                 p = self.compute_initial_p(g, P_diag)

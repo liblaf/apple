@@ -191,10 +191,14 @@ playground/
 *.png
 *.svg
 
+*.avi
+*.mp4
+
 *.mtl
 *.obj
 *.ply
 *.pvd
+*.series
 *.stl
 *.vtk
 *.vtp

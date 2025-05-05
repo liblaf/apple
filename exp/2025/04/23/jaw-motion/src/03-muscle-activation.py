@@ -8,9 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-import trimesh as tm
 from jaxtyping import Bool, Float, PyTree
-from scipy import linalg
 
 import liblaf.apple as apple  # noqa: PLR0402
 from liblaf import cherries, melon

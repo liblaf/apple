@@ -61,7 +61,7 @@ dependencies = [
   "jaxtyping>=0.3.2,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=0.1.23,<0.2",
-  "liblaf-melon>=0.2.3,<0.3",
+  "liblaf-melon>=0.2.4,<0.3",
   "loguru>=0.7.3,<0.8",
   "numpy",
   "pyvista>=0.45.1,<0.46",

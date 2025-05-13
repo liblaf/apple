@@ -13,7 +13,7 @@ from ._abc import Callback, Optimizer, OptimizeResult
 @attrs.define(kw_only=True)
 class OptimizerScipy(Optimizer):
     method: str = "trust-constr"
-    tol: float | None = 5e-5
+    tol: float | None = None
     options: dict[str, Any] = attrs.field(factory=lambda: {"disp": True})
 
     @override

@@ -1,0 +1,5 @@
+outs:
+- md5: 95c4078b02ceae3909c6fe44f56c7c32
+  size: 2267
+  hash: md5
+  path: 20-simulate.py

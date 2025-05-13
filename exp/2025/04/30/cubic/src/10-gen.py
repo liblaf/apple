@@ -41,7 +41,7 @@ def main(cfg: Config) -> None:
                 "i j -> C i j",
                 C=geometry.n_cells,
             ),
-            "active-fraction": jnp.full((geometry.n_cells,), 1.0),
+            "active-fraction": jnp.full((geometry.n_cells,), 0.5),
             "lambda": geometry.cell_data["lambda"],
             "mu": geometry.cell_data["mu"],
         },

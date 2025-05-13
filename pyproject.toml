@@ -72,7 +72,7 @@ dependencies = [
   "liblaf-melon>=0.1.11,<0.2",
   "loguru>=0.7.3,<0.8",
   "numpy",
-  "pyvista>=0.44.2,<0.45",
+  "pyvista>=0.45.2,<0.46",
   "rich>=14.0.0,<15",
   "scipy",
 ]

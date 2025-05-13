@@ -12,7 +12,7 @@ from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):
-    solution: Path = cherries.data("data/02-intermediate/solution/solution.vtu.series")
+    solution: Path = cherries.data("02-intermediate/solution/solution.vtu.series")
     activation: float = 10.0
 
 

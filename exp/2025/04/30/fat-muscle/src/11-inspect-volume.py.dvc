@@ -1,0 +1,5 @@
+outs:
+- md5: 706e9232fbe9538f8fbeeca876e09062
+  size: 551
+  hash: md5
+  path: 11-inspect-volume.py

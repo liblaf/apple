@@ -61,7 +61,7 @@ def main(cfg: Config) -> None:
 
     result: apple.OptimizeResult = physics.solve(
         q,
-        method=apple.OptimizerScipy(options={"disp": True, "verbose": 3}),
+        method=apple.OptimizerScipy(tol=5e-5, options={"disp": True, "verbose": 3}),
         callback=callback,
     )
     ic(result)

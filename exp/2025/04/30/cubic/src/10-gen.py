@@ -13,10 +13,11 @@ from liblaf import cherries, melon
 
 class Config(cherries.BaseConfig):
     solution: Path = cherries.data("data/02-intermediate/solution/solution.vtu.series")
+    activation: float = 10.0
 
 
 def main(cfg: Config) -> None:
-    box: pv.PolyData = pv.Box()
+    box: pv.PolyData = pv.Box((-1, 1, -0.1, 0.1, 0, 0.01))
     geometry: pv.UnstructuredGrid = melon.tetwild(box)
     geometry.cell_data["lambda"] = 3.0
     geometry.cell_data["mu"] = 1.0
@@ -28,7 +29,15 @@ def main(cfg: Config) -> None:
     q: PyTree = {
         "box": {
             "activation": einops.repeat(
-                jnp.diagflat(jnp.asarray([2.0, 1.0, 1.0])),
+                jnp.diagflat(
+                    jnp.asarray(
+                        [
+                            1 / cfg.activation,
+                            np.sqrt(cfg.activation),
+                            np.sqrt(cfg.activation),
+                        ]
+                    ),
+                ),
                 "i j -> C i j",
                 C=geometry.n_cells,
             ),

@@ -5,3 +5,4 @@
 *.log.gz
 *.log.jsonl
 *.log.jsonl.gz
+*.py

@@ -2,7 +2,9 @@ from collections.abc import Callable
 from typing import Any, override
 
 import attrs
+import jax
 import scipy.optimize
+from jaxtyping import Float
 from numpy.typing import ArrayLike
 
 from ._abc import Callback, Optimizer, OptimizeResult
@@ -17,7 +19,7 @@ class OptimizerScipy(Optimizer):
     @override
     def _minimize(
         self,
-        fun: Callable[..., float],
+        fun: Callable[..., Float[jax.Array, ""]],
         x0: ArrayLike,
         *,
         args: tuple = (),

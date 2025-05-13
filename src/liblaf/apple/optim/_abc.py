@@ -1,18 +1,20 @@
 import abc
 from collections.abc import Callable
-from typing import Protocol, Required, TypedDict, overload
+from typing import Protocol, overload
 
 import jax
 import jax.numpy as jnp
+import scipy
+import scipy.optimize
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
 from liblaf import grapes
 
 
-class OptimizeResult(TypedDict, total=False):
+class OptimizeResult(scipy.optimize.OptimizeResult):
     x: Float[jax.Array, " N"]
-    success: Required[bool]
+    success: bool
     fun: float
     jac: Float[jax.Array, " N"]
     hess: Float[jax.Array, "N N"]
@@ -93,7 +95,7 @@ class Optimizer(abc.ABC):
     @abc.abstractmethod
     def _minimize(
         self,
-        fun: Callable[..., float],
+        fun: Callable[..., Float[jax.Array, ""]],
         x0: Float[ArrayLike, " N"],
         *,
         args: tuple = (),

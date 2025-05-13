@@ -160,7 +160,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/83/60/d497a310bde3f01cb805196ac61b7ad6dc5dcf8dce66634dc34364b20b4f/lazy_loader-0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f0/fb/6fcab5224ef0df57f6a2a9cf1d15a4456c065f59bd754f25207bb8174b89/liblaf_cherries-0.0.13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cd/bc/9ba309d951e167568a5f97a6d323ec8e755688964a7e79129bd268eeef49/liblaf_grapes-0.1.23-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/19/ce/90138fdb7b7ce61b9d1b982c6868ae8eaf2b35cf9872111f0440d4f38ac4/liblaf_melon-0.2.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/b7/d7/4536803a26d53f02452036bb073ed8df8fe5cf3d66acd219fae49e4237b5/liblaf_melon-0.2.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ad/36/239820114bf1d71f38f12208b9c58dec033cbcf80101cde006b9bde5cffd/lxml-5.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/87/fb/99f81ac72ae23375f22b7afdb7642aba97c00a713c217124420147681a2f/mako-1.3.10-py3-none-any.whl
@@ -2496,8 +2496,8 @@ packages:
   timestamp: 1746642113092
 - pypi: .
   name: liblaf-apple
-  version: 0.0.4.dev29+g8b4cc7f.d20250511
-  sha256: ffa02c81c1277fc13a993e995d643c1f2f42ca53c70dca2c74ea333f4897e881
+  version: 0.0.4.dev30+g27bcb37.d20250513
+  sha256: 763bfb177bd2ca333dc1637c9a87741d4cce1e3f52583533f952dab159c3ea08
   requires_dist:
   - beartype>=0.20.2,<0.21
   - einops>=0.8.1,<0.9
@@ -2507,7 +2507,7 @@ packages:
   - jaxtyping>=0.3.2,<0.4
   - lazy-loader>=0.4,<0.5
   - liblaf-grapes>=0.1.23,<0.2
-  - liblaf-melon>=0.2.1,<0.3
+  - liblaf-melon>=0.2.3,<0.3
   - loguru>=0.7.3,<0.8
   - numpy
   - pyvista>=0.45.1,<0.46
@@ -2553,10 +2553,10 @@ packages:
   - ruamel-yaml>=0.18.10,<0.19
   - tomlkit>=0.13.2,<0.14
   requires_python: '>=3.12'
-- pypi: https://files.pythonhosted.org/packages/19/ce/90138fdb7b7ce61b9d1b982c6868ae8eaf2b35cf9872111f0440d4f38ac4/liblaf_melon-0.2.1-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/b7/d7/4536803a26d53f02452036bb073ed8df8fe5cf3d66acd219fae49e4237b5/liblaf_melon-0.2.3-py3-none-any.whl
   name: liblaf-melon
-  version: 0.2.1
-  sha256: 19ecb9190039dd23b3bcccb2da93e8c6c096ed7b77ad416f3afb86c004a5b236
+  version: 0.2.3
+  sha256: 55039e28e436cefc164ecf2f7ffb730639975d57243d98395a3c7832db53e8da
   requires_dist:
   - attrs>=25.3.0,<26
   - einops>=0.8.1,<0.9
@@ -2585,7 +2585,7 @@ packages:
   - tinyobjloader>=2.0.0rc13,<3
   - trimesh[easy]>=4.6.8,<5
   - typer>=0.15.3,<0.16
-  requires_python: '>=3.12'
+  requires_python: '>=3.12,<3.13'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.1-hb9d3cd8_1.conda
   sha256: eeff241bddc8f1b87567dd6507c9f441f7f472c27f0860a07628260c000ef27c
   md5: a76fd702c93cd2dfd89eff30a5fd45a8

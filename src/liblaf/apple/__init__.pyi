@@ -1,17 +1,20 @@
-from . import optim, utils
-from ._version import __version__, __version_tuple__, version, version_tuple
-from .optim import Optimizer, OptimizeResult, OptimizerScipy
-from .utils import block_until_ready_decorator
+from . import jax, optim, physics, typed, utils
+from .optim import Optimizer, OptimizeResult, OptimizerScipy, minimize
+from .physics import Object, Physics
+from .utils import block_until_ready_decorator, jit
 
 __all__ = [
+    "Object",
     "OptimizeResult",
     "Optimizer",
     "OptimizerScipy",
-    "__version__",
-    "__version_tuple__",
+    "Physics",
     "block_until_ready_decorator",
+    "jax",
+    "jit",
+    "minimize",
     "optim",
+    "physics",
+    "typed",
     "utils",
-    "version",
-    "version_tuple",
 ]

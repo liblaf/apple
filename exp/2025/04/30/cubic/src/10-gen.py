@@ -13,11 +13,11 @@ from liblaf import cherries, melon
 
 class Config(cherries.BaseConfig):
     solution: Path = cherries.data("02-intermediate/solution/solution.vtu.series")
-    activation: float = 10.0
+    activation: float = 2.0
 
 
 def main(cfg: Config) -> None:
-    box: pv.PolyData = pv.Box((-1, 1, -0.1, 0.1, 0, 0.01))
+    box: pv.PolyData = pv.Box((0, 1, 0, 0.2, 0, 0.01))
     geometry: pv.UnstructuredGrid = melon.tetwild(box)
     geometry.cell_data["lambda"] = 3.0
     geometry.cell_data["mu"] = 1.0

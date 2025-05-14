@@ -12,7 +12,7 @@ from warp.jax_experimental import ffi
 from liblaf import apple
 
 
-def inputs(n: int = 10**6) -> Float[jax.Array, " N 3 3"]:
+def inputs(n: int = 10**5) -> Float[jax.Array, " N 3 3"]:
     key: PRNGKeyArray = jax.random.key(0)
     subkey: PRNGKeyArray
     key, subkey = jax.random.split(key)
@@ -56,7 +56,7 @@ def arap(F: Float[jax.Array, "N 3 3"]) -> Float[jax.Array, ""]:
 
 @apple.block_until_ready_decorator
 @jax.jit
-def arap_jax(F: Float[jax.Array, "N 3 3"]) -> Float[jax.Array, ""]:
+def arap_jax(F: Float[jax.Array, "N 3 3"]) -> Float[jax.Array, " N"]:
     return jax.vmap(arap)(F)
 
 

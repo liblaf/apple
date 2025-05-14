@@ -43,7 +43,7 @@ def main(cfg: Config) -> None:
                 "i j -> C i j",
                 C=geometry.n_cells,
             ),
-            "active-fraction": geometry.cell_data["muscle-fraction"] * 10,
+            "active-fraction": geometry.cell_data["muscle-fraction"],
             "lambda": geometry.cell_data["lambda"],
             "mu": geometry.cell_data["mu"],
         },

@@ -71,8 +71,11 @@ def activations(
     tetmesh: pv.UnstructuredGrid, stretch: Float[np.ndarray, " 3"]
 ) -> Float[np.ndarray, "C 3 3"]:
     muscle_direction: Float[np.ndarray, "C 3"] = tetmesh.cell_data["muscle-direction"]
+    muscle_fraction: Float[np.ndarray, " C"] = tetmesh.cell_data["muscle-fraction"]
     activation: Float[np.ndarray, "C 3 3"] = np.zeros((tetmesh.n_cells, 3, 3))
     for cid in grapes.track(range(tetmesh.n_cells), callback_stop=grapes.timing.NOOP):
+        if muscle_fraction[cid] < 1e-5:
+            continue
         rotation: scipy.spatial.transform.Rotation
         rotation, _rssd = scipy.spatial.transform.Rotation.align_vectors(
             muscle_direction[cid], np.asarray([1.0, 0.0, 0.0])

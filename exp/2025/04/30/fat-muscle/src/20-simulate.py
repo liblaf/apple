@@ -12,7 +12,7 @@ from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):
-    activation: float = 2.0
+    activation: float = 1.5
 
     tetgen: Path = cherries.data("10-tetgen.vtu")
 

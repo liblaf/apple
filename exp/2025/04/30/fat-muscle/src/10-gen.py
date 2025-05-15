@@ -24,7 +24,11 @@ def main(cfg: Config) -> None:
     muscle: pv.PolyData = pv.Box((-1, 1, -0.3, 0.3, 0.08, 0.12))
     tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
     tetmesh.cell_data["muscle-fraction"] = 0.0
-    for cid, cell in grapes.track(enumerate(tetmesh.cell), total=tetmesh.n_cells):
+    for cid, cell in grapes.track(
+        enumerate(tetmesh.cell),
+        total=tetmesh.n_cells,
+        callback_stop=grapes.timing.callback.NOOP,
+    ):
         cell: pv.Cell
         barycentric: Float[np.ndarray, "N 3"] = melon.sample_barycentric_coords(
             (cfg.n_samples, 4)

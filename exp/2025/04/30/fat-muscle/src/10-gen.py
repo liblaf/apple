@@ -19,7 +19,7 @@ class Config(cherries.BaseConfig):
 def main(cfg: Config) -> None:
     surface: pv.PolyData = pv.Box((-1, 1, -0.4, 0.4, 0, 0.2))
     muscle: pv.PolyData = pv.Box((-1, 1, -0.3, 0.3, 0.08, 0.12))
-    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=0.01)
     tetmesh.cell_data["muscle-fraction"] = 0.0
     for cid, cell in enumerate(tetmesh.cell):
         cell: pv.Cell

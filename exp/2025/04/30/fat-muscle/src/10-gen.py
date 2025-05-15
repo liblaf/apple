@@ -4,9 +4,10 @@ import einops
 import numpy as np
 import pyvista as pv
 from jaxtyping import Bool, Float
+from loguru import logger
 
 import liblaf.melon as melon  # noqa: PLR0402
-from liblaf import cherries
+from liblaf import cherries, grapes
 
 
 class Config(cherries.BaseConfig):
@@ -18,11 +19,12 @@ class Config(cherries.BaseConfig):
 
 
 def main(cfg: Config) -> None:
+    logger.disable("trimesh")
     surface: pv.PolyData = pv.Box((-1, 1, -0.4, 0.4, 0, 0.2))
     muscle: pv.PolyData = pv.Box((-1, 1, -0.3, 0.3, 0.08, 0.12))
     tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
     tetmesh.cell_data["muscle-fraction"] = 0.0
-    for cid, cell in enumerate(tetmesh.cell):
+    for cid, cell in grapes.track(enumerate(tetmesh.cell), total=tetmesh.n_cells):
         cell: pv.Cell
         barycentric: Float[np.ndarray, "N 3"] = melon.sample_barycentric_coords(
             (cfg.n_samples, 4)

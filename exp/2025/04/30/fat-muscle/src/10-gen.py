@@ -11,6 +11,7 @@ from liblaf import cherries
 
 class Config(cherries.BaseConfig):
     n_samples: int = 100
+    lr: float = 0.02
 
     muscle: Path = cherries.data("10-muscle.vtp")
     tetgen: Path = cherries.data("10-tetgen.vtu")
@@ -19,7 +20,7 @@ class Config(cherries.BaseConfig):
 def main(cfg: Config) -> None:
     surface: pv.PolyData = pv.Box((-1, 1, -0.4, 0.4, 0, 0.2))
     muscle: pv.PolyData = pv.Box((-1, 1, -0.3, 0.3, 0.08, 0.12))
-    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=0.01)
+    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
     tetmesh.cell_data["muscle-fraction"] = 0.0
     for cid, cell in enumerate(tetmesh.cell):
         cell: pv.Cell

@@ -5,6 +5,7 @@ import einops
 import numpy as np
 import pyvista as pv
 from jaxtyping import Bool, Float
+from loguru import logger
 
 import liblaf.melon as melon  # noqa: PLR0402
 from liblaf import cherries, grapes
@@ -19,8 +20,10 @@ class Config(cherries.BaseConfig):
 
 
 def main(cfg: Config) -> None:
+    logger.disable("trimesh")
     task: clearml.Task = clearml.Task.current_task()
     task.connect(cfg.model_dump(mode="json"), name="Pydantic Settings")
+    task.get_logger().report_single_value("lr", cfg.lr)
     surface: pv.PolyData = pv.Box((-1, 1, -0.4, 0.4, 0, 0.2))
     muscle: pv.PolyData = pv.Box((-1, 1, -0.3, 0.3, 0.08, 0.12))
     tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)

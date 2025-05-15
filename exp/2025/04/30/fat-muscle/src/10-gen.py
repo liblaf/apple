@@ -44,8 +44,10 @@ def main(cfg: Config) -> None:
 
     melon.save(cfg.muscle, muscle)
     cherries.log_output(cfg.muscle)
+    task.upload_artifact("10-tetgen.vtu", cfg.muscle)
     melon.save(cfg.tetgen, tetmesh)
     cherries.log_output(cfg.tetgen)
+    task.upload_artifact("10-muscle.vtp", cfg.tetgen)
 
 
 if __name__ == "__main__":

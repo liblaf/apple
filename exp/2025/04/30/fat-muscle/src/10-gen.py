@@ -20,7 +20,7 @@ class Config(cherries.BaseConfig):
 
 
 def main(cfg: Config) -> None:
-    logger.disable("trimesh")
+    # logger.disable("trimesh")
     task: clearml.Task = clearml.Task.current_task()
     task.connect(cfg.model_dump(mode="json"), name="Pydantic Settings")
     task.get_logger().report_single_value("lr", cfg.lr)

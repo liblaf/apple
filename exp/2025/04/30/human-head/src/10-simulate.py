@@ -29,18 +29,19 @@ def main(cfg: Config) -> None:
         dirichlet_mask=jnp.zeros((geometry.n_points * 3,), dtype=bool)
     )
     physics.add(apple.Object("flesh", apple.jax.energy.tetra.Phace(), geometry))
+    activation: Float[jax.Array, "C 3 3"] = activations(
+        geometry,
+        np.asarray(
+            [
+                1.0 / cfg.activation,
+                np.sqrt(cfg.activation),
+                np.sqrt(cfg.activation),
+            ]
+        ),
+    )
     q: PyTree = {
         "flesh": {
-            "activation": activations(
-                geometry,
-                np.asarray(
-                    [
-                        1.0 / cfg.activation,
-                        np.sqrt(cfg.activation),
-                        np.sqrt(cfg.activation),
-                    ]
-                ),
-            ),
+            "activation": activation,
             "active-fraction": geometry.cell_data["muscle-fraction"],
             "lambda": geometry.cell_data["lambda"],
             "mu": geometry.cell_data["mu"],
@@ -81,7 +82,7 @@ def activations(
         orientation,
         jnp.asarray(stretch),
         orientation,
-        "C i j, j, C j k -> C i k",
+        "C j i, j, C j k -> C i k",
     )
     activation = activation.at[muscle_fraction < 1e-6].set(jnp.identity(3))
     return activation

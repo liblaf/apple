@@ -32,7 +32,7 @@ def _orientation_matrix_elem(a: Vec3, b: Vec3) -> Mat33:
 
 def _svd_rv_elem(v: Vec3) -> Mat33:
     U: Mat33
-    U, _sigma, _VH = jnp.linalg.svd(v)
+    U, _sigma, _VH = jnp.linalg.svd(v[:, None])
     # reflection matrix
     L: Mat33 = jnp.identity(3)
     L = L.at[2, 2].set(jnp.linalg.det(U))

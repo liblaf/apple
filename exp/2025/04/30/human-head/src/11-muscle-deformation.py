@@ -35,6 +35,7 @@ def main(cfg: Config) -> None:
     cells: Float[jax.Array, "C 4"] = jnp.asarray(tetmesh.cells_dict[pv.CellType.TETRA])
     dh_dX: Float[jax.Array, "C 4 3"] = apple.jax.elem.tetra.dh_dX(points[cells])
     dV: Float[jax.Array, " C"] = apple.jax.elem.tetra.dV(points[cells])
+    dV *= muscle_fraction
     u: Float[jax.Array, "C 3 3"] = jnp.asarray(solution.point_data["solution"])
     F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
         u[cells], dh_dX
@@ -49,7 +50,7 @@ def main(cfg: Config) -> None:
             continue
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
         F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
-            F_aligned[mask], muscle_fraction[mask] * dV[mask], "C i j, C -> i j"
+            F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
         ic(muscle, F_muscle_aligned)
         ic(jnp.linalg.det(F_muscle_aligned))

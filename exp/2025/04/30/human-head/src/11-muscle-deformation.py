@@ -20,6 +20,14 @@ def main(cfg: Config) -> None:
     solution: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.solution)
     tetmesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.tetmesh)
 
+    muscle_direction: Float[jax.Array, "C 3"] = jnp.asarray(
+        solution.point_data["muscle-direction"]
+    )
+    orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
+        muscle_direction,
+        einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
+    )
+
     points: Float[jax.Array, "P 3"] = jnp.asarray(tetmesh.points)
     cells: Float[jax.Array, "C 4"] = jnp.asarray(tetmesh.cells_dict[pv.CellType.TETRA])
     dh_dX: Float[jax.Array, "C 4 3"] = apple.jax.elem.tetra.dh_dX(points[cells])
@@ -28,14 +36,17 @@ def main(cfg: Config) -> None:
     F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
         u[cells], dh_dX
     )
+    F_aligned: Float[jax.Array, "C 3 3"] = einops.einsum(
+        orientation, F, orientation, "C i j, C j k, C l k -> C i l"
+    )
 
     muscles: list[str] = np.unique(tetmesh.cell_data["muscle-name"])
     for muscle in muscles:
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
-        F_muscle: Float[jax.Array, "3 3"] = einops.einsum(
-            F[mask], dV[mask], "C i j, C -> i j"
+        F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
+            F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
-        ic(muscle, F_muscle)
+        ic(muscle, F_muscle_aligned)
 
 
 if __name__ == "__main__":

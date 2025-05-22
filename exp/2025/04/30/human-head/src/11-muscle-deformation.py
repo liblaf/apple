@@ -42,6 +42,8 @@ def main(cfg: Config) -> None:
 
     muscles: list[str] = np.unique(tetmesh.cell_data["muscle-name"])
     for muscle in muscles:
+        if not muscle:
+            continue
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
         F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
             F_aligned[mask], dV[mask], "C i j, C -> i j"

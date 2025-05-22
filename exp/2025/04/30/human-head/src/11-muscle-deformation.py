@@ -12,7 +12,7 @@ from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):
-    solution: Path = cherries.data("solution-100/solution_000101.vtu")
+    solution: Path = cherries.data("solution/solution_000177.vtu")
     tetmesh: Path = cherries.data("10-tetgen.vtu")
 
 

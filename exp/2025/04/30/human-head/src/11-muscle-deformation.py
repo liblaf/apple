@@ -21,7 +21,7 @@ def main(cfg: Config) -> None:
     tetmesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.tetmesh)
 
     muscle_direction: Float[jax.Array, "C 3"] = jnp.asarray(
-        tetmesh.point_data["muscle-direction"]
+        tetmesh.cell_data["muscle-direction"]
     )
     orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
         muscle_direction,

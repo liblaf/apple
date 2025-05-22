@@ -2,6 +2,7 @@ from pathlib import Path
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pyvista as pv
 from jaxtyping import Float
 
@@ -20,13 +21,15 @@ def main(cfg: Config) -> None:
 
     points: Float[jax.Array, "P 3"] = jnp.asarray(tetmesh.points)
     cells: Float[jax.Array, "C 4"] = jnp.asarray(tetmesh.cells_dict[pv.CellType.TETRA])
-    dh_dX: Float[jax.Array, "*C 4 3"] = apple.jax.elem.tetra.dh_dX(points[cells])
-    u: Float[jax.Array, "*C 3 3"] = jnp.asarray(solution.point_data["solution"])
-    F: Float[jax.Array, "*C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
+    dh_dX: Float[jax.Array, "C 4 3"] = apple.jax.elem.tetra.dh_dX(points[cells])
+    dV: Float[jax.Array, " C"] = apple.jax.elem.tetra.dV(points[cells])
+    u: Float[jax.Array, "C 3 3"] = jnp.asarray(solution.point_data["solution"])
+    F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
         u[cells], dh_dX
     )
 
-    ic(F)
+    muscles: list[str] = np.unique(tetmesh.cell_data["muscle-name"])
+    ic(muscles)
 
 
 if __name__ == "__main__":

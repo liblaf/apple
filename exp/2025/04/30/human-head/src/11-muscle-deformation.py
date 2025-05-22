@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import einops
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -29,7 +30,12 @@ def main(cfg: Config) -> None:
     )
 
     muscles: list[str] = np.unique(tetmesh.cell_data["muscle-name"])
-    ic(muscles)
+    for muscle in muscles:
+        mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
+        F_muscle: Float[jax.Array, "3 3"] = einops.einsum(
+            F[mask], dV[mask], "C i j, C -> i j"
+        ) / jnp.sum(dV[mask])
+        ic(muscle, F_muscle)
 
 
 if __name__ == "__main__":

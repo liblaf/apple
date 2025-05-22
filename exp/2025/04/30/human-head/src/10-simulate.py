@@ -74,7 +74,7 @@ def activations(
     stretch: Float[jax.Array, " 3"] = jnp.asarray(stretch)
     orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
         muscle_direction,
-        einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C 3", C=tetmesh.n_cells),
+        einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
     )
     activation: Float[jax.Array, "C 3 3"] = einops.einsum(
         orientation,

@@ -49,6 +49,7 @@ def main(cfg: Config) -> None:
             F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
         ic(muscle, F_muscle_aligned)
+        ic(jnp.linalg.det(F_muscle_aligned))
 
 
 if __name__ == "__main__":

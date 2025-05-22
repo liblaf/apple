@@ -13,7 +13,7 @@ from liblaf import cherries, grapes, melon
 
 
 class Config(cherries.BaseConfig):
-    activation: float = 10
+    activation: float = 1.5
 
     tetgen: Path = cherries.data("10-tetgen.vtu")
 
@@ -41,7 +41,7 @@ def main(cfg: Config) -> None:
                     ]
                 ),
             ),
-            "active-fraction": geometry.cell_data["muscle-fraction"],
+            "active-fraction": geometry.cell_data["muscle-fraction"] * 50,
             "lambda": geometry.cell_data["lambda"],
             "mu": geometry.cell_data["mu"],
         },

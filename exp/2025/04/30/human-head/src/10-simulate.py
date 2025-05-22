@@ -1,15 +1,15 @@
 from pathlib import Path
 
+import einops
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-import scipy
-import scipy.spatial
 from jaxtyping import Float, PyTree
+from numpy.typing import ArrayLike
 
 import liblaf.apple as apple  # noqa: PLR0402
-from liblaf import cherries, grapes, melon
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):
@@ -68,20 +68,20 @@ def main(cfg: Config) -> None:
 
 
 def activations(
-    tetmesh: pv.UnstructuredGrid, stretch: Float[np.ndarray, " 3"]
-) -> Float[np.ndarray, "C 3 3"]:
+    tetmesh: pv.UnstructuredGrid, stretch: Float[ArrayLike, " 3"]
+) -> Float[jax.Array, "C 3 3"]:
     muscle_direction: Float[np.ndarray, "C 3"] = tetmesh.cell_data["muscle-direction"]
-    muscle_fraction: Float[np.ndarray, " C"] = tetmesh.cell_data["muscle-fraction"]
-    activation: Float[np.ndarray, "C 3 3"] = np.zeros((tetmesh.n_cells, 3, 3))
-    for cid in grapes.track(range(tetmesh.n_cells), callback_stop=grapes.timing.NOOP):
-        if muscle_fraction[cid] < 1e-5:
-            continue
-        rotation: scipy.spatial.transform.Rotation
-        rotation, _rssd = scipy.spatial.transform.Rotation.align_vectors(
-            muscle_direction[cid], np.asarray([1.0, 0.0, 0.0])
-        )
-        Q: Float[np.ndarray, "3 3"] = rotation.as_matrix()
-        activation[cid] = Q @ jnp.diagflat(stretch) @ Q.T
+    stretch: Float[jax.Array, " 3"] = jnp.asarray(stretch)
+    orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
+        muscle_direction,
+        einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C 3", C=tetmesh.n_cells),
+    )
+    activation: Float[jax.Array, "C 3 3"] = einops.einsum(
+        orientation,
+        jnp.asarray(stretch),
+        orientation,
+        "C i j, j, C j k -> C i k",
+    )
     return activation
 
 

@@ -4,7 +4,6 @@ import jax
 import jax.numpy as jnp
 import jaxtyping
 from jaxtyping import Float
-from numpy.typing import ArrayLike
 
 from liblaf.apple import utils
 

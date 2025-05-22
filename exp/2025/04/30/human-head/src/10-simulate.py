@@ -71,6 +71,7 @@ def activations(
     tetmesh: pv.UnstructuredGrid, stretch: Float[ArrayLike, " 3"]
 ) -> Float[jax.Array, "C 3 3"]:
     muscle_direction: Float[np.ndarray, "C 3"] = tetmesh.cell_data["muscle-direction"]
+    muscle_fraction: Float[np.ndarray, " C"] = tetmesh.cell_data["muscle-fraction"]
     stretch: Float[jax.Array, " 3"] = jnp.asarray(stretch)
     orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
         muscle_direction,
@@ -82,6 +83,7 @@ def activations(
         orientation,
         "C i j, j, C j k -> C i k",
     )
+    activation.at[muscle_fraction < 1e-6].set(jnp.identity(3))
     return activation
 
 

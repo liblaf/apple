@@ -37,7 +37,9 @@ def main(cfg: Config) -> None:
     dV: Float[jax.Array, " C"] = apple.jax.elem.tetra.dV(points[cells])
     dV *= muscle_fraction
     u: Float[jax.Array, "C 3 3"] = jnp.asarray(solution.point_data["solution"])
-    F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.gradient(u[cells], dh_dX)
+    F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
+        u[cells], dh_dX
+    )
     F_aligned: Float[jax.Array, "C 3 3"] = einops.einsum(
         orientation, F, orientation, "C i j, C j k, C l k -> C i l"
     )

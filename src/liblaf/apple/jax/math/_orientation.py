@@ -6,6 +6,7 @@ import jaxtyping
 from jaxtyping import Float
 
 from liblaf.apple import utils
+from liblaf.apple.typed.jax import Mat33, Vec3
 
 
 @utils.jit
@@ -13,16 +14,27 @@ from liblaf.apple import utils
 def orientation_matrix(
     a: Float[jax.Array, "*N 3"], b: Float[jax.Array, "*N 3"]
 ) -> Float[jax.Array, "*N 3 3"]:
-    r""".
+    a_packed: Float[jax.Array, "B 3"]
+    a_packed, packed_shapes = einops.pack([a], "* i")
+    b_packed: Float[jax.Array, "B 3"]
+    b_packed, _packed_shapes = einops.pack([b], "* i")
+    Q_packed: Float[jax.Array, "B 3 3"]
+    Q_packed = jax.vmap(_orientation_matrix_elem)(a_packed, b_packed)
+    [Q] = einops.unpack(Q_packed, packed_shapes, "* i j")
+    return Q
 
-    ```math
-    result = \frac{b a^T}{a^T a}
-    ```
-    """
-    a = jnp.asarray(a)
-    b = jnp.asarray(b)
-    norm_square: Float[jax.Array, "*N 1"] = jnp.sum(a**2, axis=-1)
-    orientation: Float[jax.Array, "*N 3 3"] = (
-        einops.einsum(b, a, "... i, ... j -> ... i j") / norm_square[..., None, None]
-    )
-    return orientation
+
+def _orientation_matrix_elem(a: Vec3, b: Vec3) -> Mat33:
+    aU: Mat33 = _svd_rv_elem(a)
+    bU: Mat33 = _svd_rv_elem(b)
+    return bU @ aU.T
+
+
+def _svd_rv_elem(v: Vec3) -> Mat33:
+    U: Mat33
+    U, _sigma, _VH = jnp.linalg.svd(v)
+    # reflection matrix
+    L: Mat33 = jnp.identity(3)
+    L = L.at[2, 2].set(jnp.linalg.det(U))
+    U = U @ L
+    return U

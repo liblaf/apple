@@ -21,8 +21,10 @@ def main(cfg: Config) -> None:
     points: Float[jax.Array, "P 3"] = jnp.asarray(tetmesh.points)
     cells: Float[jax.Array, "C 4"] = jnp.asarray(tetmesh.cells_dict[pv.CellType.TETRA])
     dh_dX: Float[jax.Array, "*C 4 3"] = apple.jax.elem.tetra.dh_dX(points[cells])
-    u: Float[jax.Array, "*C 4 3"] = jnp.asarray(solution.point_data["solution"])
-    F: Float[jax.Array, "*C 3 3"] = apple.jax.elem.tetra.deformation_gradient(u, dh_dX)
+    u: Float[jax.Array, "*C 3 3"] = jnp.asarray(solution.point_data["solution"])
+    F: Float[jax.Array, "*C 3 3"] = apple.jax.elem.tetra.deformation_gradient(
+        u[cells], dh_dX
+    )
 
     ic(F)
 

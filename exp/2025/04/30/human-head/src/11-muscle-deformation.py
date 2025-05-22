@@ -11,7 +11,7 @@ class Config(cherries.BaseConfig):
 
 def main(cfg: Config) -> None:
     solution: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.solution)
-    muscle_fraction: pv.UnstructuredGrid = melon.load_unstructured_grid(
+    tetmesh: pv.UnstructuredGrid = melon.load_unstructured_grid(
         cherries.data("10-tetgen.vtu")
     )
 

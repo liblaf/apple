@@ -83,7 +83,7 @@ def activations(
         orientation,
         "C i j, j, C j k -> C i k",
     )
-    activation.at[muscle_fraction < 1e-6].set(jnp.identity(3))
+    activation = activation.at[muscle_fraction < 1e-6].set(jnp.identity(3))
     return activation
 
 

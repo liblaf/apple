@@ -27,6 +27,7 @@ def main(cfg: Config) -> None:
         muscle_direction,
         einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
     )
+    ic(einops.einsum(orientation, muscle_direction, "C i j, C j -> C i"))
 
     points: Float[jax.Array, "P 3"] = jnp.asarray(tetmesh.points)
     cells: Float[jax.Array, "C 4"] = jnp.asarray(tetmesh.cells_dict[pv.CellType.TETRA])

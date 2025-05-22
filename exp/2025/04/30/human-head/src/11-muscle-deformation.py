@@ -25,7 +25,7 @@ def main(cfg: Config) -> None:
     )
     orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
         muscle_direction,
-        einops.repeat(np.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
+        einops.repeat(jnp.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
     )
     ic(einops.einsum(orientation, muscle_direction, "C i j, C j -> C i"))
 

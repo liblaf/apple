@@ -27,7 +27,6 @@ def main(cfg: Config) -> None:
         muscle_direction,
         einops.repeat(jnp.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
     )
-    ic(orientation.shape)
     ic(einops.einsum(orientation, muscle_direction, "C i j, C j -> C i"))
 
     points: Float[jax.Array, "P 3"] = jnp.asarray(tetmesh.points)
@@ -47,6 +46,7 @@ def main(cfg: Config) -> None:
         if not muscle:
             continue
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
+        ic(F_aligned[mask])
         F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
             F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])

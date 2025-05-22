@@ -42,9 +42,9 @@ def main(cfg: Config) -> None:
     q: PyTree = {
         "flesh": {
             "activation": activation,
-            "active-fraction": geometry.cell_data["muscle-fraction"],
-            "lambda": geometry.cell_data["lambda"],
-            "mu": geometry.cell_data["mu"],
+            "active-fraction": jnp.asarray(geometry.cell_data["muscle-fraction"]),
+            "lambda": jnp.asarray(geometry.cell_data["lambda"]),
+            "mu": jnp.asarray(geometry.cell_data["mu"]),
         },
         "initial": jnp.zeros((geometry.n_points, 3)).ravel(),
     }

@@ -52,7 +52,7 @@ def main(cfg: Config) -> None:
         F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
             F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
-        ic(muscle, F_muscle_aligned)
+        ic(muscle, F_muscle_aligned, F_muscle_aligned - jnp.identity(3))
         ic(jnp.linalg.det(F_muscle_aligned))
 
 

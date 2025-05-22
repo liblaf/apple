@@ -37,9 +37,9 @@ def main(cfg: Config) -> None:
     dV: Float[jax.Array, " C"] = apple.jax.elem.tetra.dV(points[cells])
     dV *= muscle_fraction
     u: Float[jax.Array, "C 3 3"] = jnp.asarray(solution.point_data["solution"])
-    grad_u: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.gradient(u[cells], dh_dX)
-    grad_u_aligned: Float[jax.Array, "C 3 3"] = einops.einsum(
-        orientation, grad_u, orientation, "C i j, C j k, C l k -> C i l"
+    F: Float[jax.Array, "C 3 3"] = apple.jax.elem.tetra.gradient(u[cells], dh_dX)
+    F_aligned: Float[jax.Array, "C 3 3"] = einops.einsum(
+        orientation, F, orientation, "C i j, C j k, C l k -> C i l"
     )
 
     muscles: list[str] = np.unique(tetmesh.cell_data["muscle-name"])
@@ -47,11 +47,11 @@ def main(cfg: Config) -> None:
         if not muscle:
             continue
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
-        grad_u_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
-            grad_u_aligned[mask], dV[mask], "C i j, C -> i j"
+        F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
+            F_aligned[mask], dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
-        ic(muscle, grad_u_muscle_aligned, grad_u_muscle_aligned)
-        ic(jnp.linalg.det(grad_u_muscle_aligned + jnp.identity(3)))
+        ic(muscle, F_muscle_aligned, F_muscle_aligned - jnp.identity(3))
+        ic(jnp.linalg.det(F_muscle_aligned))
 
 
 if __name__ == "__main__":

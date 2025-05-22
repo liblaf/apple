@@ -23,6 +23,9 @@ def main(cfg: Config) -> None:
     muscle_direction: Float[jax.Array, "C 3"] = jnp.asarray(
         tetmesh.cell_data["muscle-direction"]
     )
+    muscle_fraction: Float[jax.Array, " C"] = jnp.asarray(
+        tetmesh.cell_data["muscle-fraction"]
+    )
     orientation: Float[jax.Array, "C 3 3"] = apple.jax.math.orientation_matrix(
         muscle_direction,
         einops.repeat(jnp.asarray([1.0, 0.0, 0.0]), "i -> C i", C=tetmesh.n_cells),
@@ -46,7 +49,7 @@ def main(cfg: Config) -> None:
             continue
         mask: Float[jax.Array, " C"] = tetmesh.cell_data["muscle-name"] == muscle
         F_muscle_aligned: Float[jax.Array, "3 3"] = einops.einsum(
-            F_aligned[mask], dV[mask], "C i j, C -> i j"
+            F_aligned[mask], muscle_fraction[mask] * dV[mask], "C i j, C -> i j"
         ) / jnp.sum(dV[mask])
         ic(muscle, F_muscle_aligned)
         ic(jnp.linalg.det(F_muscle_aligned))

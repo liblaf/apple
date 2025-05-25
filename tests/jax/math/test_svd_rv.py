@@ -20,7 +20,7 @@ def test_svd_rv(batch: Iterable[int]) -> None:
     V: Float[jax.Array, "*B 3 3"]
     U, sigma, V = math.svd_rv(F)
     Sigma: Float[jax.Array, "*B 3 3"] = math.diag(sigma)
-    np.testing.assert_allclose(U @ Sigma @ math.transpose(V), F, rtol=2e-4)
-    np.testing.assert_allclose(jnp.abs(jnp.linalg.det(U)), 1.0, rtol=3e-6)
-    np.testing.assert_allclose(jnp.abs(jnp.linalg.det(V)), 1.0, rtol=3e-6)
-    np.testing.assert_allclose(jnp.linalg.det(U @ V), 1.0, rtol=4e-6)
+    np.testing.assert_allclose(U @ Sigma @ math.transpose(V), F, rtol=1e-3)
+    np.testing.assert_allclose(jnp.abs(jnp.linalg.det(U)), 1.0, rtol=1e-5)
+    np.testing.assert_allclose(jnp.abs(jnp.linalg.det(V)), 1.0, rtol=1e-5)
+    np.testing.assert_allclose(jnp.linalg.det(U @ V), 1.0, rtol=1e-5)

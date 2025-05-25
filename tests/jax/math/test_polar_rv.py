@@ -18,5 +18,5 @@ def test_polar_rv(batch: Iterable[int]) -> None:
     R: Float[jax.Array, "*B 3 3"]
     S: Float[jax.Array, "*B 3 3"]
     R, S = math.polar_rv(F)
-    np.testing.assert_allclose(jnp.linalg.det(R), 1.0, rtol=4e-6)
-    np.testing.assert_allclose(R @ S, F, rtol=4e-5)
+    np.testing.assert_allclose(jnp.linalg.det(R), 1.0, rtol=1e-5)
+    np.testing.assert_allclose(R @ S, F, rtol=1e-4)

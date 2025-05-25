@@ -14,7 +14,7 @@
     "--color=yes",
     "--cov",
     "--benchmark-disable",
-    "--numprocesses=auto"
+    "--numprocesses=0"
   ],
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,

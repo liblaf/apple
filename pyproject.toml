@@ -69,7 +69,7 @@ dependencies = [
   "lazy-loader>=0.4,<0.5",
   "liblaf-cherries>=0.0.9,<0.0.10",
   "liblaf-grapes>=0.1.18,<0.2",
-  "liblaf-melon>=0.1.11,<0.2",
+  "liblaf-melon>=0.2.6,<0.3",
   "loguru>=0.7.3,<0.8",
   "numpy",
   "pyvista>=0.44.2,<0.45",

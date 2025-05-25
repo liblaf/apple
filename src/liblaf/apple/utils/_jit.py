@@ -1,19 +1,26 @@
+import functools
 from collections.abc import Callable, Iterable, Sequence
+from typing import TypedDict, Unpack, overload
 
 import jax
 
-from liblaf.grapes import Decorator
+from liblaf.grapes.typed import Decorator
 
 
-def jit(
-    *,
-    static_argnums: int | Sequence[int] | None = None,
-    static_argnames: str | Iterable[str] | None = None,
-    **kwargs,
-) -> Decorator:
-    def decorator[**P, T](fn: Callable[P, T]) -> Callable[P, T]:
-        return jax.jit(
-            fn, static_argnums=static_argnums, static_argnames=static_argnames, **kwargs
-        )
+class JitKwargs(TypedDict, total=False):
+    static_argnums: int | Sequence[int] | None
+    static_argnames: str | Iterable[str] | None
 
-    return decorator
+
+@overload
+def jit(**kwargs: Unpack[JitKwargs]) -> Decorator: ...
+@overload
+def jit[**P, T](
+    func: Callable[P, T], /, **kwargs: Unpack[JitKwargs]
+) -> Callable[P, T]: ...
+def jit[**P, T](
+    func: Callable[P, T] | None = None, /, **kwargs: Unpack[JitKwargs]
+) -> Callable[P, T] | Decorator:
+    if func is None:
+        return functools.partial(jax.jit, **kwargs)
+    return jax.jit(func, **kwargs)

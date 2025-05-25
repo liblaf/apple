@@ -7,18 +7,10 @@ requires = ["hatch-vcs", "hatchling"]
 
 [dependency-groups]
 build = ["check-wheel-contents", "hatch", "twine"]
-dev = [
-  "icecream",
-  "mlflow>=2.21.3,<3",
-  "psutil>=7.0.0,<8",
-  "pynvml>=12.0.0,<13",
-  "pyrsmi>=0.2.0,<0.3",
-  "sympy>=1.13.3,<2",
-]
+dev = ["icecream", "sympy"]
 docs = [
   "gitpython",
   "mdx-truly-sane-lists",
-  "mike",
   "mkdocs",
   "mkdocs-autorefs",
   "mkdocs-gen-files",
@@ -60,21 +52,21 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.20.2,<0.21",
+  "beartype>=0.21.0,<0.22",
   "einops>=0.8.1,<0.9",
   "felupe>=9.2.0,<10",
-  "glom>=24.11.0,<25",
   "jax[cuda12]>=0.5.3,<0.6",
-  "jaxtyping>=0.3.1,<0.4",
+  "jaxtyping>=0.3.2,<0.4",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-cherries>=0.0.9,<0.0.10",
-  "liblaf-grapes>=0.1.18,<0.2",
-  "liblaf-melon>=0.1.11,<0.2",
+  "liblaf-grapes>=0.1.27,<0.2",
+  "liblaf-melon>=0.2.6,<0.3",
   "loguru>=0.7.3,<0.8",
   "numpy",
-  "pyvista>=0.44.2,<0.45",
+  "pyvista>=0.45.2,<0.46",
   "rich>=14.0.0,<15",
   "scipy",
+  "tinyobjloader==2.0.0rc13",
+  "warp-lang>=1.7.1,<2",
 ]
 description = "Add your description here"
 dynamic = ["version"]
@@ -83,9 +75,6 @@ license = "MIT"
 name = "liblaf-apple"
 readme = "README.md"
 requires-python = ">=3.12"
-
-[project.optional-dependencies]
-all = ["pytetwild>=0.1.dev1,<0.2"]
 
 [project.urls]
 "Changelog" = "https://github.com/liblaf/apple/blob/main/CHANGELOG.md"
@@ -115,11 +104,10 @@ packages = ["src/liblaf/"]
 source = "vcs"
 
 [tool.pixi.dependencies]
-pylops = ">=2.4.0,<3"
-python = ">=3.12.9,<3.13"
+python = "3.12.*"
 
 [tool.pixi.environments]
-default = { features = ["all", "build", "dev", "docs", "test"] }
+default = { features = ["build", "dev", "docs", "test"] }
 
 [tool.pixi.project]
 channel-priority = "disabled"

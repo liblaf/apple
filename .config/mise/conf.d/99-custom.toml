@@ -1,0 +1,4 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
+[env]
+XLA_PYTHON_CLIENT_MEM_FRACTION = "0.4"

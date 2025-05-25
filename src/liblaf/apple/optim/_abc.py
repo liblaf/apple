@@ -34,7 +34,7 @@ class Callback(Protocol):
 class Optimizer(abc.ABC):
     def minimize(
         self,
-        fun: Callable[..., float],
+        fun: Callable[..., Float[jax.Array, ""]],
         x0: Float[ArrayLike, " N"],
         *,
         args: tuple = (),
@@ -176,6 +176,5 @@ def update_result(
         key = f"n_{func.timing.name}"
     if key not in result:
         result[key] = func.timing.count
-    if callable(func.timing.callback_finally):
-        func.timing.callback_finally(func.timing)
+    func.timing.finish()
     return result

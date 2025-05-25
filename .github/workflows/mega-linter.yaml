@@ -8,6 +8,10 @@ name: MegaLinter
 
 on:
   push:
+    # prevent workflow from running for events affecting tags
+    # ref: <https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onpushbranchestagsbranches-ignoretags-ignore>
+    branches-ignore:
+      - gh-pages
   pull_request:
   workflow_dispatch:
 
@@ -40,11 +44,9 @@ jobs:
           token: ${{ steps.auth.outputs.token }}
       - name: Remove MegaLinter Reports
         run: sudo rm --force --recursive "mega-linter.log" "megalinter-reports/"
-      - name: Git Auto Commit
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Commit
+        uses: liblaf/actions/commit@main
         with:
-          commit_message: "chore(mega-linter): apply linters fixes"
-          add_options: --update
-          commit_user_name: ${{ steps.auth.outputs.committer-name }}
-          commit_user_email: ${{ steps.auth.outputs.committer-email }}
-          commit_author: ${{ steps.auth.outputs.author }}
+          add-options: --verbose --update
+          message: "chore(mega-linter): apply linter fixes"
+          token: ${{ steps.auth.outputs.token }}

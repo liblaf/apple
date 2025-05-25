@@ -7,11 +7,10 @@ requires = ["hatch-vcs", "hatchling"]
 
 [dependency-groups]
 build = ["check-wheel-contents", "hatch", "twine"]
-dev = ["icecream", "sympy>=1.14.0,<2"]
+dev = ["icecream", "sympy"]
 docs = [
   "gitpython",
   "mdx-truly-sane-lists",
-  "mike",
   "mkdocs",
   "mkdocs-autorefs",
   "mkdocs-gen-files",
@@ -53,22 +52,19 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.20.2,<0.21",
-  "clearml>=1.18.0,<2",
+  "beartype>=0.21.0,<0.22",
   "einops>=0.8.1,<0.9",
   "felupe>=9.2.0,<10",
-  "glom>=24.11.0,<25",
-  "jax[cuda12]>=0.6.0,<0.7",
+  "jax[cuda12]>=0.6.1,<0.7",
   "jaxtyping>=0.3.2,<0.4",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=0.1.23,<0.2",
-  "liblaf-melon>=0.2.4,<0.3",
+  "liblaf-grapes>=0.1.27,<0.2",
+  "liblaf-melon>=0.2.6,<0.3",
   "loguru>=0.7.3,<0.8",
   "numpy",
-  "pyvista>=0.45.1,<0.46",
+  "pyvista>=0.45.2,<0.46",
   "rich>=14.0.0,<15",
   "scipy",
-  "tinyobjloader>=2.0.0rc13",
   "warp-lang>=1.7.1,<2",
 ]
 description = "Add your description here"
@@ -105,9 +101,6 @@ packages = ["src/liblaf/"]
 
 [tool.hatch.version]
 source = "vcs"
-
-[tool.pixi.dependencies]
-python = ">=3.12.9,<3.13"
 
 [tool.pixi.environments]
 default = { features = ["build", "dev", "docs", "test"] }

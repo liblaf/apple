@@ -11,6 +11,10 @@ from warp.jax_experimental import ffi
 
 from liblaf import apple
 
+pytestmark = pytest.mark.skipif(
+    not wp.is_cuda_available(), reason="CUDA is not available"
+)
+
 
 def inputs(n: int = 10**6) -> tuple[Float[jax.Array, " N"], Float[jax.Array, " N"]]:
     key: PRNGKeyArray = jax.random.key(0)

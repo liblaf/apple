@@ -109,7 +109,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/d3/32/da7f44bcb1105d3e88a0b74ebdca50c59121d2ddf71c9e34ba47df7f3a56/keyring-25.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bc/b3/9458adb9472e61a998c8c4d95cfdfec91c73c53a375b30b1428310f923e4/kiwisolver-1.4.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/83/60/d497a310bde3f01cb805196ac61b7ad6dc5dcf8dce66634dc34364b20b4f/lazy_loader-0.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/82/9b/f8f1064f7e1e0e8d062205050e97d17474fcd2d3ccc028c6e5f52f413ed1/liblaf_grapes-0.1.28-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/99/56/cbc48655abc693ac37b9dcd32334bf4bc55131ea6439d05c24fe267fd10e/liblaf_grapes-0.1.29-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/13/63/4e0e0ff0ec62474cf5adba357ecf1db29fdd8a9fc7c57a59704a38c25f67/liblaf_melon-0.2.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ad/36/239820114bf1d71f38f12208b9c58dec033cbcf80101cde006b9bde5cffd/lxml-5.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
@@ -1617,8 +1617,8 @@ packages:
   timestamp: 1746642113092
 - pypi: ./
   name: liblaf-apple
-  version: 26.dev3+g31a4910.d20250525
-  sha256: 4600af8442538ac8e194db4388ef230bd81e8ba07cd28c7ae6e8385cd857616a
+  version: 26.dev5+g07b2823.d20250526
+  sha256: df66d8c9a2f26cb43b79a5e648da44924cde09c75666e80518cc6b503c7bf145
   requires_dist:
   - beartype>=0.21.0,<0.22
   - einops>=0.8.1,<0.9
@@ -1627,7 +1627,7 @@ packages:
   - jax[cuda12]>=0.5.3,<0.6
   - jaxtyping>=0.3.2,<0.4
   - lazy-loader>=0.4,<0.5
-  - liblaf-grapes>=0.1.28,<0.2
+  - liblaf-grapes>=0.1.29,<0.2
   - liblaf-melon>=0.2.6,<0.3
   - loguru>=0.7.3,<0.8
   - numpy
@@ -1638,10 +1638,10 @@ packages:
   - warp-lang>=1.7.1,<2
   requires_python: '>=3.12'
   editable: true
-- pypi: https://files.pythonhosted.org/packages/82/9b/f8f1064f7e1e0e8d062205050e97d17474fcd2d3ccc028c6e5f52f413ed1/liblaf_grapes-0.1.28-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/99/56/cbc48655abc693ac37b9dcd32334bf4bc55131ea6439d05c24fe267fd10e/liblaf_grapes-0.1.29-py3-none-any.whl
   name: liblaf-grapes
-  version: 0.1.28
-  sha256: 3592f14ec68c37230d9a6563abbea5ae9fced6e1317c375af65ad2c094d0c7b8
+  version: 0.1.29
+  sha256: 177219aae38233d0244ed7ee33f0752fbe05cc36c953ea3a5c0c54ee8df709b1
   requires_dist:
   - about-time>=4.2.1,<5
   - attrs>=25.3.0,<26

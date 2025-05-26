@@ -33,6 +33,7 @@ class Scene(flax.struct.PyTreeNode):
 
     # region calculus
 
+    @utils.jit
     def fun(self, u: Float[jax.Array, " free"]) -> Float[jax.Array, ""]:
         fields: dict[str, Field] = self.make_fields(u)
         results: list[Float[jax.Array, ""]] = []

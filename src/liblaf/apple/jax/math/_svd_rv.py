@@ -29,10 +29,10 @@ def svd_rv(
 
 
 def _svd_rv_elem(F: Mat33) -> tuple[Mat33, Vec3, Mat33]:
-    r""".
+    """...
 
     References:
-        [1]: Kim, Theodore, and David Eberle. “Dynamic Deformables: Implementation and Production Practicalities (Now with Code!).” In ACM SIGGRAPH 2022 Courses, 1–259. Vancouver British Columbia Canada: ACM, 2022. https://doi.org/10.1145/3532720.3535628. P227. Figure F.1
+        1. Kim, Theodore, and David Eberle. “Dynamic Deformables: Implementation and Production Practicalities (Now with Code!).” In ACM SIGGRAPH 2022 Courses, 1-259. Vancouver British Columbia Canada: ACM, 2022. https://doi.org/10.1145/3532720.3535628. Page 227. Figure F.1
     """
     U: Mat33
     sigma: Vec3

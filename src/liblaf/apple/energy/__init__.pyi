@@ -1,4 +1,4 @@
-from . import tetra
-from .tetra import ARAP
+from . import elastic
+from .elastic import ARAP
 
-__all__ = ["ARAP", "tetra"]
+__all__ = ["ARAP", "elastic"]

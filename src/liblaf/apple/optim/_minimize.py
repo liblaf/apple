@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+import jax
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
@@ -8,7 +9,7 @@ from ._scipy import OptimizerScipy
 
 
 def minimize(
-    fun: Callable[..., Float[ArrayLike, ""]],
+    fun: Callable[..., Float[jax.Array, ""]],
     x0: Float[ArrayLike, " N"],
     *,
     args: tuple = (),

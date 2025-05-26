@@ -37,7 +37,7 @@ def dX_dr(points: Float[jax.Array, "*c a=4 I=3"]) -> Float[jax.Array, "*c I=3 J=
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 @utils.jit
 def dr_dX(points: Float[jax.Array, "*c a=4 I=3"]) -> Float[jax.Array, "*c I=3 J=3"]:
-    return jnp.linalg.pinv(dX_dr(points))
+    return jnp.linalg.inv(dX_dr(points))
 
 
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)

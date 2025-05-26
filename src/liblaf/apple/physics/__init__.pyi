@@ -1,4 +1,6 @@
-from ._object import Object
-from ._physics import Physics
+from ._domain import Domain
+from ._energy import Energy
+from ._field import Field, FieldSpec
+from ._scene import Scene
 
-__all__ = ["Object", "Physics"]
+__all__ = ["Domain", "Energy", "Field", "FieldSpec", "Scene"]

@@ -5,8 +5,8 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Float, PyTree
 
-from liblaf.apple import utils
-from liblaf.apple.jax import elem, math
+from liblaf.apple import elem, utils
+from liblaf.apple.jax import math
 
 
 @attrs.frozen

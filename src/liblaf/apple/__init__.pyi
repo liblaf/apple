@@ -1,20 +1,28 @@
-from . import jax, optim, physics, typed, utils
+from . import energy, func, jax, optim, physics, testing, typed, utils
+from .energy import ARAP
 from .optim import Optimizer, OptimizeResult, OptimizerScipy, minimize
-from .physics import Object, Physics
+from .physics import Domain, Energy, Field, FieldSpec, Scene
 from .utils import block_until_ready_decorator, jit
 
 __all__ = [
-    "Object",
+    "ARAP",
+    "Domain",
+    "Energy",
+    "Field",
+    "FieldSpec",
     "OptimizeResult",
     "Optimizer",
     "OptimizerScipy",
-    "Physics",
+    "Scene",
     "block_until_ready_decorator",
+    "energy",
+    "func",
     "jax",
     "jit",
     "minimize",
     "optim",
     "physics",
+    "testing",
     "typed",
     "utils",
 ]

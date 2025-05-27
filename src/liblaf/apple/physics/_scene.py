@@ -3,7 +3,6 @@ from collections.abc import Mapping
 import flax.struct
 import jax
 import jax.numpy as jnp
-import pyvista as pv
 from jaxtyping import Float
 
 from liblaf.apple import utils

@@ -3,9 +3,11 @@ from collections.abc import Mapping
 import flax.struct
 import jax
 import jax.numpy as jnp
+import pyvista as pv
 from jaxtyping import Float
 
 from liblaf.apple import utils
+from liblaf.apple.physics._geometry import Geometry
 
 from ._energy import Energy
 from ._field import Field, FieldSpec
@@ -123,7 +125,11 @@ class Scene(flax.struct.PyTreeNode):
         return free_values
 
     @utils.jit
-    def make_fields(self, free_values: Float[jax.Array, " free"]) -> dict[str, Field]:
+    def make_fields(
+        self, free_values: Float[jax.Array, " free"] | None = None
+    ) -> dict[str, Field]:
+        if free_values is None:
+            free_values = jnp.zeros((self.n_free,))
         free_values = jnp.asarray(free_values)
         fields: dict[str, Field] = {}
         offset = 0
@@ -136,8 +142,10 @@ class Scene(flax.struct.PyTreeNode):
 
     @utils.jit
     def make_fields_no_dirichlet(
-        self, free_values: Float[jax.Array, " free"]
+        self, free_values: Float[jax.Array, " free"] | None = None
     ) -> dict[str, Field]:
+        if free_values is None:
+            free_values = jnp.zeros((self.n_free,))
         free_values = jnp.asarray(free_values)
         fields: dict[str, Field] = {}
         offset = 0
@@ -147,3 +155,14 @@ class Scene(flax.struct.PyTreeNode):
             fields[field.id] = field.make_field_no_dirichlet(free_values)
             offset += n_free
         return fields
+
+    def make_geometries(
+        self, free: Float[jax.Array, " free"] | None = None
+    ) -> dict[str, Geometry]:
+        fields: dict[str, Field] = self.make_fields(free)
+        geometries: dict[str, Geometry] = {}
+        for field_spec in self.fields.values():
+            field: Field = fields[field_spec.id]
+            geometry: Geometry = field_spec.geometry.warp(field.values)
+            geometries[geometry.id] = geometry
+        return geometries

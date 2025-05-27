@@ -26,9 +26,9 @@ class Elastic(physics.Energy):
     @utils.jit
     def jac(self, field: physics.Field) -> Float[jax.Array, " DoF"]:
         dV: Float[jax.Array, " cells"] = field.dV
-        dPsidx: Float[jax.Array, " cells 4 3"] = self.energy_density_jac(field)
+        jac: Float[jax.Array, "cells 4 3"] = self.energy_density_jac(field)
         jac: Float[jax.Array, "points 3"] = elem.tetra.segment_sum(
-            dPsidx * dV[:, None, None], field.cells, n_points=field.n_points
+            jac * dV[:, None, None], field.cells, n_points=field.n_points
         )
         return jac.ravel()
 
@@ -42,7 +42,7 @@ class Elastic(physics.Energy):
         hess_diag: Float[jax.Array, "points 3"] = elem.tetra.segment_sum(
             hess_diag * dV[:, None, None], field.cells, n_points=field.n_points
         )
-        # hess_diag = jnp.ones_like(hess_diag)
+        hess_diag = jnp.ones_like(hess_diag)
         return hess_diag.ravel()
 
     @override

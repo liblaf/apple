@@ -2,12 +2,13 @@ from typing import no_type_check
 
 import einops
 import jax
+import jax.numpy as jnp
 import numpy as np
 import warp as wp
 from jaxtyping import Float
 
 from liblaf.apple import elem, func, naive, utils
-from liblaf.apple.typed.jax import Mat9x12, Mat33, Mat43, Vec9, Vec12
+from liblaf.apple.typed.jax import Mat9x12, Mat33, Mat43, Vec9
 from liblaf.apple.typed.warp import mat43
 
 
@@ -22,8 +23,8 @@ def test_h3_diag(n_cells: int = 7) -> None:
         def h3_diag_elem(points: Mat43, g3: Mat33) -> Mat43:
             dFdx: Mat9x12 = naive.dFdx(points)
             g3: Vec9 = einops.rearrange(g3, "i j -> (j i)")
-            h3_diag: Vec12 = naive.strain.h3_diag(dFdx, g3)
-            return einops.rearrange(h3_diag, "(i j) -> i j", i=4, j=3)
+            h3: Float[jax.Array, "12 12"] = jnp.outer(dFdx.T @ g3, dFdx.T @ g3)
+            return einops.rearrange(jnp.diagonal(h3), "(i j) -> i j", i=4, j=3)
 
         return jax.vmap(h3_diag_elem)(points, g3)
 

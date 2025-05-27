@@ -12,6 +12,9 @@ def lambdas(sigma: vec3) -> vec3:
     lambda0 = 2.0 / (sigma[0] + sigma[1])
     lambda1 = 2.0 / (sigma[1] + sigma[2])
     lambda2 = 2.0 / (sigma[2] + sigma[0])
+    lambda0 = wp.clamp(lambda0, 0.0, 1.0)
+    lambda1 = wp.clamp(lambda1, 0.0, 1.0)
+    lambda2 = wp.clamp(lambda2, 0.0, 1.0)
     return vec3(lambda0, lambda1, lambda2)
 
 

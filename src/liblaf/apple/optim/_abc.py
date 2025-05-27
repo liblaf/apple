@@ -67,19 +67,21 @@ class Optimizer(abc.ABC):
         jac_and_hess_diag = wrap_func(jac_and_hess_diag, "jac_and_hess_diag")
         callback = wrap_func(callback, "callback")
 
-        result: OptimizeResult = self._minimize(
-            fun,
-            x0,
-            args=args,
-            jac=jac,
-            hess=hess,
-            hessp=hessp,
-            hess_diag=hess_diag,
-            hess_quad=hess_quad,
-            jac_and_hess_diag=jac_and_hess_diag,
-            callback=callback,
-            **kwargs,
-        )
+        with grapes.timer(type(self).__name__) as timer:
+            result: OptimizeResult = self._minimize(
+                fun,
+                x0,
+                args=args,
+                jac=jac,
+                hess=hess,
+                hessp=hessp,
+                hess_diag=hess_diag,
+                hess_quad=hess_quad,
+                jac_and_hess_diag=jac_and_hess_diag,
+                callback=callback,
+                **kwargs,
+            )
+            result["timing"] = timer.elapsed()
 
         result = update_result(result, fun)
         result = update_result(result, jac)

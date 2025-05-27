@@ -9,6 +9,7 @@ from numpy.typing import ArrayLike
 from liblaf.apple import elem, testing, utils
 
 from ._domain import Domain
+from ._geometry import Geometry
 
 
 class Field(flax.struct.PyTreeNode):
@@ -123,6 +124,10 @@ class FieldSpec(flax.struct.PyTreeNode):
             dirichlet_values=dirichlet_values,
             free_index=free_index,
         )
+
+    @property
+    def geometry(self) -> Geometry:
+        return self.domain.geometry
 
     @property
     def n_dirichlet(self) -> int:

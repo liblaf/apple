@@ -2,6 +2,7 @@ import einops
 import jax
 import numpy as np
 import pyvista as pv
+import pyvista.examples
 from jaxtyping import Bool, Float, Integer
 
 import liblaf.apple as apple  # noqa: PLR0402
@@ -11,25 +12,21 @@ from liblaf.apple import utils
 
 def main() -> None:
     grapes.init_logging()
-    geometry: pv.UnstructuredGrid = gen_geometry()
+    geometry: apple.Geometry = gen_geometry()
     scene: apple.Scene = gen_scene(geometry)
     x0: Float[jax.Array, " free"] = gen_init(scene, geometry.length)
     writer = melon.SeriesWriter("data/examples/static/random.vtu.series")
 
-    def warp_result(solution: apple.OptimizeResult) -> pv.UnstructuredGrid:
-        fields: dict[str, apple.Field] = scene.make_fields(solution.x)
-        result: pv.UnstructuredGrid = geometry.copy()
-        result.point_data["solution"] = fields["displacement"].values
-        result.warp_by_vector("solution", inplace=True)
-        return result
-
     def callback(intermediate_result: apple.OptimizeResult) -> None:
         if intermediate_result["n_iter"] % 100 != 0:
             return
-        result: pv.UnstructuredGrid = warp_result(intermediate_result)
-        writer.append(result)
+        geometries: dict[str, apple.Geometry] = scene.make_geometries(
+            intermediate_result["x"]
+        )
+        writer.append(geometries["bunny"].mesh)
 
-    writer.append(warp_result(apple.OptimizeResult({"x": x0})))
+    geometries: dict[str, apple.Geometry] = scene.make_geometries()
+    writer.append(geometries["bunny"].mesh)
 
     solution: apple.OptimizeResult = apple.minimize(
         scene.fun,
@@ -37,40 +34,39 @@ def main() -> None:
         jac=scene.jac,
         jac_and_hess_diag=scene.jac_and_hess_diag,
         hess_quad=scene.hess_quad,
-        method=apple.PNCG(maxiter=10**4, tol=1e-15),
+        method=apple.PNCG(maxiter=10**5, tol=1e-15),
         callback=callback,
     )
     ic(solution)
 
-    result: pv.UnstructuredGrid = warp_result(solution)
-    melon.save("data/examples/static/random-solution.vtu", result)
+    geometries = scene.make_geometries(solution["x"])
+    melon.save("data/examples/static/random-solution.vtu", geometries["bunny"].mesh)
 
 
-def gen_geometry(lr: float = 0.05) -> pv.UnstructuredGrid:
-    surface: pv.PolyData = pv.Box()
-    geometry: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    return geometry
+def gen_geometry(lr: float = 0.05) -> apple.Geometry:
+    surface: pv.PolyData = pyvista.examples.download_bunny(load=True)
+    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
+    return apple.Geometry(mesh=mesh, id="bunny")
 
 
 def gen_dirichlet(
-    geometry: pv.UnstructuredGrid,
+    geometry: apple.Geometry,
 ) -> tuple[Integer[np.ndarray, " dirichlet"], Float[np.ndarray, " dirichlet"]]:
-    dirichlet_mask: Bool[np.ndarray, " points"] = np.zeros(
-        (geometry.n_points,), dtype=bool
-    )
+    mesh: pv.UnstructuredGrid = geometry.mesh
+    dirichlet_mask: Bool[np.ndarray, " points"] = np.zeros((mesh.n_points,), dtype=bool)
     dirichlet_values: Float[np.ndarray, " points 3"] = np.zeros(
-        (geometry.n_points, 3), dtype=float
+        (mesh.n_points, 3), dtype=float
     )
     y_min: float
     y_max: float
-    _x_min, _x_max, y_min, y_max, _z_min, _z_max = geometry.bounds
+    _x_min, _x_max, y_min, y_max, _z_min, _z_max = mesh.bounds
     y_length: float = y_max - y_min
     dirichlet_mask: Bool[np.ndarray, " points"] = (
-        geometry.points[:, 1] < y_min + 0.01 * y_length
+        mesh.points[:, 1] < y_min + 0.01 * y_length
     )
     dirichlet_values[dirichlet_mask] = np.asarray([0.0, 0.0, 0.0])
-    geometry.point_data["dirichlet-mask"] = dirichlet_mask
-    geometry.point_data["dirichlet-values"] = dirichlet_values
+    mesh.point_data["dirichlet-mask"] = dirichlet_mask
+    mesh.point_data["dirichlet-values"] = dirichlet_values
 
     dirichlet_mask: Bool[np.ndarray, "points 3"] = einops.repeat(
         dirichlet_mask, " points -> (points 3)"
@@ -80,7 +76,7 @@ def gen_dirichlet(
     return dirichlet_index, dirichlet_values.ravel()[dirichlet_index]
 
 
-def gen_scene(geometry: pv.UnstructuredGrid) -> apple.Scene:
+def gen_scene(geometry: apple.Geometry) -> apple.Scene:
     dirichlet_index: Integer[np.ndarray, " dirichlet"]
     dirichlet_values: Float[np.ndarray, " dirichlet"]
     dirichlet_index, dirichlet_values = gen_dirichlet(geometry)
@@ -91,7 +87,7 @@ def gen_scene(geometry: pv.UnstructuredGrid) -> apple.Scene:
         dirichlet_values=dirichlet_values,
         id="displacement",
     )
-    energy = apple.energy.elastic.ARAP(field_id=field_spec.id)
+    energy = apple.energy.elastic.PhaceStatic(field_id=field_spec.id)
     scene = apple.Scene()
     scene.add_field(field_spec)
     scene.add_energy(energy)

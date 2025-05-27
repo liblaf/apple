@@ -3,10 +3,11 @@ from typing import Self
 import flax.struct
 import jax
 import jax.numpy as jnp
-import pyvista as pv
 from jaxtyping import Float, Integer
 
 from liblaf.apple import elem, testing
+
+from ._geometry import Geometry
 
 
 class Domain(flax.struct.PyTreeNode):
@@ -15,16 +16,14 @@ class Domain(flax.struct.PyTreeNode):
     dV: Float[jax.Array, "cells"] = flax.struct.field()
     points: Integer[jax.Array, "points 3"] = flax.struct.field()
 
-    geometry: pv.UnstructuredGrid = flax.struct.field(pytree_node=False)
+    geometry: Geometry = flax.struct.field(pytree_node=False)
 
     def __post_init__(self) -> None:
         testing.assert_shape(self.cells, (self.n_cells, 4))
 
     @classmethod
-    def from_geometry(cls, geometry: pv.UnstructuredGrid) -> Self:
-        cells: Integer[jax.Array, "cells 4"] = jnp.asarray(
-            geometry.cells_dict[pv.CellType.TETRA]
-        )
+    def from_geometry(cls, geometry: Geometry) -> Self:
+        cells: Integer[jax.Array, "cells 4"] = jnp.asarray(geometry.cells, dtype=int)
         points: Float[jax.Array, "points 3"] = jnp.asarray(geometry.points)
         dh_dX: Float[jax.Array, "cells 4 3"] = elem.tetra.dh_dX(points[cells])
         dV: Float[jax.Array, " cells"] = elem.tetra.dV(points[cells])

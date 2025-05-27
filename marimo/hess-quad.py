@@ -84,7 +84,6 @@ def _(F, h6_quad, p):
 @app.cell
 def _(actual, expected):
     actual - expected
-    return
 
 
 if __name__ == "__main__":

@@ -64,7 +64,6 @@ def _(dh_dX, x):
 @app.cell
 def _(F, unvec33, vec33):
     unvec33(vec33(F))
-    return
 
 
 @app.cell
@@ -88,7 +87,6 @@ def _(dFdx, sympy, unvec33, vec43):
 @app.cell
 def _(dFdx_p, dh_dX, p):
     p.T @ dh_dX - dFdx_p
-    return
 
 
 @app.cell
@@ -103,13 +101,11 @@ def _(dFdx, sympy, unvec43, vec33):
 @app.cell
 def _(dFdxT_p, dh_dX, q):
     dh_dX @ q.T - dFdxT_p
-    return
 
 
 @app.cell
 def _(dFdx):
     dFdx.T @ dFdx
-    return
 
 
 if __name__ == "__main__":

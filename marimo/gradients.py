@@ -21,7 +21,6 @@ def _(F, sympy):
     f0, f1, f2 = F.col(0), F.col(1), F.col(2)
     g3 = sympy.Matrix([f1.cross(f2).T, f2.cross(f0).T, f0.cross(f1).T])
     g3
-    return
 
 
 @app.cell
@@ -35,7 +34,6 @@ def _(F):
 def _(F, J, sympy):
     dJdF = sympy.derive_by_array(J, F)
     dJdF
-    return
 
 
 @app.cell

@@ -1,11 +1,12 @@
 from . import energy, func, jax, naive, optim, physics, testing, typed, utils
 from .energy import ARAP
-from .optim import Optimizer, OptimizeResult, OptimizerScipy, minimize
+from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
 from .physics import Domain, Energy, Field, FieldSpec, Scene
 from .utils import Random, block_until_ready_decorator, jit
 
 __all__ = [
     "ARAP",
+    "PNCG",
     "Domain",
     "Energy",
     "Field",

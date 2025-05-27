@@ -41,6 +41,7 @@ class Scene(flax.struct.PyTreeNode):
             results.append(energy.fun(fields[energy.field_id]))  # noqa: PERF401
         return jnp.sum(jnp.asarray(results))
 
+    @utils.jit
     def jac(self, u: Float[jax.Array, " free"]) -> Float[jax.Array, " free"]:
         fields: dict[str, Field] = self.make_fields(u)
         energy_jac: dict[str, jax.Array] = {}
@@ -49,6 +50,46 @@ class Scene(flax.struct.PyTreeNode):
         field_jac: dict[str, jax.Array] = self.energy_to_fields(energy_jac)
         free_jac: Float[jax.Array, " free"] = self.fields_to_free(field_jac)
         return free_jac
+
+    @utils.jit
+    def hess_diag(self, u: Float[jax.Array, " free"]) -> Float[jax.Array, " free"]:
+        fields: dict[str, Field] = self.make_fields(u)
+        energy_hess_diag: dict[str, jax.Array] = {}
+        for energy in self.energies.values():
+            energy_hess_diag[energy.id] = energy.hess_diag(fields[energy.field_id])
+        field_hess_diag: dict[str, jax.Array] = self.energy_to_fields(energy_hess_diag)
+        free_hess_diag: Float[jax.Array, " free"] = self.fields_to_free(field_hess_diag)
+        return free_hess_diag
+
+    @utils.jit
+    def hess_quad(
+        self, u: Float[jax.Array, " free"], p: Float[jax.Array, " free"]
+    ) -> Float[jax.Array, ""]:
+        fields: dict[str, Field] = self.make_fields(u)
+        p_fields: dict[str, Field] = self.make_fields_no_dirichlet(p)
+        energy_hess_quad: list[Float[jax.Array, ""]] = []
+        for energy in self.energies.values():
+            energy_hess_quad.append(  # noqa: PERF401
+                energy.hess_quad(fields[energy.field_id], p_fields[energy.field_id])
+            )
+        return jnp.sum(jnp.asarray(energy_hess_quad))
+
+    @utils.jit
+    def jac_and_hess_diag(
+        self, u: Float[jax.Array, " free"]
+    ) -> tuple[Float[jax.Array, " free"], Float[jax.Array, " free"]]:
+        fields: dict[str, Field] = self.make_fields(u)
+        energy_jac: dict[str, jax.Array] = {}
+        energy_hess_diag: dict[str, jax.Array] = {}
+        for energy in self.energies.values():
+            energy_jac[energy.id], energy_hess_diag[energy.id] = (
+                energy.jac_and_hess_diag(fields[energy.field_id])
+            )
+        field_jac: dict[str, jax.Array] = self.energy_to_fields(energy_jac)
+        field_hess_diag: dict[str, jax.Array] = self.energy_to_fields(energy_hess_diag)
+        free_jac: Float[jax.Array, " free"] = self.fields_to_free(field_jac)
+        free_hess_diag: Float[jax.Array, " free"] = self.fields_to_free(field_hess_diag)
+        return free_jac, free_hess_diag
 
     # endregion calculus
 
@@ -90,5 +131,19 @@ class Scene(flax.struct.PyTreeNode):
             n_free: int = field.n_free
             free_values: jax.Array = free_values[offset : offset + n_free]
             fields[field.id] = field.make_field(free_values)
+            offset += n_free
+        return fields
+
+    @utils.jit
+    def make_fields_no_dirichlet(
+        self, free_values: Float[jax.Array, " free"]
+    ) -> dict[str, Field]:
+        free_values = jnp.asarray(free_values)
+        fields: dict[str, Field] = {}
+        offset = 0
+        for field in self.fields.values():
+            n_free: int = field.n_free
+            free_values: jax.Array = free_values[offset : offset + n_free]
+            fields[field.id] = field.make_field_no_dirichlet(free_values)
             offset += n_free
         return fields

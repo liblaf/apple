@@ -157,3 +157,22 @@ class FieldSpec(flax.struct.PyTreeNode):
             dim=self.dim,
             id=self.id,
         )
+
+    @utils.jit
+    def make_field_no_dirichlet(
+        self, free_values: Float[jax.Array, " free"] | None = None
+    ) -> Field:
+        if free_values is None:
+            free_values = jnp.zeros((self.n_free,))
+        free_values = jnp.asarray(free_values)
+        free_values = jnp.broadcast_to(free_values, (self.n_free,))
+        values: Float[jax.Array, " DoF"] = jax.numpy.zeros(
+            (self.n_dof,), dtype=free_values.dtype
+        )
+        values = values.at[self.free_index].set(free_values)
+        return Field(
+            domain=self.domain,
+            values=values.reshape(self.n_points, self.dim),
+            dim=self.dim,
+            id=self.id,
+        )

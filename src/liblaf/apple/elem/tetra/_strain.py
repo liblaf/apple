@@ -66,7 +66,7 @@ def deformation_gradient_jvp(
     dh_dX: Float[jax.Array, "cells 4 3"], p: Float[jax.Array, "cells 4 3"]
 ) -> Float[jax.Array, "cells 3 3"]:
     results: Float[jax.Array, "cells 3 3"]
-    (results,) = deformation_gradient_jvp_warp(dh_dX, p)
+    (results,) = _deformation_gradient_jvp_warp(dh_dX, p)
     return results
 
 
@@ -75,7 +75,9 @@ def deformation_gradient_jvp(
 def deformation_gradient_vjp(
     dh_dX: Float[jax.Array, "*cells 4 3"], p: Float[jax.Array, "*cells 3 3"]
 ) -> Float[jax.Array, "*cells 4 3"]:
-    return einops.einsum(dh_dX, p, "... a I, ... J I -> ... a J")
+    results: Float[jax.Array, "cells 3 3"]
+    (results,) = _deformation_gradient_vjp_warp(dh_dX, p)
+    return results
 
 
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
@@ -90,10 +92,21 @@ def deformation_gradient_gram(
 
 @no_type_check
 @utils.jax_kernel
-def deformation_gradient_jvp_warp(
+def _deformation_gradient_jvp_warp(
     dh_dX: wp.array(dtype=mat43),
     p: wp.array(dtype=mat43),
     results: wp.array(dtype=wp.mat33),
 ) -> None:
     tid = wp.tid()
     results[tid] = func.deformation_gradient_jvp(dh_dX[tid], p[tid])
+
+
+@no_type_check
+@utils.jax_kernel
+def _deformation_gradient_vjp_warp(
+    dh_dX: wp.array(dtype=mat43),
+    p: wp.array(dtype=wp.mat33),
+    results: wp.array(dtype=mat43),
+) -> None:
+    tid = wp.tid()
+    results[tid] = func.deformation_gradient_vjp(dh_dX[tid], p[tid])

@@ -3,4 +3,5 @@ extend = ".config/linters/.ruff.toml"
 target-version = "py312"
 
 [lint]
+exclude = ["formula/*.py"]
 extend-ignore = ["F722", "N802", "N803", "N806", "N815"]

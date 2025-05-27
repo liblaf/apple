@@ -34,7 +34,7 @@ class Callback(Protocol):
 class Optimizer(abc.ABC):
     def minimize(
         self,
-        fun: Callable[..., Float[jax.Array, ""]],
+        fun: Callable,
         x0: Float[ArrayLike, " N"],
         *,
         args: tuple = (),
@@ -95,7 +95,7 @@ class Optimizer(abc.ABC):
     @abc.abstractmethod
     def _minimize(
         self,
-        fun: Callable[..., Float[jax.Array, ""]],
+        fun: Callable,
         x0: Float[ArrayLike, " N"],
         *,
         args: tuple = (),

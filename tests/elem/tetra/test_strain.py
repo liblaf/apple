@@ -4,7 +4,7 @@ import numpy as np
 from jaxtyping import Float
 
 from liblaf.apple import elem, naive, utils
-from liblaf.apple.typed.jax import Mat9x12, Mat43, Vec9, Vec12
+from liblaf.apple.typed.jax import Mat9x12, Mat33, Mat43, Vec9, Vec12
 
 
 def test_deformation_gradient(n_cells: int = 7) -> None:
@@ -76,3 +76,32 @@ def test_dFdx_p(n_cells: int = 7) -> None:
     )
 
     np.testing.assert_allclose(actual, expected, rtol=1e-6)
+
+
+def test_dFdx_T_p(n_cells: int = 7) -> None:
+    rng = utils.Random()
+    points: Float[jax.Array, "cells 4 3"] = rng.uniform((n_cells, 4, 3))
+    p: Float[jax.Array, "cells 3 3"] = rng.uniform((n_cells, 3, 3))
+
+    @utils.jit
+    def dFdx_T_p_naive(
+        points: Float[jax.Array, "cells 4 3"], p: Float[jax.Array, "cells 3 3"]
+    ) -> Float[jax.Array, "cells 12"]:
+        def dFdx_p_naive_elem(points: Mat43, p: Mat33) -> Vec9:
+            p: Vec9 = einops.rearrange(p, "i j -> (j i)")
+            dFdx: Mat9x12 = naive.elem.dFdx(points)
+            return dFdx.T @ p
+
+        return jax.vmap(dFdx_p_naive_elem)(points, p)
+
+    expected: Float[jax.Array, "cells 9"] = dFdx_T_p_naive(points, p)
+
+    dh_dX: Float[jax.Array, "cells 4 3"] = elem.tetra.dh_dX(points)
+    actual: Float[jax.Array, "cells 4 3"] = elem.tetra.deformation_gradient_vjp(
+        dh_dX, p
+    )
+    actual: Float[jax.Array, "cells 12"] = einops.rearrange(
+        actual, "cells i j -> cells (i j)"
+    )
+
+    np.testing.assert_allclose(actual, expected, rtol=1e-5)

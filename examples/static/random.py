@@ -20,13 +20,12 @@ def main() -> None:
     def callback(intermediate_result: apple.OptimizeResult) -> None:
         if intermediate_result["n_iter"] % 100 != 0:
             return
+        if "Delta_E" in intermediate_result:
+            ic(intermediate_result["Delta_E"] / intermediate_result["Delta_E0"])
         geometries: dict[str, apple.Geometry] = scene.make_geometries(
             intermediate_result["x"]
         )
         writer.append(geometries["bunny"].mesh)
-
-    geometries: dict[str, apple.Geometry] = scene.make_geometries()
-    writer.append(geometries["bunny"].mesh)
 
     solution: apple.OptimizeResult = apple.minimize(
         scene.fun,
@@ -34,7 +33,7 @@ def main() -> None:
         jac=scene.jac,
         jac_and_hess_diag=scene.jac_and_hess_diag,
         hess_quad=scene.hess_quad,
-        method=apple.PNCG(maxiter=10**5, tol=1e-15),
+        method=apple.PNCG(maxiter=10**5, tol=1e-18),
         callback=callback,
     )
     ic(solution)
@@ -62,7 +61,7 @@ def gen_dirichlet(
     _x_min, _x_max, y_min, y_max, _z_min, _z_max = mesh.bounds
     y_length: float = y_max - y_min
     dirichlet_mask: Bool[np.ndarray, " points"] = (
-        mesh.points[:, 1] < y_min + 0.01 * y_length
+        mesh.points[:, 1] < y_min + 0.02 * y_length
     )
     dirichlet_values[dirichlet_mask] = np.asarray([0.0, 0.0, 0.0])
     mesh.point_data["dirichlet-mask"] = dirichlet_mask

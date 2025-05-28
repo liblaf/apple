@@ -9,7 +9,7 @@ import warp as wp
 from jaxtyping import Float
 
 from liblaf.apple import func, utils
-from liblaf.apple.typed.warp import mat43
+from liblaf.apple.typed.warp import mat33, mat43
 
 
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
@@ -23,10 +23,10 @@ def gradient(
 @jaxtyping.jaxtyped(typechecker=beartype.beartype)
 @utils.jit
 def deformation_gradient(
-    u: Float[jax.Array, "*cells a=4 I=3"], dh_dX: Float[jax.Array, "*cells a=4 J=3"]
-) -> Float[jax.Array, "*cells I=3 J=3"]:
-    grad_u: Float[jax.Array, "*cells I=3 J=3"] = gradient(u, dh_dX)
-    F: Float[jax.Array, "*cells I=3 J=3"] = grad_u + jnp.identity(3)
+    u: Float[jax.Array, "cells 4 3"], dh_dX: Float[jax.Array, "cells 4 3"]
+) -> Float[jax.Array, "cells 3 3"]:
+    F: Float[jax.Array, "cells 3 3"]
+    (F,) = _deformation_gradient_warp(u, dh_dX)
     return F
 
 
@@ -92,10 +92,21 @@ def deformation_gradient_gram(
 
 @no_type_check
 @utils.jax_kernel
+def _deformation_gradient_warp(
+    u: wp.array(dtype=mat43),
+    dh_dX: wp.array(dtype=mat43),
+    F: wp.array(dtype=mat33),
+) -> None:
+    tid = wp.tid()
+    F[tid] = func.deformation_gradient(u[tid], dh_dX[tid])
+
+
+@no_type_check
+@utils.jax_kernel
 def _deformation_gradient_jvp_warp(
     dh_dX: wp.array(dtype=mat43),
     p: wp.array(dtype=mat43),
-    results: wp.array(dtype=wp.mat33),
+    results: wp.array(dtype=mat33),
 ) -> None:
     tid = wp.tid()
     results[tid] = func.deformation_gradient_jvp(dh_dX[tid], p[tid])
@@ -105,7 +116,7 @@ def _deformation_gradient_jvp_warp(
 @utils.jax_kernel
 def _deformation_gradient_vjp_warp(
     dh_dX: wp.array(dtype=mat43),
-    p: wp.array(dtype=wp.mat33),
+    p: wp.array(dtype=mat33),
     results: wp.array(dtype=mat43),
 ) -> None:
     tid = wp.tid()

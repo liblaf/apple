@@ -38,7 +38,7 @@ def main() -> None:
     )
     ic(solution)
 
-    geometries = scene.make_geometries(solution["x"])
+    geometries: dict[str, apple.Geometry] = scene.make_geometries(solution["x"])
     melon.save("data/examples/static/random-solution.vtu", geometries["bunny"].mesh)
 
 
@@ -80,13 +80,10 @@ def gen_scene(geometry: apple.Geometry) -> apple.Scene:
     dirichlet_values: Float[np.ndarray, " dirichlet"]
     dirichlet_index, dirichlet_values = gen_dirichlet(geometry)
     domain: apple.Domain = apple.Domain.from_geometry(geometry)
-    field_spec: apple.FieldSpec = apple.FieldSpec.from_domain(
-        domain=domain,
-        dirichlet_index=dirichlet_index,
-        dirichlet_values=dirichlet_values,
-        id="displacement",
-    )
-    energy = apple.energy.elastic.PhaceStatic(field_id=field_spec.id)
+    field_spec: apple.Field = apple.Field.from_domain(
+        domain=domain, id="displacement"
+    ).with_dirichlet(dirichlet_index=dirichlet_index, dirichlet_values=dirichlet_values)
+    energy = apple.energy.elastic.ARAP(field_id=field_spec.id)
     scene = apple.Scene()
     scene.add_field(field_spec)
     scene.add_energy(energy)

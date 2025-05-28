@@ -28,7 +28,7 @@ class State(flax.struct.PyTreeNode):
     first: bool = flax.struct.field(pytree_node=False, default=True)
 
 
-class PNCG(flax.struct.PyTreeNode, Optimizer):
+class PNCG(Optimizer):
     d_hat: float = flax.struct.field(pytree_node=False, default=math.inf)
     maxiter: int = flax.struct.field(pytree_node=False, default=150)
     tol: float = flax.struct.field(pytree_node=False, default=1e-5)

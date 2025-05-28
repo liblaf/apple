@@ -1,4 +1,4 @@
-from . import elastic
-from .elastic import ARAP
+from . import dynamics, elastic
+from .elastic import ARAP, PhaceStatic
 
-__all__ = ["ARAP", "elastic"]
+__all__ = ["ARAP", "PhaceStatic", "dynamics", "elastic"]

@@ -2,6 +2,7 @@ import abc
 from collections.abc import Callable
 from typing import Protocol, overload
 
+import flax.struct
 import jax
 import jax.numpy as jnp
 import scipy
@@ -28,10 +29,10 @@ class OptimizeResult(scipy.optimize.OptimizeResult):
 
 
 class Callback(Protocol):
-    def __call__(self, intermediate_result: OptimizeResult) -> None: ...
+    def __call__(self, result: OptimizeResult, /) -> None: ...
 
 
-class Optimizer(abc.ABC):
+class Optimizer(abc.ABC, flax.struct.PyTreeNode):
     def minimize(
         self,
         fun: Callable,

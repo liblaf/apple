@@ -1,5 +1,5 @@
 from . import energy, func, jax, math, naive, optim, physics, testing, typed, utils
-from .energy import ARAP
+from .energy import ARAP, Gravity, Inertia, PhaceStatic
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
 from .physics import Domain, Energy, Field, Geometry, Scene
@@ -12,9 +12,12 @@ __all__ = [
     "Energy",
     "Field",
     "Geometry",
+    "Gravity",
+    "Inertia",
     "OptimizeResult",
     "Optimizer",
     "OptimizerScipy",
+    "PhaceStatic",
     "Random",
     "Scene",
     "block_until_ready_decorator",

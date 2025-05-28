@@ -16,7 +16,7 @@ class Config(cherries.BaseConfig):
 
     # material properties
     density: float = 1e3
-    E: float = 7e2  # Young's modulus
+    E: float = 5e4  # Young's modulus
     nu: float = 0.4  # Poisson's ratio
 
     @property
@@ -31,6 +31,7 @@ class Config(cherries.BaseConfig):
 def main(cfg: Config) -> None:
     geometry: apple.Geometry = gen_geometry(cfg)
     scene: apple.Scene = gen_scene(cfg, geometry)
+    scene = scene.replace(optimizer=apple.PNCG(maxiter=10**3, tol=1e-5))
     writer = melon.SeriesWriter("data/examples/dynamics/bunny.vtu.series")
     writer.append(geometry.mesh)
 

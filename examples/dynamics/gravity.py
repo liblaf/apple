@@ -32,7 +32,7 @@ def main(cfg: Config) -> None:
     geometry: apple.Geometry = gen_geometry(cfg)
     ic(geometry.mesh)
     scene: apple.Scene = gen_scene(cfg, geometry)
-    scene = scene.replace(optimizer=apple.PNCG(maxiter=10**5, tol=1e-5))
+    scene = scene.replace(optimizer=apple.PNCG(maxiter=10**3, tol=1e-5))
     writer = melon.SeriesWriter("data/examples/dynamics/gravity.vtu.series")
     writer.append(geometry.mesh)
 

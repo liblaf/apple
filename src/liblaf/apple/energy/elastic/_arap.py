@@ -20,6 +20,8 @@ class ARAP(Elastic):
     $$
     """
 
+    id: str = flax.struct.field(pytree_node=False, default="ARAP")
+
     mu: Float[jax.Array, " cells"] = flax.struct.field(
         default_factory=lambda: jnp.asarray(1.0)
     )

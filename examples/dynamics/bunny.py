@@ -1,51 +1,63 @@
 import einops
-import jax
+import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 import pyvista.examples
 from jaxtyping import Bool, Float, Integer
 
 import liblaf.apple as apple  # noqa: PLR0402
-from liblaf import grapes, melon
-from liblaf.apple import utils
+from liblaf import cherries, grapes, melon
 
 
-def main() -> None:
-    grapes.init_logging()
-    geometry: apple.Geometry = gen_geometry()
-    scene: apple.Scene = gen_scene(geometry)
-    x0: Float[jax.Array, " free"] = gen_init(scene, geometry.length)
-    writer = melon.SeriesWriter("data/examples/static/random.vtu.series")
+class Config(cherries.BaseConfig):
+    duration: float = 5.0
+    fps: float = 30.0
+    period: float = 1.0
 
-    def callback(intermediate_result: apple.OptimizeResult) -> None:
-        if intermediate_result["n_iter"] % 100 != 0:
-            return
-        if "Delta_E" in intermediate_result:
-            ic(intermediate_result["Delta_E"] / intermediate_result["Delta_E0"])
-        geometries: dict[str, apple.Geometry] = scene.make_geometries(
-            intermediate_result["x"]
+    # material properties
+    density: float = 1e3
+    E: float = 7e2  # Young's modulus
+    nu: float = 0.4  # Poisson's ratio
+
+    @property
+    def n_frames(self) -> int:
+        return int(self.duration * self.fps)
+
+    @property
+    def time_step(self) -> float:
+        return 1.0 / self.fps
+
+
+def main(cfg: Config) -> None:
+    geometry: apple.Geometry = gen_geometry(cfg)
+    scene: apple.Scene = gen_scene(cfg, geometry)
+    writer = melon.SeriesWriter("data/examples/dynamics/bunny.vtu.series")
+    writer.append(geometry.mesh)
+
+    for it in grapes.track(range(1, cfg.n_frames + 1), description="Frames"):
+        time: float = it * cfg.time_step
+        dirichlet_values: Float[np.ndarray, " dirichlet"] = gen_dirichlet_values(
+            geometry, time=time, period=cfg.period
         )
+        field: apple.Field = scene.fields["displacement"]
+        field = field.with_dirichlet(
+            dirichlet_index=field.dirichlet_index, dirichlet_values=dirichlet_values
+        )
+        scene.fields["displacement"] = field
+        solution: apple.OptimizeResult = scene.solve()
+        ic(solution)
+
+        scene = scene.step(solution["x"])
+        geometries: dict[str, apple.Geometry] = scene.make_geometries()
         writer.append(geometries["bunny"].mesh)
 
-    solution: apple.OptimizeResult = apple.minimize(
-        scene.fun,
-        x0=x0,
-        jac=scene.jac,
-        jac_and_hess_diag=scene.jac_and_hess_diag,
-        hess_quad=scene.hess_quad,
-        method=apple.PNCG(maxiter=10**5, tol=1e-18),
-        callback=callback,
-    )
-    ic(solution)
 
-    geometries = scene.make_geometries(solution["x"])
-    melon.save("data/examples/static/random-solution.vtu", geometries["bunny"].mesh)
-
-
-def gen_geometry(lr: float = 0.05) -> apple.Geometry:
+def gen_geometry(cfg: Config, lr: float = 0.05) -> apple.Geometry:
     surface: pv.PolyData = pyvista.examples.download_bunny(load=True)
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    return apple.Geometry(mesh=mesh, id="bunny")
+    geometry = apple.Geometry(mesh=mesh, id="bunny")
+    geometry.density = cfg.density
+    return geometry
 
 
 def gen_dirichlet(
@@ -61,7 +73,7 @@ def gen_dirichlet(
     _x_min, _x_max, y_min, y_max, _z_min, _z_max = mesh.bounds
     y_length: float = y_max - y_min
     dirichlet_mask: Bool[np.ndarray, " points"] = (
-        mesh.points[:, 1] < y_min + 0.02 * y_length
+        mesh.points[:, 1] < y_min + 0.05 * y_length
     )
     dirichlet_values[dirichlet_mask] = np.asarray([0.0, 0.0, 0.0])
     mesh.point_data["dirichlet-mask"] = dirichlet_mask
@@ -75,28 +87,56 @@ def gen_dirichlet(
     return dirichlet_index, dirichlet_values.ravel()[dirichlet_index]
 
 
-def gen_scene(geometry: apple.Geometry) -> apple.Scene:
+def gen_dirichlet_values(
+    geometry: apple.Geometry, time: float = 0.0, period: float = 1.0
+) -> Float[np.ndarray, " dirichlet"]:
+    mesh: pv.UnstructuredGrid = geometry.mesh
+    dirichlet_mask: Bool[np.ndarray, " points"] = mesh.point_data["dirichlet-mask"]
+    dirichlet_values: Float[np.ndarray, "points 3"] = mesh.point_data[
+        "dirichlet-values"
+    ]
+    n_dirichlet: int = np.count_nonzero(dirichlet_mask)
+    x_min: float
+    x_max: float
+    x_min, x_max, _y_min, _y_max, _z_min, _z_max = mesh.bounds
+    x_length: float = x_max - x_min
+    x_translate: float = 0.3 * x_length * np.sin(2 * np.pi * time / period)
+    dirichlet_values: Float[np.ndarray, "dirichlet 3"] = np.broadcast_to(
+        [x_translate, 0.0, 0.0], (n_dirichlet, 3)
+    )
+    mesh.point_data["dirichlet-values"][dirichlet_mask] = dirichlet_values
+    return dirichlet_values.ravel()
+
+
+def gen_scene(cfg: Config, geometry: apple.Geometry) -> apple.Scene:
     dirichlet_index: Integer[np.ndarray, " dirichlet"]
     dirichlet_values: Float[np.ndarray, " dirichlet"]
     dirichlet_index, dirichlet_values = gen_dirichlet(geometry)
     domain: apple.Domain = apple.Domain.from_geometry(geometry)
-    field_spec: apple.Field = apple.Field.from_domain(
-        domain=domain, id="displacement"
-    ).with_dirichlet(dirichlet_index=dirichlet_index, dirichlet_values=dirichlet_values)
-    energy = apple.energy.elastic.PhaceStatic(field_id=field_spec.id)
-    scene = apple.Scene()
-    scene.add_field(field_spec)
-    scene.add_energy(energy)
+    field: apple.Field = (
+        apple.Field.from_domain(domain=domain, id="displacement")
+        .with_dirichlet(
+            dirichlet_index=dirichlet_index, dirichlet_values=dirichlet_values
+        )
+        .with_free_values(0.0)
+        .with_velocities(0.0)
+        .with_forces(0.0)
+        .step()
+    )
+    scene = apple.Scene(time_step=jnp.asarray(cfg.time_step))
+    scene.add_field(field)
+
+    lambda_: float
+    mu: float
+    lambda_, mu = apple.utils.lame_params(E=cfg.E, nu=cfg.nu)
+    elasticity = apple.energy.elastic.PhaceStatic(
+        field_id=field.id, mu=jnp.asarray(mu), lambda_=jnp.asarray(lambda_)
+    )
+    scene.add_energy(elasticity)
+    inertia = apple.energy.Inertia(field_id=field.id, mass=field.domain.point_mass)
+    scene.add_energy(inertia)
     return scene
 
 
-def gen_init(scene: apple.Scene, length: float) -> Float[jax.Array, " free"]:
-    random = utils.Random()
-    u0: Float[jax.Array, " free"] = random.uniform(
-        (scene.n_free,), minval=-0.5 * length, maxval=0.5 * length
-    )
-    return u0
-
-
 if __name__ == "__main__":
-    main()
+    cherries.run(main, play=True)

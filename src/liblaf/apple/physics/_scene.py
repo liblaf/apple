@@ -18,6 +18,10 @@ class Scene(flax.struct.PyTreeNode):
     fields: dict[str, Field] = flax.struct.field(default_factory=dict)
     optimizer: optim.Optimizer = flax.struct.field(default_factory=optim.PNCG)
 
+    time_step: Float[jax.Array, ""] = flax.struct.field(
+        default_factory=lambda: jnp.asarray(1.0 / 30.0)
+    )
+
     @property
     def free_values(self) -> Float[jax.Array, " free"]:
         free_values: Float[jax.Array, " free"] = jnp.zeros((self.n_free,))
@@ -188,9 +192,17 @@ class Scene(flax.struct.PyTreeNode):
         )
         return solution
 
-    def step(self, callback: optim.Callback | None = None) -> optim.OptimizeResult:
-        solution: optim.OptimizeResult = self.solve(callback=callback)
-        return solution
+    def step(self, free_values: Float[jax.Array, " free"] | None = None) -> Self:
+        fields_prev: dict[str, Field] = self.make_fields()
+        fields_next: dict[str, Field] = self.make_fields(free_values)
+        for field_id, field_next in fields_next.items():
+            prev: Field = fields_prev[field_id]
+            fields_next[field_id] = fields_next[field_id].replace(
+                values_prev=prev.values,
+                velocities=(field_next.values - prev.values) / self.time_step,
+            )
+        scene: Self = self.replace(fields=fields_next)
+        return scene
 
     @utils.jit
     def with_free_values(

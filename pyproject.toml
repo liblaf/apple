@@ -7,7 +7,7 @@ requires = ["hatch-vcs", "hatchling"]
 
 [dependency-groups]
 build = ["check-wheel-contents", "hatch", "twine"]
-dev = ["icecream", "marimo[recommended]", "sympy"]
+dev = ["icecream", "marimo[recommended]", "sympy", "liblaf-cherries>=0.1.2,<0.2"]
 docs = [
   "gitpython",
   "mdx-truly-sane-lists",

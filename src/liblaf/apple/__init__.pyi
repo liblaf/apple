@@ -3,7 +3,7 @@ from .energy import ARAP
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
 from .physics import Domain, Energy, Field, Geometry, Scene
-from .utils import Random, block_until_ready_decorator, jit
+from .utils import Random, block_until_ready_decorator, jax_kernel, jit, lame_params
 
 __all__ = [
     "ARAP",
@@ -22,7 +22,9 @@ __all__ = [
     "energy",
     "func",
     "jax",
+    "jax_kernel",
     "jit",
+    "lame_params",
     "math",
     "minimize",
     "naive",

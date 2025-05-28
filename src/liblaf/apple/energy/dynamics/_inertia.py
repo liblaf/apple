@@ -10,9 +10,13 @@ from liblaf.apple import math, physics, utils
 
 
 class Inertia(physics.Energy):
-    field_id: str = "field"
-    mass: Float[jax.Array, ""] = flax.struct.field(default=jnp.asarray(1.0))
-    time_step: Float[jax.Array, ""] = flax.struct.field(default=jnp.asarray(1.0 / 30.0))
+    id: str = flax.struct.field(pytree_node=False, default="inertia")
+    mass: Float[jax.Array, ""] = flax.struct.field(
+        default_factory=lambda: jnp.asarray(1.0)
+    )
+    time_step: Float[jax.Array, ""] = flax.struct.field(
+        default_factory=lambda: jnp.asarray(1.0 / 30.0)
+    )
 
     @override
     @utils.jit
@@ -20,7 +24,7 @@ class Inertia(physics.Energy):
         x: Float[jax.Array, "points dim"] = field.values
         mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
         x_tilde: Float[jax.Array, "points dim"] = (
-            x
+            field.values_prev
             + self.time_step * field.velocities
             + self.time_step**2 * field.forces / mass
         )
@@ -34,7 +38,7 @@ class Inertia(physics.Energy):
         x: Float[jax.Array, "points dim"] = field.values
         mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
         x_tilde: Float[jax.Array, "points dim"] = (
-            x
+            field.values_prev
             + self.time_step * field.velocities
             + self.time_step**2 * field.forces / mass
         )

@@ -6,7 +6,7 @@ from ._field import Field
 
 
 class Energy(flax.struct.PyTreeNode):
-    field_id: str = flax.struct.field(pytree_node=False, default="field")
+    field_id: str = flax.struct.field(pytree_node=False, default="displacement")
     id: str = flax.struct.field(pytree_node=False, default="energy")
 
     def fun(self, field: Field) -> Float[jax.Array, ""]:

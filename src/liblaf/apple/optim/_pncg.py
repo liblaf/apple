@@ -141,7 +141,7 @@ class PNCG(Optimizer):
     def calc_p_inf_norm(self, p: Float[jax.Array, " N"]) -> Float[jax.Array, ""]:
         return jnp.linalg.norm(p, ord=jnp.inf)
 
-    @utils.jit(static_argnames=("jac_and_hess_diag", "hess_quad", "args"))
+    # @utils.jit(static_argnames=("jac_and_hess_diag", "hess_quad", "args"))
     def step(
         self,
         state: State,

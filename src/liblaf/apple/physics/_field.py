@@ -20,6 +20,9 @@ class Field(flax.struct.PyTreeNode):
     values: Float[jax.Array, "points dim"] = flax.struct.field(
         default=None, kw_only=True
     )
+    values_prev: Float[jax.Array, "points dim"] = flax.struct.field(
+        default=None, kw_only=True
+    )
     forces: Float[jax.Array, "points dim"] = flax.struct.field(
         default=None, kw_only=True
     )
@@ -105,6 +108,12 @@ class Field(flax.struct.PyTreeNode):
 
     # endregion FEM
 
+    def step(self, values: Float[ArrayLike, "points dim"] | None = None) -> Self:
+        field: Self = self.replace(values_prev=self.values)
+        if values is not None:
+            field = field.with_values(values)
+        return field
+
     def with_dirichlet(
         self,
         dirichlet_index: Integer[ArrayLike, " dirichlet"] | None = None,
@@ -136,8 +145,7 @@ class Field(flax.struct.PyTreeNode):
             dirichlet_mask = ~free_mask
             (dirichlet_index,) = jnp.nonzero(dirichlet_mask)
         else:
-            dirichlet_index = jnp.empty((0,), dtype=int)
-            free_index = jnp.arange(self.n_dof)
+            return self
 
         if dirichlet_values is None:
             dirichlet_values = jnp.zeros(dirichlet_index.shape)
@@ -152,6 +160,8 @@ class Field(flax.struct.PyTreeNode):
 
     @utils.jit
     def with_forces(self, forces: Float[ArrayLike, "points dim"] | None = None) -> Self:
+        if forces is None:
+            return self
         forces: Float[jax.Array, "points dim"] = make_values(
             values=forces, n_points=self.n_points, dim=self.dim
         )
@@ -165,7 +175,7 @@ class Field(flax.struct.PyTreeNode):
         dirichlet: bool = True,
     ) -> Self:
         if free_values is None:
-            free_values = jnp.zeros((self.n_free,), dtype=float)
+            return self
         free_values = jnp.asarray(free_values, dtype=float)
         free_values = jnp.broadcast_to(free_values, (self.n_free,))
         values: Float[jax.Array, " DoF"]
@@ -182,6 +192,8 @@ class Field(flax.struct.PyTreeNode):
     def with_velocities(
         self, velocities: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
+        if velocities is None:
+            return self
         velocities: Float[jax.Array, "points dim"] = make_values(
             values=velocities, n_points=self.n_points, dim=self.dim
         )
@@ -189,6 +201,8 @@ class Field(flax.struct.PyTreeNode):
 
     @utils.jit
     def with_values(self, values: Float[ArrayLike, "points dim"] | None = None) -> Self:
+        if values is None:
+            return self
         values: Float[jax.Array, "points dim"] = make_values(
             values=values, n_points=self.n_points, dim=self.dim
         )

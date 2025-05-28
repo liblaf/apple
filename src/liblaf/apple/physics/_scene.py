@@ -20,7 +20,15 @@ class Scene(flax.struct.PyTreeNode):
 
     @property
     def free_values(self) -> Float[jax.Array, " free"]:
-        raise NotImplementedError
+        free_values: Float[jax.Array, " free"] = jnp.zeros((self.n_free,))
+        offset = 0
+        for field in self.fields.values():
+            n_free: int = field.n_free
+            free_values = free_values.at[offset : offset + n_free].set(
+                field.free_values
+            )
+            offset += n_free
+        return free_values
 
     @property
     def n_dirichlet(self) -> int:
@@ -168,8 +176,21 @@ class Scene(flax.struct.PyTreeNode):
             geometries[geometry.id] = geometry
         return geometries
 
-    def step(self) -> Float[jax.Array, ""]:
-        raise NotImplementedError
+    def solve(self, *, callback: optim.Callback | None = None) -> optim.OptimizeResult:
+        solution: optim.OptimizeResult = self.optimizer.minimize(
+            fun=self.fun,
+            x0=self.free_values,
+            jac=self.jac,
+            hess_diag=self.hess_diag,
+            hess_quad=self.hess_quad,
+            jac_and_hess_diag=self.jac_and_hess_diag,
+            callback=callback,
+        )
+        return solution
+
+    def step(self, callback: optim.Callback | None = None) -> optim.OptimizeResult:
+        solution: optim.OptimizeResult = self.solve(callback=callback)
+        return solution
 
     @utils.jit
     def with_free_values(

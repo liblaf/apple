@@ -6,7 +6,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Float
 
-from liblaf.apple import physics, utils
+from liblaf.apple import math, physics, utils
 
 
 class Inertia(physics.Energy):
@@ -14,11 +14,11 @@ class Inertia(physics.Energy):
     mass: Float[jax.Array, ""] = flax.struct.field(default=jnp.asarray(1.0))
     time_step: Float[jax.Array, ""] = flax.struct.field(default=jnp.asarray(1.0 / 30.0))
 
-    @utils.jit
     @override
+    @utils.jit
     def fun(self, field: physics.Field) -> Float[jax.Array, ""]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = jnp.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
         x_tilde: Float[jax.Array, "points dim"] = (
             x
             + self.time_step * field.velocities
@@ -28,11 +28,11 @@ class Inertia(physics.Energy):
         fun /= self.time_step**2
         return fun
 
-    @utils.jit
     @override
+    @utils.jit
     def jac(self, field: physics.Field) -> Float[jax.Array, " DoF"]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = jnp.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
         x_tilde: Float[jax.Array, "points dim"] = (
             x
             + self.time_step * field.velocities
@@ -42,16 +42,19 @@ class Inertia(physics.Energy):
         jac /= self.time_step**2
         return jac.ravel()
 
-    @utils.jit
     @override
+    @utils.jit
     def hess_diag(self, field: physics.Field) -> Float[jax.Array, " DoF"]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = jnp.broadcast_to(self.mass, x.shape)
-        return mass.ravel()
+        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        hess_diag: Float[jax.Array, "points dim"] = mass / self.time_step**2
+        return hess_diag.ravel()
 
-    @utils.jit
     @override
+    @utils.jit
     def hess_quad(self, field: physics.Field, p: physics.Field) -> Float[jax.Array, ""]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = jnp.broadcast_to(self.mass, x.shape)
-        return jnp.sum(mass * p.values**2)
+        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        hess_quad: Float[jax.Array, ""] = jnp.sum(mass * p.values**2)
+        hess_quad /= self.time_step**2
+        return hess_quad

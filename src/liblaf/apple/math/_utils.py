@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Shaped
@@ -11,7 +12,7 @@ from liblaf.apple import utils
 @utils.jit(static_argnames=("shape",))
 def broadcast_to(
     arr: Shaped[ArrayLike, "..."], shape: Sequence[int]
-) -> Shaped[ArrayLike, "..."]:
+) -> Shaped[jax.Array, "..."]:
     print("Jit ...")
     arr = jnp.asarray(arr)
     if arr.shape == shape:

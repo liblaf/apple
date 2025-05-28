@@ -18,7 +18,7 @@ def main() -> None:
         if "Delta_E" in result:
             ic(result["Delta_E"] / result["Delta_E0"])
         geometries: dict[str, apple.Geometry] = scene.make_geometries(result["x"])
-        writer.append(geometries["bunny"].mesh)
+        writer.append(geometries["box"].mesh)
 
     solution: apple.OptimizeResult = apple.minimize(
         scene.fun,
@@ -32,13 +32,13 @@ def main() -> None:
     ic(solution)
 
     geometries: dict[str, apple.Geometry] = scene.make_geometries(solution["x"])
-    melon.save("data/examples/static/stretch-solution.vtu", geometries["bunny"].mesh)
+    melon.save("data/examples/static/stretch-solution.vtu", geometries["box"].mesh)
 
 
 def gen_geometry(lr: float = 0.05) -> apple.Geometry:
     surface: pv.PolyData = pv.Box()
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    geometry: apple.Geometry = apple.Geometry(mesh=mesh, id="bunny")
+    geometry: apple.Geometry = apple.Geometry(mesh=mesh, id="box")
     return geometry
 
 

@@ -51,6 +51,13 @@ class Field(flax.struct.PyTreeNode):
         return self.domain.cells
 
     @property
+    def free_values(self) -> Float[jax.Array, " free"]:
+        values: Float[jax.Array, " DoF"] = self.values.ravel()
+        if self.free_index is None:
+            return values
+        return values[self.free_index]
+
+    @property
     def geometry(self) -> Geometry:
         return self.domain.geometry
 

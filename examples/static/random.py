@@ -15,6 +15,10 @@ def main() -> None:
     geometry: apple.Geometry = gen_geometry()
     scene: apple.Scene = gen_scene(geometry)
     x0: Float[jax.Array, " free"] = gen_init(scene, geometry.length)
+    scene = scene.replace(
+        optimizer=apple.PNCG(maxiter=1000, tol=1e-18)
+    ).with_free_values(x0)
+
     writer = melon.SeriesWriter("data/examples/static/random.vtu.series")
 
     def callback(intermediate_result: apple.OptimizeResult) -> None:
@@ -27,15 +31,7 @@ def main() -> None:
         )
         writer.append(geometries["bunny"].mesh)
 
-    solution: apple.OptimizeResult = apple.minimize(
-        scene.fun,
-        x0=x0,
-        jac=scene.jac,
-        jac_and_hess_diag=scene.jac_and_hess_diag,
-        hess_quad=scene.hess_quad,
-        method=apple.PNCG(maxiter=10**5, tol=1e-18),
-        callback=callback,
-    )
+    solution: apple.OptimizeResult = scene.solve(callback=callback)
     ic(solution)
 
     geometries: dict[str, apple.Geometry] = scene.make_geometries(solution["x"])
@@ -61,7 +57,7 @@ def gen_dirichlet(
     _x_min, _x_max, y_min, y_max, _z_min, _z_max = mesh.bounds
     y_length: float = y_max - y_min
     dirichlet_mask: Bool[np.ndarray, " points"] = (
-        mesh.points[:, 1] < y_min + 0.02 * y_length
+        mesh.points[:, 1] < y_min + 0.05 * y_length
     )
     dirichlet_values[dirichlet_mask] = np.asarray([0.0, 0.0, 0.0])
     mesh.point_data["dirichlet-mask"] = dirichlet_mask

@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3...v0.1.0) (2025-06-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* next ([#24](https://github.com/liblaf/apple/issues/24))
+
+### ✨ Features
+
+* add benchmark tests and material models for FEM analysis ([888ffd8](https://github.com/liblaf/apple/commit/888ffd899714559008f5a7b6ee1b0fd47d8faa5b))
+* add dynamic simulation capabilities and improve physics modeling ([07b0d1c](https://github.com/liblaf/apple/commit/07b0d1c18aa5833d9d324d4992573433cf4eb4fe))
+* add PNCG optimizer and enhance elastic energy models ([59c1612](https://github.com/liblaf/apple/commit/59c16127759c01e888980465b31f75bf1bdd74db))
+* **apple:** add AbstractMinimizeProblem and fix_winding utility ([c661b07](https://github.com/liblaf/apple/commit/c661b07ad722c844e4fc1d52f53aebeec3d4a237))
+* **dynamics:** add collision example and update simulation parameters ([3906dcb](https://github.com/liblaf/apple/commit/3906dcb89ed3bcf0ddf76bc13e6afd5a94a53a65))
+* **dynamics:** add dynamic simulation capabilities to bunny example ([24b60bd](https://github.com/liblaf/apple/commit/24b60bd65306e98528694cf17495c877c9a4c35e))
+* **dynamics:** add gravity simulation with bunny example ([9134b72](https://github.com/liblaf/apple/commit/9134b72f0a2459b0e0ad1c0b637a4138edf33261))
+* **dynamics:** enhance collision detection with animation and visualization ([edd25ce](https://github.com/liblaf/apple/commit/edd25ce18d231be5d45c10c9a6c06d6675a67bee))
+* enhance physics simulation with Geometry class and PhaceStatic energy ([6968ad7](https://github.com/liblaf/apple/commit/6968ad78265c6f280496a4c658e201e2443c150a))
+* **jaw-motion:** add jaw motion simulation experiment ([213362d](https://github.com/liblaf/apple/commit/213362d324b09e3e920a771453553a4ce0e0bf0b))
+* **jaw-motion:** add muscle activation simulation ([8a4a95f](https://github.com/liblaf/apple/commit/8a4a95f9d21536405e3d4171e10f30380bb13365))
+* next ([#24](https://github.com/liblaf/apple/issues/24)) ([7620f38](https://github.com/liblaf/apple/commit/7620f386ff889b1a76bc3b919f603bc325213d81))
+* **physics:** enhance scene optimization and inertia calculations ([5fa2302](https://github.com/liblaf/apple/commit/5fa2302511317b002e7eaf835706ab9501b4c416))
+* **physics:** refactor field system and add dynamics support ([b9e5e01](https://github.com/liblaf/apple/commit/b9e5e01ed807ff8acd3ac50adae0ea2c76264dd7))
+* **physics:** restructure physics module with new domain and field system ([07b2823](https://github.com/liblaf/apple/commit/07b2823befd1f28c7d1813821d3821c05dd43efe))
+* **strain:** add naive implementations of Qs and h3_diag functions ([a8bf975](https://github.com/liblaf/apple/commit/a8bf975cd90ddfb94148c996818e6c509323428a))
+* **strain:** optimize and refactor tetrahedral strain calculations ([fe2218f](https://github.com/liblaf/apple/commit/fe2218f41e74d767a561da3822dcb7d2c668d82f))
+
+
+### ⬆️ Dependencies
+
+* **deps:** update liblaf-grapes dependency to v0.1.28 ([68033eb](https://github.com/liblaf/apple/commit/68033ebc72eadf9e265915959c049363d2a4614f))
+* **deps:** update liblaf-melon dependency to v0.2.8 ([9ecefe1](https://github.com/liblaf/apple/commit/9ecefe192f31b49b1e1e10acba5a3d78ac58d343))
+
+
+### ♻ Code Refactoring
+
+* **optim:** simplify timing callback handling and update type hints ([31a4910](https://github.com/liblaf/apple/commit/31a4910189b5d6549a77218feb4ef3d0f1b36f98))
+* **physics:** restructure physics problem abstraction and material models ([7a4b236](https://github.com/liblaf/apple/commit/7a4b236d24c1e8cce2c738d0552baeb64fb11572))
+* reorganize configuration files and update dependencies ([b4e8d32](https://github.com/liblaf/apple/commit/b4e8d320b29592c945fa690edfe90e65ffac366a))
+* **strain:** optimize deformation gradient calculations ([6be27eb](https://github.com/liblaf/apple/commit/6be27eb6ba496231a43d72978504b88fb549f329))
+
+
+### 👷 Build System
+
+* add Flax as a dependency ([97d5688](https://github.com/liblaf/apple/commit/97d5688de5e919ef986c10499975b5cc02a61c36))
+* update project configuration and dependencies ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
+
 ## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-20
 
 ### ✨ Features

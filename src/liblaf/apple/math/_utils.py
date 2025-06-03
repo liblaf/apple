@@ -13,7 +13,6 @@ from liblaf.apple import utils
 def broadcast_to(
     arr: Shaped[ArrayLike, "..."], shape: Sequence[int]
 ) -> Shaped[jax.Array, "..."]:
-    print("Jit ...")
     arr = jnp.asarray(arr)
     if arr.shape == shape:
         return arr

@@ -1,13 +1,27 @@
-from . import energy, func, jax, math, naive, optim, physics, testing, typed, utils
+from . import (
+    elem,
+    energy,
+    func,
+    jax,
+    math,
+    naive,
+    optim,
+    physics,
+    struct,
+    testing,
+    typed,
+    utils,
+)
 from .energy import ARAP, Gravity, Inertia, PhaceStatic
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
-from .physics import Domain, Energy, Field, Geometry, Scene
+from .physics import CollisionRigidSoft, Domain, Energy, Field, Geometry, Scene
 from .utils import Random, block_until_ready_decorator, jax_kernel, jit, lame_params
 
 __all__ = [
     "ARAP",
     "PNCG",
+    "CollisionRigidSoft",
     "Domain",
     "Energy",
     "Field",
@@ -22,6 +36,7 @@ __all__ = [
     "Scene",
     "block_until_ready_decorator",
     "broadcast_to",
+    "elem",
     "energy",
     "func",
     "jax",
@@ -33,6 +48,7 @@ __all__ = [
     "naive",
     "optim",
     "physics",
+    "struct",
     "testing",
     "typed",
     "utils",

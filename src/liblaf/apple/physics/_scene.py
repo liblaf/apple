@@ -145,9 +145,14 @@ class Scene(flax.struct.PyTreeNode):
         offset: int = 0
         for field in self.fields.values():
             n_free: int = field.n_free
-            free_values = free_values.at[offset : offset + n_free].set(
-                field_values[field.id][field.free_index]
-            )
+            if field.free_index is None:
+                free_values = free_values.at[offset : offset + n_free].set(
+                    field_values[field.id]
+                )
+            else:
+                free_values = free_values.at[offset : offset + n_free].set(
+                    field_values[field.id][field.free_index]
+                )
             offset += field.n_free
         return free_values
 
@@ -176,7 +181,9 @@ class Scene(flax.struct.PyTreeNode):
         scene: Self = self.with_free_values(free)
         geometries: dict[str, Geometry] = {}
         for field in scene.fields.values():
-            geometry: Geometry = field.geometry.warp(field.values)
+            geometry: Geometry = field.geometry.warp(
+                field.values, velocities=field.velocities
+            )
             geometries[geometry.id] = geometry
         return geometries
 
@@ -198,7 +205,7 @@ class Scene(flax.struct.PyTreeNode):
         for field_id, field_next in fields_next.items():
             prev: Field = fields_prev[field_id]
             fields_next[field_id] = fields_next[field_id].replace(
-                values_prev=prev.values,
+                values_prev=field_next.values,
                 velocities=(field_next.values - prev.values) / self.time_step,
             )
         scene: Self = self.replace(fields=fields_next)

@@ -91,6 +91,7 @@ class PNCG(Optimizer):
             )
             if callable(callback):
                 callback(result)
+                state = state.replace(x=result["x"])
             if state.Delta_E < self.tol * Delta_E0:
                 result["success"] = True
                 break

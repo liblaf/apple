@@ -7,6 +7,7 @@ import numpy as np
 import pyvista as pv
 from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
+from sympy import N
 
 from liblaf.apple import elem
 
@@ -66,8 +67,8 @@ class Geometry:
     @property
     def point_mass(self) -> Float[jax.Array, " points"]:
         cell_mass: Float[jax.Array, " cells"] = self.cell_mass
-        cell_mass: Float[jax.Array, "cells 4"] = jnp.broadcast_to(
-            cell_mass[:, None], (self.n_cells, 4)
+        cell_mass: Float[jax.Array, "cells 4"] = (
+            jnp.broadcast_to(cell_mass[:, None], (self.n_cells, 4)) / 4.0
         )
         point_mass: Float[jax.Array, " points"] = elem.tetra.segment_sum(
             cell_mass, self.cells, n_points=self.n_points
@@ -78,8 +79,15 @@ class Geometry:
     def points(self) -> Float[jax.Array, "points 3"]:
         return jnp.asarray(self.mesh.points)
 
-    def warp(self, displacements: Float[jax.Array, "points 3"]) -> Self:
+    def warp(
+        self,
+        displacements: Float[jax.Array, "points 3"],
+        *,
+        velocities: Float[jax.Array, "points 3"] | None = None,
+    ) -> Self:
         mesh: pv.UnstructuredGrid = self.mesh.copy()
         mesh.point_data["displacements"] = displacements
         mesh.warp_by_vector("displacements", inplace=True)
+        if velocities is not None:
+            mesh.point_data["velocities"] = velocities
         return type(self)(mesh=mesh, id=self.id)

@@ -22,7 +22,7 @@ class Inertia(physics.Energy):
     @utils.jit
     def fun(self, field: physics.Field) -> Float[jax.Array, ""]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = self.broadcast_mass(field)
         x_tilde: Float[jax.Array, "points dim"] = (
             field.values_prev
             + self.time_step * field.velocities
@@ -36,7 +36,7 @@ class Inertia(physics.Energy):
     @utils.jit
     def jac(self, field: physics.Field) -> Float[jax.Array, " DoF"]:
         x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = self.broadcast_mass(field)
         x_tilde: Float[jax.Array, "points dim"] = (
             field.values_prev
             + self.time_step * field.velocities
@@ -49,16 +49,17 @@ class Inertia(physics.Energy):
     @override
     @utils.jit
     def hess_diag(self, field: physics.Field) -> Float[jax.Array, " DoF"]:
-        x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = self.broadcast_mass(field)
         hess_diag: Float[jax.Array, "points dim"] = mass / self.time_step**2
         return hess_diag.ravel()
 
     @override
     @utils.jit
     def hess_quad(self, field: physics.Field, p: physics.Field) -> Float[jax.Array, ""]:
-        x: Float[jax.Array, "points dim"] = field.values
-        mass: Float[jax.Array, "points dim"] = math.broadcast_to(self.mass, x.shape)
+        mass: Float[jax.Array, "points dim"] = self.broadcast_mass(field)
         hess_quad: Float[jax.Array, ""] = jnp.sum(mass * p.values**2)
         hess_quad /= self.time_step**2
         return hess_quad
+
+    def broadcast_mass(self, field: physics.Field) -> Float[jax.Array, "points dim"]:
+        return math.broadcast_to(self.mass[:, None], field.values.shape)

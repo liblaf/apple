@@ -1,3 +1,3 @@
-from ._utils import broadcast_to
+from ._utils import BroadcastMode, broadcast_to
 
-__all__ = ["broadcast_to"]
+__all__ = ["BroadcastMode", "broadcast_to"]

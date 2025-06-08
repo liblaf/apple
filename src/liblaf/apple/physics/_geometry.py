@@ -7,7 +7,6 @@ import numpy as np
 import pyvista as pv
 from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
-from sympy import N
 
 from liblaf.apple import elem
 

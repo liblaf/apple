@@ -1,17 +1,30 @@
 import functools
-from collections.abc import Callable
-from typing import overload
+from collections.abc import Callable, Mapping, Sequence
+from typing import Protocol, overload
 
+import jax
 import warp.jax_experimental.ffi
 
+type DimLike = int | Sequence[int]
+
+
+class JaxKernel(Protocol):
+    def __call__(
+        self,
+        *args,
+        output_dims: DimLike | None = None,
+        launch_dims: DimLike | None = None,
+        vmap_method: DimLike | Mapping[str, DimLike] | None = None,
+    ) -> Sequence[jax.Array]: ...
+
 
 @overload
-def jax_kernel(*, num_outputs: int = 1) -> Callable: ...
+def jax_kernel(*, num_outputs: int = 1) -> Callable[[Callable], JaxKernel]: ...
 @overload
-def jax_kernel(fn: Callable, /, *, num_outputs: int = 1) -> Callable: ...
-def jax_kernel(fn: Callable | None = None, /, *, num_outputs: int = 1) -> Callable:
-    if fn is None:
+def jax_kernel(func: Callable, /, *, num_outputs: int = 1) -> JaxKernel: ...
+def jax_kernel(func: Callable | None = None, /, *, num_outputs: int = 1) -> Callable:
+    if func is None:
         return functools.partial(jax_kernel, num_outputs=num_outputs)
     return warp.jax_experimental.ffi.jax_kernel(
-        warp.kernel(fn), num_outputs=num_outputs
+        warp.kernel(func), num_outputs=num_outputs
     )

@@ -1,169 +1,100 @@
-import dataclasses
-from collections.abc import Callable, Mapping
-from typing import Any, dataclass_transform, overload
+import abc
+import functools
+from collections.abc import Callable, Sequence
+from typing import Any, Self, dataclass_transform
 
+import attrs
 import jax
 import jax.numpy as jnp
 
-from liblaf.apple.struct import converters
 
-type Converter[T] = Callable[[], T]
-type Validator[T] = Callable[[T], None]
+def clone_signature[C](_target: C, /) -> Callable[[Any], C]:
+    def wrapper(fn: Any) -> C:
+        return fn  # pyright: ignore[reportReturnType]
 
-
-@overload
-def field[T](
-    *,
-    default: T,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter[T] | None = None,
-    static: bool = False,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def field[T](
-    *,
-    default_factory: Callable[[], T],
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter[T] | None = None,
-    static: bool = False,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def field(
-    *,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter | None = None,
-    static: bool = False,
-    validator: Validator | None = None,
-) -> Any: ...
-def field(**kwargs) -> Any:
-    if static := kwargs.pop("static", False):
-        kwargs.setdefault("metadata", {}).setdefault("static", static)
-    if (converter := kwargs.pop("converter", None)) is not None:
-        kwargs.setdefault("metadata", {}).setdefault("converter", converter)
-    if (validator := kwargs.pop("validator", None)) is not None:
-        kwargs.setdefault("metadata", {}).setdefault("validator", validator)
-    return dataclasses.field(**kwargs)
+    return wrapper
 
 
-@overload
-def array[T](
-    *,
-    default: T,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    static: bool = False,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def array[T](
-    *,
-    default_factory: Callable[[], T],
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    static: bool = False,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def array(
-    *,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    static: bool = False,
-    validator: Validator | None = None,
-) -> Any: ...
+@clone_signature(attrs.field)
 def array(**kwargs) -> Any:
-    kwargs.setdefault("converter", converters.optional(jnp.asarray))
-    return field(**kwargs)
+    kwargs.setdefault("converter", attrs.converters.optional(jnp.asarray))
+    return data(**kwargs)
 
 
-@overload
-def static[T](
-    *,
-    default: T,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter[T] | None = None,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def static[T](
-    *,
-    default_factory: Callable[[], T],
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter[T] | None = None,
-    validator: Validator[T] | None = None,
-) -> T: ...
-@overload
-def static(
-    *,
-    init: bool = True,
-    repr: bool = True,
-    hash: bool | None = None,
-    compare: bool = True,
-    metadata: Mapping[Any, Any] | None = None,
-    kw_only: bool = ...,
-    converter: Converter | None = None,
-    validator: Validator | None = None,
-) -> Any: ...
+@clone_signature(attrs.field)
+def class_var(**kwargs) -> Any:
+    kwargs.setdefault("init", False)
+    return attrs.field(**kwargs)
+
+
+@clone_signature(attrs.field)
+def data(**kwargs) -> Any:
+    metadata: dict[str, Any] = kwargs.setdefault("metadata", {})
+    metadata.setdefault("static", False)
+    return attrs.field(**kwargs)
+
+
+@clone_signature(attrs.field)
 def static(**kwargs) -> Any:
-    kwargs.setdefault("static", True)
-    return field(**kwargs)
+    metadata: dict[str, Any] = kwargs.setdefault("metadata", {})
+    metadata.setdefault("static", True)
+    return attrs.field(**kwargs)
 
 
-@dataclass_transform(frozen_default=True, field_specifiers=(field, array, static))
-class PyTree:
+@clone_signature(attrs.frozen)
+def pytree[C: type](maybe_cls: C | None = None, **kwargs) -> Callable | C:
+    if maybe_cls is None:
+        return functools.partial(pytree, **kwargs)
+    cls: C = attrs.frozen(maybe_cls, **kwargs)
+    cls = register_attrs(cls)
+    return cls
+
+
+@dataclass_transform(
+    frozen_default=True, field_specifiers=(attrs.field, array, class_var, data, static)
+)
+class PyTreeMeta(abc.ABCMeta):
+    def __new__[C: type](
+        cls: type[C],
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, Any],
+        /,
+        **kwargs,
+    ) -> C:
+        c: C = super().__new__(cls, name, bases, namespace, **kwargs)
+        if "__attrs_attrs__" not in namespace:
+            c = attrs.frozen(c, **kwargs)
+        return c
+
+
+class PyTree(metaclass=PyTreeMeta):
     def __init_subclass__(cls, **kwargs) -> None:
-        kwargs.setdefault("frozen", True)
-        dataclasses.dataclass(cls, **kwargs)
-        jax.tree_util.register_dataclass(cls)
+        register_attrs(cls, **kwargs)
 
-    def __post_init__(self) -> None:
-        for f in dataclasses.fields(self):  # pyright: ignore[reportArgumentType]
-            if callable(validator := f.metadata.get("validator")):
-                validator(getattr(self, f.name))
+    def evolve(self, **changes) -> Self:
+        return attrs.evolve(self, **changes)
 
-    def replace(self, **changes) -> Any:
-        for f in dataclasses.fields(self):  # pyright: ignore[reportArgumentType]
-            if (f.name in changes) and callable(
-                converter := f.metadata.get("converter")
-            ):
-                changes[f.name] = converter(changes[f.name])
-        return dataclasses.replace(self, **changes)  # pyright: ignore[reportArgumentType]
+
+def register_attrs[C: type](
+    cls: C,
+    data_fields: Sequence[str] | None = None,
+    meta_fields: Sequence[str] | None = None,
+    drop_fields: Sequence[str] = (),
+) -> C:
+    if data_fields is None:
+        data_fields = _collect_fields(cls, static=False)
+    if meta_fields is None:
+        meta_fields = _collect_fields(cls, static=True)
+    return jax.tree_util.register_dataclass(
+        cls, data_fields=data_fields, meta_fields=meta_fields, drop_fields=drop_fields
+    )
+
+
+def _collect_fields(cls: type, *, static: bool) -> Sequence[str]:
+    fields: list[str] = []
+    for field in attrs.fields(cls):
+        field: attrs.Attribute
+        if field.init and field.metadata.get("static", False) == static:
+            fields.append(field.name)
+    return fields

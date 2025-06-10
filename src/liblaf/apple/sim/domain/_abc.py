@@ -1,25 +1,29 @@
 from typing import Self
 
-import flax.struct
 import jax
 import pyvista as pv
 from jaxtyping import Float, Integer
 
+from liblaf.apple import struct
 from liblaf.apple.sim import geometry as _g
 
 
-class Domain(flax.struct.PyTreeNode):
-    geometry: _g.Geometry = flax.struct.field(default=None)
+class Domain(struct.Node):
+    geometry: _g.Geometry = struct.data(default=None)
 
     @classmethod
     def from_geometry(cls, geometry: _g.Geometry) -> Self:
         return cls(geometry=geometry)
 
-    # region Inherited
+    # region Delegation
 
     @property
     def area(self) -> Float[jax.Array, " cells"]:
         return self.geometry.area
+
+    @property
+    def boundary(self) -> "Domain":
+        raise NotImplementedError
 
     @property
     def cells(self) -> Integer[jax.Array, "cells ..."]:
@@ -45,4 +49,4 @@ class Domain(flax.struct.PyTreeNode):
     def volume(self) -> Float[jax.Array, " cells"]:
         return self.geometry.volume
 
-    # endregion Inherited
+    # endregion Delegation

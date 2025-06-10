@@ -4,6 +4,6 @@
 
   "exclude": ["**/node_modules", "**/__pycache__", "**/.*", "marimo/"],
 
-  "reportIncompatibleMethodOverride": "none",
-  "reportIncompatibleVariableOverride": "none"
+  "reportIncompatibleMethodOverride": "information",
+  "reportIncompatibleVariableOverride": "information"
 }

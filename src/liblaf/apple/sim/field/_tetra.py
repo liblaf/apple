@@ -1,7 +1,6 @@
 from typing import Self, no_type_check, override
 
 import jax
-import jax.numpy as jnp
 import warp as wp
 from jaxtyping import Float
 
@@ -11,31 +10,49 @@ from liblaf.apple.typed.warp import mat33, mat43
 from ._abc import Field
 
 
-class FieldTetra(Field):
+class FieldTetraCell(Field): ...
+
+
+class FieldTetraPoint(Field):
     @property
     @override
     @utils.jit
-    def grad(self) -> Float[jax.Array, "cells dim J=3"]:
-        return _gradient_warp(self.values[self.cells], self.dh_dX)[0]
+    def grad(self) -> FieldTetraCell:
+        values: Float[jax.Array, " cells *dim"] = _gradient_warp(
+            self.values_scatter, self.dh_dX
+        )[0]
+        return FieldTetraCell.from_space(
+            self.space.grad, values=values, dim=(*self.dim, 3)
+        )
 
     @property
     @override
     @utils.jit
-    def deformation_gradient(self) -> Float[jax.Array, "cells 3 3"]:
-        return _deformation_gradient_warp(self.values[self.cells], self.dh_dX)[0]
+    def deformation_gradient(self) -> FieldTetraCell:
+        values: Float[jax.Array, "cells 3 3"] = _deformation_gradient_warp(
+            self.values_scatter, self.dh_dX
+        )[0]
+        return FieldTetraCell.from_space(
+            self.space.grad, values=values, dim=(*self.dim, 3)
+        )
 
     @override
     @utils.jit
-    def deformation_gradient_jvp(self, p: Self) -> Float[jax.Array, "cells 3 3"]:
-        return _deformation_gradient_jvp_warp(self.dh_dX, p.values[self.cells])[0]
+    def deformation_gradient_jvp(self, p: Self) -> FieldTetraCell:  # pyright: ignore[reportIncompatibleMethodOverride]
+        values: Float[jax.Array, "cells 3 3"] = _deformation_gradient_jvp_warp(
+            self.dh_dX, p.values_scatter
+        )[0]
+        return FieldTetraCell.from_space(
+            self.space.grad, values=values, dim=(*self.dim, 3)
+        )
 
     @override
     @utils.jit
-    def deformation_gradient_vjp(
-        self, p: Float[jax.Array, "cells 3 3"]
-    ) -> Float[jax.Array, "cells a dim"]:
-        p = jnp.asarray(p)
-        return _deformation_gradient_vjp_warp(self.dh_dX, p)[0]
+    def deformation_gradient_vjp(self, p: FieldTetraCell) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
+        values: Float[jax.Array, "cells a dim"] = _deformation_gradient_vjp_warp(
+            self.dh_dX, p.values_scatter
+        )[0]
+        return self.evolve(values=self.space.gather(values=values))
 
 
 @no_type_check

@@ -1,41 +1,42 @@
 from typing import Self
 
-import flax.struct
 import jax
-import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Float, Integer
+from numpy.typing import ArrayLike
+
+from liblaf.apple import struct
 
 
-class Geometry(flax.struct.PyTreeNode):
-    mesh: pv.DataSet = flax.struct.field(pytree_node=False, default=None)
+class Geometry(struct.Node):
+    mesh: pv.DataSet = struct.static(default=None)
 
-    # cached properties
-    area: Float[jax.Array, " cells"] = flax.struct.field(default=None)
-    cells: Integer[jax.Array, "cells ..."] = flax.struct.field(default=None)
-    points: Float[jax.Array, "points 3"] = flax.struct.field(default=None)
-    volume: Float[jax.Array, " cells"] = flax.struct.field(default=None)
+    area: Float[jax.Array, " cells"] = struct.array(default=None)
+    cells: Integer[jax.Array, "cells ..."] = struct.array(default=None)
+    points: Float[jax.Array, "points 3"] = struct.array(default=None)
+    volume: Float[jax.Array, " cells"] = struct.array(default=None)
 
     @classmethod
-    def from_mesh(
+    def from_pyvista(
         cls,
         mesh: pv.DataSet,
         *,
-        area: bool = False,
+        cell_sizes: bool = True,
         cells: bool = True,
         points: bool = True,
-        volume: bool = False,
     ) -> Self:
         self: Self = cls(mesh=mesh)
-        if area:
-            self = self.with_area()
+        if cell_sizes:
+            self = self.with_cell_sizes()
         if cells:
             self = self.with_cells()
         if points:
             self = self.with_points()
-        if volume:
-            self = self.with_volume()
         return self
+
+    @property
+    def boundary(self) -> "Geometry":
+        raise NotImplementedError
 
     @property
     def n_cells(self) -> int:
@@ -45,11 +46,19 @@ class Geometry(flax.struct.PyTreeNode):
     def n_points(self) -> int:
         return self.mesh.n_points
 
-    def with_area(self) -> Self:
-        if self.area is not None:
+    def warp(self, x: Float[ArrayLike, " DoF"]) -> Self:
+        mesh: pv.DataSet = self.mesh
+        mesh.point_data["warp"] = x
+        mesh = mesh.warp_by_vector("warp")
+        return type(self).from_pyvista(mesh)
+
+    def with_cell_sizes(self) -> Self:
+        if self.area is not None and self.volume is not None:
             return self
         mesh: pv.DataSet = self.mesh.compute_cell_sizes()
-        return self.replace(mesh=mesh, area=jnp.asarray(self.mesh.cell_data["Area"]))
+        return self.evolve(
+            mesh=mesh, area=mesh.cell_data["Area"], volume=mesh.cell_data["Volume"]
+        )
 
     def with_cells(self) -> Self:
         if self.cells is not None:
@@ -59,12 +68,4 @@ class Geometry(flax.struct.PyTreeNode):
     def with_points(self) -> Self:
         if self.points is not None:
             return self
-        return self.replace(points=jnp.asarray(self.mesh.points))
-
-    def with_volume(self) -> Self:
-        if self.volume is not None:
-            return self
-        mesh: pv.DataSet = self.mesh.compute_cell_sizes()
-        return self.replace(
-            mesh=mesh, volume=jnp.asarray(self.mesh.cell_data["Volume"])
-        )
+        return self.evolve(points=self.mesh.points)

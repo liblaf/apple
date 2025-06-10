@@ -43,7 +43,7 @@ def main(cfg: Config) -> None:
         )
         result["x"] += displacements.ravel()
 
-    for it in grapes.track(range(cfg.n_frames), description="Frames"):
+    for _it in grapes.track(range(cfg.n_frames), description="Frames"):
         result: apple.OptimizeResult = scene.solve(callback=callback)
         # fields: dict[str, apple.Field] = scene.make_fields(result["x"])
         # displacements: jax.Array = collision.resolve(

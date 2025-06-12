@@ -7,7 +7,6 @@ from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
 from liblaf.apple.sim import energy as _e
-from liblaf.apple.sim import field as _f
 from liblaf.apple.sim import obj as _o
 
 

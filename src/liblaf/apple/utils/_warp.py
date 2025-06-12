@@ -12,9 +12,9 @@ class JaxKernel(Protocol):
     def __call__(
         self,
         *args,
-        output_dims: DimLike | None = None,
+        output_dims: DimLike | Mapping[str, DimLike] | None = None,
         launch_dims: DimLike | None = None,
-        vmap_method: DimLike | Mapping[str, DimLike] | None = None,
+        vmap_method: None = None,
     ) -> Sequence[jax.Array]: ...
 
 

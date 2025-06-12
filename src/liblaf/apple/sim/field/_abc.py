@@ -1,71 +1,52 @@
-import functools
 import math
-import operator
 from collections.abc import Sequence
-from typing import Self
+from typing import Self, override
 
 import einops
 import jax
 import jax.numpy as jnp
 import pyvista as pv
-from jaxtyping import Float, Integer
+from jaxtyping import DTypeLike, Float, Integer
 from numpy.typing import ArrayLike
 
-from liblaf import grapes
+from liblaf.apple import math as _m
 from liblaf.apple import struct
-from liblaf.apple.sim import domain as _d
-from liblaf.apple.sim import function_space as _s
+from liblaf.apple.sim import element as _e
 from liblaf.apple.sim import geometry as _g
+from liblaf.apple.sim import quadrature as _q
+from liblaf.apple.sim import region as _r
 
 
-class Field(struct.Node):
-    dim: Sequence[int] = struct.static(default=(3,), converter=grapes.as_sequence)
-    space: _s.FunctionSpace = struct.data(default=None)
-    values: Float[jax.Array, "points *dim"] = struct.data(default=None)
+class Field(struct.ArrayMixin, struct.Node):
+    region: _r.Region = struct.data(default=None)
+    shape_dtype: jax.ShapeDtypeStruct = struct.static(
+        default=jax.ShapeDtypeStruct((3,), float)
+    )
+    _values: Float[jax.Array, " points *dim"] = struct.data(
+        default=None, alias="_values"
+    )
 
     @classmethod
-    def from_space(
+    def from_region(
         cls,
-        space: _s.FunctionSpace,
-        values: Float[ArrayLike, "points *dim"] = 0.0,
+        region: _r.Region,
+        values: Float[ArrayLike, " points *dim"] = 0.0,
         *,
         dim: int | Sequence[int] = (3,),
+        dtype: DTypeLike = float,
     ) -> Self:
-        self: Self = cls(dim=dim, space=space)
+        self: Self = cls(region=region, shape_dtype=jax.ShapeDtypeStruct(dim, dtype))
         self = self.with_values(values=values)
         return self
 
-    def __jax_array__(self) -> Float[jax.Array, "points *dim"]:
+    def __jax_array__(self) -> Float[jax.Array, " points *dim"]:
         return self.values
-
-    def _op(self, op: str, /, *args, **kwargs) -> Self:
-        values: jax.Array = getattr(operator, op)(self.values, *args, **kwargs)
-        return self.evolve(values=values)
-
-    __add__ = functools.partialmethod(_op, "__add__")
-    __sub__ = functools.partialmethod(_op, "__sub__")
-    __mul__ = functools.partialmethod(_op, "__mul__")
-    __matmul__ = functools.partialmethod(_op, "__matmul__")
-    __truediv__ = functools.partialmethod(_op, "__truediv__")
-    __floordiv__ = functools.partialmethod(_op, "__floordiv__")
-    __mod__ = functools.partialmethod(_op, "__mod__")
-    __pow__ = functools.partialmethod(_op, "__pow__")
-    __lshift__ = functools.partialmethod(_op, "__lshift__")
-    __rshift__ = functools.partialmethod(_op, "__rshift__")
-    __and__ = functools.partialmethod(_op, "__and__")
-    __xor__ = functools.partialmethod(_op, "__xor__")
-    __or__ = functools.partialmethod(_op, "__or__")
-
-    __neg__ = functools.partialmethod(_op, "__neg__")
-    __pos__ = functools.partialmethod(_op, "__pos__")
-    __abs__ = functools.partialmethod(_op, "__abs__")
-    __invert__ = functools.partialmethod(_op, "__invert__")
 
     # region Delegation
 
     @property
     def area(self) -> Float[jax.Array, " cells"]:
-        return self.space.area
+        return self.region.area
 
     @property
     def boundary(self) -> "Field":
@@ -73,23 +54,31 @@ class Field(struct.Node):
 
     @property
     def cells(self) -> Integer[jax.Array, "cells a"]:
-        return self.space.cells
+        return self.region.cells
 
     @property
-    def domain(self) -> _d.Domain:
-        return self.space.domain
+    def dim(self) -> Sequence[int]:
+        return self.shape_dtype.shape
+
+    @property
+    def dtype(self) -> jnp.dtype:
+        return self.shape_dtype.dtype
+
+    @property
+    def element(self) -> _e.Element:
+        return self.region.element
 
     @property
     def geometry(self) -> _g.Geometry:
-        return self.space.geometry
+        return self.region.geometry
 
     @property
     def mesh(self) -> pv.DataSet:
-        return self.space.mesh
+        return self.region.mesh
 
     @property
     def n_cells(self) -> int:
-        return self.space.n_cells
+        return self.region.n_cells
 
     @property
     def n_dof(self) -> int:
@@ -97,80 +86,106 @@ class Field(struct.Node):
 
     @property
     def n_points(self) -> int:
-        return self.space.n_points
+        return self.region.n_points
 
     @property
     def points(self) -> Float[jax.Array, "points 3"]:
-        return self.space.points
+        return self.region.points
+
+    @property
+    def quadrature(self) -> _q.Scheme:
+        return self.region.quadrature
+
+    @property
+    def values(self) -> Float[jax.Array, " points *dim"]:
+        return self._values
 
     @property
     def values_scatter(self) -> Float[jax.Array, "cells a *dim"]:
-        return self.space.scatter(self.values)
+        return self.region.scatter(self.values)
 
     @property
     def volume(self) -> Float[jax.Array, " cells"]:
-        return self.space.volume
+        return self.region.volume
 
     @property
-    def w(self) -> Float[jax.Array, ""]:
-        return self.space.w
+    def weights(self) -> Float[jax.Array, " q"]:
+        return self.region.weights
 
     @property
-    def h(self) -> Float[jax.Array, " a"]:
-        return self.space.h
+    def h(self) -> Float[jax.Array, "q a"]:
+        return self.region.h
 
     @property
-    def dh_dr(self) -> Float[jax.Array, "a J=3"]:
-        return self.space.dh_dr
+    def dhdr(self) -> Float[jax.Array, "q a J"]:
+        return self.region.dhdr
 
     @property
-    def dX_dr(self) -> Float[jax.Array, "c I=3 J=3"]:
-        return self.space.dX_dr
+    def dXdr(self) -> Float[jax.Array, "c q I J"]:
+        return self.region.dXdr
 
     @property
-    def dr_dX(self) -> Float[jax.Array, "c I=3 J=3"]:
-        return self.space.dr_dX
+    def drdX(self) -> Float[jax.Array, "c q J I"]:
+        return self.region.drdX
 
     @property
-    def dV(self) -> Float[jax.Array, " c"]:
-        return self.space.dV
+    def dV(self) -> Float[jax.Array, "c q"]:
+        return self.region.dV
 
     @property
-    def dh_dX(self) -> Float[jax.Array, "c a J=3"]:
-        return self.space.dh_dX
+    def dhdX(self) -> Float[jax.Array, "c q a J"]:
+        return self.region.dhdX
 
     # endregion Delegation
 
     @property
-    def deformation_gradient(self) -> "Field":
+    def deformation_gradient(self) -> "FieldGrad":
         return self.grad + jnp.identity(3)
 
     @property
-    def grad(self) -> "Field":
-        values: Float[jax.Array, " cells *dim"] = einops.einsum(
-            self.values_scatter, self.dh_dX, "c a ..., c a J -> c ... J"
+    def grad(self) -> "FieldGrad":
+        return FieldGrad.from_region(
+            region=self.region.grad,
+            values=self.region.gradient(self.values),
+            dim=(*self.dim, self.quadrature.dim),
+            dtype=self.dtype,
         )
-        return Field.from_space(space=self.space.grad, values=values)
 
     @property
     def integration(self) -> Float[jax.Array, "*dim"]:
-        # TODO: make this more general
-        return einops.einsum(self.values_scatter, self.dV, "c ..., c -> ...")
+        return self.region.integrate(self.values)
 
-    def deformation_gradient_jvp(self, p: Self) -> "Field":
-        values: Float[jax.Array, "cells 3 3"] = einops.einsum(
-            p.values_scatter, self.dh_dX, "c a dim, c a J -> c dim J"
+    def deformation_gradient_jvp(self, p: Self) -> "FieldGrad":
+        return FieldGrad.from_region(
+            region=self.region.grad,
+            values=self.region.gradient(p.values),
+            dim=(*self.dim, self.quadrature.dim),
+            dtype=self.dtype,
         )
-        return Field.from_space(space=self.space.grad, values=values)
 
-    def deformation_gradient_vjp(self, p: "Field") -> Self:
-        values: Float[jax.Array, "cells a dim=3"] = einops.einsum(
-            self.dh_dX, p.values, "c a J, c dim J -> c a dim"
+    def deformation_gradient_vjp(self, p: "FieldGrad") -> Self:
+        values: Float[jax.Array, "cells a *dim=3"] = einops.einsum(
+            self.dhdX, p.values, "c q a J, c q ... J -> c a ..."
         )
-        return self.evolve(values=self.space.gather(values=values))
+        return self.evolve(values=self.region.gather(values))
 
     def with_values(self, values: Float[ArrayLike, " points *dim"]) -> Self:
         values: Float[jax.Array, " points *dim"] = jnp.broadcast_to(
             jnp.asarray(values), (self.n_points, *self.dim)
         )
-        return self.evolve(values=values)
+        return self.evolve(_values=values)
+
+
+class FieldGrad(Field):
+    region: _r.RegionGrad = struct.data(default=None)
+
+    @property
+    def n_dof(self) -> int:
+        return self.n_cells * self.quadrature.n_points * math.prod(self.dim)
+
+    @override
+    def with_values(self, values: Float[ArrayLike, " cells q *dim"]) -> Self:
+        values: Float[jax.Array, " cells q *dim"] = _m.broadcast_to(
+            jnp.asarray(values), (self.n_cells, self.quadrature.n_points, *self.dim)
+        )
+        return self.evolve(_values=values)

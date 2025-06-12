@@ -35,7 +35,9 @@ class GeometryTetraSurface(GeometryTriangle):
         mesh.point_data["point-id"] = np.arange(mesh.n_points)
         surface: pv.PolyData = mesh.extract_surface()
         self: Self = cls(
-            ref=tetra, mesh=surface, original_point_ids=surface.point_data["point-id"]
+            refs=(tetra,),
+            mesh=surface,
+            original_point_ids=surface.point_data["point-id"],
         )
         self = self.with_cell_sizes().with_cells().with_points()
         return self

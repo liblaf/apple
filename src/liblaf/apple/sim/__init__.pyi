@@ -1,7 +1,18 @@
-from . import domain, energy, field, function_space, geometry, obj
+from . import (
+    domain,
+    element,
+    energy,
+    field,
+    function_space,
+    geometry,
+    obj,
+    quadrature,
+    region,
+)
 from .domain import Domain
+from .element import Element, ElementFelupe, ElementTetra, ElementTriangle
 from .energy import Energy
-from .field import Field, FieldTetraCell, FieldTetraPoint
+from .field import Field, FieldGrad, FieldTetra
 from .function_space import (
     FunctionSpace,
     FunctionSpaceTetraCell,
@@ -9,13 +20,19 @@ from .function_space import (
 )
 from .geometry import Geometry, GeometryTetra, GeometryTetraSurface, GeometryTriangle
 from .obj import Object
+from .quadrature import QuadratureTetra, QuadratureTriangle, Scheme
+from .region import Region, RegionTetra, RegionTriangle
 
 __all__ = [
     "Domain",
+    "Element",
+    "ElementFelupe",
+    "ElementTetra",
+    "ElementTriangle",
     "Energy",
     "Field",
-    "FieldTetraCell",
-    "FieldTetraPoint",
+    "FieldGrad",
+    "FieldTetra",
     "FunctionSpace",
     "FunctionSpaceTetraCell",
     "FunctionSpaceTetraPoint",
@@ -24,10 +41,19 @@ __all__ = [
     "GeometryTetraSurface",
     "GeometryTriangle",
     "Object",
+    "QuadratureTetra",
+    "QuadratureTriangle",
+    "Region",
+    "RegionTetra",
+    "RegionTriangle",
+    "Scheme",
     "domain",
+    "element",
     "energy",
     "field",
     "function_space",
     "geometry",
     "obj",
+    "quadrature",
+    "region",
 ]

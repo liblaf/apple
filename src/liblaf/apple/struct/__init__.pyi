@@ -1,4 +1,5 @@
-from ._node import Node, uniq_id
+from ._array import ArrayMixin
+from ._node import Node, NodeCollection, uniq_id
 from ._pytree import (
     PyTree,
     PyTreeMeta,
@@ -11,7 +12,9 @@ from ._pytree import (
 )
 
 __all__ = [
+    "ArrayMixin",
     "Node",
+    "NodeCollection",
     "PyTree",
     "PyTreeMeta",
     "array",

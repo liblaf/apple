@@ -1,10 +1,9 @@
-from ._array import ArrayMixin
+from ._array_mixin import ArrayMixin
 from ._node import Node, NodeCollection, uniq_id
 from ._pytree import (
     PyTree,
     PyTreeMeta,
     array,
-    class_var,
     data,
     pytree,
     register_attrs,
@@ -18,7 +17,6 @@ __all__ = [
     "PyTree",
     "PyTreeMeta",
     "array",
-    "class_var",
     "data",
     "pytree",
     "register_attrs",

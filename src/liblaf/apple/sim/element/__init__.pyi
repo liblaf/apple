@@ -1,4 +1,5 @@
-from ._element import Element, ElementFelupe
+from ._element import Element
+from ._felupe import ElementFelupe
 from ._tetra import ElementTetra
 from ._triangle import ElementTriangle
 

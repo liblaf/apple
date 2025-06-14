@@ -5,40 +5,9 @@ from typing import Any, Self, dataclass_transform
 
 import attrs
 import jax
-import jax.numpy as jnp
 
-
-def clone_signature[C](_target: C, /) -> Callable[[Any], C]:
-    def wrapper(fn: Any) -> C:
-        return fn  # pyright: ignore[reportReturnType]
-
-    return wrapper
-
-
-@clone_signature(attrs.field)
-def array(**kwargs) -> Any:
-    kwargs.setdefault("converter", attrs.converters.optional(jnp.asarray))
-    return data(**kwargs)
-
-
-@clone_signature(attrs.field)
-def class_var(**kwargs) -> Any:
-    kwargs.setdefault("init", False)
-    return attrs.field(**kwargs)
-
-
-@clone_signature(attrs.field)
-def data(**kwargs) -> Any:
-    metadata: dict[str, Any] = kwargs.setdefault("metadata", {})
-    metadata.setdefault("static", False)
-    return attrs.field(**kwargs)
-
-
-@clone_signature(attrs.field)
-def static(**kwargs) -> Any:
-    metadata: dict[str, Any] = kwargs.setdefault("metadata", {})
-    metadata.setdefault("static", True)
-    return attrs.field(**kwargs)
+from ._field import array, data, static
+from ._utils import clone_signature
 
 
 @clone_signature(attrs.frozen)
@@ -50,8 +19,22 @@ def pytree[C: type](maybe_cls: C | None = None, **kwargs) -> Callable | C:
     return cls
 
 
+def _dataclass_names(
+    _cls: type, fields: list[attrs.Attribute]
+) -> list[attrs.Attribute]:
+    """.
+
+    References:
+        1. <https://www.attrs.org/en/stable/extending.html#automatic-field-transformation-and-modification>
+    """
+    fields = [
+        field.evolve(alias=field.name) if not field.alias else field for field in fields
+    ]
+    return fields
+
+
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, class_var, data, static)
+    frozen_default=True, field_specifiers=(attrs.field, array, data, static)
 )
 class PyTreeMeta(abc.ABCMeta):
     def __new__[C: type](
@@ -64,13 +47,15 @@ class PyTreeMeta(abc.ABCMeta):
     ) -> C:
         c: C = super().__new__(cls, name, bases, namespace, **kwargs)
         if "__attrs_attrs__" not in namespace:
+            kwargs.setdefault("field_transformer", _dataclass_names)
             c = attrs.frozen(c, **kwargs)
         return c
 
 
 class PyTree(metaclass=PyTreeMeta):
-    def __init_subclass__(cls, **kwargs) -> None:
-        register_attrs(cls, **kwargs)
+    @classmethod
+    def __attrs_init_subclass__(cls, **kwargs) -> None:
+        register_attrs(cls)
 
     def evolve(self, **changes) -> Self:
         return attrs.evolve(self, **changes)
@@ -95,6 +80,8 @@ def _collect_fields(cls: type, *, static: bool) -> Sequence[str]:
     fields: list[str] = []
     for field in attrs.fields(cls):
         field: attrs.Attribute
-        if field.init and field.metadata.get("static", False) == static:
+        if not field.init:
+            continue
+        if field.metadata.get("static", False) == static:
             fields.append(field.name)
     return fields

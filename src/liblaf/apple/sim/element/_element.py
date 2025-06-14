@@ -1,12 +1,9 @@
-from typing import Self
-
-import felupe
 import jax
 import jax.numpy as jnp
-from jaxtyping import Float
+from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
 
-from liblaf.apple import struct
+from liblaf.apple import struct, utils
 
 
 class Element(struct.PyTree):
@@ -17,34 +14,45 @@ class Element(struct.PyTree):
     """
 
     @property
+    def dim(self) -> int:
+        return self.points.shape[1]
+
+    @property
     def n_points(self) -> int:
+        return self.points.shape[0]
+
+    @property
+    def cells(self) -> Integer[jax.Array, "points"]:
+        with jax.ensure_compile_time_eval():
+            return jnp.arange(self.n_points)
+
+    @property
+    def points(self) -> Float[jax.Array, "points dim"]:
         raise NotImplementedError
 
-    def function(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, " a"]:
+    @utils.not_implemented
+    def function(
+        self, coords: Float[ArrayLike, "dim"], /
+    ) -> Float[jax.Array, "points"]:
         """Return the shape functions at given coordinates."""
         raise NotImplementedError
 
-    def gradient(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, "a J"]:
+    @utils.jit
+    def gradient(
+        self, coords: Float[ArrayLike, "dim"], /
+    ) -> Float[jax.Array, "points dim"]:
         """Return the gradient of shape functions at given coordinates."""
+        coords = jnp.asarray(coords)
+        if utils.is_implemented(self.function):
+            return jax.jacobian(self.function)(coords)
         raise NotImplementedError
 
-    def hessian(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, "a I J"]:
+    @utils.jit
+    def hessian(
+        self, coords: Float[ArrayLike, "dim"], /
+    ) -> Float[jax.Array, "points dim dim"]:
         """Return the Hessian of shape functions at given coordinates."""
-        raise NotImplementedError
-
-
-class ElementFelupe(Element):
-    _elem: felupe.Element = struct.static(default=None)
-
-    @classmethod
-    def from_felupe(cls, elem: felupe.Element) -> Self:
-        return cls(_elem=elem)
-
-    def function(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, " a"]:
-        return jnp.asarray(self._elem.function(coords))  # pyright: ignore[reportAttributeAccessIssue]
-
-    def gradient(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, " a J"]:
-        return jnp.asarray(self._elem.gradient(coords))  # pyright: ignore[reportAttributeAccessIssue]
-
-    def hessian(self, coords: Float[ArrayLike, " c"], /) -> Float[jax.Array, " a I J"]:
-        return jnp.asarray(self._elem.hessian(coords))  # pyright: ignore[reportAttributeAccessIssue]
+        coords = jnp.asarray(coords)
+        if utils.is_implemented(self.function):
+            return jax.hessian(self.function)(coords)
+        return jax.jacobian(self.gradient)(coords)

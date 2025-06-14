@@ -1,42 +1,27 @@
 from typing import Self
 
 import jax
+import jax.numpy as jnp
 import pyvista as pv
-from jaxtyping import Float, Integer
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike, Float, Integer
 
 from liblaf.apple import struct
+from liblaf.apple.sim import element as _e
 
 
-class Geometry(struct.Node):
-    mesh: pv.DataSet = struct.static(default=None)
-
-    area: Float[jax.Array, " cells"] = struct.array(default=None)
-    cells: Integer[jax.Array, "cells ..."] = struct.array(default=None)
-    points: Float[jax.Array, "points 3"] = struct.array(default=None)
-    volume: Float[jax.Array, " cells"] = struct.array(default=None)
+class Geometry(struct.PyTree):
+    _mesh: pv.DataSet = struct.static(default=None)
 
     @classmethod
-    def from_pyvista(
-        cls,
-        mesh: pv.DataSet,
-        *,
-        cell_sizes: bool = True,
-        cells: bool = True,
-        points: bool = True,
-    ) -> Self:
-        self: Self = cls(mesh=mesh)
-        if cell_sizes:
-            self = self.with_cell_sizes()
-        if cells:
-            self = self.with_cells()
-        if points:
-            self = self.with_points()
+    def from_pyvista(cls, mesh: pv.DataSet) -> Self:
+        self: Self = cls(_mesh=mesh)
         return self
 
+    # region Shape
+
     @property
-    def boundary(self) -> "Geometry":
-        raise NotImplementedError
+    def dim(self) -> int:
+        return self.points.shape[1]
 
     @property
     def n_cells(self) -> int:
@@ -46,26 +31,36 @@ class Geometry(struct.Node):
     def n_points(self) -> int:
         return self.mesh.n_points
 
-    def warp(self, x: Float[ArrayLike, " DoF"]) -> Self:
-        mesh: pv.DataSet = self.mesh
-        mesh.point_data["warp"] = x
-        mesh = mesh.warp_by_vector("warp")
-        return type(self).from_pyvista(mesh)
+    # endregion Shape
 
-    def with_cell_sizes(self) -> Self:
-        if self.area is not None and self.volume is not None:
-            return self
-        mesh: pv.DataSet = self.mesh.compute_cell_sizes()
-        return self.evolve(
-            mesh=mesh, area=mesh.cell_data["Area"], volume=mesh.cell_data["Volume"]
-        )
-
-    def with_cells(self) -> Self:
-        if self.cells is not None:
-            return self
+    @property
+    def boundary(self) -> "Geometry":
         raise NotImplementedError
 
-    def with_points(self) -> Self:
-        if self.points is not None:
-            return self
-        return self.evolve(points=self.mesh.points)
+    @property
+    def cells(self) -> Integer[jax.Array, "cells a"]:
+        raise NotImplementedError
+
+    @property
+    def element(self) -> _e.Element:
+        raise NotImplementedError
+
+    @property
+    def mesh(self) -> pv.DataSet:
+        return self._mesh
+
+    @property
+    def points(self) -> Float[jax.Array, "points J"]:
+        with jax.ensure_compile_time_eval():
+            return jnp.asarray(self.mesh.points)
+
+    def extract(
+        self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
+    ) -> "Geometry":
+        raise NotImplementedError
+
+    def warp(self, displacement: Float[ArrayLike, "points J"]) -> "Geometry":
+        mesh: pv.DataSet = self.mesh
+        mesh.point_data["displacement"] = displacement
+        mesh = mesh.warp_by_vector("displacement", inplace=False)
+        return self.evolve(_mesh=mesh)

@@ -1,80 +1,64 @@
+from collections.abc import Sequence
 from typing import Self
 
-import jax
 import jax.numpy as jnp
+import networkx as nx
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
-from liblaf.apple.sim import energy as _e
-from liblaf.apple.sim import obj as _o
+from liblaf.apple.sim.abc import Energy, Object
 
 
-class Scene(struct.Node):
-    energies: struct.NodeCollection[_e.Energy] = struct.data(
-        factory=struct.NodeCollection
-    )
-    objects: struct.NodeCollection[_o.Object] = struct.data(
-        factory=struct.NodeCollection
-    )
+class Scene(struct.PyTree):
+    energies: struct.NodeCollection[Energy] = struct.data(factory=struct.NodeCollection)
+    leaves: struct.NodeCollection[Object] = struct.data(factory=struct.NodeCollection)
+    objects: struct.NodeCollection[Object] = struct.data(factory=struct.NodeCollection)
+    topological_sort: Sequence[str] = struct.static(factory=list)
 
-    _n_dof: int = struct.data(default=None)
+    # region Underlying
 
-    # region Optimization
+    # endregion Underlying
 
-    def fun(self, x: Float[ArrayLike, " N"] | None = None) -> Float[jax.Array, ""]:
+    # region Shape
+
+    @property
+    def n_dof(self) -> int:
         raise NotImplementedError
 
-    def jac(self, x: Float[ArrayLike, " N"] | None = None) -> Float[jax.Array, " N"]:
+    # endregion Shape
+
+    def add_energy(self, energy: Energy) -> Self:
+        return self.evolve(energies=self.energies.add(energy))
+
+    def build(self) -> Self:
         raise NotImplementedError
 
-    def hess_diag(
-        self, x: Float[ArrayLike, " N"] | None = None
-    ) -> Float[jax.Array, " N"]:
-        raise NotImplementedError
-
-    def hess_quad(
-        self, x: Float[jax.Array, " N"], p: Float[jax.Array, " N"]
-    ) -> Float[jax.Array, ""]:
-        raise NotImplementedError
-
-    def fun_and_jac(
-        self, x: Float[ArrayLike, " N"] | None = None
-    ) -> tuple[Float[jax.Array, ""], Float[jax.Array, " N"]]:
-        return self.fun(x), self.jac(x)
-
-    def jac_and_hess_diag(
-        self, x: Float[ArrayLike, " N"] | None = None
-    ) -> tuple[Float[jax.Array, " N"], Float[jax.Array, " N"]]:
-        return self.jac(x), self.hess_diag(x)
-
-    # endregion Optimization
-
-    def add_energy(self, energy: _e.Energy) -> Self:
-        raise NotImplementedError  # TODO
-
-    def add_object(self, obj: _o.Object) -> Self:
-        objects: struct.NodeCollection[_o.Object] = self.objects.copy()
-        objects.update(obj)
-        return self.evolve(objects=objects)
-
-    def build_dof_indices(self) -> Self:
+    def step(
+        self,
+        displacement: Float[ArrayLike, " DoF"] | None = None,
+        velocity: Float[ArrayLike, " DoF"] | None = None,
+        force: Float[ArrayLike, " DoF"] | None = None,
+    ) -> Self:
+        displacement = jnp.asarray(displacement)
+        objects: struct.NodeCollection[Object] = self.objects
         offset: int = 0
-        objects: struct.NodeCollection[_o.Object] = self.objects.copy()
-        for obj in objects:
-            if obj.is_view:
-                continue
-            objects.update(
-                obj.evolve(dof_index=jnp.index_exp[offset : offset + obj.n_dof])
-            )
-        for obj in objects:
-            if not obj.is_view:
-                continue
-            objects.update(obj.with_deps(objects).build_dof_indices())
-        return self.evolve(objects=objects)
-
-    def with_displacement(self, x: Float[jax.Array, " N"]) -> "Scene":
         for obj in self.objects:
-            if obj.is_view:
-                continue
-        return self
+            if obj.n_dof > 0:
+                obj = obj.step(displacement[offset : offset + obj.n_dof])
+        raise NotImplementedError
+
+
+class SceneBuilder(struct.PyTree):
+    energies: struct.NodeCollection[Energy] = struct.data(factory=struct.NodeCollection)
+
+    def build(self) -> Scene:
+        graph: nx.DiGraph = self.energies.add_to_graph()
+        nodes: struct.NodeCollection = self.energies.nodes
+        for node_id in nx.lexicographical_topological_sort(graph):
+            node: struct.Node = nodes[node_id]
+            nodes.add(node.update(nodes))
+        raise NotImplementedError
+
+    def add_energy(self, energy: Energy) -> Self:
+        return self.evolve(energies=self.energies.add(energy))

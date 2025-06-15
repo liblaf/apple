@@ -6,11 +6,10 @@ import jax.numpy as jnp
 from jaxtyping import Float
 
 from liblaf.apple import struct
+from liblaf.apple.sim.abc import Scheme
 
-from ._scheme import Scheme
 
-
-def _default_points() -> Float[jax.Array, "a=4 J=3"]:
+def _default_points() -> Float[jax.Array, "q=1 J=3"]:
     with jax.ensure_compile_time_eval():
         return jnp.ones((1, 3)) / 4
 
@@ -21,7 +20,7 @@ def _default_weights() -> Float[jax.Array, "q=1"]:
 
 
 class QuadratureTetra(Scheme):
-    _points: Float[jax.Array, "a J"] = struct.array(factory=_default_points)
+    _points: Float[jax.Array, "q J"] = struct.array(factory=_default_points)
     _weights: Float[jax.Array, " q"] = struct.array(factory=_default_weights)
 
     @classmethod

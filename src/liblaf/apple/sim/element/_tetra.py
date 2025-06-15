@@ -5,7 +5,7 @@ import jax.numpy as jnp
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
-from ._element import Element
+from liblaf.apple.sim.abc import Element
 
 
 class ElementTetra(Element):

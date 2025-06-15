@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
-from jaxtyping import Float, Integer
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike, Float, Integer
 
 from liblaf.apple import struct, utils
 
@@ -42,7 +41,6 @@ class Element(struct.PyTree):
         self, coords: Float[ArrayLike, "dim"], /
     ) -> Float[jax.Array, "points dim"]:
         """Return the gradient of shape functions at given coordinates."""
-        coords = jnp.asarray(coords)
         if utils.is_implemented(self.function):
             return jax.jacobian(self.function)(coords)
         raise NotImplementedError
@@ -52,7 +50,6 @@ class Element(struct.PyTree):
         self, coords: Float[ArrayLike, "dim"], /
     ) -> Float[jax.Array, "points dim dim"]:
         """Return the Hessian of shape functions at given coordinates."""
-        coords = jnp.asarray(coords)
         if utils.is_implemented(self.function):
             return jax.hessian(self.function)(coords)
         return jax.jacobian(self.gradient)(coords)

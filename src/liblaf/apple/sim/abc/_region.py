@@ -1,24 +1,21 @@
 from collections.abc import MutableMapping
-from typing import TYPE_CHECKING, Self
+from typing import Self
 
 import einops
 import jax
 import jax.numpy as jnp
-from jaxtyping import Float, Integer
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike, Float, Integer
 
 from liblaf.apple import struct, utils
-from liblaf.apple.sim import element as _e
-from liblaf.apple.sim import geometry as _g
-from liblaf.apple.sim import quadrature as _q
 
-if TYPE_CHECKING:
-    from ._boundary import RegionBoundary
+from ._element import Element
+from ._geometry import Geometry, GeometryAttributes
+from ._quadrature import Scheme
 
 
 class Region(struct.PyTree):
-    _geometry: _g.Geometry = struct.data(default=None)
-    _quadrature: _q.Scheme = struct.data(default=None)
+    _geometry: Geometry = struct.data(default=None)
+    _quadrature: Scheme = struct.data(default=None)
 
     _h: Float[jax.Array, "q a"] = struct.array(default=None)
     _dhdr: Float[jax.Array, "q a J"] = struct.array(default=None)
@@ -29,7 +26,7 @@ class Region(struct.PyTree):
 
     @classmethod
     def from_geometry(
-        cls, geometry: _g.Geometry, quadrature: _q.Scheme, *, grad: bool = True
+        cls, geometry: Geometry, quadrature: Scheme, *, grad: bool = True
     ) -> Self:
         self: Self = cls(_geometry=geometry, _quadrature=quadrature)
         if grad:
@@ -39,15 +36,15 @@ class Region(struct.PyTree):
     # region Structure
 
     @property
-    def element(self) -> _e.Element:
+    def element(self) -> Element:
         return self.geometry.element
 
     @property
-    def geometry(self) -> _g.Geometry:
+    def geometry(self) -> Geometry:
         return self._geometry
 
     @property
-    def quadrature(self) -> _q.Scheme:
+    def quadrature(self) -> Scheme:
         return self._quadrature
 
     # endregion Structure
@@ -83,15 +80,15 @@ class Region(struct.PyTree):
     # region Attributes
 
     @property
-    def cell_data(self) -> _g.GeometryAttributes:
+    def cell_data(self) -> GeometryAttributes:
         return self.geometry.cell_data
 
     @property
-    def field_data(self) -> _g.GeometryAttributes:
+    def field_data(self) -> GeometryAttributes:
         return self.geometry.field_data
 
     @property
-    def point_data(self) -> _g.GeometryAttributes:
+    def point_data(self) -> GeometryAttributes:
         return self.geometry.point_data
 
     @property
@@ -135,7 +132,7 @@ class Region(struct.PyTree):
             [self.element.gradient(q) for q in self.quadrature.points]
         )
         dXdr: Float[jax.Array, "c q I J"] = einops.einsum(
-            self.points[self.cells], dhdr, "c a I, q a J -> c q I J"
+            self.scatter(self.points), dhdr, "c a I, q a J -> c q I J"
         )
         drdX: Float[jax.Array, "c q J I"] = jnp.linalg.inv(dXdr)
         dV: Float[jax.Array, "c q"] = (
@@ -151,17 +148,15 @@ class Region(struct.PyTree):
     # region Geometric Operations
 
     @property
-    def boundary(self) -> "RegionBoundary":
-        from ._boundary import RegionBoundary
+    def boundary(self) -> "Region":
+        raise NotImplementedError
 
-        return RegionBoundary.from_region(self)
-
-    def extract(
+    def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> Self:
         raise NotImplementedError
 
-    def warp(self, displacement: Float[ArrayLike, " points J"]) -> Self:
+    def warp_by_vector(self, displacement: Float[ArrayLike, "points J"]) -> Self:
         raise NotImplementedError
 
     # endregion Geometric Operations

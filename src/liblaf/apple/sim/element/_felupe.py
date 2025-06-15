@@ -7,8 +7,7 @@ from jaxtyping import Float
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
-
-from ._element import Element
+from liblaf.apple.sim.abc import Element
 
 
 class ElementFelupe(Element):

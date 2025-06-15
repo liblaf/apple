@@ -1,3 +1,4 @@
-from ._abc import Object
+from ._object import Object
+from ._triangle import ObjectTriangle
 
-__all__ = ["Object"]
+__all__ = ["Object", "ObjectTriangle"]

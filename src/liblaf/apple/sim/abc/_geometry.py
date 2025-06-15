@@ -9,7 +9,8 @@ from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
-from liblaf.apple.sim import element as _e
+
+from ._element import Element
 
 
 class GeometryAttributes(struct.PyTree, MutableMapping[str, jax.Array]):
@@ -42,7 +43,7 @@ class Geometry(struct.PyTree):
     # region Structure
 
     @property
-    def element(self) -> _e.Element:
+    def element(self) -> Element:
         raise NotImplementedError
 
     @property
@@ -91,6 +92,16 @@ class Geometry(struct.PyTree):
         return GeometryAttributes(self.pyvista.field_data)
 
     @property
+    def original_cell_id(self) -> Integer[jax.Array, "cells"]:
+        with jax.ensure_compile_time_eval():
+            return jnp.asarray(self.pyvista.cell_data["cell-id"])
+
+    @property
+    def original_point_id(self) -> Integer[jax.Array, "points"]:
+        with jax.ensure_compile_time_eval():
+            return jnp.asarray(self.pyvista.point_data["point-id"])
+
+    @property
     def point_data(self) -> GeometryAttributes:
         return GeometryAttributes(self.pyvista.point_data)
 
@@ -106,12 +117,12 @@ class Geometry(struct.PyTree):
     def boundary(self) -> "Geometry":
         raise NotImplementedError
 
-    def extract(
+    def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> Self:
         raise NotImplementedError
 
-    def warp(self, displacement: Float[ArrayLike, "points dim"]) -> Self:
+    def warp_by_vector(self, displacement: Float[ArrayLike, "points dim"]) -> Self:
         mesh: pv.DataSet = self.pyvista.copy()
         mesh.point_data["displacement"] = displacement
         mesh = mesh.warp_by_vector("displacement")

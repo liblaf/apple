@@ -9,8 +9,8 @@ from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
 from liblaf.apple.sim import element as _e
+from liblaf.apple.sim.abc import Geometry
 
-from ._geometry import Geometry
 from ._triangle import GeometryTriangle
 
 
@@ -49,7 +49,7 @@ class GeometryTetra(Geometry):
         surface: pv.PolyData = mesh.extract_surface()
         return GeometryTriangle.from_pyvista(surface)
 
-    def extract(
+    def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> Self:
         ind = np.asarray(ind)

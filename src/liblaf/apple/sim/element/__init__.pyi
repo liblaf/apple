@@ -1,6 +1,5 @@
-from ._element import Element
 from ._felupe import ElementFelupe
 from ._tetra import ElementTetra
 from ._triangle import ElementTriangle
 
-__all__ = ["Element", "ElementFelupe", "ElementTetra", "ElementTriangle"]
+__all__ = ["ElementFelupe", "ElementTetra", "ElementTriangle"]

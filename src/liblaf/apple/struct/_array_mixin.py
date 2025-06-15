@@ -1,9 +1,10 @@
 import abc
 from functools import partialmethod
-from typing import Self
+from typing import Any, Self
 
 import jax
 import jax.numpy as jnp
+from jaxtyping import ArrayLike
 
 
 class ArrayMixin(abc.ABC):
@@ -12,13 +13,16 @@ class ArrayMixin(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_values(self, values: jax.Array) -> Self:
+    def with_values(self, values: ArrayLike, /) -> Self:
         raise NotImplementedError
 
     def _op(self, op: str, /, *args, **kwargs) -> Self:
         values: jax.Array = jnp.asarray(self)
         values = getattr(values, op)(*args, **kwargs)
-        return self.with_values(values=values)
+        return self.with_values(values)
+
+    def __getitem__(self, index: Any) -> jax.Array:
+        return jnp.asarray(self)[index]
 
     __add__: partialmethod[Self] = partialmethod(_op, "__add__")
     __sub__: partialmethod[Self] = partialmethod(_op, "__sub__")

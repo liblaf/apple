@@ -1,21 +1,22 @@
 import math
 from collections.abc import Sequence
-from typing import Self
+from typing import Self, override
 
 import jax
 import jax.numpy as jnp
-from jaxtyping import DTypeLike, Float, Integer
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike, DTypeLike, Float, Integer
 
+from liblaf.apple import math as _m
 from liblaf.apple import struct
-from liblaf.apple.sim import element as _e
-from liblaf.apple.sim import geometry as _g
-from liblaf.apple.sim import quadrature as _q
-from liblaf.apple.sim import region as _r
+
+from ._element import Element
+from ._geometry import Geometry
+from ._quadrature import Scheme
+from ._region import Region
 
 
 class Field(struct.ArrayMixin, struct.PyTree):
-    _region: _r.Region = struct.data(default=None)
+    _region: Region = struct.data(default=None)
     _shape_dtype: jax.ShapeDtypeStruct = struct.static(
         default=jax.ShapeDtypeStruct(shape=(3,), dtype=float)
     )
@@ -24,8 +25,8 @@ class Field(struct.ArrayMixin, struct.PyTree):
     @classmethod
     def from_region(
         cls,
-        region: _r.Region,
-        values: Float[ArrayLike, "points *dim"],
+        region: Region,
+        values: Float[ArrayLike, "points *dim"] = 0.0,
         *,
         dim: int | Sequence[int],
         dtype: DTypeLike = float,
@@ -43,19 +44,19 @@ class Field(struct.ArrayMixin, struct.PyTree):
     # region Underlying
 
     @property
-    def element(self) -> _e.Element:
+    def element(self) -> Element:
         return self.region.element
 
     @property
-    def geometry(self) -> _g.Geometry:
+    def geometry(self) -> Geometry:
         return self.region.geometry
 
     @property
-    def quadrature(self) -> _q.Scheme:
+    def quadrature(self) -> Scheme:
         return self.region.quadrature
 
     @property
-    def region(self) -> _r.Region:
+    def region(self) -> Region:
         return self._region
 
     # endregion Underlying
@@ -138,12 +139,14 @@ class Field(struct.ArrayMixin, struct.PyTree):
     def boundary(self) -> "Field":
         raise NotImplementedError
 
-    def extract(
+    def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> "Field":
         raise NotImplementedError
 
-    def warp(self, displacement: Float[ArrayLike, "points *dim"] | None) -> _g.Geometry:
+    def warp_by_vector(
+        self, displacement: Float[ArrayLike, "points *dim"] | None
+    ) -> Geometry:
         raise NotImplementedError
 
     # endregion Geometric Operations
@@ -151,10 +154,41 @@ class Field(struct.ArrayMixin, struct.PyTree):
     # region Operators
 
     @property
-    def grad(self) -> "Field":
-        raise NotImplementedError
+    def deformation_gradient(self) -> "FieldGrad":
+        return FieldGrad.from_region(
+            region=self.region,
+            values=self.region.deformation_gradient(self.values),
+            dim=(*self.dim, self.geometry.dim),
+            dtype=self.dtype,
+        )
+
+    @property
+    def integral(self) -> Float[jax.Array, "*dim"]:
+        return self.region.integrate(self.values)
+
+    @property
+    def grad(self) -> "FieldGrad":
+        return FieldGrad.from_region(
+            self.region,
+            values=self.region.gradient(self.values),
+            dim=(*self.dim, self.geometry.dim),
+            dtype=self.dtype,
+        )
 
     # endregion Operators
 
-    def with_values(self, values: Float[ArrayLike, "points *dim"]) -> Self:
-        raise NotImplementedError
+    def with_values(
+        self, values: 'Float[ArrayLike, "points *dim"] | Field | None' = None, /
+    ) -> Self:
+        if values is None:
+            return self
+        values = jnp.asarray(values)
+        values = _m.broadcast_to(values, self.shape)
+        return self.evolve(_values=values)
+
+
+class FieldGrad(Field):
+    @property
+    @override
+    def shape(self) -> Sequence[int]:
+        return (self.n_cells, self.quadrature.dim, *self.dim)

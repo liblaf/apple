@@ -1,4 +1,3 @@
-from ._abc import Field, FieldGrad
-from ._tetra import FieldTetra
+from ._field import Field
 
-__all__ = ["Field", "FieldGrad", "FieldTetra"]
+__all__ = ["Field"]

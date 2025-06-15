@@ -1,12 +1,11 @@
 import enum
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, assert_never
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-from jaxtyping import Shaped
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike
 
 from liblaf.apple import utils
 
@@ -28,10 +27,8 @@ class EnumError(ValueError):
 
 @utils.jit(static_argnames=("shape", "mode"))
 def broadcast_to(
-    arr: Shaped[ArrayLike, "..."],
-    shape: Sequence[int],
-    mode: BroadcastMode = BroadcastMode.LEADING,
-) -> Shaped[jax.Array, "..."]:
+    arr: ArrayLike, shape: Sequence[int], mode: BroadcastMode = BroadcastMode.LEADING
+) -> jax.Array:
     arr = jnp.asarray(arr)
     if arr.shape == shape:
         return arr
@@ -43,5 +40,5 @@ def broadcast_to(
         case BroadcastMode.TRAILING:
             arr = jnp.reshape(arr, arr.shape + (1,) * (len(shape) - arr.ndim))
             return jnp.broadcast_to(arr, shape)
-        case _:
-            raise EnumError(mode, BroadcastMode)
+        case _ as unreachable:
+            assert_never(unreachable)

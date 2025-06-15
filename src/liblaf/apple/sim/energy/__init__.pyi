@@ -1,3 +1,3 @@
-from ._abc import Energy
+from ._energy import Energy
 
 __all__ = ["Energy"]

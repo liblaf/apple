@@ -9,8 +9,7 @@ from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
 from liblaf.apple.sim import element as _e
-
-from ._geometry import Geometry
+from liblaf.apple.sim.abc import Geometry
 
 
 class GeometryTriangle(Geometry):
@@ -45,7 +44,7 @@ class GeometryTriangle(Geometry):
         with jax.ensure_compile_time_eval():
             return jnp.asarray(self.pyvista.regular_faces)
 
-    def extract(
+    def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> Self:
         ind = np.asarray(ind)

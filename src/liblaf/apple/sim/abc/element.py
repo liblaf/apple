@@ -4,6 +4,8 @@ from jaxtyping import ArrayLike, Float, Integer
 
 from liblaf.apple import struct, utils
 
+from .quadrature import Scheme
+
 
 class Element(struct.PyTree):
     """Base-class for a finite element which provides methods for plotting.
@@ -27,6 +29,10 @@ class Element(struct.PyTree):
 
     @property
     def points(self) -> Float[jax.Array, "points dim"]:
+        raise NotImplementedError
+
+    @property
+    def quadrature(self) -> Scheme:
         raise NotImplementedError
 
     @utils.not_implemented

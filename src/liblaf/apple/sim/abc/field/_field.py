@@ -1,18 +1,22 @@
-import math
-from collections.abc import Sequence
-from typing import Self, override
+from collections.abc import Iterator, Mapping, Sequence
+from typing import TYPE_CHECKING, Self
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 from jaxtyping import ArrayLike, DTypeLike, Float, Integer
 
-from liblaf.apple import math as _m
-from liblaf.apple import struct
+from liblaf.apple import math, struct
+from liblaf.apple.sim.abc.element import Element
+from liblaf.apple.sim.abc.geometry import Geometry
+from liblaf.apple.sim.abc.quadrature import Scheme
+from liblaf.apple.sim.abc.region import Region
 
-from ._element import Element
-from ._geometry import Geometry
-from ._quadrature import Scheme
-from ._region import Region
+if TYPE_CHECKING:
+    from ._grad import FieldGrad
+
+
+type FieldLike = Float[ArrayLike, " points *dim"] | "Field"
 
 
 class Field(struct.ArrayMixin, struct.PyTree):
@@ -77,7 +81,7 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def n_dof(self) -> int:
-        return self.n_points * math.prod(self.dim)
+        return self.n_points * int(np.prod(self.dim))
 
     @property
     def n_points(self) -> int:
@@ -93,11 +97,11 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def cells(self) -> Integer[jax.Array, "cells a"]:
-        return self.region.cells
+        return jax.lax.stop_gradient(self.region.cells)
 
     @property
     def points(self) -> Float[jax.Array, "points J"]:
-        return self.region.points
+        return jax.lax.stop_gradient(self.region.points)
 
     @property
     def values(self) -> Float[jax.Array, "points *dim"]:
@@ -109,27 +113,27 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def h(self) -> Float[jax.Array, "q a"]:
-        return self.region.h
+        return jax.lax.stop_gradient(self.region.h)
 
     @property
     def dhdr(self) -> Float[jax.Array, "q a J"]:
-        return self.region.dhdr
+        return jax.lax.stop_gradient(self.region.dhdr)
 
     @property
     def dXdr(self) -> Float[jax.Array, "c q I J"]:
-        return self.region.dXdr
+        return jax.lax.stop_gradient(self.region.dXdr)
 
     @property
     def drdX(self) -> Float[jax.Array, "c q J I"]:
-        return self.region.drdX
+        return jax.lax.stop_gradient(self.region.drdX)
 
     @property
     def dV(self) -> Float[jax.Array, "c q"]:
-        return self.region.dV
+        return jax.lax.stop_gradient(self.region.dV)
 
     @property
     def dhdX(self) -> Float[jax.Array, "c q a J"]:
-        return self.region.dhdX
+        return jax.lax.stop_gradient(self.region.dhdX)
 
     # endregion Function Space
 
@@ -137,17 +141,18 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def boundary(self) -> "Field":
-        raise NotImplementedError
+        region: Region = self.region.boundary
+        return self.evolve(_region=region).with_values(
+            self.values[self.region.original_point_id]
+        )
 
     def extract_cells(
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> "Field":
-        raise NotImplementedError
-
-    def warp_by_vector(
-        self, displacement: Float[ArrayLike, "points *dim"] | None
-    ) -> Geometry:
-        raise NotImplementedError
+        region: Region = self.region.extract_cells(ind=ind, invert=invert)
+        return self.evolve(_region=region).with_values(
+            self.values[self.region.original_point_id]
+        )
 
     # endregion Geometric Operations
 
@@ -155,6 +160,8 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def deformation_gradient(self) -> "FieldGrad":
+        from ._grad import FieldGrad
+
         return FieldGrad.from_region(
             region=self.region,
             values=self.region.deformation_gradient(self.values),
@@ -168,6 +175,8 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     @property
     def grad(self) -> "FieldGrad":
+        from ._grad import FieldGrad
+
         return FieldGrad.from_region(
             self.region,
             values=self.region.gradient(self.values),
@@ -177,18 +186,47 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     # endregion Operators
 
-    def with_values(
-        self, values: 'Float[ArrayLike, "points *dim"] | Field | None' = None, /
-    ) -> Self:
+    def with_values(self, values: FieldLike | None = None, /) -> Self:
         if values is None:
             return self
         values = jnp.asarray(values)
-        values = _m.broadcast_to(values, self.shape)
+        values = math.broadcast_to(values, self.shape)
         return self.evolve(_values=values)
 
 
-class FieldGrad(Field):
-    @property
-    @override
-    def shape(self) -> Sequence[int]:
-        return (self.n_cells, self.quadrature.dim, *self.dim)
+class FieldCollection(Mapping[str, Field], struct.PyTree):
+    _fields: Mapping[str, Field] = struct.data(factory=dict)
+
+    # region Mapping[str, Field]
+
+    def __getitem__(self, key: str, /) -> Field:
+        return self._fields[key]
+
+    def __iter__(self) -> Iterator[str]:
+        yield from self._fields
+
+    def __len__(self) -> int:
+        return len(self._fields)
+
+    # endregion Mapping[str, Field]
+
+    def __add__(self, other: Mapping[str, Field], /) -> Self:
+        result: dict[str, Field] = {}
+        for key in self._fields:
+            if key in other:
+                result[key] = self._fields[key] + other[key]
+            else:
+                result[key] = self._fields[key]
+        for key in other:
+            if key not in result:
+                result[key] = other[key]
+        return self.evolve(_fields=result)
+
+    def ravel(
+        self, dof_map: Mapping[str, struct.Index], /, *, n_dof: int
+    ) -> Float[jax.Array, " DoF"]:
+        x: Float[jax.Array, " DoF"] = jnp.zeros((n_dof,))
+        for key, field in self._fields.items():
+            idx: struct.Index = dof_map[key]
+            x = idx.add(x, field.values)
+        return x

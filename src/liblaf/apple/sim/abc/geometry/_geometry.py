@@ -1,36 +1,17 @@
-from collections.abc import Iterator, MutableMapping
+from collections.abc import MutableMapping
 from typing import Self
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 import pyvista as pv
 from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
+from liblaf.apple.sim.abc.element import Element
+from liblaf.apple.sim.abc.quadrature import Scheme
 
-from ._element import Element
-
-
-class GeometryAttributes(struct.PyTree, MutableMapping[str, jax.Array]):
-    attributes: pv.DataSetAttributes = struct.static(default=None)
-
-    def __getitem__(self, key: str) -> jax.Array:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.attributes[key])
-
-    def __setitem__(self, key: str, value: ArrayLike) -> None:
-        self.attributes[key] = np.asarray(value)
-
-    def __delitem__(self, key: str) -> None:
-        del self.attributes[key]
-
-    def __iter__(self) -> Iterator[str]:
-        yield from self.attributes.keys()
-
-    def __len__(self) -> int:
-        return len(self.attributes)
+from ._attributes import GeometryAttributes
 
 
 class Geometry(struct.PyTree):
@@ -49,6 +30,10 @@ class Geometry(struct.PyTree):
     @property
     def pyvista(self) -> pv.DataSet:
         return self._pyvista
+
+    @property
+    def quadrature(self) -> Scheme:
+        return self.element.quadrature
 
     # endregion Structure
 

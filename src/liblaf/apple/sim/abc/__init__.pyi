@@ -1,20 +1,20 @@
-from ._element import Element
-from ._energy import Energy
-from ._field import Field
-from ._filter import Filter
-from ._geometry import Geometry, GeometryAttributes
-from ._object import Object
-from ._quadrature import Scheme
-from ._region import Region
+from .element import Element
+from .energy import Energy
+from .field import Field, FieldCollection, FieldGrad, FieldLike
+from .geometry import Geometry, GeometryAttributes
+from .obj import Dirichlet, Object
+from .quadrature import Scheme
 
 __all__ = [
+    "Dirichlet",
     "Element",
     "Energy",
     "Field",
-    "Filter",
+    "FieldCollection",
+    "FieldGrad",
+    "FieldLike",
     "Geometry",
     "GeometryAttributes",
     "Object",
-    "Region",
     "Scheme",
 ]

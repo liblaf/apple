@@ -31,7 +31,7 @@ class Domain(struct.Node):
 
     @property
     def mesh(self) -> pv.DataSet:
-        return self.geometry.mesh
+        return self.geometry.pyvista
 
     @property
     def n_cells(self) -> int:

@@ -18,10 +18,10 @@ from .function_space import (
     FunctionSpaceTetraCell,
     FunctionSpaceTetraPoint,
 )
-from .geometry import Geometry, GeometryTetra, GeometryTetraSurface, GeometryTriangle
+from .geometry import Geometry, GeometryAttributes, GeometryTetra, GeometryTriangle
 from .obj import Object
 from .quadrature import QuadratureTetra, QuadratureTriangle, Scheme
-from .region import Region, RegionTetra, RegionTriangle
+from .region import Region, RegionBoundary, RegionConcrete, SubRegion
 
 __all__ = [
     "Domain",
@@ -37,16 +37,17 @@ __all__ = [
     "FunctionSpaceTetraCell",
     "FunctionSpaceTetraPoint",
     "Geometry",
+    "GeometryAttributes",
     "GeometryTetra",
-    "GeometryTetraSurface",
     "GeometryTriangle",
     "Object",
     "QuadratureTetra",
     "QuadratureTriangle",
     "Region",
-    "RegionTetra",
-    "RegionTriangle",
+    "RegionBoundary",
+    "RegionConcrete",
     "Scheme",
+    "SubRegion",
     "domain",
     "element",
     "energy",

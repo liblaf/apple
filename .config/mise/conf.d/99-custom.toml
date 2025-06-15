@@ -1,4 +1,5 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
 [env]
+JAX_DEFAULT_MATMUL_PRECISION = "high"
 XLA_PYTHON_CLIENT_MEM_FRACTION = "0.4"

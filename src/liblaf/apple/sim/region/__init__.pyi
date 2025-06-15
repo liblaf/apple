@@ -1,5 +1,6 @@
-from ._region import Region, RegionBoundary, RegionGrad
-from ._tetra import RegionTetra
-from ._triangle import RegionTriangle
+from ._boundary import RegionBoundary
+from ._concrete import RegionConcrete
+from ._region import Region
+from ._subspace import SubRegion
 
-__all__ = ["Region", "RegionBoundary", "RegionGrad", "RegionTetra", "RegionTriangle"]
+__all__ = ["Region", "RegionBoundary", "RegionConcrete", "SubRegion"]

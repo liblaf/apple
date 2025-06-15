@@ -10,9 +10,19 @@ from liblaf.apple import struct
 from ._scheme import Scheme
 
 
+def _default_points() -> Float[jax.Array, "a=4 J=3"]:
+    with jax.ensure_compile_time_eval():
+        return jnp.ones((1, 3)) / 4
+
+
+def _default_weights() -> Float[jax.Array, "q=1"]:
+    with jax.ensure_compile_time_eval():
+        return jnp.ones((1,)) / 6
+
+
 class QuadratureTetra(Scheme):
-    points: Float[jax.Array, "a J"] = struct.array(default=jnp.ones((1, 3)) / 4)
-    weights: Float[jax.Array, " q"] = struct.array(default=jnp.ones((1,)) / 6)
+    _points: Float[jax.Array, "a J"] = struct.array(factory=_default_points)
+    _weights: Float[jax.Array, " q"] = struct.array(factory=_default_weights)
 
     @classmethod
     def from_order(cls, order: int = 1) -> Self:

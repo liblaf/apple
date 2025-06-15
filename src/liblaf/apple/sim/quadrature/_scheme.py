@@ -14,12 +14,14 @@ class Scheme(struct.PyTree):
         1. [felupe.quadrature.Schema](https://felupe.readthedocs.io/en/latest/felupe/quadrature.html#felupe.quadrature.Scheme)
     """
 
-    points: Float[jax.Array, "a J"] = struct.array(default=None)
-    weights: Float[jax.Array, " q"] = struct.array(default=None)
+    _points: Float[jax.Array, "a J"] = struct.array(default=None)
+    _weights: Float[jax.Array, " q"] = struct.array(default=None)
 
     @classmethod
     def from_felupe(cls, scheme: felupe.quadrature.Scheme) -> Self:
-        return cls(points=scheme.points, weights=scheme.weights)
+        with jax.ensure_compile_time_eval():
+            self: Self = cls(_points=scheme.points, _weights=scheme.weights)
+            return self
 
     @property
     def dim(self) -> int:
@@ -28,3 +30,13 @@ class Scheme(struct.PyTree):
     @property
     def n_points(self) -> int:
         return self.points.shape[0]
+
+    @property
+    def points(self) -> Float[jax.Array, "a J"]:
+        with jax.ensure_compile_time_eval():
+            return self._points
+
+    @property
+    def weights(self) -> Float[jax.Array, " q"]:
+        with jax.ensure_compile_time_eval():
+            return self._weights

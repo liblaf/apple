@@ -108,7 +108,7 @@ source = "vcs"
 [tool.pixi.dependencies]
 jax = ">=0.6.0,<0.7"
 jaxlib = { build = "*cuda*", version = ">=0.6.0,<0.7" }
-python = "3.12.*"
+python = "3.13.*"
 warp-lang = { build = "*cuda*", version = ">=1.7.1,<2" }
 
 [tool.pixi.environments]

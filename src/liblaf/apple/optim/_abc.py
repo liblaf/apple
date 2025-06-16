@@ -45,6 +45,7 @@ class Optimizer(abc.ABC, flax.struct.PyTreeNode):
         hess_diag: Callable | None = None,
         hess_quad: Callable | None = None,
         jac_and_hess_diag: Callable | None = None,
+        prepare: Callable | None = None,
         callback: Callback | None = None,
         **kwargs,
     ) -> OptimizeResult:
@@ -66,6 +67,7 @@ class Optimizer(abc.ABC, flax.struct.PyTreeNode):
         hess_diag = wrap_func(hess_diag, "hess_diag")
         hess_quad = wrap_func(hess_quad, "hess_quad")
         jac_and_hess_diag = wrap_func(jac_and_hess_diag, "jac_and_hess_diag")
+        prepare = wrap_func(prepare, "prepare")
         callback = wrap_func(callback, "callback")
 
         with grapes.timer(type(self).__name__) as timer:
@@ -79,6 +81,7 @@ class Optimizer(abc.ABC, flax.struct.PyTreeNode):
                 hess_diag=hess_diag,
                 hess_quad=hess_quad,
                 jac_and_hess_diag=jac_and_hess_diag,
+                prepare=prepare,
                 callback=callback,
                 **kwargs,
             )
@@ -108,6 +111,7 @@ class Optimizer(abc.ABC, flax.struct.PyTreeNode):
         hess_diag: Callable | None = None,
         hess_quad: Callable | None = None,
         jac_and_hess_diag: Callable | None = None,
+        prepare: Callable | None = None,
         callback: Callback | None = None,
         **kwargs,
     ) -> OptimizeResult: ...

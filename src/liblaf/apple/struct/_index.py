@@ -37,6 +37,9 @@ class Index(PyTree):
     def set(self, x: jax.Array, y: ArrayLike, /) -> jax.Array:
         return x.at[self.index].set(y)
 
+    def ravel(self) -> "Index":
+        return IndexIntegers(self.integers.ravel())
+
 
 class IndexIntegers(Index):
     _array: Integer[jax.Array, "..."] = array(default=jnp.empty((), dtype=int))
@@ -67,5 +70,7 @@ def concat_index(*args: IndexLike | None) -> Index:
     return result
 
 
-def make_index(shape: int | Sequence[int]) -> Index:
-    return IndexIntegers(_array=jnp.arange(np.prod(shape)).reshape(shape))
+def make_index(shape: int | Sequence[int], start: int = 0) -> Index:
+    return IndexIntegers(
+        _array=jnp.arange(start, start + np.prod(shape)).reshape(shape)
+    )

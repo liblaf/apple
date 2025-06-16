@@ -7,57 +7,54 @@ from jaxtyping import Float
 from liblaf.apple import struct, utils
 
 from .field import FieldCollection
-from .obj import Object
+from .params import GlobalParams
 
 
 class Energy(struct.Node):
-    @property
-    def obj(self) -> Object:
-        raise NotImplementedError
-
-    @property
-    def objects(self) -> struct.NodeCollection[Object]:
-        return struct.NodeCollection(self.obj)
-
     # region Optimization
+
+    def prepare(self) -> Self:
+        return self
 
     @utils.not_implemented
     @utils.jit
-    def fun(self, x: FieldCollection, /) -> Float[jax.Array, ""]:
+    def fun(self, x: FieldCollection, /, params: GlobalParams) -> Float[jax.Array, ""]:
         fun: Float[jax.Array, ""]
-        fun, _jac = self.fun_and_jac(x)
+        fun, _jac = self.fun_and_jac(x, params)
         return fun
 
     @utils.not_implemented
     @utils.jit
-    def jac(self, x: FieldCollection, /) -> FieldCollection:
+    def jac(self, x: FieldCollection, /, params: GlobalParams) -> FieldCollection:
         jac: FieldCollection
         if utils.is_implemented(self.fun_and_jac):
-            _, jac = self.fun_and_jac(x)
+            _, jac = self.fun_and_jac(x, params)
             return jac
         if utils.is_implemented(self.jac_and_hess_diag):
-            jac, _hess_diag = self.jac_and_hess_diag(x)
+            jac, _hess_diag = self.jac_and_hess_diag(x, params)
             return jac
         return jax.grad(self.fun)(x)
 
     @utils.not_implemented
     @utils.jit
-    def hessp(self, x: FieldCollection, p: FieldCollection, /) -> FieldCollection:
-        return jax.jvp(lambda x: self.jac(x), (x,), (p,))[1]
+    def hessp(
+        self, x: FieldCollection, p: FieldCollection, /, params: GlobalParams
+    ) -> FieldCollection:
+        return jax.jvp(lambda x: self.jac(x, params), (x,), (p,))[1]
 
     @utils.not_implemented
     @utils.jit
-    def hess_diag(self, x: FieldCollection, /) -> FieldCollection:
+    def hess_diag(self, x: FieldCollection, /, params: GlobalParams) -> FieldCollection:
         hess_diag: FieldCollection
-        _jac, hess_diag = self.jac_and_hess_diag(x)
+        _jac, hess_diag = self.jac_and_hess_diag(x, params)
         return hess_diag
 
     @utils.not_implemented
     @utils.jit
     def hess_quad(
-        self, x: FieldCollection, p: FieldCollection, /
+        self, x: FieldCollection, p: FieldCollection, /, params: GlobalParams
     ) -> Float[jax.Array, ""]:
-        hessp: FieldCollection = self.hessp(x, p)
+        hessp: FieldCollection = self.hessp(x, p, params)
         hess_quad: Float[jax.Array, ""] = jnp.asarray(0.0)
         for key in x:
             hess_quad += jnp.vdot(jnp.asarray(p[key]), jnp.asarray(hessp[key]))
@@ -65,17 +62,14 @@ class Energy(struct.Node):
 
     @utils.not_implemented
     def fun_and_jac(
-        self, x: FieldCollection, /
+        self, x: FieldCollection, /, params: GlobalParams
     ) -> tuple[Float[jax.Array, ""], FieldCollection]:
-        return self.fun(x), self.jac(x)
+        return self.fun(x, params), self.jac(x, params)
 
     @utils.not_implemented
     def jac_and_hess_diag(
-        self, x: FieldCollection, /
+        self, x: FieldCollection, /, params: GlobalParams
     ) -> tuple[FieldCollection, FieldCollection]:
-        return self.jac(x), self.hess_diag(x)
+        return self.jac(x, params), self.hess_diag(x, params)
 
     # endregion Optimization
-
-    def prepare(self) -> Self:
-        return self

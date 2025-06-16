@@ -46,6 +46,7 @@ class PNCG(Optimizer):
         hess_diag: Callable | None = None,
         hess_quad: Callable | None = None,
         jac_and_hess_diag: Callable | None = None,
+        prepare: Callable | None = None,
         callback: Callback | None = None,
         **kwargs,
     ) -> OptimizeResult:
@@ -67,6 +68,8 @@ class PNCG(Optimizer):
         Delta_E0: Float[jax.Array, ""] = None  # pyright: ignore[reportAssignmentType]
         timer: grapes.TimedIterable = grapes.timer(range(self.maxiter), name="PNCG")
         for it in timer:
+            if callable(prepare):
+                prepare(state.x)
             state = self.step(
                 state,
                 jac_and_hess_diag=jac_and_hess_diag,
@@ -91,7 +94,6 @@ class PNCG(Optimizer):
             )
             if callable(callback):
                 callback(result)
-                state = state.replace(x=result["x"])
             if state.Delta_E < self.tol * Delta_E0:
                 result["success"] = True
                 break

@@ -29,6 +29,7 @@ class OptimizerScipy(Optimizer):
         hess_diag: Callable | None = None,
         hess_quad: Callable | None = None,
         jac_and_hess_diag: Callable | None = None,
+        prepare: Callable | None = None,
         callback: Callback | None = None,
         **kwargs,
     ) -> OptimizeResult:

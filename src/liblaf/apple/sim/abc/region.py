@@ -111,27 +111,27 @@ class Region(struct.PyTree):
 
     @property
     def h(self) -> Float[jax.Array, "q a"]:
-        return jax.lax.stop_gradient(self._h)
+        return self._h
 
     @property
     def dhdr(self) -> Float[jax.Array, "q a J"]:
-        return jax.lax.stop_gradient(self._dhdr)
+        return self._dhdr
 
     @property
     def dXdr(self) -> Float[jax.Array, "c q I J"]:
-        return jax.lax.stop_gradient(self._dXdr)
+        return self._dXdr
 
     @property
     def drdX(self) -> Float[jax.Array, "c q J I"]:
-        return jax.lax.stop_gradient(self._drdX)
+        return self._drdX
 
     @property
     def dV(self) -> Float[jax.Array, "c q"]:
-        return jax.lax.stop_gradient(self._dV)
+        return self._dV
 
     @property
     def dhdX(self) -> Float[jax.Array, "c q a J"]:
-        return jax.lax.stop_gradient(self._dhdX)
+        return self._dhdX
 
     @utils.jit
     def with_grad(self) -> Self:

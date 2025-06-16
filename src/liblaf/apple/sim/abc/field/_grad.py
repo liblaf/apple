@@ -8,4 +8,4 @@ class FieldGrad(Field):
     @property
     @override
     def shape(self) -> Sequence[int]:
-        return (self.n_cells, self.quadrature.dim, *self.dim)
+        return (self.n_cells, self.quadrature.n_points, *self.dim)

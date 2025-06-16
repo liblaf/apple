@@ -1,6 +1,6 @@
-from typing import Self
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Self, override
 
-import attrs
 import jax
 from jaxtyping import Float
 
@@ -8,16 +8,21 @@ from liblaf.apple import struct, utils
 from liblaf.apple.sim.abc.element import Element
 from liblaf.apple.sim.abc.field import Field, FieldLike
 from liblaf.apple.sim.abc.geometry import Geometry
+from liblaf.apple.sim.abc.params import GlobalParams
 from liblaf.apple.sim.abc.quadrature import Scheme
 from liblaf.apple.sim.abc.region import Region
 
 from ._dirichlet import Dirichlet
 
+if TYPE_CHECKING:
+    from liblaf.apple.sim.abc.operator import Operator
+
 
 class Object(struct.Node):
-    id: str = struct.static(default=attrs.Factory(struct.uniq_id, takes_self=True))
+    op: "Operator[Self]" = struct.data(default=None)
 
     displacement: Field = struct.data(default=None)
+    displacement_prev: Field = struct.data(default=None)
     velocity: Field = struct.data(default=None)
     force: Field = struct.data(default=None)
     mass: Field = struct.data(default=None)
@@ -26,9 +31,31 @@ class Object(struct.Node):
     dof_index: struct.Index = struct.data(default=None)
 
     @classmethod
-    def from_fields(cls, displacement: Field, /) -> Self:
-        self: Self = cls(displacement=displacement)
-        return self
+    def from_region(
+        cls,
+        region: Region,
+        /,
+        displacement: FieldLike | None = 0.0,
+        velocity: FieldLike | None = 0.0,
+        force: FieldLike | None = 0.0,
+        mass: FieldLike | None = 1.0,
+    ) -> Self:
+        dim: int = region.dim
+        if displacement is not None:
+            displacement = Field.from_region(region, displacement, dim=dim)
+        if velocity is not None:
+            velocity = Field.from_region(region, velocity, dim=dim)
+        if force is not None:
+            force = Field.from_region(region, force, dim=dim)
+        if mass is not None:
+            mass = Field.from_region(region, mass, dim=1)
+        return cls(
+            displacement=displacement,  # pyright: ignore[reportArgumentType]
+            displacement_prev=displacement,  # pyright: ignore[reportArgumentType]
+            velocity=velocity,  # pyright: ignore[reportArgumentType]
+            force=force,  # pyright: ignore[reportArgumentType]
+            mass=mass,  # pyright: ignore[reportArgumentType]
+        )
 
     # region Structure
 
@@ -69,6 +96,10 @@ class Object(struct.Node):
     def n_points(self) -> int:
         return self.displacement.n_points
 
+    @property
+    def shape(self) -> Sequence[int]:
+        return self.displacement.shape
+
     # endregion Shape
 
     # region Array
@@ -88,6 +119,62 @@ class Object(struct.Node):
 
     # endregion Array
 
+    # region State Update
+
+    def prepare(self) -> Self:
+        return self
+
+    def step(self, displacement: FieldLike | None, params: GlobalParams) -> Self:
+        obj: Self = self.evolve(displacement_prev=self.displacement)
+        obj = obj.update(
+            displacement=displacement,
+            velocity=displacement - self.displacement / params.time_step,
+        )
+        return obj
+
+    def update(
+        self,
+        displacement: FieldLike | None = None,
+        velocity: FieldLike | None = None,
+        force: FieldLike | None = None,
+    ) -> Self:
+        obj: Self = self.evolve(
+            displacement=self.displacement.with_values(displacement),
+            velocity=self.velocity.with_values(velocity),
+            force=self.force.with_values(force),
+        )
+        return obj
+
+    # endregion State Update
+
+    # region Node
+
+    @property
+    @override
+    def deps(self) -> struct.NodeCollection["Operator[Self]"]:
+        if self.op is None:
+            return struct.NodeCollection()
+        return struct.NodeCollection(self.op)
+
+    def with_deps(self, nodes: struct.NodesLike, /) -> Self:
+        nodes = struct.NodeCollection(nodes)
+        if self.op is None:
+            return self
+        op: Operator[Self] = nodes[self.op]
+        return op.update(self)
+
+    # endregion Node
+
+    # region Geometric Operation
+
+    @property
+    def boundary(self) -> "Object":
+        from liblaf.apple.sim.operator import OperatorBoundary
+
+        return OperatorBoundary.apply(self)
+
+    # endregion Geometric Operation
+
     def export_geometry(self) -> Geometry:
         geometry: Geometry = self.geometry
         geometry = geometry.warp_by_vector(self.displacement.values)
@@ -98,43 +185,3 @@ class Object(struct.Node):
         geometry.point_data["mass"] = self.mass.values
         geometry.point_data["dof-index"] = self.dof_index.index
         return geometry
-
-    def prepare(self) -> Self:
-        return self
-
-    def update(
-        self,
-        displacement: FieldLike | None = None,
-        velocity: FieldLike | None = None,
-        force: FieldLike | None = None,
-    ) -> Self:
-        obj: Self = self
-        obj = obj.evolve(displacement=obj.displacement.with_values(displacement))
-        obj = obj.evolve(velocity=obj.velocity.with_values(velocity))
-        obj = obj.evolve(force=obj.force.with_values(force))
-        return self.evolve()
-
-    def with_displacement(self, displacement: FieldLike | None, /) -> Self:
-        if displacement is None:
-            return self
-        if self.displacement is not None:
-            displacement = self.displacement.with_values(displacement)
-        return self.evolve(displacement=displacement)
-
-    def with_velocity(self, velocity: FieldLike | None, /) -> Self:
-        if velocity is None:
-            return self
-        if self.velocity is not None:
-            velocity = self.velocity.with_values(velocity)
-        elif self.displacement is not None:
-            velocity = self.displacement.with_values(velocity)
-        return self.evolve(velocity=velocity)
-
-    def with_force(self, force: FieldLike | None, /) -> Self:
-        if force is None:
-            return self
-        if self.force is not None:
-            force = self.force.with_values(force)
-        elif self.displacement is not None:
-            force = self.displacement.with_values(force)
-        return self.evolve(force=force)

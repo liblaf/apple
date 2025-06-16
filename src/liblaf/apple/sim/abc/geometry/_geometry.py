@@ -4,6 +4,7 @@ from typing import Self
 import jax
 import jax.numpy as jnp
 import pyvista as pv
+import warp as wp
 from jaxtyping import Float, Integer
 from numpy.typing import ArrayLike
 
@@ -18,7 +19,7 @@ class Geometry(struct.PyTree):
     _pyvista: pv.DataSet = struct.static(default=None)
 
     @classmethod
-    def from_pyvista(cls, mesh: pv.DataSet) -> Self:
+    def from_pyvista(cls, mesh: pv.DataSet, /) -> Self:
         raise NotImplementedError
 
     # region Structure
@@ -114,3 +115,14 @@ class Geometry(struct.PyTree):
         return self.evolve(_pyvista=mesh)
 
     # endregion Geometric Operations
+
+    # region Exchange
+
+    def to_warp(self, **kwargs) -> wp.Mesh:
+        return wp.Mesh(
+            wp.from_jax(self.points, dtype=wp.vec3),
+            wp.from_jax(self.cells.ravel(), dtype=int),
+            **kwargs,
+        )
+
+    # endregion Exchange

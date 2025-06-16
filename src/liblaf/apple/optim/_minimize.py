@@ -20,6 +20,7 @@ def minimize(
     hess_diag: Callable | None = None,
     hess_quad: Callable | None = None,
     jac_and_hess_diag: Callable | None = None,
+    prepare: Callable | None = None,
     callback: Callback | None = None,
     **kwargs,
 ) -> OptimizeResult:
@@ -35,6 +36,7 @@ def minimize(
         hess_diag=hess_diag,
         hess_quad=hess_quad,
         jac_and_hess_diag=jac_and_hess_diag,
+        prepare=prepare,
         callback=callback,
         **kwargs,
     )

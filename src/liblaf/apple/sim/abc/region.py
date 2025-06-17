@@ -14,8 +14,8 @@ from .quadrature import Scheme
 
 
 class Region(struct.PyTree):
-    _geometry: Geometry = struct.data(default=None)
-    _quadrature: Scheme = struct.data(default=None)
+    _geometry: Geometry = struct.field(default=None)
+    _quadrature: Scheme = struct.field(default=None)
 
     _h: Float[jax.Array, "q a"] = struct.array(default=None)
     _dhdr: Float[jax.Array, "q a J"] = struct.array(default=None)
@@ -151,7 +151,9 @@ class Region(struct.PyTree):
         dhdX: Float[jax.Array, "c q a J"] = einops.einsum(
             dhdr, drdX, "q a I, c q I J -> c q a J"
         )
-        return self.evolve(_h=h, _dhdr=dhdr, _dXdr=dXdr, _drdX=drdX, _dV=dV, _dhdX=dhdX)
+        return self.replace(
+            _h=h, _dhdr=dhdr, _dXdr=dXdr, _drdX=drdX, _dV=dV, _dhdX=dhdX
+        )
 
     # endregion Function Space
 
@@ -159,7 +161,7 @@ class Region(struct.PyTree):
 
     @property
     def boundary(self) -> "Region":
-        return self.evolve(
+        return self.replace(
             _geometry=self.geometry.boundary,
             _quadrature=None,
             _h=None,

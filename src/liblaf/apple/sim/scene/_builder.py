@@ -1,16 +1,16 @@
 from collections.abc import Generator, Iterator
-from typing import override
+from typing import cast, override
 
 import attrs
 
 from liblaf.apple import struct
-from liblaf.apple.sim.abc import Dirichlet, Energy, GlobalParams, Object
+from liblaf.apple.sim.abc import Energy, GlobalParams, Object
 
 from ._scene import Scene
 
 
 @attrs.define
-class SceneBuilder(struct.NodeCollectionMixin):
+class SceneBuilder(struct.MappingTrait):
     params: GlobalParams = attrs.field(factory=GlobalParams)
     _graph: struct.Graph = attrs.field(factory=struct.Graph, init=False)
     _energy_keys: list[str] = attrs.field(factory=list, init=False)
@@ -18,7 +18,7 @@ class SceneBuilder(struct.NodeCollectionMixin):
     # region NodeCollectionMixin
 
     @override
-    def __getitem__(self, key: struct.KeyLike, /) -> struct.Node:
+    def __getitem__(self, key: struct.KeyLike, /) -> struct.GraphNode:
         return self.graph[key]
 
     @override
@@ -32,16 +32,12 @@ class SceneBuilder(struct.NodeCollectionMixin):
     # endregion NodeCollectionMixin
 
     @property
-    def bases(self) -> struct.NodeCollection[Object]:
-        return self.graph.bases
+    def bases(self) -> struct.PyTreeDict[Object]:
+        return cast("struct.PyTreeDict[Object]", self._graph.select(self.graph.bases))
 
     @property
-    def dirichlet(self) -> Dirichlet:
-        return Dirichlet.concat(*(obj.dirichlet for obj in self.bases.values()))
-
-    @property
-    def energies(self) -> struct.NodeCollection[Energy]:
-        return self.graph.select(self._energy_keys)
+    def energies(self) -> struct.PyTreeDict[Energy]:
+        return cast("struct.PyTreeDict[Energy]", self.graph.select(self._energy_keys))
 
     @property
     def graph(self) -> struct.Graph:
@@ -52,14 +48,14 @@ class SceneBuilder(struct.NodeCollectionMixin):
         return sum(obj.n_dof for obj in self.bases.values())
 
     @property
-    def nodes(self) -> struct.NodeCollection:
-        return struct.NodeCollection(self)
+    def nodes(self) -> struct.PyTreeDict:
+        return struct.PyTreeDict(self)
 
     @property
     def topological(self) -> Generator[str]:
         return self.graph.topological
 
-    def add(self, node: struct.Node, /) -> None:
+    def add(self, node: struct.GraphNode, /) -> None:
         self.graph.add(node)
 
     def add_energy(self, energy: Energy, /) -> None:
@@ -67,7 +63,7 @@ class SceneBuilder(struct.NodeCollectionMixin):
         self.add(energy)
 
     def assign_dof[T: Object](self, obj: T) -> T:
-        obj = obj.evolve(dof_index=struct.make_index(obj.shape, start=self.n_dof))
+        obj = obj.replace(dof_map=struct.make_dof_map(obj.shape, offset=self.n_dof))
         self.add(obj)
         return obj
 

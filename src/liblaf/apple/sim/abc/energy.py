@@ -10,7 +10,7 @@ from .field import FieldCollection
 from .params import GlobalParams
 
 
-class Energy(struct.Node):
+class Energy(struct.GraphNode):
     # region Optimization
 
     def prepare(self) -> Self:

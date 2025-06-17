@@ -4,9 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-from jaxtyping import Integer
 
-from liblaf.apple import struct
 from liblaf.apple.sim.abc import Geometry
 from liblaf.apple.sim.element import ElementTetra
 
@@ -14,12 +12,15 @@ from ._triangle import GeometryTriangle
 
 
 class GeometryTetra(Geometry):
-    _pyvista: pv.UnstructuredGrid = struct.static(default=None)
-
     @classmethod
     @override
     def from_pyvista(cls, mesh: pv.UnstructuredGrid, /) -> Self:
-        return cls(_pyvista=mesh)
+        self: Self = cls(
+            points=jnp.asarray(mesh.points),
+            cells=jnp.asarray(mesh.cells_dict[pv.CellType.TETRA]),
+        )
+        self.copy_attributes(mesh)
+        return self
 
     @property
     @override
@@ -29,20 +30,17 @@ class GeometryTetra(Geometry):
 
     @property
     @override
-    def pyvista(self) -> pv.UnstructuredGrid:
-        return self._pyvista
-
-    @property
-    @override
-    def cells(self) -> Integer[jax.Array, "cells a=4"]:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.pyvista.cells_dict[pv.CellType.TETRA])
+    def structure(self) -> pv.UnstructuredGrid:
+        mesh = pv.UnstructuredGrid({pv.CellType.TETRA: self.cells}, self.points)
+        return mesh
 
     @property
     @override
     def boundary(self) -> GeometryTriangle:
-        mesh: pv.UnstructuredGrid = self.pyvista.copy()
+        mesh: pv.UnstructuredGrid = self.structure
         mesh.point_data["point-id"] = np.arange(mesh.n_points)
         mesh.cell_data["cell-id"] = np.arange(mesh.n_cells)
         surface: pv.PolyData = mesh.extract_surface()
-        return GeometryTriangle.from_pyvista(surface)
+        geometry: GeometryTriangle = GeometryTriangle.from_pyvista(surface)
+        geometry = geometry.copy_attributes(self)
+        return geometry

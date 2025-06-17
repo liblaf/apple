@@ -1,29 +1,36 @@
-from collections.abc import Iterator, MutableMapping
+from typing import Any, override
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 import pyvista as pv
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct
 
 
-class GeometryAttributes(struct.PyTree, MutableMapping[str, jax.Array]):
-    attributes: pv.DataSetAttributes = struct.static(default=None)
+class GeometryAttributes(struct.PyTreeDict[jax.Array]):
+    @override
+    def __setitem__(self, key: struct.KeyLike, value: ArrayLike) -> None:
+        value = jnp.asarray(value)
+        super().__setitem__(key, value)
 
-    def __getitem__(self, key: str) -> jax.Array:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.attributes[key])
 
-    def __setitem__(self, key: str, value: ArrayLike) -> None:
-        self.attributes[key] = np.asarray(value)
+def data_property(
+    name: str, association: pv.FieldAssociation = pv.FieldAssociation.POINT
+) -> property:
+    attributes: str = {
+        pv.FieldAssociation.POINT: "point_data",
+        pv.FieldAssociation.CELL: "cell_data",
+        pv.FieldAssociation.NONE: "field_data",
+    }[association]
 
-    def __delitem__(self, key: str) -> None:
-        del self.attributes[key]
+    def getter(self: Any) -> jax.Array:
+        return getattr(self, attributes)[name]
 
-    def __iter__(self) -> Iterator[str]:
-        yield from self.attributes.keys()
+    def setter(self: Any, value: jax.Array) -> None:
+        getattr(self, attributes)[name] = value
 
-    def __len__(self) -> int:
-        return len(self.attributes)
+    def deleter(self: Any) -> None:
+        del getattr(self, attributes)[name]
+
+    return property(fget=getter, fset=setter, fdel=deleter)

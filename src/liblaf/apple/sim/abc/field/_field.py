@@ -1,6 +1,7 @@
-from collections.abc import Iterator, Mapping, Sequence
-from typing import TYPE_CHECKING, Self
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Self, override
 
+import chex
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -20,8 +21,21 @@ if TYPE_CHECKING:
 type FieldLike = Float[ArrayLike, " points *dim"] | "Field"
 
 
+def broadcast_to(
+    values: FieldLike, *, n_points: int
+) -> Float[jax.Array, " points *dim"]:
+    values = jnp.asarray(values)
+    if values.ndim == 0:
+        return jnp.broadcast_to(values, (n_points, 1))
+    if values.shape[0] != n_points:
+        values = jnp.broadcast_to(values, (n_points, *values.shape))
+    if values.ndim == 1:
+        values = jnp.expand_dims(values, axis=-1)
+    return values
+
+
 class Field(struct.ArrayMixin, struct.PyTree):
-    _region: Region = struct.data(default=None)
+    _region: Region = struct.field(default=None)
     _shape_dtype: jax.ShapeDtypeStruct = struct.static(
         default=jax.ShapeDtypeStruct(shape=(1,), dtype=float)
     )
@@ -33,16 +47,26 @@ class Field(struct.ArrayMixin, struct.PyTree):
         region: Region,
         values: FieldLike = 0.0,
         *,
-        dim: int | Sequence[int] = (1,),
-        dtype: DTypeLike = float,
+        dim: int | Sequence[int] | None = None,
+        dtype: DTypeLike | None = None,
     ) -> Self:
-        dim = grapes.as_sequence(dim)
-        self: Self = cls(
-            _region=region, _shape_dtype=jax.ShapeDtypeStruct(shape=dim, dtype=dtype)
+        values = jnp.asarray(values)
+        if values.ndim == 0:
+            values = math.broadcast_to(values, (region.n_points, 1))
+        if values.shape[0] != region.n_points:
+            values = math.broadcast_to(values, (region.n_points, *values.shape))
+        if values.ndim == 1:
+            values = jnp.expand_dims(values, axis=-1)
+        if dim is not None:
+            dim = grapes.as_sequence(dim)
+            values = math.broadcast_to(values, (region.n_points, *dim))
+        if dtype is not None:
+            values = jnp.asarray(values, dtype=dtype)
+        return cls(
+            _region=region,
+            _shape_dtype=jax.ShapeDtypeStruct(values.shape[1:], values.dtype),
+            _values=values,
         )
-        if values is not None:
-            self = self.with_values(values)
-        return self
 
     def __jax_array__(self) -> Float[jax.Array, "points *dim"]:
         return self.values
@@ -144,7 +168,7 @@ class Field(struct.ArrayMixin, struct.PyTree):
     @property
     def boundary(self) -> "Field":
         region: Region = self.region.boundary
-        return self.evolve(_region=region).with_values(
+        return self.replace(_region=region).with_values(
             self.values[self.region.original_point_id]
         )
 
@@ -152,7 +176,7 @@ class Field(struct.ArrayMixin, struct.PyTree):
         self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
     ) -> "Field":
         region: Region = self.region.extract_cells(ind=ind, invert=invert)
-        return self.evolve(_region=region).with_values(
+        return self.replace(_region=region).with_values(
             self.values[self.region.original_point_id]
         )
 
@@ -188,47 +212,41 @@ class Field(struct.ArrayMixin, struct.PyTree):
 
     # endregion Operators
 
+    @classmethod
+    def broadcast(
+        cls,
+        region: Region,
+        values: FieldLike,
+        /,
+        dim: int | Sequence[int] | None = None,
+        dtype: DTypeLike | None = None,
+    ) -> Float[jax.Array, " points *dim"]:
+        values = jnp.asarray(values)
+        if values.ndim == 0:
+            values = math.broadcast_to(values, (region.n_points, 1))
+        if values.shape[0] != region.n_points:
+            values = math.broadcast_to(values, (region.n_points, *values.shape))
+        if values.ndim == 1:
+            values = jnp.expand_dims(values, axis=-1)
+        if dim is not None:
+            dim = grapes.as_sequence(dim)
+            values = math.broadcast_to(values, (region.n_points, *dim))
+        if dtype is not None:
+            values = jnp.asarray(values, dtype=dtype)
+        return values
+
+    @override
+    def from_values(self, values: ArrayLike, /) -> Self:
+        values = jnp.asarray(values)
+        chex.assert_shape(values, (self.n_points, ...))
+        return self.replace(
+            _shape_dtype=jax.ShapeDtypeStruct(values.shape[1:], dtype=values.dtype),
+            _values=values,
+        )
+
     def with_values(self, values: FieldLike | None = None, /) -> Self:
         if values is None:
             return self
         values = jnp.asarray(values, dtype=self.dtype)
         values = math.broadcast_to(values, self.shape)
-        return self.evolve(_values=values)
-
-
-class FieldCollection(Mapping[str, Field], struct.PyTree):
-    _fields: Mapping[str, Field] = struct.data(factory=dict)
-
-    # region Mapping[str, Field]
-
-    def __getitem__(self, key: str, /) -> Field:
-        return self._fields[key]
-
-    def __iter__(self) -> Iterator[str]:
-        yield from self._fields
-
-    def __len__(self) -> int:
-        return len(self._fields)
-
-    # endregion Mapping[str, Field]
-
-    def __add__(self, other: Mapping[str, Field], /) -> Self:
-        result: dict[str, Field] = {}
-        for key in self._fields:
-            if key in other:
-                result[key] = self._fields[key] + other[key]
-            else:
-                result[key] = self._fields[key]
-        for key in other:
-            if key not in result:
-                result[key] = other[key]
-        return self.evolve(_fields=result)
-
-    def ravel(
-        self, dof_map: Mapping[str, struct.Index], /, *, n_dof: int
-    ) -> Float[jax.Array, " DoF"]:
-        x: Float[jax.Array, " DoF"] = jnp.zeros((n_dof,))
-        for key, field in self._fields.items():
-            idx: struct.Index = dof_map[key]
-            x = idx.add(x, field.values)
-        return x
+        return self.replace(_values=values)

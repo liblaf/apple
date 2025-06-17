@@ -9,25 +9,20 @@ from liblaf.apple.sim.abc import Object, Operator, Region
 
 class OperatorBoundary(Operator):
     original_point_id: Integer[jax.Array, " points"] = struct.array(default=None)
-    source: Object = struct.data(default=None)
+    source: Object = struct.field(default=None)
 
     @classmethod
     def apply(cls, obj: Object) -> Object:
         region: Region = obj.region.boundary
         self: Self = cls(original_point_id=region.original_point_id, source=obj)
         result: Object = Object.from_region(region)
-        result = result.evolve(dof_index=obj.dof_index[self.original_point_id], op=self)
+        result = result.replace(dof_map=obj.dof_map[self.original_point_id], op=self)
         result = self.update(result)
         return result
 
-    @property
-    @override
-    def deps(self) -> struct.NodeCollection[Object]:
-        return struct.NodeCollection(self.source)
-
     @override
     def update(self, result: Object) -> Object:
-        result = result.evolve(op=self)
+        result = result.replace(op=self)
         result = result.update(
             displacement=self.source.displacement[self.original_point_id],
             velocity=self.source.velocity[self.original_point_id],
@@ -35,7 +30,12 @@ class OperatorBoundary(Operator):
         )
         return result
 
+    @property
     @override
-    def with_deps(self, deps: struct.NodesLike) -> Self:
-        deps = struct.NodeCollection(deps)
-        return self.evolve(source=deps[self.source])
+    def deps(self) -> struct.PyTreeDict:
+        return struct.PyTreeDict(self.source)
+
+    @override
+    def with_deps(self, deps: struct.MappingLike) -> Self:
+        deps = struct.PyTreeDict(deps)
+        return self.replace(source=deps[self.source])

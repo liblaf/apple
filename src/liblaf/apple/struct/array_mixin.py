@@ -13,7 +13,7 @@ class ArrayMixin(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_values(self, values: ArrayLike) -> Self:
+    def from_values(self, values: ArrayLike, /) -> Self:
         raise NotImplementedError
 
     def _op(self, op: str, /, *args, **kwargs) -> Self:
@@ -22,7 +22,7 @@ class ArrayMixin(abc.ABC):
         if attr is None:
             return NotImplemented
         values = attr(*args, **kwargs)
-        return self.with_values(values)
+        return self.from_values(values)
 
     def __getitem__(self, index: Any) -> jax.Array:
         return jnp.asarray(self)[index]
@@ -57,19 +57,19 @@ class ArrayMixin(abc.ABC):
     __rxor__: partialmethod[jax.Array] = partialmethod(_op, "__rxor__")
     __ror__: partialmethod[jax.Array] = partialmethod(_op, "__ror__")
 
-    __iadd__: partialmethod[jax.Array] = partialmethod(_op, "__iadd__")
-    __isub__: partialmethod[jax.Array] = partialmethod(_op, "__isub__")
-    __imul__: partialmethod[jax.Array] = partialmethod(_op, "__imul__")
-    __imatmul__: partialmethod[jax.Array] = partialmethod(_op, "__imatmul__")
-    __itruediv__: partialmethod[jax.Array] = partialmethod(_op, "__itruediv__")
-    __ifloordiv__: partialmethod[jax.Array] = partialmethod(_op, "__ifloordiv__")
-    __imod__: partialmethod[jax.Array] = partialmethod(_op, "__imod__")
-    __ipow__: partialmethod[jax.Array] = partialmethod(_op, "__ipow__")
-    __ilshift__: partialmethod[jax.Array] = partialmethod(_op, "__ilshift__")
-    __irshift__: partialmethod[jax.Array] = partialmethod(_op, "__irshift__")
-    __iand__: partialmethod[jax.Array] = partialmethod(_op, "__iand__")
-    __ixor__: partialmethod[jax.Array] = partialmethod(_op, "__ixor__")
-    __ior__: partialmethod[jax.Array] = partialmethod(_op, "__ior__")
+    # __iadd__: partialmethod[jax.Array] = partialmethod(_op, "__iadd__")
+    # __isub__: partialmethod[jax.Array] = partialmethod(_op, "__isub__")
+    # __imul__: partialmethod[jax.Array] = partialmethod(_op, "__imul__")
+    # __imatmul__: partialmethod[jax.Array] = partialmethod(_op, "__imatmul__")
+    # __itruediv__: partialmethod[jax.Array] = partialmethod(_op, "__itruediv__")
+    # __ifloordiv__: partialmethod[jax.Array] = partialmethod(_op, "__ifloordiv__")
+    # __imod__: partialmethod[jax.Array] = partialmethod(_op, "__imod__")
+    # __ipow__: partialmethod[jax.Array] = partialmethod(_op, "__ipow__")
+    # __ilshift__: partialmethod[jax.Array] = partialmethod(_op, "__ilshift__")
+    # __irshift__: partialmethod[jax.Array] = partialmethod(_op, "__irshift__")
+    # __iand__: partialmethod[jax.Array] = partialmethod(_op, "__iand__")
+    # __ixor__: partialmethod[jax.Array] = partialmethod(_op, "__ixor__")
+    # __ior__: partialmethod[jax.Array] = partialmethod(_op, "__ior__")
 
     __neg__: partialmethod[jax.Array] = partialmethod(_op, "__neg__")
     __pos__: partialmethod[jax.Array] = partialmethod(_op, "__pos__")

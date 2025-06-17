@@ -1,5 +1,4 @@
-from collections.abc import MutableMapping
-from typing import Self
+from typing import Any, Self
 
 import jax
 import jax.numpy as jnp
@@ -12,11 +11,22 @@ from liblaf.apple import struct
 from liblaf.apple.sim.abc.element import Element
 from liblaf.apple.sim.abc.quadrature import Scheme
 
-from ._attributes import GeometryAttributes
+from ._attributes import GeometryAttributes, data_property
 
 
 class Geometry(struct.PyTree):
-    _pyvista: pv.DataSet = struct.static(default=None)
+    points: Float[jax.Array, "points dim"] = struct.array(default=None)
+    cells: Integer[jax.Array, "cells a"] = struct.array(default=None)
+    point_data: GeometryAttributes = struct.field(
+        factory=GeometryAttributes, converter=GeometryAttributes
+    )
+    cell_data: GeometryAttributes = struct.field(
+        factory=GeometryAttributes, converter=GeometryAttributes
+    )
+    field_data: GeometryAttributes = struct.field(
+        factory=GeometryAttributes, converter=GeometryAttributes
+    )
+    user_dict: dict[Any, Any] = struct.static(factory=dict, converter=dict)
 
     @classmethod
     def from_pyvista(cls, mesh: pv.DataSet, /) -> Self:
@@ -29,8 +39,8 @@ class Geometry(struct.PyTree):
         raise NotImplementedError
 
     @property
-    def pyvista(self) -> pv.DataSet:
-        return self._pyvista
+    def structure(self) -> pv.DataSet:
+        raise NotImplementedError
 
     @property
     def quadrature(self) -> Scheme:
@@ -42,58 +52,38 @@ class Geometry(struct.PyTree):
 
     @property
     def dim(self) -> int:
-        return 3
+        return self.points.shape[-1]
 
     @property
     def n_cells(self) -> int:
-        return self.pyvista.n_cells
+        return self.cells.shape[0]
 
     @property
     def n_points(self) -> int:
-        return self.pyvista.n_points
+        return self.points.shape[0]
 
     # endregion Shape
 
-    # region Array
-
-    @property
-    def cells(self) -> Integer[jax.Array, "cells a"]:
-        raise NotImplementedError
-
-    @property
-    def points(self) -> Float[jax.Array, "points dim"]:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.pyvista.points)
-
-    # endregion Array
-
     # region Attributes
 
-    @property
-    def cell_data(self) -> GeometryAttributes:
-        return GeometryAttributes(self.pyvista.cell_data)
+    acceleration = data_property("acceleration", pv.FieldAssociation.POINT)
+    displacement = data_property("displacement", pv.FieldAssociation.POINT)
+    force = data_property("force", pv.FieldAssociation.POINT)
+    jac = data_property("jac", pv.FieldAssociation.POINT)
+    original_point_id = data_property("point-id", pv.FieldAssociation.POINT)
+    point_mass = data_property("point-mass", pv.FieldAssociation.POINT)
+    velocity = data_property("velocity", pv.FieldAssociation.POINT)
 
-    @property
-    def field_data(self) -> GeometryAttributes:
-        return GeometryAttributes(self.pyvista.field_data)
+    cell_mass = data_property("cell-mass", pv.FieldAssociation.CELL)
+    density = data_property("density", pv.FieldAssociation.CELL)
+    original_cell_id = data_property("cell-id", pv.FieldAssociation.CELL)
 
-    @property
-    def original_cell_id(self) -> Integer[jax.Array, "cells"]:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.pyvista.cell_data["cell-id"])
-
-    @property
-    def original_point_id(self) -> Integer[jax.Array, "points"]:
-        with jax.ensure_compile_time_eval():
-            return jnp.asarray(self.pyvista.point_data["point-id"])
-
-    @property
-    def point_data(self) -> GeometryAttributes:
-        return GeometryAttributes(self.pyvista.point_data)
-
-    @property
-    def user_dict(self) -> MutableMapping:
-        return self.pyvista.user_dict
+    def copy_attributes(self, other: "Geometry | pv.DataSet") -> Self:
+        self.point_data.update(other.point_data)
+        self.cell_data.update(other.cell_data)
+        self.field_data.update(other.field_data)
+        self.user_dict.update(other.user_dict)
+        return self
 
     # endregion Attributes
 
@@ -103,20 +93,23 @@ class Geometry(struct.PyTree):
     def boundary(self) -> "Geometry":
         raise NotImplementedError
 
-    def extract_cells(
-        self, ind: Integer[ArrayLike, " sub_cells"], *, invert: bool = False
-    ) -> Self:
-        raise NotImplementedError
-
     def warp_by_vector(self, displacement: Float[ArrayLike, "points dim"]) -> Self:
-        mesh: pv.DataSet = self.pyvista.copy()
-        mesh.point_data["displacement"] = displacement
-        mesh = mesh.warp_by_vector("displacement")
-        return self.evolve(_pyvista=mesh)
+        points: Float[jax.Array, "points dim"] = self.points + jnp.asarray(
+            displacement, dtype=self.points.dtype
+        )
+        return self.replace(points=points)
 
     # endregion Geometric Operations
 
     # region Exchange
+
+    def to_pyvista(self) -> pv.DataSet:
+        mesh: pv.DataSet = self.structure
+        mesh.point_data.update(self.point_data)
+        mesh.cell_data.update(self.cell_data)
+        mesh.field_data.update(self.field_data)
+        mesh.user_dict.update(self.user_dict)
+        return mesh
 
     def to_warp(self, **kwargs) -> wp.Mesh:
         return wp.Mesh(

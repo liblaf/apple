@@ -2,12 +2,12 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Self, override
 
 import jax
-from jaxtyping import Float
+from jaxtyping import DTypeLike, Float
 
 from liblaf.apple import struct, utils
 from liblaf.apple.sim.abc.element import Element
 from liblaf.apple.sim.abc.field import Field, FieldLike
-from liblaf.apple.sim.abc.geometry import Geometry
+from liblaf.apple.sim.abc.geometry import Geometry, GeometryAttributes
 from liblaf.apple.sim.abc.params import GlobalParams
 from liblaf.apple.sim.abc.quadrature import Scheme
 from liblaf.apple.sim.abc.region import Region
@@ -18,17 +18,40 @@ if TYPE_CHECKING:
     from liblaf.apple.sim.abc.operator import Operator
 
 
-class Object(struct.Node):
-    op: "Operator[Self]" = struct.data(default=None)
+def field_property(name: str) -> property:
+    def getter(self: "Object") -> Field:
+        return self.fields[name]
 
-    displacement: Field = struct.data(default=None)
-    displacement_prev: Field = struct.data(default=None)
-    velocity: Field = struct.data(default=None)
-    force: Field = struct.data(default=None)
-    mass: Field = struct.data(default=None)
+    def setter(self: "Object", values: FieldLike) -> None:
+        self.fields[name] = self.make_field(values)
 
-    dirichlet: Dirichlet = struct.data(default=None)
-    dof_index: struct.Index = struct.data(default=None)
+    def deleter(self: "Object") -> None:
+        del self.fields[name]
+
+    return property(getter, setter, deleter)
+
+
+class Object(struct.GraphNode):
+    fields: struct.PyTreeDict[Field] = struct.pytree_dict()
+    _region: Region = struct.field(default=None)
+
+    op: "Operator[Self]" = struct.field(default=None)
+
+    if TYPE_CHECKING:
+        displacement: Field = struct.field(default=None)
+        displacement_prev: Field = struct.field(default=None)
+        velocity: Field = struct.field(default=None)
+        force: Field = struct.field(default=None)
+        mass: Field = struct.field(default=None)
+    else:
+        displacement = field_property("displacement")
+        displacement_prev = field_property("displacement_prev")
+        velocity = field_property("velocity")
+        force = field_property("force")
+        mass = field_property("mass")
+
+    dirichlet: Dirichlet = struct.field(default=None)
+    dof_map: struct.DofMap = struct.field(default=None)
 
     @classmethod
     def from_region(
@@ -38,42 +61,38 @@ class Object(struct.Node):
         displacement: FieldLike | None = 0.0,
         velocity: FieldLike | None = 0.0,
         force: FieldLike | None = 0.0,
-        mass: FieldLike | None = 1.0,
+        mass: FieldLike | None = None,
     ) -> Self:
+        self: Self = cls(_region=region)
         dim: int = region.dim
         if displacement is not None:
-            displacement = Field.from_region(region, displacement, dim=dim)
+            self = self.set_field("displacement", displacement, dim=dim)
+            self = self.set_field("displacement_prev", displacement, dim=dim)
         if velocity is not None:
-            velocity = Field.from_region(region, velocity, dim=dim)
+            self = self.set_field("velocity", velocity, dim=dim)
         if force is not None:
-            force = Field.from_region(region, force, dim=dim)
+            self = self.set_field("force", force, dim=dim)
         if mass is not None:
-            mass = Field.from_region(region, mass, dim=1)
-        return cls(
-            displacement=displacement,  # pyright: ignore[reportArgumentType]
-            displacement_prev=displacement,  # pyright: ignore[reportArgumentType]
-            velocity=velocity,  # pyright: ignore[reportArgumentType]
-            force=force,  # pyright: ignore[reportArgumentType]
-            mass=mass,  # pyright: ignore[reportArgumentType]
-        )
+            self = self.set_field("mass", mass, dim=dim)
+        return self
 
     # region Structure
 
     @property
     def element(self) -> Element:
-        return self.displacement.element
+        return self.region.element
 
     @property
     def geometry(self) -> Geometry:
-        return self.displacement.geometry
+        return self.region.geometry
 
     @property
     def quadrature(self) -> Scheme:
-        return self.displacement.quadrature
+        return self.region.quadrature
 
     @property
     def region(self) -> Region:
-        return self.displacement.region
+        return self._region
 
     # endregion Structure
 
@@ -81,12 +100,11 @@ class Object(struct.Node):
 
     @property
     def dim(self) -> int:
-        assert len(self.displacement.dim) == 1
-        return self.displacement.dim[0]
+        return self.region.dim
 
     @property
     def n_cells(self) -> int:
-        return self.displacement.n_cells
+        return self.region.n_cells
 
     @property
     def n_dof(self) -> int:
@@ -94,7 +112,7 @@ class Object(struct.Node):
 
     @property
     def n_points(self) -> int:
-        return self.displacement.n_points
+        return self.region.n_points
 
     @property
     def shape(self) -> Sequence[int]:
@@ -102,30 +120,43 @@ class Object(struct.Node):
 
     # endregion Shape
 
-    # region Array
+    # region Attributes
 
     @property
     def cells(self) -> Float[jax.Array, "cells a"]:
-        return self.displacement.cells
+        return self.region.cells
 
     @property
     def points(self) -> Float[jax.Array, "points dim"]:
-        return self.displacement.points
+        return self.region.points
 
     @property
     @utils.jit
     def positions(self) -> Float[jax.Array, "points dim"]:
-        return jax.lax.stop_gradient(self.points) + self.displacement.values
+        return self.points + self.displacement.values
 
-    # endregion Array
+    @property
+    def point_data(self) -> GeometryAttributes:
+        return self.geometry.point_data
+
+    @property
+    def cell_data(self) -> GeometryAttributes:
+        return self.geometry.cell_data
+
+    @property
+    def field_data(self) -> GeometryAttributes:
+        return self.geometry.field_data
+
+    @property
+    def user_dict(self) -> dict:
+        return self.geometry.user_dict
+
+    # endregion Attributes
 
     # region State Update
 
-    def prepare(self) -> Self:
-        return self
-
     def step(self, displacement: FieldLike | None, params: GlobalParams) -> Self:
-        obj: Self = self.evolve(displacement_prev=self.displacement)
+        obj: Self = self.set_field("displacement_prev", self.displacement)
         obj = obj.update(
             displacement=displacement,
             velocity=displacement - self.displacement / params.time_step,
@@ -138,32 +169,34 @@ class Object(struct.Node):
         velocity: FieldLike | None = None,
         force: FieldLike | None = None,
     ) -> Self:
-        obj: Self = self.evolve(
-            displacement=self.displacement.with_values(displacement),
-            velocity=self.velocity.with_values(velocity),
-            force=self.force.with_values(force),
-        )
+        obj: Self = self
+        if displacement is None:
+            obj = obj.set_field("displacement", displacement)
+        if velocity is None:
+            obj = obj.set_field("velocity", velocity)
+        if force is None:
+            obj = obj.set_field("force", force)
         return obj
 
     # endregion State Update
 
-    # region Node
+    # region Computational Graph
 
     @property
     @override
-    def deps(self) -> struct.NodeCollection["Operator[Self]"]:
+    def deps(self) -> struct.PyTreeDict:
         if self.op is None:
-            return struct.NodeCollection()
-        return struct.NodeCollection(self.op)
+            return struct.PyTreeDict()
+        return struct.PyTreeDict(self.op)
 
-    def with_deps(self, nodes: struct.NodesLike, /) -> Self:
-        nodes = struct.NodeCollection(nodes)
+    def with_deps(self, nodes: struct.MappingLike, /) -> Self:
+        nodes = struct.PyTreeDict(nodes)
         if self.op is None:
             return self
         op: Operator[Self] = nodes[self.op]
-        return op.update(self)
+        return op.update(self.replace(op=op))
 
-    # endregion Node
+    # endregion Computational Graph
 
     # region Geometric Operation
 
@@ -175,13 +208,36 @@ class Object(struct.Node):
 
     # endregion Geometric Operation
 
+    def make_field(
+        self,
+        values: FieldLike,
+        /,
+        dim: int | Sequence[int] | None = None,
+        dtype: DTypeLike | None = None,
+    ) -> Field:
+        return Field.from_region(self.region, values, dim=dim, dtype=dtype)
+
+    def set_field(
+        self,
+        name: str,
+        values: FieldLike | None = None,
+        /,
+        dim: int | Sequence[int] | None = None,
+        dtype: DTypeLike | None = None,
+    ) -> Self:
+        if values is None:
+            return self
+        if name in self.fields:
+            if dim is None:
+                dim = self.fields[name].dim
+            if dtype is None:
+                dtype = self.fields[name].dtype
+        self.fields[name] = self.make_field(values, dim=dim, dtype=dtype)
+        return self
+
     def export_geometry(self) -> Geometry:
         geometry: Geometry = self.geometry
         geometry = geometry.warp_by_vector(self.displacement.values)
         geometry.user_dict["id"] = self.id
-        geometry.point_data["displacement"] = self.displacement.values
-        geometry.point_data["velocity"] = self.velocity.values
-        geometry.point_data["force"] = self.force.values
-        geometry.point_data["mass"] = self.mass.values
-        geometry.point_data["dof-index"] = self.dof_index.index
+        geometry.point_data.update({k: v.values for k, v in self.fields.items()})
         return geometry

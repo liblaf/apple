@@ -6,30 +6,22 @@ import jax.numpy as jnp
 from jaxtyping import ArrayLike, Float
 
 from liblaf.apple import optim, struct, utils
-from liblaf.apple.sim.abc import (
-    Dirichlet,
-    Energy,
-    FieldCollection,
-    GlobalParams,
-    Object,
-)
+from liblaf.apple.sim.abc import Energy, GlobalParams, Object
 
 from ._optim import OptimizationProblem
 
 
-class Scene(struct.NodeCollectionMixin, struct.PyTree):
-    nodes: struct.NodeCollection = struct.data(factory=struct.NodeCollection)
-    params: GlobalParams = struct.data(default=GlobalParams())
+class Scene(struct.MappingTrait, struct.PyTree):
+    nodes: struct.PyTreeDict = struct.field(factory=struct.PyTreeDict)
+    params: GlobalParams = struct.field(default=GlobalParams())
     topological: Sequence[str] = struct.static(default=())
     _base_keys: Iterable[str] = struct.static(default=())
     _energy_keys: Iterable[str] = struct.static(default=())
 
-    dirichlet: Dirichlet = struct.data(default=None)
-
-    # region NodeCollectionMixin
+    # region MappingTrait
 
     @override
-    def __getitem__(self, key: struct.KeyLike, /) -> struct.Node:
+    def __getitem__(self, key: struct.KeyLike, /) -> struct.GraphNode:
         return self.nodes[key]
 
     @override
@@ -40,24 +32,24 @@ class Scene(struct.NodeCollectionMixin, struct.PyTree):
     def __len__(self) -> int:
         return len(self.nodes)
 
-    # endregion NodeCollectionMixin
+    # endregion MappingTrait
 
     # region Structure
 
     @property
-    def bases(self) -> struct.NodeCollection[Object]:
+    def bases(self) -> struct.PyTreeDict[Object]:
         return self.select(self._base_keys)
 
     @property
-    def dof_index(self) -> Mapping[str, struct.Index]:
-        return {obj.id: obj.dof_index for obj in self.objects.values()}
+    def dof_map(self) -> Mapping[str, struct.DofMap]:
+        return {obj.id: obj.dof_map for obj in self.objects.values()}
 
     @property
-    def energies(self) -> struct.NodeCollection[Energy]:
+    def energies(self) -> struct.PyTreeDict[Energy]:
         return self.select(self._energy_keys)
 
     @property
-    def objects(self) -> struct.NodeCollection[Object]:
+    def objects(self) -> struct.PyTreeDict[Object]:
         return self.filter_instance(Object)
 
     # endregion Structure
@@ -77,7 +69,7 @@ class Scene(struct.NodeCollectionMixin, struct.PyTree):
     def x0(self) -> Float[jax.Array, " DoF"]:
         values: Float[jax.Array, " DoF"] = jnp.zeros((self.n_dof,))
         for obj in self.bases.values():
-            values = obj.dof_index.set(values, obj.displacement.values)
+            values = obj.dof_map.set(values, obj.displacement.values)
         return values
 
     # endregion Array
@@ -91,60 +83,59 @@ class Scene(struct.NodeCollectionMixin, struct.PyTree):
 
     @utils.jit
     def fun(self, x: Float[ArrayLike, " DoF"], /) -> Float[jax.Array, ""]:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
         fun: Float[jax.Array, ""] = jnp.asarray(0.0)
         for energy in self.energies.values():
-            deps: FieldCollection = fields.select(energy.deps.keys())
+            deps: struct.ArrayDict = fields.select(energy.deps.keys())
             fun += energy.fun(deps, self.params)
         return fun
 
     @utils.jit
     def jac(self, x: Float[ArrayLike, " DoF"], /) -> Float[jax.Array, " DoF"]:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        jac = FieldCollection()
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        jac = struct.ArrayDict()
         for energy in self.energies.values():
-            deps: FieldCollection = fields.select(energy.deps.keys())
-            energy_jac: FieldCollection = energy.jac(deps, self.params)
+            deps: struct.ArrayDict = fields.select(energy.deps.keys())
+            energy_jac: struct.ArrayDict = energy.jac(deps, self.params)
             jac += energy_jac
-        jac_values: jax.Array = jac.gather(self.dof_index, n_dof=self.n_dof)
-        if self.dirichlet is not None:
-            jac_values = self.dirichlet.apply(jac_values)
+        jac_values: jax.Array = jac.sum(self.dof_map, n_dof=self.n_dof)
+        jac_values = self.dirichlet_zero(jac_values)
         return jac_values
 
     @utils.jit
     def hessp(
         self, x: Float[ArrayLike, " DoF"], p: Float[ArrayLike, " DoF"], /
     ) -> Float[jax.Array, " DoF"]:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        fields_p: FieldCollection = self.make_fields_dirichlet_zero(p)
-        hessp = FieldCollection()
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        fields_p: struct.ArrayDict = self.make_fields_dirichlet_zero(p)
+        hessp = struct.ArrayDict()
         for energy in self.energies.values():
-            deps: FieldCollection = fields.select(energy.deps.keys())
-            deps_p: FieldCollection = fields_p.select(energy.deps.keys())
-            energy_hessp: FieldCollection = energy.hessp(deps, deps_p, self.params)
+            deps: struct.ArrayDict = fields.select(energy.deps.keys())
+            deps_p: struct.ArrayDict = fields_p.select(energy.deps.keys())
+            energy_hessp: struct.ArrayDict = energy.hessp(deps, deps_p, self.params)
             hessp += energy_hessp
-        return hessp.gather(self.dof_index, n_dof=self.n_dof)
+        return hessp.sum(self.dof_map, n_dof=self.n_dof)
 
     @utils.jit
     def hess_diag(self, x: Float[ArrayLike, " DoF"], /) -> Float[jax.Array, " DoF"]:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        hess_diag = FieldCollection()
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        hess_diag = struct.ArrayDict()
         for energy in self.energies.values():
-            deps: FieldCollection = fields.select(energy.deps.keys())
-            energy_hess_diag: FieldCollection = energy.hess_diag(deps, self.params)
+            deps: struct.ArrayDict = fields.select(energy.deps.keys())
+            energy_hess_diag: struct.ArrayDict = energy.hess_diag(deps, self.params)
             hess_diag += energy_hess_diag
-        return hess_diag.gather(self.dof_index, n_dof=self.n_dof)
+        return hess_diag.sum(self.dof_map, n_dof=self.n_dof)
 
     @utils.jit
     def hess_quad(
         self, x: Float[ArrayLike, " DoF"], p: Float[ArrayLike, " DoF"], /
     ) -> Float[jax.Array, ""]:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        fields_p: FieldCollection = self.make_fields_dirichlet_zero(p)
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        fields_p: struct.ArrayDict = self.make_fields_dirichlet_zero(p)
         hess_quad: Float[jax.Array, ""] = jnp.asarray(0.0)
         for energy in self.energies.values():
-            deps: FieldCollection = fields.select(energy.deps.keys())
-            deps_p: FieldCollection = fields_p.select(energy.deps.keys())
+            deps: struct.ArrayDict = fields.select(energy.deps.keys())
+            deps_p: struct.ArrayDict = fields_p.select(energy.deps.keys())
             energy_hess_quad: Float[jax.Array, ""] = energy.hess_quad(
                 deps, deps_p, self.params
             )
@@ -187,28 +178,25 @@ class Scene(struct.NodeCollectionMixin, struct.PyTree):
 
     # region State Update
 
-    def graph_update(self, bases: struct.NodeCollection, /) -> Self:
-        nodes: struct.NodeCollection = self.nodes.update(bases)
+    def graph_update(self, bases: struct.PyTreeDict, /) -> Self:
+        nodes: struct.PyTreeDict = self.nodes.update(bases)
         nodes = struct.graph_update(nodes, self.topological)
-        return self.evolve(nodes=nodes)
+        return self.replace(nodes=nodes)
 
-    def prepare(self, x: Float[ArrayLike, " DoF"], /) -> Self:
+    def prepare(self, x: Float[ArrayLike, " DoF"] | None = None, /) -> Self:
         scene: Self = self.update(x)
-        nodes: struct.NodeCollection = struct.NodeCollection(
-            node.prepare() for node in scene.nodes.values()
-        )
-        return self.evolve(nodes=nodes)
+        return scene
 
     def step(self, x: Float[ArrayLike, " DoF"], /) -> Self:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        bases: struct.NodeCollection[Object] = struct.NodeCollection(
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        bases: struct.PyTreeDict[Object] = struct.PyTreeDict(
             obj.step(fields[obj.id], self.params) for obj in self.bases.values()
         )
         return self.graph_update(bases)
 
     def update(self, x: Float[ArrayLike, " DoF"], /) -> Self:
-        fields: FieldCollection = self.make_fields_dirichlet(x)
-        bases: struct.NodeCollection[Object] = struct.NodeCollection(
+        fields: struct.ArrayDict = self.make_fields_dirichlet(x)
+        bases: struct.PyTreeDict[Object] = struct.PyTreeDict(
             obj.update(fields[obj.id]) for obj in self.bases.values()
         )
         return self.graph_update(bases)
@@ -217,24 +205,42 @@ class Scene(struct.NodeCollectionMixin, struct.PyTree):
 
     # region Make Fields
 
-    def make_fields(self, x: Float[ArrayLike, " DoF"], /) -> FieldCollection:
-        return FieldCollection(
-            {
-                key: obj.displacement.with_values(obj.dof_index(x))
-                for key, obj in self.objects.items()
-            }
+    @utils.jit
+    def dirichlet_apply(
+        self, x: Float[ArrayLike, " DoF"], /
+    ) -> Float[jax.Array, " DoF"]:
+        x = jnp.asarray(x)
+        for obj in self.bases.values():
+            if obj.dirichlet is not None:
+                x = obj.dirichlet.apply(x)
+        return x
+
+    @utils.jit
+    def dirichlet_zero(
+        self, x: Float[ArrayLike, " DoF"], /
+    ) -> Float[jax.Array, " DoF"]:
+        x = jnp.asarray(x)
+        for obj in self.bases.values():
+            if obj.dirichlet is not None:
+                x = obj.dirichlet.zero(x)
+        return x
+
+    @utils.jit
+    def make_fields(self, x: Float[ArrayLike, " DoF"], /) -> struct.ArrayDict:
+        return struct.ArrayDict(
+            {key: obj.dof_map.get(x) for key, obj in self.objects.items()}
         )
 
-    def make_fields_dirichlet(self, x: Float[ArrayLike, " DoF"], /) -> FieldCollection:
-        if self.dirichlet is not None:
-            x = self.dirichlet.apply(x)
+    @utils.jit
+    def make_fields_dirichlet(self, x: Float[ArrayLike, " DoF"], /) -> struct.ArrayDict:
+        x = self.dirichlet_apply(x)
         return self.make_fields(x)
 
+    @utils.jit
     def make_fields_dirichlet_zero(
         self, x: Float[ArrayLike, " DoF"], /
-    ) -> FieldCollection:
-        if self.dirichlet is not None:
-            x = self.dirichlet.zero(x)
+    ) -> struct.ArrayDict:
+        x = self.dirichlet_zero(x)
         return self.make_fields(x)
 
     # endregion Make Fields

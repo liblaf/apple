@@ -1,51 +1,49 @@
-from . import graph
-from ._array_mixin import ArrayMixin
-from ._derivative_mixin import DerivativeMixin
-from ._frozen_dict import FrozenDict
-from ._index import Index, IndexIntegers, as_index, concat_index, make_index
-from ._pytree import PyTree, PyTreeMeta, array, data, pytree, register_attrs, static
-from .graph import (
-    DisplayAttrs,
-    Graph,
+from . import dof_map, graph, mapping, pytree
+from .array_dict import ArrayDict
+from .array_mixin import ArrayMixin
+from .derivative_mixin import DerivativeMixin
+from .dof_map import DofMap, DofMapInteger, DofMapSlice, as_dof_map, make_dof_map
+from .graph import Graph, GraphNode, NodeAttrs, graph_update
+from .mapping import (
     KeyLike,
     KeysLike,
-    Node,
-    NodeCollection,
-    NodeCollectionMixin,
-    NodesLike,
+    MappingLike,
+    MappingTrait,
+    PyTreeDict,
+    as_dict,
     as_key,
     as_keys,
-    graph_update,
-    uniq_id,
 )
+from .pytree import PyTree, array, field, pytree_dict, static
 
 __all__ = [
+    "ArrayDict",
     "ArrayMixin",
     "DerivativeMixin",
-    "DisplayAttrs",
-    "FrozenDict",
+    "DofMap",
+    "DofMapInteger",
+    "DofMapSlice",
     "Graph",
-    "Index",
-    "IndexIntegers",
+    "GraphNode",
     "KeyLike",
     "KeysLike",
-    "Node",
-    "NodeCollection",
-    "NodeCollectionMixin",
-    "NodesLike",
+    "MappingLike",
+    "MappingTrait",
+    "NodeAttrs",
     "PyTree",
-    "PyTreeMeta",
+    "PyTreeDict",
     "array",
-    "as_index",
+    "as_dict",
+    "as_dof_map",
     "as_key",
     "as_keys",
-    "concat_index",
-    "data",
+    "dof_map",
+    "field",
     "graph",
     "graph_update",
-    "make_index",
+    "make_dof_map",
+    "mapping",
     "pytree",
-    "register_attrs",
+    "pytree_dict",
     "static",
-    "uniq_id",
 ]

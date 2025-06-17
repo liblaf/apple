@@ -16,7 +16,6 @@ from .energy import ARAP, Gravity, Inertia, PhaceStatic
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
 from .physics import CollisionRigidSoft, Domain, Energy, Field, Geometry, Scene
-from .struct import PyTree, PyTreeMeta, array, data, pytree, register_attrs, static
 from .utils import Random, block_until_ready_decorator, jax_kernel, jit, lame_params
 
 __all__ = [
@@ -33,14 +32,10 @@ __all__ = [
     "Optimizer",
     "OptimizerScipy",
     "PhaceStatic",
-    "PyTree",
-    "PyTreeMeta",
     "Random",
     "Scene",
-    "array",
     "block_until_ready_decorator",
     "broadcast_to",
-    "data",
     "elem",
     "energy",
     "func",
@@ -53,9 +48,6 @@ __all__ = [
     "naive",
     "optim",
     "physics",
-    "pytree",
-    "register_attrs",
-    "static",
     "struct",
     "testing",
     "typed",

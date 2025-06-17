@@ -1,6 +1,5 @@
-from typing import Self, overload
+from typing import overload
 
-import attrs
 import jax
 import jax.numpy as jnp
 from jaxtyping import ArrayLike, Float
@@ -10,19 +9,8 @@ from liblaf.apple.sim.abc.field import Field
 
 
 class Dirichlet(struct.PyTree):
-    index: struct.Index = struct.data(
-        default=None, converter=attrs.converters.optional(struct.as_index)
-    )
+    index: struct.DofMap = struct.field(default=None, converter=struct.as_dof_map)
     values: Float[jax.Array, " dirichlet"] = struct.array(default=None)
-
-    @classmethod
-    def concat(cls, *args: "Dirichlet | None") -> Self:
-        args = tuple(d for d in args if d is not None)
-        if not args:
-            return cls()
-        index: struct.Index = struct.concat_index(*(d.index.ravel() for d in args))
-        values: jax.Array = jnp.concatenate([d.values.ravel() for d in args])
-        return cls(index=index, values=values)
 
     @overload
     def apply(self, x: Field, /) -> Field: ...

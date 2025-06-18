@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
-from liblaf.apple.sim.abc import Geometry
+from liblaf.apple.sim.core import Geometry
 from liblaf.apple.sim.element import ElementTetra
 
 from ._triangle import GeometryTriangle
@@ -19,7 +19,7 @@ class GeometryTetra(Geometry):
             points=jnp.asarray(mesh.points),
             cells=jnp.asarray(mesh.cells_dict[pv.CellType.TETRA]),
         )
-        self.copy_attributes(mesh)
+        self = self.copy_attributes(mesh)
         return self
 
     @property
@@ -31,7 +31,9 @@ class GeometryTetra(Geometry):
     @property
     @override
     def structure(self) -> pv.UnstructuredGrid:
-        mesh = pv.UnstructuredGrid({pv.CellType.TETRA: self.cells}, self.points)
+        mesh = pv.UnstructuredGrid(
+            {pv.CellType.TETRA: np.asarray(self.cells)}, np.asarray(self.points)
+        )
         return mesh
 
     @property

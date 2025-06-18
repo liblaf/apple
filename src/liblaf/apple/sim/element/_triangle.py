@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import ArrayLike, Float
 
-from liblaf.apple.sim.abc import Element
+from liblaf.apple.sim.core import Element
 
 
 class ElementTriangle(Element):

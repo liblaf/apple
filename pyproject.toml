@@ -9,15 +9,20 @@ requires = ["hatch-vcs", "hatchling"]
 build = ["check-wheel-contents", "hatch", "twine"]
 dev = ["icecream", "liblaf-cherries", "marimo[recommended]", "sympy"]
 docs = [
-  "gitpython",
+  "docstring-inheritance",
+  "griffe-fieldz",
+  "griffe-generics",
+  "griffe-inherited-docstrings",
+  "griffe-modernized-annotations",
+  "griffe-pydantic",
+  "griffe-warnings-deprecated",
   "mdx-truly-sane-lists",
   "mkdocs",
+  "mkdocs-api-autonav",
   "mkdocs-autorefs",
-  "mkdocs-gen-files",
   "mkdocs-git-committers-plugin-2",
   "mkdocs-git-revision-date-localized-plugin",
   "mkdocs-include-markdown-plugin",
-  "mkdocs-literate-nav",
   "mkdocs-material[imaging]",
   "mkdocs-section-index",
   "mkdocstrings",
@@ -70,6 +75,7 @@ dependencies = [
   "rich>=14.0.0,<15",
   "scipy",
   "tinyobjloader",
+  "wadler-lindig",
 ]
 description = "Add your description here"
 dynamic = ["version"]

@@ -10,44 +10,44 @@ from liblaf.apple import sim, struct, utils
 class Inertia(sim.Energy):
     obj: sim.Object = struct.data()
 
-    # region Node
+    # region Computational Graph
 
     @property
     @override
-    def deps(self) -> struct.NodeCollection[sim.Object]:
-        return struct.NodeCollection(self.obj)
+    def deps(self) -> struct.FrozenDict:
+        return struct.FrozenDict(self.obj)
 
     @override
-    def with_deps(self, nodes: struct.NodesLike, /) -> Self:
-        nodes = struct.NodeCollection(nodes)
+    def with_deps(self, nodes: struct.MappingLike, /) -> Self:
+        nodes = struct.FrozenDict(nodes)
         obj: sim.Object = nodes[self.obj]
         return self.evolve(obj=obj)
 
-    # endregion Node
+    # endregion Computational Graph
 
     @property
     def displacement_prev(self) -> sim.Field:
-        return self.obj.displacement_prev
+        return self.obj.fields["displacement_prev"]
 
     @property
     def velocity(self) -> sim.Field:
-        return self.obj.velocity
+        return self.obj.fields["velocity"]
 
     @property
     def force(self) -> sim.Field:
-        return self.obj.force
+        return self.obj.fields["force"]
 
     @property
     def mass(self) -> sim.Field:
-        return self.displacement_prev.with_values(self.obj.mass)
+        return self.obj.fields["mass"]
 
     @override
     @utils.jit
     def fun(
-        self, x: sim.FieldCollection, /, params: sim.GlobalParams
+        self, x: struct.DictArray, /, params: sim.GlobalParams
     ) -> Float[jax.Array, ""]:
-        x: sim.Field = x[self.obj.id]
-        x_tilde: Float[jax.Array, "points dim"] = (
+        x: Float[jax.Array, "points dim"] = x[self.obj.id]
+        x_tilde: sim.Field = (
             self.displacement_prev
             + params.time_step * self.velocity
             + params.time_step**2 * self.force / self.mass
@@ -60,38 +60,35 @@ class Inertia(sim.Energy):
 
     @override
     @utils.jit
-    def jac(
-        self, x: sim.FieldCollection, /, params: sim.GlobalParams
-    ) -> sim.FieldCollection:
-        x: sim.Field = x[self.obj.id]
-        x_tilde: Float[jax.Array, "points dim"] = (
+    def jac(self, x: struct.DictArray, /, params: sim.GlobalParams) -> struct.DictArray:
+        x: Float[jax.Array, "points dim"] = x[self.obj.id]
+        x_tilde: sim.Field = (
             self.displacement_prev
             + params.time_step * self.velocity
             + params.time_step**2 * self.force / self.mass
         )
-        jac: Float[jax.Array, "points dim"] = self.mass * (x - x_tilde)
+        jac: sim.Field = self.mass * (x - x_tilde)
         jac /= params.time_step**2
-        return sim.FieldCollection({self.obj.id: x.with_values(jac)})
+        return struct.DictArray({self.obj.id: jac.values})
 
     @override
     @utils.jit
     def hess_diag(
-        self, x: sim.FieldCollection, /, params: sim.GlobalParams
-    ) -> sim.FieldCollection:
-        x: sim.Field = x[self.obj.id]
-        hess_diag: Float[jax.Array, "points dim"] = self.mass / params.time_step**2
-        return sim.FieldCollection({self.obj.id: x.with_values(hess_diag)})
+        self, x: struct.DictArray, /, params: sim.GlobalParams
+    ) -> struct.DictArray:
+        hess_diag: sim.Field = self.mass / params.time_step**2
+        return struct.DictArray({self.obj.id: hess_diag.values})
 
     @override
     @utils.jit
     def hess_quad(
         self,
-        x: sim.FieldCollection,
-        p: sim.FieldCollection,
+        x: struct.DictArray,
+        p: struct.DictArray,
         /,
         params: sim.GlobalParams,
     ) -> Float[jax.Array, ""]:
-        p: sim.Field = p[self.obj.id]
+        p: Float[jax.Array, "points dim"] = p[self.obj.id]
         hess_quad: Float[jax.Array, ""] = jnp.sum(jnp.asarray(self.mass * p**2))
         hess_quad /= params.time_step**2
         return hess_quad

@@ -2,7 +2,14 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
   "extends": ".config/linters/pyrightconfig.json",
 
-  "exclude": ["**/node_modules", "**/__pycache__", "**/.*", "marimo/"],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "marimo/",
+    ".old",
+    "exp/"
+  ],
 
   "reportIncompatibleMethodOverride": "information",
   "reportIncompatibleVariableOverride": "information"

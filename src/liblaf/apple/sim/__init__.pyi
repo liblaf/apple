@@ -1,10 +1,10 @@
-from . import abc, element, geometry, operator, quadrature, scene
-from .abc import (
+from . import core, element, geometry, operator, quadrature, region, scene
+from .core import (
+    AbstractField,
     Dirichlet,
     Element,
     Energy,
     Field,
-    FieldCollection,
     FieldGrad,
     FieldLike,
     Geometry,
@@ -17,18 +17,17 @@ from .abc import (
 )
 from .element import ElementTetra, ElementTriangle
 from .geometry import GeometryTetra, GeometryTriangle
-from .operator import OperatorBoundary
 from .quadrature import QuadratureTetra
-from .scene import Scene, SceneBuilder
+from .scene import OptimizationProblem, Scene, SceneBuilder
 
 __all__ = [
+    "AbstractField",
     "Dirichlet",
     "Element",
     "ElementTetra",
     "ElementTriangle",
     "Energy",
     "Field",
-    "FieldCollection",
     "FieldGrad",
     "FieldLike",
     "Geometry",
@@ -38,16 +37,17 @@ __all__ = [
     "GlobalParams",
     "Object",
     "Operator",
-    "OperatorBoundary",
+    "OptimizationProblem",
     "QuadratureTetra",
     "Region",
     "Scene",
     "SceneBuilder",
     "Scheme",
-    "abc",
+    "core",
     "element",
     "geometry",
     "operator",
     "quadrature",
+    "region",
     "scene",
 ]

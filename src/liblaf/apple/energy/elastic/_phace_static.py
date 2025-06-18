@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import warp as wp
 from jaxtyping import Float
 
-from liblaf.apple import func, physics, utils
+from liblaf.apple import func, sim, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
 from ._elastic import Elastic
@@ -31,7 +31,7 @@ class PhaceStatic(Elastic):
 
     @override
     @utils.jit
-    def energy_density(self, field: physics.Field) -> Float[jax.Array, " cells"]:
+    def energy_density(self, field: sim.Field) -> Float[jax.Array, " cells"]:
         params: Float[jax.Array, " cells 2"] = self.make_params(field)
         Psi: Float[jax.Array, " cells"]
         (Psi,) = phace_static_energy_density_warp(field.deformation_gradient, params)
@@ -40,7 +40,7 @@ class PhaceStatic(Elastic):
     @override
     @utils.jit
     def first_piola_kirchhoff_stress(
-        self, field: physics.Field
+        self, field: sim.Field
     ) -> Float[jax.Array, "cells 3 3"]:
         params: Float[jax.Array, " cells 2"] = self.make_params(field)
         PK1: Float[jax.Array, " cells"]
@@ -52,28 +52,28 @@ class PhaceStatic(Elastic):
     @override
     @utils.jit
     def energy_density_hess_diag(
-        self, field: physics.Field
+        self, field: sim.Field
     ) -> Float[jax.Array, "cells 4 3"]:
         params: Float[jax.Array, " cells 2"] = self.make_params(field)
         hess_diag: Float[jax.Array, "cells 4 3"]
         (hess_diag,) = phace_static_energy_density_hess_diag_warp(
-            field.deformation_gradient, params, field.dh_dX
+            field.deformation_gradient, params, field.dhdX
         )
         return hess_diag
 
     @override
     @utils.jit
     def energy_density_hess_quad(
-        self, field: physics.Field, p: physics.Field
+        self, field: sim.Field, p: sim.Field
     ) -> Float[jax.Array, " cells"]:
         params: Float[jax.Array, " cells 2"] = self.make_params(field)
         hess_quad: Float[jax.Array, " cells"]
         (hess_quad,) = phace_static_energy_density_hess_quad_warp(
-            field.deformation_gradient, p.values[p.cells], params, field.dh_dX
+            field.deformation_gradient, p.values[p.cells], params, field.dhdX
         )
         return hess_quad
 
-    def make_params(self, field: physics.Field) -> Float[jax.Array, "cells 2"]:
+    def make_params(self, field: sim.Field) -> Float[jax.Array, "cells 2"]:
         mu: Float[jax.Array, " cells"] = jnp.broadcast_to(self.mu, (field.n_cells,))
         lambda_: Float[jax.Array, " cells"] = jnp.broadcast_to(
             self.lambda_, (field.n_cells,)

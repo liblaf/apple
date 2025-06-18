@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jaxtyping import Float
 
 from liblaf.apple import struct
-from liblaf.apple.sim.abc import Scheme
+from liblaf.apple.sim.core import Scheme
 
 
 def _default_points() -> Float[jax.Array, "q=1 J=3"]:

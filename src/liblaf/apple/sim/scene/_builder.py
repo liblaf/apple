@@ -4,13 +4,13 @@ from typing import cast, override
 import attrs
 
 from liblaf.apple import struct
-from liblaf.apple.sim.abc import Energy, GlobalParams, Object
+from liblaf.apple.sim.core import Energy, GlobalParams, Object
 
 from ._scene import Scene
 
 
 @attrs.define
-class SceneBuilder(struct.MappingTrait):
+class SceneBuilder(struct.MappingMixin):
     params: GlobalParams = attrs.field(factory=GlobalParams)
     _graph: struct.Graph = attrs.field(factory=struct.Graph, init=False)
     _energy_keys: list[str] = attrs.field(factory=list, init=False)
@@ -32,12 +32,12 @@ class SceneBuilder(struct.MappingTrait):
     # endregion NodeCollectionMixin
 
     @property
-    def bases(self) -> struct.PyTreeDict[Object]:
-        return cast("struct.PyTreeDict[Object]", self._graph.select(self.graph.bases))
+    def bases(self) -> struct.FrozenDict[Object]:
+        return cast("struct.FrozenDict[Object]", self._graph.select(self.graph.bases))
 
     @property
-    def energies(self) -> struct.PyTreeDict[Energy]:
-        return cast("struct.PyTreeDict[Energy]", self.graph.select(self._energy_keys))
+    def energies(self) -> struct.FrozenDict[Energy]:
+        return cast("struct.FrozenDict[Energy]", self.graph.select(self._energy_keys))
 
     @property
     def graph(self) -> struct.Graph:
@@ -48,8 +48,8 @@ class SceneBuilder(struct.MappingTrait):
         return sum(obj.n_dof for obj in self.bases.values())
 
     @property
-    def nodes(self) -> struct.PyTreeDict:
-        return struct.PyTreeDict(self)
+    def nodes(self) -> struct.FrozenDict:
+        return struct.FrozenDict(self)
 
     @property
     def topological(self) -> Generator[str]:
@@ -63,7 +63,7 @@ class SceneBuilder(struct.MappingTrait):
         self.add(energy)
 
     def assign_dof[T: Object](self, obj: T) -> T:
-        obj = obj.replace(dof_map=struct.make_dof_map(obj.shape, offset=self.n_dof))
+        obj = obj.evolve(dof=struct.make_dof_map(obj.shape, offset=self.n_dof))
         self.add(obj)
         return obj
 

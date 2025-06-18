@@ -19,8 +19,15 @@ def jit[**P, T](
     func: Callable[P, T], /, **kwargs: Unpack[JitKwargs]
 ) -> Callable[P, T]: ...
 def jit[**P, T](
-    func: Callable[P, T] | None = None, /, **kwargs: Unpack[JitKwargs]
+    func: Callable[P, T] | None = None,
+    /,
+    *,
+    validate: bool = True,
+    **kwargs: Unpack[JitKwargs],
 ) -> Callable[P, T] | Decorator:
     if func is None:
         return functools.partial(jax.jit, **kwargs)
-    return jax.jit(func, **kwargs)
+    func = jax.jit(func, **kwargs)
+    # if validate:
+    # func = jaxtyped(func, typechecker=beartype.beartype)
+    return func

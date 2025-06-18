@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
-from liblaf.apple.sim.abc import Geometry
+from liblaf.apple.sim.core import Geometry
 from liblaf.apple.sim.element import ElementTriangle
 
 
@@ -16,7 +16,7 @@ class GeometryTriangle(Geometry):
         self: Self = cls(
             points=jnp.asarray(mesh.points), cells=jnp.asarray(mesh.regular_faces)
         )
-        self.copy_attributes(mesh)
+        self = self.copy_attributes(mesh)
         return self
 
     @property

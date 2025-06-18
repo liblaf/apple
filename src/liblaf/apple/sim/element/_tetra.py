@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import ArrayLike, Float
 
-from liblaf.apple.sim.abc import Element
+from liblaf.apple.sim.core import Element, Scheme
 from liblaf.apple.sim.quadrature import QuadratureTetra
 
 
@@ -19,7 +19,7 @@ class ElementTetra(Element):
 
     @property
     @override
-    def quadrature(self) -> QuadratureTetra:
+    def quadrature(self) -> Scheme:
         with jax.ensure_compile_time_eval():
             return QuadratureTetra.from_order(1)
 

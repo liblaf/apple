@@ -1,12 +1,11 @@
 from typing import no_type_check, override
 
-import flax.struct
 import jax
 import jax.numpy as jnp
 import warp as wp
 from jaxtyping import Float
 
-from liblaf.apple import func, physics, utils
+from liblaf.apple import func, sim, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
 from ._elastic import Elastic
@@ -20,51 +19,56 @@ class ARAP(Elastic):
     $$
     """
 
-    id: str = flax.struct.field(pytree_node=False, default="ARAP")
-
-    mu: Float[jax.Array, " cells"] = flax.struct.field(
-        default_factory=lambda: jnp.asarray(1.0)
-    )
+    @property
+    def mu(self) -> Float[jax.Array, " cells"]:
+        return self.obj.cell_data["mu"]
 
     @override
     @utils.jit
-    def energy_density(self, field: physics.Field) -> Float[jax.Array, " cells"]:
+    def energy_density(self, field: sim.Field) -> Float[jax.Array, " cells"]:
         mu: Float[jax.Array, " cells"] = jnp.broadcast_to(self.mu, (field.n_cells,))
         Psi: Float[jax.Array, " cells"]
-        (Psi,) = arap_energy_density_warp(field.deformation_gradient, mu)
+        (Psi,) = arap_energy_density_warp(
+            field.deformation_gradient.values.squeeze(), mu
+        )
         return Psi
 
     @override
     @utils.jit
     def first_piola_kirchhoff_stress(
-        self, field: physics.Field
+        self, field: sim.Field
     ) -> Float[jax.Array, "cells 3 3"]:
         mu: Float[jax.Array, " cells"] = jnp.broadcast_to(self.mu, (field.n_cells,))
         PK1: Float[jax.Array, " cells"]
-        (PK1,) = arap_first_piola_kirchhoff_stress_warp(field.deformation_gradient, mu)
+        (PK1,) = arap_first_piola_kirchhoff_stress_warp(
+            field.deformation_gradient.values.squeeze(), mu
+        )
         return PK1
 
     @override
     @utils.jit
     def energy_density_hess_diag(
-        self, field: physics.Field
+        self, field: sim.Field
     ) -> Float[jax.Array, "cells 4 3"]:
         mu: Float[jax.Array, " cells"] = jnp.broadcast_to(self.mu, (field.n_cells,))
         hess_diag: Float[jax.Array, "cells 4 3"]
         (hess_diag,) = arap_energy_density_hess_diag_warp(
-            field.deformation_gradient, mu, field.dh_dX
+            field.deformation_gradient.values.squeeze(), mu, field.dhdX.squeeze()
         )
         return hess_diag
 
     @override
     @utils.jit
     def energy_density_hess_quad(
-        self, field: physics.Field, p: physics.Field
+        self, field: sim.Field, p: sim.Field
     ) -> Float[jax.Array, " cells"]:
         mu: Float[jax.Array, " cells"] = jnp.broadcast_to(self.mu, (field.n_cells,))
         hess_quad: Float[jax.Array, " cells"]
         (hess_quad,) = arap_energy_density_hess_quad_warp(
-            field.deformation_gradient, p.values[p.cells], mu, field.dh_dX
+            field.deformation_gradient.values.squeeze(),
+            p.values[p.cells],
+            mu,
+            field.dhdX.squeeze(),
         )
         return hess_quad
 

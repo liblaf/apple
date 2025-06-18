@@ -1,49 +1,53 @@
-from . import dof_map, graph, mapping, pytree
-from .array_dict import ArrayDict
-from .array_mixin import ArrayMixin
-from .derivative_mixin import DerivativeMixin
+from . import dof_map, graph, tree_util
+from ._array_mixin import ArrayMixin
+from ._utils import KeyLike, KeysLike, MappingLike, as_dict, as_key, as_keys
+from .dict_util import DictArray, FrozenDict, MappingMixin
 from .dof_map import DofMap, DofMapInteger, DofMapSlice, as_dof_map, make_dof_map
 from .graph import Graph, GraphNode, NodeAttrs, graph_update
-from .mapping import (
-    KeyLike,
-    KeysLike,
-    MappingLike,
-    MappingTrait,
-    PyTreeDict,
-    as_dict,
-    as_key,
-    as_keys,
+from .tree_util import (
+    PyTree,
+    PyTreeMeta,
+    array,
+    data,
+    mapping,
+    pytree,
+    register_attrs,
+    static,
 )
-from .pytree import PyTree, array, field, pytree_dict, static
 
 __all__ = [
-    "ArrayDict",
     "ArrayMixin",
-    "DerivativeMixin",
+    "DictArray",
     "DofMap",
     "DofMapInteger",
     "DofMapSlice",
+    "FrozenDict",
     "Graph",
     "GraphNode",
     "KeyLike",
     "KeysLike",
     "MappingLike",
-    "MappingTrait",
+    "MappingMixin",
     "NodeAttrs",
     "PyTree",
-    "PyTreeDict",
+    "PyTree",
+    "PyTreeMeta",
+    "array",
     "array",
     "as_dict",
     "as_dof_map",
     "as_key",
     "as_keys",
+    "data",
     "dof_map",
-    "field",
     "graph",
     "graph_update",
     "make_dof_map",
     "mapping",
+    "mapping",
     "pytree",
-    "pytree_dict",
+    "register_attrs",
     "static",
+    "static",
+    "tree_util",
 ]

@@ -3,7 +3,7 @@ from typing import override
 import jax
 from jaxtyping import Integer
 
-from liblaf.apple.struct.pytree import array
+from liblaf.apple.struct.tree_util import array
 
 from ._dof_map import DofMap
 

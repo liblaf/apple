@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Integer
 
-from liblaf.apple.struct.pytree import static
+from liblaf.apple.struct.tree_util import static
 
 from ._dof_map import DofMap
 
@@ -35,7 +35,7 @@ class DofMapSlice(DofMap):
             step: int | None = (
                 self.step if idx.step is None else (self.step or 1) * idx.step
             )
-            return self.replace(_slice=slice(start, stop, step))
+            return self.evolve(_slice=slice(start, stop, step))
         return super().__getitem__(idx)
 
     @property

@@ -7,47 +7,48 @@ from jaxtyping import Bool, Float, Integer
 
 import liblaf.apple as apple  # noqa: PLR0402
 from liblaf import grapes, melon
-from liblaf.apple import utils
+from liblaf.apple import sim, struct, utils
 
 
 def main() -> None:
     grapes.init_logging()
-    geometry: apple.Geometry = gen_geometry()
-    scene: apple.Scene = gen_scene(geometry)
-    x0: Float[jax.Array, " free"] = gen_init(scene, geometry.length)
-    scene = scene.replace(
-        optimizer=apple.PNCG(maxiter=1000, tol=1e-18)
-    ).with_free_values(x0)
+    geometry: sim.Geometry = gen_geometry()
+    scene: sim.Scene = gen_scene(geometry)
+    ic(scene)
+    x0: Float[jax.Array, " free"] = gen_init(scene, geometry.structure.length)
+    scene = scene.update(x0)
+    optimizer = apple.PNCG(maxiter=1000, tol=1e-18)
 
     writer = melon.SeriesWriter("data/examples/static/random.vtu.series")
 
-    def callback(intermediate_result: apple.OptimizeResult) -> None:
-        if intermediate_result["n_iter"] % 100 != 0:
+    def callback(result: apple.OptimizeResult) -> None:
+        nonlocal scene
+        if result["n_iter"] % 100 != 0:
             return
-        if "Delta_E" in intermediate_result:
-            ic(intermediate_result["Delta_E"] / intermediate_result["Delta_E0"])
-        geometries: dict[str, apple.Geometry] = scene.make_geometries(
-            intermediate_result["x"]
-        )
-        writer.append(geometries["bunny"].mesh)
+        if "Delta_E" in result:
+            ic(result["Delta_E"] / result["Delta_E0"])
+        scene = scene.update(result["x"])
+        writer.append(scene.objects["Object-000"].geometry.to_pyvista())
 
-    solution: apple.OptimizeResult = scene.solve(callback=callback)
-    ic(solution)
-
-    geometries: dict[str, apple.Geometry] = scene.make_geometries(solution["x"])
-    melon.save("data/examples/static/random-solution.vtu", geometries["bunny"].mesh)
+    solution: apple.OptimizeResult = scene.solve(optimizer=optimizer)
+    scene = scene.update(solution["x"])
+    # ic(solution)
+    obj = scene.objects["Object-000"]
+    melon.save("data/examples/static/random-solution.vtu", obj.geometry.to_pyvista())
 
 
-def gen_geometry(lr: float = 0.05) -> apple.Geometry:
+def gen_geometry(lr: float = 0.05) -> sim.Geometry:
     surface: pv.PolyData = pyvista.examples.download_bunny(load=True)
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    return apple.Geometry(mesh=mesh, id="bunny")
+    mesh.cell_data["density"] = 1.0
+    mesh.cell_data["mu"] = 1.0
+    return sim.GeometryTetra.from_pyvista(mesh)
 
 
 def gen_dirichlet(
-    geometry: apple.Geometry,
+    geometry: sim.Geometry,
 ) -> tuple[Integer[np.ndarray, " dirichlet"], Float[np.ndarray, " dirichlet"]]:
-    mesh: pv.UnstructuredGrid = geometry.mesh
+    mesh: pv.UnstructuredGrid = geometry.structure
     dirichlet_mask: Bool[np.ndarray, " points"] = np.zeros((mesh.n_points,), dtype=bool)
     dirichlet_values: Float[np.ndarray, " points 3"] = np.zeros(
         (mesh.n_points, 3), dtype=float
@@ -71,26 +72,28 @@ def gen_dirichlet(
     return dirichlet_index, dirichlet_values.ravel()[dirichlet_index]
 
 
-def gen_scene(geometry: apple.Geometry) -> apple.Scene:
+def gen_scene(geometry: sim.Geometry) -> sim.Scene:
+    builder = sim.SceneBuilder()
+    region: sim.Region = sim.Region.from_geometry(geometry)
+    obj: sim.Object = sim.Object.from_region(region)
+    obj = builder.assign_dof(obj)
     dirichlet_index: Integer[np.ndarray, " dirichlet"]
     dirichlet_values: Float[np.ndarray, " dirichlet"]
     dirichlet_index, dirichlet_values = gen_dirichlet(geometry)
-    domain: apple.Domain = apple.Domain.from_geometry(geometry)
-    field_spec: apple.Field = apple.Field.from_domain(
-        domain=domain, id="displacement"
-    ).with_dirichlet(dirichlet_index=dirichlet_index, dirichlet_values=dirichlet_values)
-    energy = apple.energy.elastic.ARAP(field_id=field_spec.id)
-    scene = apple.Scene()
-    scene.add_field(field_spec)
-    scene.add_energy(energy)
-    return scene
+    obj = obj.evolve(
+        dirichlet=sim.Dirichlet(struct.DofMapInteger(dirichlet_index), dirichlet_values)
+    )
+    energy = apple.energy.elastic.ARAP(obj)
+    builder.add_energy(energy)
+    return builder.build()
 
 
-def gen_init(scene: apple.Scene, length: float) -> Float[jax.Array, " free"]:
+def gen_init(scene: sim.Scene, length: float) -> Float[jax.Array, " free"]:
     random = utils.Random()
     u0: Float[jax.Array, " free"] = random.uniform(
-        (scene.n_free,), minval=-0.5 * length, maxval=0.5 * length
+        (scene.n_dof,), minval=-0.5 * length, maxval=0.5 * length
     )
+    u0 = scene.dirichlet_apply(u0)
     return u0
 
 

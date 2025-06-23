@@ -19,7 +19,7 @@ class Scene(struct.PyTreeMixin):
         raise NotImplementedError
 
     @utils.jit
-    def hess_prod(
+    def hessp(
         self, x: Float[jax.Array, " DOF"], p: Float[jax.Array, " DOF"], /
     ) -> Float[jax.Array, " DOF"]:
         raise NotImplementedError

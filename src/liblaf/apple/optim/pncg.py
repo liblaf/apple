@@ -1,5 +1,5 @@
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import override
 
 import flax.struct
@@ -10,9 +10,9 @@ from numpy.typing import ArrayLike
 
 from liblaf import grapes
 from liblaf.apple import utils
-from liblaf.apple.optim._abc import Callback, OptimizeResult
 
-from ._abc import Optimizer
+from .optimizer import Optimizer, OptimizeResult
+from .problem import OptimizationProblem
 
 
 class State(flax.struct.PyTreeNode):
@@ -34,24 +34,15 @@ class PNCG(Optimizer):
     tol: float = flax.struct.field(pytree_node=False, default=1e-5)
 
     @override
-    def _minimize(
+    def _minimize_impl(
         self,
-        fun: Callable[..., Float[jax.Array, ""]],
+        problem: OptimizationProblem,
         x0: Float[ArrayLike, " N"],
-        *,
-        args: tuple = (),
-        jac: Callable | None = None,
-        hess: Callable | None = None,
-        hessp: Callable | None = None,
-        hess_diag: Callable | None = None,
-        hess_quad: Callable | None = None,
-        jac_and_hess_diag: Callable | None = None,
-        prepare: Callable | None = None,
-        callback: Callback | None = None,
+        args: Sequence,
         **kwargs,
     ) -> OptimizeResult:
-        assert callable(jac_and_hess_diag)
-        assert callable(hess_quad)
+        assert callable(problem.jac_and_hess_diag)
+        assert callable(problem.hess_quad)
 
         x: Float[jax.Array, " N"] = jnp.asarray(x0)
         state: State = State(x=x, first=True)
@@ -62,18 +53,14 @@ class PNCG(Optimizer):
                 "x": x,
             }
         )
-        if callable(callback):
-            callback(result)
 
         Delta_E0: Float[jax.Array, ""] = None  # pyright: ignore[reportAssignmentType]
-        timer: grapes.TimedIterable = grapes.timer(range(self.maxiter), name="PNCG")
+        timer: grapes.TimedIterable = grapes.timer(range(self.maxiter), label="PNCG")
         for it in timer:
-            if callable(prepare):
-                prepare(state.x)
             state = self.step(
                 state,
-                jac_and_hess_diag=jac_and_hess_diag,
-                hess_quad=hess_quad,
+                jac_and_hess_diag=problem.jac_and_hess_diag,
+                hess_quad=problem.hess_quad,
                 args=args,
             )
             if it == 0:
@@ -92,15 +79,15 @@ class PNCG(Optimizer):
                     "x": state.x,
                 }
             )
-            if callable(callback):
-                callback(result)
+            if callable(problem.callback):
+                problem.callback(result)
             if state.Delta_E < self.tol * Delta_E0:
                 result["success"] = True
                 break
         timer.timing.finish()
         return result
 
-    @utils.jit
+    @utils.jit_method
     def calc_beta(
         self,
         g_next: Float[jax.Array, " N"],
@@ -114,7 +101,7 @@ class PNCG(Optimizer):
         ) * (jnp.dot(p, g_next) / yT_p)
         return beta
 
-    @utils.jit
+    @utils.jit_method
     def calc_Delta_E(
         self,
         g: Float[jax.Array, " N"],
@@ -123,7 +110,7 @@ class PNCG(Optimizer):
     ) -> Float[jax.Array, ""]:
         return -jnp.dot(g, p) - 0.5 * jnp.dot(p, pHp)
 
-    @utils.jit
+    @utils.jit_method
     def calc_DK_direction(
         self,
         g: Float[jax.Array, " N"],
@@ -134,13 +121,13 @@ class PNCG(Optimizer):
         beta: Float[jax.Array, ""] = self.calc_beta(g_next=g, g=g_prev, p=p)
         return -P * g + beta * p
 
-    @utils.jit
+    @utils.jit_method
     def calc_init_p(
         self, g: Float[jax.Array, " N"], P: Float[jax.Array, " N"]
     ) -> Float[jax.Array, " N"]:
         return -P * g
 
-    @utils.jit
+    @utils.jit_method
     def calc_p_inf_norm(self, p: Float[jax.Array, " N"]) -> Float[jax.Array, ""]:
         return jnp.linalg.norm(p, ord=jnp.inf)
 
@@ -151,7 +138,7 @@ class PNCG(Optimizer):
         *,
         jac_and_hess_diag: Callable,
         hess_quad: Callable,
-        args: tuple,
+        args: Sequence,
     ) -> State:
         x: Float[jax.Array, " N"] = state.x
         g: Float[jax.Array, " N"]

@@ -1,55 +1,48 @@
-from collections.abc import Callable
+from collections.abc import Sequence
 from typing import Any, override
 
 import attrs
-import jax
 import scipy.optimize
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
-from ._abc import Callback, Optimizer, OptimizeResult
+from liblaf.apple.struct import tree
+
+from .optimizer import Optimizer, OptimizeResult
+from .problem import OptimizationProblem
 
 
-@attrs.define(kw_only=True)
+@tree.pytree
 class OptimizerScipy(Optimizer):
     method: str = "trust-constr"
     tol: float | None = None
     options: dict[str, Any] = attrs.field(factory=lambda: {"disp": True})
 
     @override
-    def _minimize(
+    def _minimize_impl(
         self,
-        fun: Callable[..., Float[jax.Array, ""]],
-        x0: ArrayLike,
-        *,
-        args: tuple = (),
-        jac: Callable | None = None,
-        hess: Callable | None = None,
-        hessp: Callable | None = None,
-        hess_diag: Callable | None = None,
-        hess_quad: Callable | None = None,
-        jac_and_hess_diag: Callable | None = None,
-        prepare: Callable | None = None,
-        callback: Callback | None = None,
+        problem: OptimizationProblem,
+        x0: Float[ArrayLike, " N"],
+        args: Sequence,
         **kwargs,
     ) -> OptimizeResult:
         scipy_result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
-            fun,
+            problem.fun,
             x0,
             args=args,
             method=self.method,
-            jac=jac,
-            hess=hess,
-            hessp=hessp,
+            jac=problem.jac,
+            hess=problem.hess,
+            hessp=problem.hessp,
             tol=self.tol,
             options=self.options,
-            callback=callback,
+            callback=problem.callback,
             **kwargs,
         )
-        ic(scipy_result)
         result: OptimizeResult = OptimizeResult(**scipy_result)
-        result = replace_result(result, "nit", "n_iter")
         result = replace_result(result, "nfev", "n_fun")
+        result = replace_result(result, "nit", "n_iter")
+        result = replace_result(result, "niter", "n_iter")
         result = replace_result(result, "njev", "n_jac")
         return result
 

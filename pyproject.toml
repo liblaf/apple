@@ -31,6 +31,7 @@ docs = [
   "ruff",
 ]
 test = [
+  "hypothesis",
   "pytest",
   "pytest-benchmark",
   "pytest-codspeed",

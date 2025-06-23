@@ -1,15 +1,13 @@
 from collections.abc import Callable
 
-import jax
-from jaxtyping import Float
-from numpy.typing import ArrayLike
+from jaxtyping import ArrayLike, Float
 
-from ._abc import Callback, Optimizer, OptimizeResult
 from ._scipy import OptimizerScipy
+from .optimizer import Optimizer, OptimizeResult
 
 
 def minimize(
-    fun: Callable[..., Float[jax.Array, ""]],
+    fun: Callable | None,
     x0: Float[ArrayLike, " N"],
     *,
     args: tuple = (),
@@ -19,9 +17,9 @@ def minimize(
     hessp: Callable | None = None,
     hess_diag: Callable | None = None,
     hess_quad: Callable | None = None,
+    fun_and_jac: Callable | None = None,
     jac_and_hess_diag: Callable | None = None,
-    prepare: Callable | None = None,
-    callback: Callback | None = None,
+    callback: Callable | None = None,
     **kwargs,
 ) -> OptimizeResult:
     if method is None:
@@ -35,8 +33,8 @@ def minimize(
         hessp=hessp,
         hess_diag=hess_diag,
         hess_quad=hess_quad,
+        fun_and_jac=fun_and_jac,
         jac_and_hess_diag=jac_and_hess_diag,
-        prepare=prepare,
         callback=callback,
         **kwargs,
     )

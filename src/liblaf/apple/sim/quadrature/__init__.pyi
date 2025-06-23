@@ -1,3 +1,4 @@
-from ._tetra import QuadratureTetra
+from .scheme import Scheme
+from .tetra import QuadratureTetra
 
-__all__ = ["QuadratureTetra"]
+__all__ = ["QuadratureTetra", "Scheme"]

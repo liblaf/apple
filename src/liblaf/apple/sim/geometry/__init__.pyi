@@ -1,4 +1,6 @@
-from ._tetra import GeometryTetra
-from ._triangle import GeometryTriangle
+from .attributes import GeometryAttributes
+from .geometry import Geometry
+from .tetra import GeometryTetra
+from .triangle import GeometryTriangle
 
-__all__ = ["GeometryTetra", "GeometryTriangle"]
+__all__ = ["Geometry", "GeometryAttributes", "GeometryTetra", "GeometryTriangle"]

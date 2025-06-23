@@ -1,0 +1,13 @@
+from collections.abc import Iterable
+from typing import Any, overload
+
+from .typed import Node, SupportsKeysAndGetItem
+
+@overload
+def as_dict[KT, VT](data: SupportsKeysAndGetItem[KT, VT], /) -> dict[KT, VT]: ...
+@overload
+def as_dict[KT, VT](data: Iterable[tuple[KT, VT]], /) -> dict[KT, VT]: ...
+@overload
+def as_dict[T: Node](data: Iterable[T], /) -> dict[str, T]: ...
+@overload
+def as_dict(data: None, /) -> dict[Any, Any]: ...

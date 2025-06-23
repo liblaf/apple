@@ -1,5 +1,4 @@
-from ._builder import SceneBuilder
-from ._problem import OptimizationProblem
-from ._scene import Scene
+from .builder import SceneBuilder
+from .scene import Scene
 
-__all__ = ["OptimizationProblem", "Scene", "SceneBuilder"]
+__all__ = ["Scene", "SceneBuilder"]

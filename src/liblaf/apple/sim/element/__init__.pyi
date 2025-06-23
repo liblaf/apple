@@ -1,4 +1,4 @@
-from ._tetra import ElementTetra
-from ._triangle import ElementTriangle
+from .element import Element
+from .tetra import ElementTetra
 
-__all__ = ["ElementTetra", "ElementTriangle"]
+__all__ = ["Element", "ElementTetra"]

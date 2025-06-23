@@ -80,6 +80,7 @@
     "trimesh",
     "ubelt",
     "undeformed",
+    "unflatten",
     "unshallow",
     "unvec",
     "vdot",

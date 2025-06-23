@@ -71,6 +71,7 @@ dependencies = [
   "loguru>=0.7.3,<0.8",
   "networkx>=3.5,<4",
   "numpy",
+  "plum-dispatch>=2.5.7,<3",
   "pyvista>=0.45.2,<0.46",
   "rich>=14.0.0,<15",
   "scipy",

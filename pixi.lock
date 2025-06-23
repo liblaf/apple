@@ -272,6 +272,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/55/77/40daddf677897a923d5d33329acd52a2144d54a9644f2a5422c028c6bf2d/pillow-10.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/2b/31/21609a9be48e877bc33b089a7f495c853215def5aeb9564a31c210d9d769/plum_dispatch-2.5.7-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/76/20/e018cd87d7cb6f8684355f31f4e193222455a6e8f7b942f4a2934f5969c7/polars-1.30.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a8/87/77cc11c7a9ea9fd05503def69e3d18605852cd0d4b0d3b8f15bbeb3ef1d1/pooch-1.8.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ce/4f/5249960887b1fbe561d9ff265496d170b55a735b76724f10ef19f9e40716/prompt_toolkit-3.0.51-py3-none-any.whl
@@ -3126,8 +3127,8 @@ packages:
   timestamp: 1745229332239
 - pypi: ./
   name: liblaf-apple
-  version: 26.dev35+ge774eeb.d20250617
-  sha256: 5668bcbe0dbd77be024be8cb13c2fca0f23f731d3913df33b350d36c96bef64e
+  version: 26.dev37+g14abc10.d20250623
+  sha256: db86c61ae2d9de52fdae56cc676f0336dac73cd6db7e3634ce338f23a4f6bc35
   requires_dist:
   - beartype>=0.21.0,<0.22
   - chex>=0.1.89,<0.2
@@ -3143,6 +3144,7 @@ packages:
   - loguru>=0.7.3,<0.8
   - networkx>=3.5,<4
   - numpy
+  - plum-dispatch>=2.5.7,<3
   - pyvista>=0.45.2,<0.46
   - rich>=14.0.0,<15
   - scipy
@@ -4180,6 +4182,31 @@ packages:
   - pytest-benchmark ; extra == 'testing'
   - coverage ; extra == 'testing'
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/2b/31/21609a9be48e877bc33b089a7f495c853215def5aeb9564a31c210d9d769/plum_dispatch-2.5.7-py3-none-any.whl
+  name: plum-dispatch
+  version: 2.5.7
+  sha256: 06471782eea0b3798c1e79dca2af2165bafcfa5eb595540b514ddd81053b1ede
+  requires_dist:
+  - beartype>=0.16.2
+  - rich>=10.0
+  - typing-extensions>=4.9.0
+  - black==23.9.0 ; extra == 'dev'
+  - build ; extra == 'dev'
+  - coveralls ; extra == 'dev'
+  - ghp-import ; extra == 'dev'
+  - ipython ; extra == 'dev'
+  - jupyter-book ; extra == 'dev'
+  - mypy ; extra == 'dev'
+  - numpy ; extra == 'dev'
+  - pre-commit ; extra == 'dev'
+  - pyright>=1.1.331 ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - pytest>=6 ; extra == 'dev'
+  - ruff>=0.2.1 ; extra == 'dev'
+  - sybil ; extra == 'dev'
+  - tox ; extra == 'dev'
+  - wheel ; extra == 'dev'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/76/20/e018cd87d7cb6f8684355f31f4e193222455a6e8f7b942f4a2934f5969c7/polars-1.30.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
   name: polars
   version: 1.30.0

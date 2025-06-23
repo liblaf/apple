@@ -59,6 +59,7 @@ classifiers = [
 dependencies = [
   "beartype>=0.21.0,<0.22",
   "chex>=0.1.0,<0.2",
+  "cytoolz>=1.0.0,<2",
   "einops>=0.8.0,<0.9",
   "equinox>=0.12.0,<0.13",
   "felupe>=9.0.0,<10",

@@ -1,0 +1,40 @@
+import functools
+import types
+from collections.abc import Iterable
+from typing import Any, Protocol, runtime_checkable
+
+import toolz
+
+from liblaf import grapes
+
+from ._as_key import Node
+
+
+@runtime_checkable
+class SupportsKeysAndGetItem[KT, VT](Protocol):
+    def keys(self) -> Iterable[KT]: ...
+    def __getitem__(self, key: KT, /) -> VT: ...
+
+
+@functools.singledispatch
+def as_dict(*args, **kwargs) -> dict[Any, Any]:
+    raise grapes.error.DispatchLookupError(as_dict, args, kwargs)
+
+
+@as_dict.register(SupportsKeysAndGetItem)
+def _[KT, VT](data: SupportsKeysAndGetItem[KT, VT]) -> dict[KT, VT]:
+    return dict(data)
+
+
+@as_dict.register(Iterable)
+def _[KT, VT](data: Iterable[tuple[KT, VT] | Node]) -> dict[KT, VT]:
+    first: tuple[KT, VT] | Node
+    first, data = toolz.peek(data)
+    if isinstance(first, tuple) and len(first) == 2:
+        return dict(data)
+    return {item.id: item for item in data}
+
+
+@as_dict.register(types.NoneType)
+def _(_data: None) -> dict[Any, Any]:
+    return {}

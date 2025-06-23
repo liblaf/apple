@@ -76,6 +76,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0f/e7/aa315e6a749d9b96c2504a1ba0ba031ba2d0517e972ce22682e3fccecb09/cssselect2-0.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/82/1d/da668d2c98ac97b811042de24906a32a806606d03bb1eaaf6be51bd6def4/cyclopts-3.19.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a1/96/bd1a9f3396e9b7f618db8cd08d15630769ce3c8b7d0534f92cd639c977ae/cytoolz-1.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/47/ef/4cb333825d10317a36a1154341ba37e6e9c087bac99c1990ef07ffdb376f/dictdiffer-0.9.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3f/27/4570e78fc0bf5ea0ca45eb1de3818a23787af9b390c0b0a0033a1b8236f9/diskcache-5.6.3-py3-none-any.whl
@@ -1032,6 +1033,14 @@ packages:
   - trio>=0.10.0 ; extra == 'trio'
   - typing-extensions>=4.8.0 ; python_full_version < '3.11'
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/a1/96/bd1a9f3396e9b7f618db8cd08d15630769ce3c8b7d0534f92cd639c977ae/cytoolz-1.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  name: cytoolz
+  version: 1.0.1
+  sha256: 4e2d944799026e1ff08a83241f1027a2d9276c41f7a74224cd98b7df6e03957d
+  requires_dist:
+  - toolz>=0.8.0
+  - cython ; extra == 'cython'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl
   name: defusedxml
   version: 0.7.1
@@ -2622,11 +2631,12 @@ packages:
   timestamp: 1746642113092
 - pypi: ./
   name: liblaf-apple
-  version: 26.dev38+g314f218.d20250623
-  sha256: a99577f8662cf39c5c60df724469dd68d5806fadef0a8f5f6a3b17ed036676a3
+  version: 26.dev39+ga3e2597.d20250623
+  sha256: c9584c8de631a513a6dee667fcbbb4cb571510dcde041c41a969069a21971a9b
   requires_dist:
   - beartype>=0.21.0,<0.22
   - chex>=0.1.0,<0.2
+  - cytoolz>=1.0.0,<2
   - einops>=0.8.0,<0.9
   - equinox>=0.12.0,<0.13
   - felupe>=9.0.0,<10

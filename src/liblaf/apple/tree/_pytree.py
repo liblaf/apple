@@ -4,22 +4,22 @@ from typing import dataclass_transform, overload
 
 import attrs
 
-from ._field import array, data, mapping, static
+from ._field import array, container, data, static
 from ._register_attrs import register_attrs
 
 
 @overload
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, mapping, static)
+    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
 )
 def pytree[T: type](cls: T, /, **kwargs) -> T: ...
 @overload
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, mapping, static)
+    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
 )
 def pytree[T: type](**kwargs) -> Callable[[T], T]: ...
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, mapping, static)
+    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
 )
 def pytree[T: type](cls: T | None = None, /, **kwargs) -> Callable | T:
     if cls is None:

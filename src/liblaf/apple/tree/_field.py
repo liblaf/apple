@@ -22,21 +22,21 @@ def array(**kwargs: Unpack[FieldKwargs]) -> Any:
     return data(**kwargs)
 
 
-def data(**kwargs: Unpack[FieldKwargs]) -> Any:
-    metadata: dict = kwargs.setdefault("metadata", {})  # pyright: ignore[reportAssignmentType]
-    metadata.setdefault("static", False)
-    return _field(**kwargs)
-
-
-def mapping(**kwargs: Unpack[FieldKwargs]) -> Any:
+def container(**kwargs: Unpack[FieldKwargs]) -> Any:
     if "converter" in kwargs and "factory" not in kwargs:
         kwargs["factory"] = kwargs["converter"]  # pyright: ignore[reportGeneralTypeIssues]
     elif "converter" not in kwargs and "factory" in kwargs:
         kwargs["converter"] = kwargs["factory"]  # pyright: ignore[reportGeneralTypeIssues]
     elif "converter" not in kwargs and "factory" not in kwargs:
-        kwargs["converter"] = dict
+        kwargs["converter"] = attrs.converters.default_if_none(factory=dict)
         kwargs["factory"] = dict
     return data(**kwargs)  # pyright: ignore[reportArgumentType]
+
+
+def data(**kwargs: Unpack[FieldKwargs]) -> Any:
+    metadata: dict = kwargs.setdefault("metadata", {})  # pyright: ignore[reportAssignmentType]
+    metadata.setdefault("static", False)
+    return _field(**kwargs)
 
 
 def static(**kwargs: Unpack[FieldKwargs]) -> Any:

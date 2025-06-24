@@ -1,5 +1,6 @@
 from ._cost_analysis import CostAnalysis, cost_analysis
 from ._jit import JitKwargs, JitWrapped, jit, jit_method
+from ._tree_at import tree_at
 from ._validate import validate
 
 __all__ = [
@@ -9,5 +10,6 @@ __all__ = [
     "cost_analysis",
     "jit",
     "jit_method",
+    "tree_at",
     "validate",
 ]

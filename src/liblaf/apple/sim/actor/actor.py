@@ -102,7 +102,9 @@ class Actor(struct.PyTreeNode):
     # region Modifications
 
     def set_point_data(self, name: str, value: Float[ArrayLike, "points dim"]) -> Self:
-        return self.evolve(geometry=self.geometry.set_point_data(name, value))
+        return self.tree_at(
+            lambda self: self.point_data, replace=self.point_data.set(name, value)
+        )
 
     def with_dofs(self, dofs: DOFs) -> Self:
         return self.evolve(dofs=dofs)

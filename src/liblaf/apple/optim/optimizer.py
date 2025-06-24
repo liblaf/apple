@@ -16,6 +16,7 @@ class OptimizeResult(scipy.optimize.OptimizeResult): ...
 @tree.pytree
 class Optimizer(tree.PyTreeMixin, abc.ABC):
     autodiff: bool = tree.static(default=False, kw_only=True)
+    jit: bool = tree.static(default=False, kw_only=True)
 
     @property
     def name(self) -> str:
@@ -51,6 +52,8 @@ class Optimizer(tree.PyTreeMixin, abc.ABC):
         problem = problem.implement()
         if self.autodiff:
             problem = problem.autodiff().implement()
+        if self.jit:
+            problem = problem.jit()
         problem = problem.timer()
         with grapes.timer(label=self.name) as timer:
             result: OptimizeResult = self._minimize_impl(problem, x0, args, **kwargs)

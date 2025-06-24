@@ -64,7 +64,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
         if utils.implemented(self.jac_and_hess_diag):
             _, hess_diag = self.jac_and_hess_diag(x, params)
             return hess_diag
-        raise NotImplementedError
+        return math.hess_diag(self.fun)(x, params)
 
     @utils.not_implemented
     @utils.jit_method
@@ -78,9 +78,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
     def fun_and_jac(
         self, x: struct.ArrayDict, /, params: GlobalParams
     ) -> tuple[Float[jax.Array, ""], struct.ArrayDict]:
-        if utils.implemented(self.fun):
-            return self.fun(x, params), self.jac(x, params)
-        raise NotImplementedError
+        return self.fun(x, params), self.jac(x, params)
 
     @utils.not_implemented
     @utils.jit_method

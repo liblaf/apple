@@ -1,3 +1,5 @@
+import collections
+from collections.abc import Mapping
 from typing import Self
 
 import jax
@@ -97,9 +99,11 @@ class Scene(struct.PyTreeMixin):
 
     # region Procedure
 
-    def prepare(self, x: Float[jax.Array, " DOF"], /) -> Self:
+    def prepare(self, x: Float[jax.Array, " DOF"] | None = None) -> Self:
         actors: struct.NodeContainer[Actor] = self.actors
-        fields: struct.ArrayDict = self.scatter(x)
+        fields: struct.ArrayDict | Mapping[str, None] = (
+            collections.defaultdict(lambda: None) if x is None else self.scatter(x)
+        )
         for actor in actors.values():
             actor_new: Actor = actor.prepare(fields[actor.id])
             actors = actors.add(actor_new)
@@ -111,10 +115,14 @@ class Scene(struct.PyTreeMixin):
         return self.evolve(actors=actors, energies=energies)
 
     def solve(
-        self, optimizer: optim.Optimizer, x0: Float[ArrayLike, " DOF"] | None = None, /
+        self,
+        x0: Float[ArrayLike, " DOF"] | None = None,
+        optimizer: optim.Optimizer | None = None,
     ) -> optim.OptimizeResult:
         if x0 is None:
             x0 = self.x0
+        if optimizer is None:
+            optimizer = optim.PNCG()
         x0: Float[jax.Array, " DOF"] = jnp.asarray(x0)
         problem = SceneProblem(scene=self)
         result: optim.OptimizeResult = optimizer.minimize(

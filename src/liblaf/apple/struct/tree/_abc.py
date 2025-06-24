@@ -1,4 +1,5 @@
 import collections
+from collections.abc import Callable, Sequence
 from typing import Any, Self
 
 import attrs
@@ -8,6 +9,8 @@ from wadler_lindig._definitions import _WithRepr
 
 from ._field_specifiers import static
 from ._pytree import pytree
+
+type Node = Any
 
 
 class PyTreeMixin:
@@ -43,13 +46,29 @@ class PyTreeMixin:
     def evolve(self, **changes) -> Self:
         return attrs.evolve(self, **changes)
 
+    def tree_at(
+        self,
+        where: Callable[[Self], Node | Sequence[Node]],
+        replace: Any | Sequence[Any] = ...,
+        replace_fn: Callable[[Node], Any] = ...,  # pyright: ignore[reportArgumentType]
+        is_leaf: Callable[[Any], bool] | None = None,
+    ) -> Self:
+        kwargs: dict[str, Any] = {}
+        if replace is not ...:
+            kwargs["replace"] = replace
+        if replace_fn is not ...:
+            kwargs["replace_fn"] = replace_fn
+        if is_leaf is not None:
+            kwargs["is_leaf"] = is_leaf
+        return eqx.tree_at(where, self, **kwargs)
+
 
 _counter: collections.Counter[str] = collections.Counter()
 
 
 def uniq_id(self: Any) -> str:
     prefix: str = type(self).__qualname__
-    id_: str = f"{prefix}_{_counter[prefix]:03d}"
+    id_: str = f"{prefix}-{_counter[prefix]:03d}"
     _counter[prefix] += 1
     return id_
 

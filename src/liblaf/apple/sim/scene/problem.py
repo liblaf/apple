@@ -9,7 +9,8 @@ from .protocol import SceneProtocol, X, Y
 class SceneProblem(optim.ProblemProtocol):
     scene: SceneProtocol = attrs.field()
 
-    def callback(self, result: optim.OptimizeResult, /) -> None:
+    def callback(self, intermediate_result: optim.OptimizeResult) -> None:
+        result: optim.OptimizeResult = intermediate_result
         x: X = result["x"]
         self.scene = self.scene.prepare(x)
 

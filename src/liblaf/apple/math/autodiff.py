@@ -2,7 +2,9 @@ import functools
 from collections.abc import Callable, Mapping, Sequence
 
 import jax
-from jaxtyping import PyTree
+import jax.flatten_util
+import jax.numpy as jnp
+from jaxtyping import Float, PyTree
 
 
 def partial[T](func: Callable[..., T], /, *args, **kwargs) -> Callable[..., T]:
@@ -33,3 +35,21 @@ def hessp(func: Callable) -> Callable:
         return tangents_out
 
     return hessp
+
+
+def hess_diag(func: Callable) -> Callable:
+    def hess_diag(x: PyTree, /, *args, **kwargs) -> PyTree:
+        x_ravel: Float[jax.Array, " N"]
+        unravel: Callable[[jax.Array], PyTree]
+        x_ravel, unravel = jax.flatten_util.ravel_pytree(x)
+
+        def fun_ravel(x_ravel: jax.Array) -> jax.Array:
+            x: PyTree = unravel(x_ravel)
+            return func(x, *args, **kwargs)
+
+        hess: Float[jax.Array, "N N"] = jax.hessian(fun_ravel)(x_ravel)
+        hess_diag_ravel: Float[jax.Array, " N"] = jnp.diagonal(hess)
+        hess_diag: PyTree = unravel(hess_diag_ravel)
+        return hess_diag
+
+    return hess_diag

@@ -1,7 +1,10 @@
-from collections.abc import Sequence
-from typing import Any, override
+import functools
+from collections.abc import Callable, Sequence
+from typing import Any, overload, override
 
 import attrs
+import equinox as eqx
+import jax.numpy as jnp
 import scipy.optimize
 from jaxtyping import Float
 from numpy.typing import ArrayLike
@@ -27,13 +30,13 @@ class OptimizerScipy(Optimizer):
         **kwargs,
     ) -> OptimizeResult:
         scipy_result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
-            problem.fun,
+            jax_op(problem.fun),
             x0,
             args=args,
             method=self.method,
-            jac=problem.jac,
-            hess=problem.hess,
-            hessp=problem.hessp,
+            jac=jax_op(problem.jac),
+            hess=jax_op(problem.hess),
+            hessp=jax_op(problem.hessp),
             tol=self.tol,
             options=self.options,
             callback=problem.callback,
@@ -52,3 +55,22 @@ def replace_result(result: OptimizeResult, src: str, dst: str) -> OptimizeResult
         result[dst] = result[src]
         del result[src]
     return result
+
+
+@overload
+def jax_op[**P, T](func: Callable[P, T], /) -> Callable[P, T]: ...
+@overload
+def jax_op(func: None, /) -> None: ...
+def jax_op[**P, T](func: Callable[P, T] | None, /) -> Callable[P, T] | None:
+    if func is None:
+        return None
+
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        args: tuple = tuple(
+            jnp.asarray(arg, dtype=float) if eqx.is_array_like(arg) else arg
+            for arg in args
+        )
+        return func(*args, **kwargs)
+
+    return wrapper

@@ -13,6 +13,7 @@ from .jaxutils import (
     cost_analysis,
     jit,
     jit_method,
+    tree_at,
     validate,
 )
 
@@ -32,6 +33,7 @@ __all__ = [
     "jit_method",
     "lame_params",
     "not_implemented",
+    "tree_at",
     "uniq_id",
     "uniq_id_factory",
     "validate",

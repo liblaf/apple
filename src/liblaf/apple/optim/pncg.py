@@ -39,7 +39,7 @@ class PNCG(Optimizer):
         1. Xing Shen, Runyuan Cai, Mengxiao Bi, and Tangjie Lv. 2024. Preconditioned Nonlinear Conjugate Gradient Method for Real-time Interior-point Hyperelasticity. In ACM SIGGRAPH 2024 Conference Papers (SIGGRAPH '24). Association for Computing Machinery, New York, NY, USA, Article 96, 1–11. https://doi.org/10.1145/3641519.3657490
     """
 
-    d_hat: float = struct.data(default=1e-3)
+    d_hat: float = struct.data(default=jnp.inf)
     maxiter: int = struct.data(default=1000)
     tol: float = struct.data(default=1e-5)
 
@@ -107,7 +107,7 @@ class PNCG(Optimizer):
         beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
-    @utils.jit_method(static_argnames=("problem", "args"), inline=True)
+    # @utils.jit_method(static_argnames=("problem", "args"), inline=True)
     def step(self, problem: OptimizationProblem, state: State, args: Sequence) -> State:
         assert callable(problem.hess_quad)
         assert callable(problem.jac_and_hess_diag)
@@ -119,6 +119,7 @@ class PNCG(Optimizer):
         x: X = state.x
         g, hess_diag = problem.jac_and_hess_diag(x, *args)
         P: X = jnp.reciprocal(hess_diag)
+        P: X = jnp.nan_to_num(P, posinf=1.0, neginf=1.0)
 
         if state.first:
             p = -P * g

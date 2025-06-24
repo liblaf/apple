@@ -1,4 +1,4 @@
-from typing import Protocol, Self
+from typing import Protocol, Self, runtime_checkable
 
 import jax
 from jaxtyping import Float
@@ -7,6 +7,7 @@ type X = Float[jax.Array, " N"]
 type Y = Float[jax.Array, ""]
 
 
+@runtime_checkable
 class SceneProtocol(Protocol):
     def fun(self, x: X, /) -> Y: ...
     def jac(self, x: X, /) -> X: ...

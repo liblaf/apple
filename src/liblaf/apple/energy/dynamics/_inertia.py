@@ -8,7 +8,7 @@ from liblaf.apple import sim, struct, utils
 
 
 class Inertia(sim.Energy):
-    obj: sim.Object = struct.data()
+    obj: sim.Actor = struct.data()
 
     # region Computational Graph
 
@@ -20,7 +20,7 @@ class Inertia(sim.Energy):
     @override
     def with_deps(self, nodes: struct.MappingLike, /) -> Self:
         nodes = struct.FrozenDict(nodes)
-        obj: sim.Object = nodes[self.obj]
+        obj: sim.Actor = nodes[self.obj]
         return self.evolve(obj=obj)
 
     # endregion Computational Graph

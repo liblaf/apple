@@ -1,14 +1,32 @@
-from typing import override
+from typing import Self, override
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
+
+from liblaf.apple import struct
+from liblaf.apple.sim.element import Element, ElementTetra
 
 from .geometry import Geometry
 from .triangle import GeometryTriangle
 
 
+@struct.pytree
 class GeometryTetra(Geometry):
+    @classmethod
+    def from_pyvista(cls, mesh: pv.UnstructuredGrid) -> Self:
+        return cls(
+            points=jnp.asarray(mesh.points),
+            cells=jnp.asarray(mesh.cells_dict[pv.CellType.TETRA]),
+        ).copy_attributes(mesh)
+
     @property
+    @override
+    def element(self) -> Element:
+        with jax.ensure_compile_time_eval():
+            return ElementTetra()
+
     @override
     def boundary(self) -> GeometryTriangle:
         mesh: pv.UnstructuredGrid = self.to_pyvista(attributes=True)

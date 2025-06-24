@@ -1,9 +1,13 @@
+import collections
 from typing import Any, Self
 
 import attrs
 import equinox as eqx
 import wadler_lindig as wl
 from wadler_lindig._definitions import _WithRepr
+
+from ._field_specifiers import static
+from ._pytree import pytree
 
 
 class PyTreeMixin:
@@ -38,3 +42,18 @@ class PyTreeMixin:
 
     def evolve(self, **changes) -> Self:
         return attrs.evolve(self, **changes)
+
+
+_counter: collections.Counter[str] = collections.Counter()
+
+
+def uniq_id(self: Any) -> str:
+    prefix: str = type(self).__qualname__
+    id_: str = f"{prefix}_{_counter[prefix]:03d}"
+    _counter[prefix] += 1
+    return id_
+
+
+@pytree
+class PyTreeNode(PyTreeMixin):
+    id: str = static(default=attrs.Factory(uniq_id, takes_self=True), kw_only=True)

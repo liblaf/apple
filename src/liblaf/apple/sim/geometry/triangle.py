@@ -4,18 +4,24 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
+from liblaf.apple import struct
+from liblaf.apple.sim.element import Element
+
 from .geometry import Geometry
 
 
+@struct.pytree
 class GeometryTriangle(Geometry):
     @classmethod
     def from_pyvista(cls, mesh: pv.PolyData) -> Self:
-        self: Self = (
-            cls(points=jnp.asarray(mesh.points), cells=jnp.asarray(mesh.regular_faces))
-            .update_cell_data(mesh.cell_data)
-            .update_point_data(mesh.point_data)
-        )
-        return self
+        return cls(
+            points=jnp.asarray(mesh.points), cells=jnp.asarray(mesh.regular_faces)
+        ).copy_attributes(mesh)
+
+    @property
+    @override
+    def element(self) -> Element:
+        raise NotImplementedError
 
     @override
     def to_pyvista(self, *, attributes: bool = True) -> pv.PolyData:

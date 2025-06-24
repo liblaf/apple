@@ -22,13 +22,10 @@ def _array_method[C: Callable](func: C, /) -> C:
 
 
 class ArrayMixin(abc.ABC):
-    @property
-    @abc.abstractmethod
-    def values(self) -> jax.Array:
-        raise NotImplementedError
+    values: jax.Array
 
     @abc.abstractmethod
-    def from_values(self, values: ArrayLike) -> Self:
+    def from_values(self, values: ArrayLike, /) -> Self:
         raise NotImplementedError
 
     def __jax_array__(self) -> jax.Array:
@@ -50,31 +47,31 @@ class ArrayMixin(abc.ABC):
     def shape(self) -> tuple[int, ...]:
         return self.values.shape
 
-    @_array_method
+    @_array_method  # noqa: B027
     def __add__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __sub__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __mul__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __matmul__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __truediv__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __floordiv__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __mod__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __divmod__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __pow__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __lshift__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __rshift__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __and__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __xor__(self, other: ArrayLike) -> Self: ...
-    @_array_method
+    @_array_method  # noqa: B027
     def __or__(self, other: ArrayLike) -> Self: ...

@@ -75,7 +75,7 @@ def gen_dirichlet(
 def gen_scene(geometry: sim.Geometry) -> sim.Scene:
     builder = sim.SceneBuilder()
     region: sim.Region = sim.Region.from_geometry(geometry)
-    obj: sim.Object = sim.Object.from_region(region)
+    obj: sim.Actor = sim.Actor.from_region(region)
     obj = builder.assign_dof(obj)
     dirichlet_index: Integer[np.ndarray, " dirichlet"]
     dirichlet_values: Float[np.ndarray, " dirichlet"]

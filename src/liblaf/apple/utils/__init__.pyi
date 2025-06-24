@@ -13,6 +13,7 @@ from .jaxutils import (
     cost_analysis,
     jit,
     jit_method,
+    validate,
 )
 
 __all__ = [
@@ -33,4 +34,5 @@ __all__ = [
     "not_implemented",
     "uniq_id",
     "uniq_id_factory",
+    "validate",
 ]

@@ -1,5 +1,4 @@
 import functools
-from collections.abc import Callable
 from typing import Self
 
 import jax
@@ -7,17 +6,12 @@ import pyvista as pv
 import warp as wp
 from jaxtyping import ArrayLike, Float, Integer
 
+from liblaf import grapes
 from liblaf.apple import struct
 from liblaf.apple.sim.element import Element
 from liblaf.apple.sim.quadrature import Scheme
 
 from .attributes import GeometryAttributes
-
-
-def attributes_factory(
-    association: pv.FieldAssociation,
-) -> Callable[..., GeometryAttributes]:
-    return functools.partial(GeometryAttributes, association=association)
 
 
 @struct.pytree
@@ -26,11 +20,15 @@ class Geometry(struct.PyTreeMixin):
     points: Float[jax.Array, "points dim"] = struct.array(default=None)
 
     cell_data: GeometryAttributes = struct.container(
-        factory=attributes_factory(pv.FieldAssociation.CELL)
+        factory=GeometryAttributes.factory(pv.FieldAssociation.CELL)
     )
     point_data: GeometryAttributes = struct.container(
-        factory=attributes_factory(pv.FieldAssociation.POINT)
+        factory=GeometryAttributes.factory(pv.FieldAssociation.POINT)
     )
+
+    @classmethod
+    def from_pyvista(cls, mesh: pv.DataSet) -> "Geometry":
+        return geometry_from_pyvista(mesh)
 
     # region Numbers
 
@@ -74,6 +72,9 @@ class Geometry(struct.PyTreeMixin):
 
     # region Manipulation
 
+    def copy_attributes(self, mesh: "pv.DataSet | Geometry", /) -> Self:
+        return self.update_point_data(mesh.point_data).update_cell_data(mesh.cell_data)
+
     def set_cell_data(self, name: str, value: ArrayLike, /) -> Self:
         return self.update_cell_data(self.cell_data.set(name, value))
 
@@ -90,7 +91,6 @@ class Geometry(struct.PyTreeMixin):
 
     # region Geometric Operations
 
-    @property
     def boundary(self) -> "Geometry":
         raise NotImplementedError
 
@@ -109,3 +109,22 @@ class Geometry(struct.PyTreeMixin):
         )
 
     # endregion Exchange
+
+
+@functools.singledispatch
+def geometry_from_pyvista(*args, **kwargs) -> Geometry:
+    raise grapes.error.DispatchLookupError(geometry_from_pyvista, args, kwargs)
+
+
+@geometry_from_pyvista.register(pv.PolyData)
+def _(mesh: pv.PolyData) -> Geometry:
+    from .triangle import GeometryTriangle
+
+    return GeometryTriangle.from_pyvista(mesh)
+
+
+@geometry_from_pyvista.register(pv.UnstructuredGrid)
+def _(mesh: pv.UnstructuredGrid) -> Geometry:
+    from .tetra import GeometryTetra
+
+    return GeometryTetra.from_pyvista(mesh)

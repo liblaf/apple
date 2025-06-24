@@ -4,10 +4,13 @@ import jax
 from jaxtyping import Float
 
 from liblaf.apple import struct, utils
+from liblaf.apple.sim.dirichlet import Dirichlet
 
 
 @struct.pytree
 class Scene(struct.PyTreeMixin):
+    dirichlet: Dirichlet = struct.data(factory=Dirichlet)
+
     # region Optimization
 
     @utils.jit

@@ -10,7 +10,7 @@ from liblaf.apple import elem, sim, struct, utils
 class Elastic(sim.Energy):
     hess_diag_filter: bool = struct.static(default=True, kw_only=True)
     hess_quad_filter: bool = struct.static(default=True, kw_only=True)
-    obj: sim.Object = struct.data()
+    obj: sim.Actor = struct.data()
 
     @property
     def deps(self) -> struct.FrozenDict:

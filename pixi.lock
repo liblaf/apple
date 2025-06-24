@@ -2676,8 +2676,8 @@ packages:
   timestamp: 1746642113092
 - pypi: ./
   name: liblaf-apple
-  version: 26.dev42+g79da255.d20250623
-  sha256: f4629d3ae5d26781519ab521f44bc8134870c0adbe3fb7693bec717bf064ce7e
+  version: 26.dev43+g11900ed.d20250624
+  sha256: cc74205a70ad7456aa1859ac5a1aa33d69fa04fee73c5f8e3aa8a2aef3c40d0f
   requires_dist:
   - beartype>=0.21.0,<0.22
   - chex>=0.1.0,<0.2

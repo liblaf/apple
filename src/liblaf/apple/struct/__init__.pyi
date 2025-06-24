@@ -12,7 +12,16 @@ from .dictutils import (
     as_key,
 )
 from .indexing import Index, IndexArray, IndexRange, as_index, make_index
-from .tree import PyTreeMixin, array, container, data, pytree, register_attrs, static
+from .tree import (
+    PyTreeMixin,
+    PyTreeNode,
+    array,
+    container,
+    data,
+    pytree,
+    register_attrs,
+    static,
+)
 
 __all__ = [
     "ArrayDict",
@@ -26,6 +35,7 @@ __all__ = [
     "Node",
     "NodeContainer",
     "PyTreeMixin",
+    "PyTreeNode",
     "SupportsKeysAndGetItem",
     "array",
     "as_dict",

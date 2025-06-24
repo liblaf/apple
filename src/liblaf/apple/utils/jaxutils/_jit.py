@@ -2,9 +2,9 @@ import functools
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, TypedDict, Unpack, cast, overload
 
-import beartype
 import jax
-from jaxtyping import jaxtyped
+
+from ._validate import validate
 
 
 class JitKwargs(TypedDict, total=False):
@@ -32,9 +32,8 @@ def jit[**P, T](
 def jit(func: Callable | None = None, /, **kwargs) -> Any:
     if func is None:
         return functools.partial(jit, **kwargs)
-    validate: bool = kwargs.pop("validate", True)
-    if validate:
-        func = jaxtyped(func, typechecker=beartype.beartype)
+    if kwargs.pop("validate", True):
+        func = validate(func)
     return cast("JitWrapped", jax.jit(func, **kwargs))
 
 

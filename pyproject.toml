@@ -137,5 +137,10 @@ libc = { family = "glibc", version = "2.41" }
 linux = "6.13"
 
 [tool.pytest.ini_options]
-addopts = ["--showlocals", "--strict-config", "--strict-markers"]
+addopts = [
+  "--hypothesis-show-statistics",
+  "--showlocals",
+  "--strict-config",
+  "--strict-markers",
+]
 testpaths = ["benches/", "tests/"]

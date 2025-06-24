@@ -13,7 +13,7 @@ class FieldKwargs(TypedDict, total=False):
     repr: "attrs._ReprArgType"
     metadata: Mapping[Any, Any] | None
     converter: "attrs._ConverterType | list[attrs._ConverterType] | tuple[attrs._ConverterType] | None"
-    factory: Callable[[], Any] | None
+    factory: Callable | None
     kw_only: bool
 
 

@@ -10,8 +10,8 @@ from liblaf.apple import sim, struct, utils
 
 
 class CollisionVertFace(sim.Energy):
-    obj: sim.Object = struct.data(default=None)
-    solid: sim.Object = struct.data(default=None)
+    obj: sim.Actor = struct.data(default=None)
+    solid: sim.Actor = struct.data(default=None)
     mesh_wp: wp.Mesh = struct.static(default=None)
     max_dist: np.float32 = struct.static(default=np.float32(0.1))
     threshold: np.float32 = struct.static(default=np.float32(0.01))

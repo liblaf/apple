@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING
+import functools
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Self
 
 import pyvista as pv
 
@@ -17,3 +19,7 @@ class GeometryAttributes(struct.ArrayDict):
             /,
             association: pv.FieldAssociation = ...,
         ) -> None: ...
+
+    @classmethod
+    def factory(cls, association: pv.FieldAssociation) -> Callable[[], Self]:
+        return functools.partial(cls, association=association)

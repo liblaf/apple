@@ -1,0 +1,35 @@
+import attrs
+
+from liblaf.apple import optim
+
+from .protocol import SceneProtocol, X, Y
+
+
+@attrs.define
+class SceneProblem(optim.ProblemProtocol):
+    scene: SceneProtocol = attrs.field()
+
+    def callback(self, result: optim.OptimizeResult, /) -> None:
+        x: X = result["x"]
+        self.scene = self.scene.prepare(x)
+
+    def fun(self, x: X, /) -> Y:
+        return self.scene.fun(x)
+
+    def jac(self, x: X, /) -> X:
+        return self.scene.jac(x)
+
+    def hessp(self, x: X, p: X, /) -> X:
+        return self.scene.hessp(x, p)
+
+    def hess_diag(self, x: X, /) -> X:
+        return self.scene.hess_diag(x)
+
+    def hess_quad(self, x: X, p: X, /) -> Y:
+        return self.scene.hess_quad(x, p)
+
+    def fun_and_jac(self, x: X, /) -> tuple[Y, X]:
+        return self.scene.fun_and_jac(x)
+
+    def jac_and_hess_diag(self, x: X, /) -> tuple[X, X]:
+        return self.scene.jac_and_hess_diag(x)

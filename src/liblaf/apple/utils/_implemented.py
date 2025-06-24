@@ -1,7 +1,7 @@
 from typing import Any
 
 
-def is_implemented(fn: Any) -> bool:
+def implemented(fn: Any) -> bool:
     return not getattr(fn, "not_implemented", False)
 
 

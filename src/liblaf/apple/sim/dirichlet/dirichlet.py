@@ -15,9 +15,12 @@ class Dirichlet(struct.PyTreeMixin):
 
     @classmethod
     def union(cls, *dirichlet: Self) -> Self:
-        dofs: DOFs = DOFs.union(*(d.dofs for d in dirichlet if d.dofs is not None))
+        dirichlet: list[Self] = [d for d in dirichlet if d.dofs is not None]
+        if not dirichlet:
+            return cls()
+        dofs: DOFs = DOFs.union(*(d.dofs for d in dirichlet))
         values: Shaped[jax.Array, " dirichlet"] = jnp.concat(
-            [jnp.asarray(d.values).ravel() for d in dirichlet if d.values is not None]
+            [jnp.asarray(d.values).ravel() for d in dirichlet]
         )
         return cls(dofs=dofs, values=values)
 

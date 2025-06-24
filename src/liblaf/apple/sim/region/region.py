@@ -113,7 +113,7 @@ class Region(struct.PyTreeMixin):
 
     # region Gradient
 
-    @utils.jit_method()
+    @utils.jit_method(validate=False)
     def with_grad(self) -> Self:
         h: Float[jax.Array, "q a"] = jnp.asarray(
             [self.element.function(q) for q in self.quadrature.points]

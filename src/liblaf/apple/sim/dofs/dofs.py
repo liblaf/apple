@@ -20,6 +20,8 @@ class DOFs(struct.PyTreeMixin, abc.ABC):
     def union(cls, *dofs: "DOFs") -> "DOFs":
         from .array import DOFsArray
 
+        if not dofs:
+            return DOFsArray(shape=(), _array=jnp.empty((0,), dtype=int))
         array: Integer[jax.Array, " N"] = jnp.concat(
             [jnp.asarray(d).ravel() for d in dofs]
         )

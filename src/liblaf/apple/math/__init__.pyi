@@ -1,11 +1,5 @@
+from . import autodiff, tree
 from ._utils import BroadcastMode, broadcast_to
-from .index import Index, IndexArray, IndexSlice, make_index
+from .autodiff import hessp, jvp
 
-__all__ = [
-    "BroadcastMode",
-    "Index",
-    "IndexArray",
-    "IndexSlice",
-    "broadcast_to",
-    "make_index",
-]
+__all__ = ["BroadcastMode", "autodiff", "broadcast_to", "hessp", "jvp", "tree"]

@@ -4,6 +4,7 @@ from collections.abc import Callable, Sequence
 import scipy.optimize
 from jaxtyping import ArrayLike, Float
 
+from liblaf import grapes
 from liblaf.apple.struct import tree
 
 from .problem import OptimizationProblem
@@ -51,7 +52,9 @@ class Optimizer(tree.PyTreeMixin, abc.ABC):
         if self.autodiff:
             problem = problem.autodiff().implement()
         problem = problem.timer()
-        result: OptimizeResult = self._minimize_impl(problem, x0, args, **kwargs)
+        with grapes.timer(label=self.name) as timer:
+            result: OptimizeResult = self._minimize_impl(problem, x0, args, **kwargs)
+        result["time"] = timer.elapsed()
         result = problem.update_result(result)
         return result
 

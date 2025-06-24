@@ -27,7 +27,8 @@ class OptimizationProblem(AutodiffMixin, ImplementMixin, TimerMixin):
             func: Callable | None = getattr(self, f.name, None)
             if not isinstance(func, grapes.TimedFunction):
                 continue
-            func.timing.finish()
+            if func.timing.height > 0:
+                func.timing.finish()
             key: str = f.metadata.get("key", f"n_{f.name}")
             if key not in result:
                 result[key] = func.timing.height

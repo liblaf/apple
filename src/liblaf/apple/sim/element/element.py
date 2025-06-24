@@ -47,7 +47,7 @@ class Element(struct.PyTreeMixin):
         self, coords: Float[ArrayLike, "dim"], /
     ) -> Float[jax.Array, "points dim"]:
         """Return the gradient of shape functions at given coordinates."""
-        if utils.is_implemented(self.function):
+        if utils.implemented(self.function):
             return jax.jacobian(self.function)(coords)
         raise NotImplementedError
 
@@ -56,6 +56,6 @@ class Element(struct.PyTreeMixin):
         self, coords: Float[ArrayLike, "dim"], /
     ) -> Float[jax.Array, "points dim dim"]:
         """Return the Hessian of shape functions at given coordinates."""
-        if utils.is_implemented(self.function):
+        if utils.implemented(self.function):
             return jax.hessian(self.function)(coords)
         return jax.jacobian(self.gradient)(coords)

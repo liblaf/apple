@@ -15,9 +15,16 @@ from ._as_key import as_key, as_keys
 from .typed import KeyLike, KeysLike, MappingLike
 
 
+def as_array_dict(data: MappingLike, /) -> dict[str, jax.Array]:
+    data: dict[str, ArrayLike] = as_dict(data)  # pyright: ignore[reportAssignmentType]
+    return {k: jnp.asarray(v) for k, v in data.items()}
+
+
 @tree.pytree
 class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
-    _data: Mapping[str, jax.Array] = tree.container(converter=as_dict, factory=dict)
+    _data: Mapping[str, jax.Array] = tree.container(
+        converter=as_array_dict, factory=dict
+    )
 
     if TYPE_CHECKING:
 
@@ -43,6 +50,16 @@ class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
         return len(self._data)
 
     # endregion Mapping[str, jax.Array]
+
+    def __add__(self, other: MappingLike, /) -> Self:
+        other: dict[str, jax.Array] = as_array_dict(other)  # pyright: ignore[reportAssignmentType]
+        data: dict[str, jax.Array] = dict(self)
+        for key, value in other.items():
+            if key in data:
+                data[key] += value
+            else:
+                data[key] = value
+        return attrs.evolve(self, _data=data)
 
     def clear(self) -> Self:
         return attrs.evolve(self, _data={})

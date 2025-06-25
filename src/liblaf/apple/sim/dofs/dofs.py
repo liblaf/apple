@@ -14,7 +14,7 @@ from .typed import IndexUpdateRef
 
 @struct.pytree
 class DOFs(struct.PyTreeMixin, abc.ABC):
-    shape: Sequence[int] = struct.static(default=(), kw_only=True)
+    shape: Sequence[int] = struct.static(default=(0,), kw_only=True)
 
     @classmethod
     def from_mask(cls, mask: ArrayLike, /) -> "DOFs":

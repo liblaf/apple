@@ -14,7 +14,7 @@ class Config(cherries.BaseConfig):
     duration: float = 3.0
     fps: float = 30.0
 
-    density: float = 1e6
+    density: float = 1e5
     lambda_: float = 3.0
     mu: float = 1.0
 
@@ -33,7 +33,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**5)
+    optimizer = optim.PNCG(maxiter=10**3)
 
     writer = melon.SeriesWriter(
         "data/examples/dynamics/gravity.vtu.series", fps=cfg.fps
@@ -93,7 +93,7 @@ def gen_actor(cfg: Config) -> sim.Actor:
 def gen_scene(_cfg: Config, actor: sim.Actor) -> sim.SceneBuilder:
     builder = sim.SceneBuilder()
     actor = builder.assign_dofs(actor)
-    builder.add_energy(energy.ARAP.from_actor(actor))
+    builder.add_energy(energy.EnergyZero.from_actor(actor))
     return builder
 
 

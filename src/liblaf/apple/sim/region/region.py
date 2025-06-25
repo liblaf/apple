@@ -27,17 +27,27 @@ class Region(struct.PyTreeMixin):
 
     @classmethod
     def from_pyvista(
-        cls, mesh: pv.DataSet, quadrature: Scheme | None = None, *, grad: bool = True
+        cls,
+        mesh: pv.DataSet,
+        quadrature: Scheme | None = None,
+        *,
+        grad: bool | None = None,
     ) -> Self:
         geometry: Geometry = Geometry.from_pyvista(mesh)
         return cls.from_geometry(geometry, quadrature=quadrature, grad=grad)
 
     @classmethod
     def from_geometry(
-        cls, geometry: Geometry, quadrature: Scheme | None = None, *, grad: bool = True
+        cls,
+        geometry: Geometry,
+        quadrature: Scheme | None = None,
+        *,
+        grad: bool | None = None,
     ) -> Self:
         if quadrature is None:
             quadrature = geometry.quadrature
+        if grad is None:
+            grad = quadrature is not None
         self: Self = cls(geometry=geometry, quadrature=quadrature)
         if grad:
             self = self.with_grad()

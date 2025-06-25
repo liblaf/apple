@@ -43,7 +43,7 @@ def hess_diag(func: Callable) -> Callable:
         unravel: Callable[[jax.Array], PyTree]
         x_ravel, unravel = jax.flatten_util.ravel_pytree(x)
 
-        def fun_ravel(x_ravel: jax.Array) -> jax.Array:
+        def fun_ravel(x_ravel: jax.Array, /) -> jax.Array:
             x: PyTree = unravel(x_ravel)
             return func(x, *args, **kwargs)
 

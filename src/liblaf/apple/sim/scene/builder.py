@@ -2,7 +2,7 @@ import attrs
 import einops
 import jax
 import jax.numpy as jnp
-from jaxtyping import Float
+from jaxtyping import Array, Bool, Float, Integer
 from loguru import logger
 
 from liblaf.apple import struct
@@ -29,13 +29,18 @@ class SceneBuilder:
 
     @property
     def dirichlet(self) -> Dirichlet:
-        return Dirichlet.union(
-            *(
-                actor.dirichlet
-                for actor in self.actors_needed.values()
-                if actor.dirichlet is not None
-            )
-        )
+        mask: Bool[Array, " DOF"] = jnp.zeros((self.n_dofs,), dtype=bool)
+        values: Float[Array, " DOF"] = jnp.zeros((self.n_dofs,))
+        for actor in self.actors_needed.values():
+            if actor.dirichlet is None or actor.dirichlet.dofs is None:
+                continue
+            dofs: Integer[Array, " {actor.n_dofs}"] = jnp.asarray(actor.dofs)
+            idx: Integer[Array, " {actor.n_dirichlet}"] = actor.dirichlet.dofs.get(
+                dofs
+            ).ravel()
+            mask = mask.at[idx].set(True)
+            values = values.at[idx].set(actor.dirichlet.values.ravel())
+        return Dirichlet.from_mask(mask, values)
 
     @property
     def actors_needed(self) -> struct.NodeContainer[Actor]:

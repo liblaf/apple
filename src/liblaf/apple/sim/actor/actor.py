@@ -5,11 +5,12 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
+import warp as wp
 from jaxtyping import ArrayLike, Bool, Float
 
 from liblaf.apple import struct
 from liblaf.apple.sim.dirichlet import Dirichlet
-from liblaf.apple.sim.dofs import DOFs
+from liblaf.apple.sim.dofs import DOFs, DOFsArray
 from liblaf.apple.sim.element import Element
 from liblaf.apple.sim.field.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
@@ -18,8 +19,9 @@ from liblaf.apple.sim.region import Region
 
 @struct.pytree
 class Actor(struct.PyTreeNode):
+    collision_mesh: wp.Mesh = struct.static(default=None)
     dirichlet: Dirichlet = struct.data(factory=Dirichlet)
-    dofs: DOFs = struct.data(default=None)
+    dofs: DOFs = struct.data(factory=DOFsArray)
     region: Region = struct.data(default=None)
 
     @classmethod
@@ -78,6 +80,10 @@ class Actor(struct.PyTreeNode):
     # region Attributes
 
     @property
+    def points(self) -> Float[jax.Array, "points dim"]:
+        return self.geometry.points
+
+    @property
     def cell_data(self) -> GeometryAttributes:
         return self.geometry.cell_data
 
@@ -88,6 +94,10 @@ class Actor(struct.PyTreeNode):
     @property
     def displacement(self) -> Float[jax.Array, "points dim"]:
         return self.point_data["displacement"]
+
+    @property
+    def positions(self) -> Float[jax.Array, "points dim"]:
+        return self.points + self.displacement
 
     @property
     def velocity(self) -> Float[jax.Array, "points dim"]:
@@ -108,7 +118,11 @@ class Actor(struct.PyTreeNode):
     def pre_optim_iter(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
-        return self.update(displacement)
+        actor: Self = self.update(displacement)
+        if self.collision_mesh is not None:
+            self.collision_mesh.points = wp.from_jax(actor.positions, dtype=wp.vec3)
+            self.collision_mesh.refit()
+        return actor
 
     def update(
         self,
@@ -161,6 +175,12 @@ class Actor(struct.PyTreeNode):
     ) -> Self:
         point_data: GeometryAttributes = self.point_data.update(updates, **kwargs)
         return self.tree_at(lambda self: self.point_data, replace=point_data)
+
+    def with_collision_mesh(self) -> Self:
+        if self.collision_mesh is not None:
+            return self
+        mesh: wp.Mesh = self.geometry.to_warp()
+        return self.evolve(collision_mesh=mesh)
 
     def with_dofs(self, dofs: DOFs) -> Self:
         return self.evolve(dofs=dofs)

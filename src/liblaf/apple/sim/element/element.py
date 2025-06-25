@@ -33,7 +33,7 @@ class Element(struct.PyTreeMixin):
 
     @property
     def quadrature(self) -> Scheme:
-        raise NotImplementedError
+        return None  # pyright: ignore[reportReturnType]
 
     @utils.not_implemented
     def function(
@@ -42,6 +42,7 @@ class Element(struct.PyTreeMixin):
         """Return the shape functions at given coordinates."""
         raise NotImplementedError
 
+    @utils.not_implemented
     @utils.jit_method(inline=True)
     def gradient(
         self, coords: Float[ArrayLike, "dim"], /
@@ -51,6 +52,7 @@ class Element(struct.PyTreeMixin):
             return jax.jacobian(self.function)(coords)
         raise NotImplementedError
 
+    @utils.not_implemented
     @utils.jit_method(inline=True)
     def hessian(
         self, coords: Float[ArrayLike, "dim"], /

@@ -55,12 +55,10 @@ class Scene(struct.PyTreeMixin):
         jac_dict: struct.ArrayDict = struct.ArrayDict()
         for energy in self.energies.values():
             jac_dict += energy.jac(fields, self.params)
+            ic(energy.id, dict(energy.jac(fields, self.params)))
         jac: X = self.gather(jac_dict)
-        # jax.debug.print("Scene.jac: {}", jac)
         jac += self.integrator.jac(x, self.state, self.params)
-        # jax.debug.print(
-        #     "integrator.jac: {}", self.integrator.jac(x, self.state, self.params)
-        # )
+        ic(self.integrator.jac(x, self.state, self.params))
         jac = self.dirichlet.zero(jac)  # apply dirichlet constraints
         return jac
 
@@ -92,7 +90,7 @@ class Scene(struct.PyTreeMixin):
         hess_quad: FloatScalar = jnp.zeros(())
         for energy in self.energies.values():
             hess_quad += energy.hess_quad(fields, fields_p, self.params)
-        hess_quad += self.integrator.hess_quad(x, p, self.state, self.params)
+        hess_quad += ic(self.integrator.hess_quad(x, p, self.state, self.params))
         return hess_quad
 
     @utils.jit_method

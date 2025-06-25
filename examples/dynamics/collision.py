@@ -1,21 +1,20 @@
-import jax
+
 import jax.numpy as jnp
 import pyvista as pv
 import warp as wp
 
-import liblaf.apple as apple  # noqa: PLR0402
 from liblaf import cherries, grapes, melon
+from liblaf.apple import energy, helper, optim, sim
 
 
 class Config(cherries.BaseConfig):
-    duration: float = 5.0
+    duration: float = 3.0
     fps: float = 30.0
 
-    # material properties
+    d_hat: float = 1e-3
     density: float = 1e3
-    E: float = 5e4  # Young's modulus
-    nu: float = 0.4  # Poisson's ratio
-    threshold: float = 1e-3
+    lambda_: float = 3e4
+    mu: float = 1e4
 
     @property
     def n_frames(self) -> int:
@@ -23,92 +22,90 @@ class Config(cherries.BaseConfig):
 
     @property
     def time_step(self) -> float:
-        return 1.0 / self.fps
+        return 1 / self.fps
 
 
 def main(cfg: Config) -> None:
-    geometry: apple.Geometry = gen_geometry(cfg)
-    collision: apple.CollisionRigidSoft = gen_collision()
-    scene: apple.Scene = gen_scene(cfg, geometry)
-    scene = scene.replace(
-        optimizer=apple.PNCG(d_hat=cfg.threshold, maxiter=10**3, tol=1e-5)
+    grapes.init_logging()
+    wp.init()
+    soft: sim.Actor = gen_actor(cfg)
+    ground: sim.Actor = gen_rigid(cfg)
+    builder: sim.SceneBuilder = gen_scene(cfg, soft, ground)
+    builder.params = builder.params.evolve(time_step=cfg.time_step)
+    soft = builder.actors_concrete[soft.id]
+    scene: sim.Scene = builder.finish()
+    optimizer = optim.PNCG(maxiter=10**3, d_hat=cfg.d_hat)
+
+    writer = melon.SeriesWriter(
+        "data/examples/dynamics/collision.vtu.series", fps=cfg.fps
     )
-
-    writer = melon.SeriesWriter("data/examples/dynamics/collision.vtu.series")
-
-    def callback(result: apple.OptimizeResult) -> None:
-        fields: dict[str, apple.Field] = scene.make_fields(result["x"])
-        displacements: jax.Array = collision.resolve(
-            points=fields["displacement"].points + fields["displacement"].values
-        )
-        result["x"] += displacements.ravel()
-
-    for _it in grapes.track(range(cfg.n_frames), description="Frames"):
-        result: apple.OptimizeResult = scene.solve(callback=callback)
-        # fields: dict[str, apple.Field] = scene.make_fields(result["x"])
-        # displacements: jax.Array = collision.resolve(
-        #     points=fields["displacement"].points + fields["displacement"].values
-        # )
-        # ic(jnp.abs(displacements).max())
-        # result["x"] += displacements.ravel()
+    melon.save("data/examples/dynamics/collision-ground.vtp", ground.to_pyvista())
+    soft = scene.export_actor(soft)
+    mesh: pv.UnstructuredGrid = soft.to_pyvista()
+    writer.append(mesh, time=0.0)
+    for t in range(cfg.n_frames):
+        result: optim.OptimizeResult
+        scene, result = scene.solve(optimizer=optimizer)
+        # if not result["success"]:
+        #     ic(result)
+        ic(result)
         scene = scene.step(result["x"])
-        geometries: dict[str, apple.Geometry] = scene.make_geometries()
-        writer.append(geometries["bunny"].mesh)
+        soft = scene.export_actor(soft)
+        soft = helper.dump_optim_result(scene, soft, result)
+        collision_energy: energy.CollisionVertFace = scene.energies[
+            "CollisionVertFace-000"
+        ]  # pyright: ignore[reportAssignmentType]
+        soft = soft.set_point_data("collide", collision_energy.candidates.collide)
+        soft = soft.set_point_data("sign", collision_energy.candidates.sign)
+        mesh: pv.UnstructuredGrid = soft.to_pyvista()
+        writer.append(mesh, time=t * cfg.time_step)
+    writer.end()
 
 
-def as_warp_mesh(mesh_pv: pv.PolyData) -> wp.Mesh:
-    return wp.Mesh(
-        wp.from_numpy(mesh_pv.points, dtype=wp.vec3),
-        wp.from_numpy(mesh_pv.regular_faces.ravel(), dtype=wp.int32),
+def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
+    # surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
+    # mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
+    # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
+    y_min: float
+    _, _, y_min, _, _, _ = mesh.bounds
+    mesh.translate((0, 0.2 - y_min, 0), inplace=True)
+    mesh.cell_data["density"] = cfg.density
+    mesh.cell_data["lambda"] = cfg.lambda_
+    mesh.cell_data["mu"] = cfg.mu
+    return mesh
+
+
+def gen_actor(cfg: Config) -> sim.Actor:
+    mesh: pv.UnstructuredGrid = gen_pyvista(cfg)
+    actor: sim.Actor = sim.Actor.from_pyvista(mesh)
+    actor = helper.add_point_mass(actor)
+    actor = helper.add_gravity(actor)
+    return actor
+
+
+def gen_rigid(_cfg: Config) -> sim.Actor:
+    surface: pv.PolyData = pv.Box((-1, 1, -1, 0, -1, 1), quads=False)
+    actor: sim.Actor = sim.Actor.from_pyvista(surface)
+    actor = actor.with_collision_mesh()
+    actor = actor.set_point_data("mass", jnp.ones((actor.n_points,)))
+    actor = actor.set_dirichlet(
+        sim.Dirichlet.from_mask(
+            jnp.ones((actor.n_dofs,), dtype=bool), jnp.zeros((actor.n_dofs,))
+        )
     )
+    return actor
 
 
-def gen_collision() -> apple.CollisionRigidSoft:
-    mesh_pv: pv.PolyData = melon.load_poly_data(pv.examples.download_bunny(load=False))
-    # mesh_pv = melon.mesh_fix(mesh_pv, check=False)
-    mesh_pv.flip_faces(inplace=True)
-    mesh_pv.translate([0.0, -0.28, 0.0], inplace=True)
-    # mesh_pv: pv.PolyData = pv.Box((-0.1, 0.1, -0.1, 0, -0.1, 0.1), quads=False)
-    # mesh_pv.translate([0.0, -0.1, 0.0], inplace=True)
-    melon.save("data/examples/dynamics/collision-rigid.vtp", mesh_pv)
-    mesh_wp: wp.Mesh = as_warp_mesh(mesh_pv)
-    return apple.CollisionRigidSoft(mesh_wp=mesh_wp)
-
-
-def gen_geometry(cfg: Config, lr: float = 0.05) -> apple.Geometry:
-    surface: pv.PolyData = pv.examples.download_bunny(load=True)
-    ic(surface)
-    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    geometry = apple.Geometry(mesh=mesh, id="bunny")
-    geometry.density = cfg.density
-    return geometry
-
-
-def gen_scene(cfg: Config, geometry: apple.Geometry) -> apple.Scene:
-    domain: apple.Domain = apple.Domain.from_geometry(geometry)
-    field: apple.Field = (
-        apple.Field.from_domain(domain=domain, id="displacement")
-        .with_free_values(0.0)
-        .with_velocities(0.0)
-        .with_forces(0.0)
-        .with_forces(domain.point_mass[:, None] * jnp.asarray([0.0, -9.81, 0.0]))
-        .step()
+def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilder:
+    builder = sim.SceneBuilder()
+    soft = builder.assign_dofs(soft)
+    rigid = builder.assign_dofs(rigid)
+    builder.add_energy(energy.PhaceStatic.from_actor(soft))
+    builder.add_energy(
+        energy.CollisionVertFace.from_actors(soft, rigid, rest_length=cfg.d_hat)
     )
-    scene = apple.Scene(time_step=jnp.asarray(cfg.time_step))
-    scene.add_field(field)
-
-    lambda_: float
-    mu: float
-    lambda_, mu = apple.utils.lame_params(E=cfg.E, nu=cfg.nu)
-    elasticity = apple.PhaceStatic(
-        field_id=field.id, mu=jnp.asarray(mu), lambda_=jnp.asarray(lambda_)
-    )
-    scene.add_energy(elasticity)
-    inertia = apple.Inertia(field_id=field.id, mass=field.domain.point_mass)
-    scene.add_energy(inertia)
-    # gravity = apple.Gravity(field_id=field.id, mass=field.domain.point_mass)
-    # scene.add_energy(gravity)
-    return scene
+    return builder
 
 
 if __name__ == "__main__":

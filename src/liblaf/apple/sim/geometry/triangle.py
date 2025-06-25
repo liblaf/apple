@@ -1,11 +1,12 @@
 from typing import Self, override
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
 from liblaf.apple import struct
-from liblaf.apple.sim.element import Element
+from liblaf.apple.sim.element import Element, ElementTriangle
 
 from .geometry import Geometry
 
@@ -21,7 +22,8 @@ class GeometryTriangle(Geometry):
     @property
     @override
     def element(self) -> Element:
-        raise NotImplementedError
+        with jax.ensure_compile_time_eval():
+            return ElementTriangle()
 
     @override
     def to_pyvista(self, *, attributes: bool = True) -> pv.PolyData:

@@ -14,9 +14,8 @@ class Config(cherries.BaseConfig):
     duration: float = 3.0
     fps: float = 30.0
 
-    density: float = 1e6
-    lambda_: float = 3.0
-    mu: float = 1.0
+    mu: float = 1e-5
+    density: float = 1e3
 
     @property
     def n_frames(self) -> int:
@@ -30,14 +29,11 @@ class Config(cherries.BaseConfig):
 def main(cfg: Config) -> None:
     actor: sim.Actor = gen_actor(cfg)
     builder: sim.SceneBuilder = gen_scene(cfg, actor)
-    builder.params = builder.params.evolve(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**5)
+    optimizer = optim.PNCG()
 
-    writer = melon.SeriesWriter(
-        "data/examples/dynamics/gravity.vtu.series", fps=cfg.fps
-    )
+    writer = melon.SeriesWriter("data/examples/dynamics/arap.vtu.series", fps=cfg.fps)
     actor = scene.export_actor(actor)
     mesh: pv.UnstructuredGrid = actor.to_pyvista()
     writer.append(mesh, time=0.0)
@@ -48,25 +44,23 @@ def main(cfg: Config) -> None:
             ic(result)
         scene = scene.step(result["x"])
         actor = scene.export_actor(actor)
-        actor = helper.dump_optim_result(scene, actor, result)
-        ic(actor.point_data["jac"] / actor.point_data["mass"][:, None])
+        for key in ["hess_diag", "jac", "p", "P"]:
+            actor = actor.set_point_data(key, actor.dofs.get(result[key]))
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
         writer.append(mesh, time=t * cfg.time_step)
     writer.end()
 
 
-def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
+def gen_pyvista(_cfg: Config) -> pv.UnstructuredGrid:
     surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
     mesh: pv.UnstructuredGrid = melon.tetwild(surface)
-    # mesh = pv.examples.cells.Tetrahedron()
-    # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
-    mesh.cell_data["density"] = cfg.density
-    mesh.cell_data["lambda"] = cfg.lambda_
-    mesh.cell_data["mu"] = cfg.mu
     return mesh
 
 
-def gen_dirichlet(cfg: Config, mesh: pv.UnstructuredGrid) -> sim.Dirichlet:
+def gen_actor(cfg: Config) -> sim.Actor:
+    mesh: pv.UnstructuredGrid = gen_pyvista(cfg)
+    mesh.cell_data["density"] = cfg.density
+    mesh.cell_data["mu"] = cfg.mu
     y_min: float
     y_max: float
     _, _, y_min, y_max, _, _ = mesh.bounds
@@ -74,17 +68,15 @@ def gen_dirichlet(cfg: Config, mesh: pv.UnstructuredGrid) -> sim.Dirichlet:
     dirichlet_mask: Bool[np.ndarray, " points"] = (
         mesh.points[:, 1] < y_min + cfg.dirichlet_thickness * y_length
     )
-    dirichlet_values: np.ndarray = np.zeros((mesh.n_points, 3))
-    return sim.Dirichlet.from_mask(
-        einops.repeat(dirichlet_mask, "points -> points dim", dim=3),
-        dirichlet_values,
-    )
-
-
-def gen_actor(cfg: Config) -> sim.Actor:
-    mesh: pv.UnstructuredGrid = gen_pyvista(cfg)
+    mesh.point_data["dirichlet-mask"] = dirichlet_mask
+    mesh.point_data["dirichlet-values"] = np.zeros((mesh.n_points, 3))
     actor: sim.Actor = sim.Actor.from_pyvista(mesh)
-    # actor = actor.set_dirichlet(gen_dirichlet(cfg, mesh))
+    actor = actor.set_dirichlet(
+        sim.Dirichlet.from_mask(
+            einops.repeat(dirichlet_mask, "points -> points dim", dim=3),
+            mesh.point_data["dirichlet-values"],
+        )
+    )
     actor = helper.add_point_mass(actor)
     actor = helper.add_gravity(actor)
     return actor

@@ -20,5 +20,6 @@ type MappingLike = (
     SupportsKeysAndGetItem[str, Any]
     | SupportsKeysAndGetItem[KeyLike, Any]
     | Iterable[tuple[KeyLike, Any]]
+    | Iterable[Node]
     | None
 )

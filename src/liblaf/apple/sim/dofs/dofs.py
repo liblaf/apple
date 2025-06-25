@@ -14,18 +14,28 @@ from .typed import IndexUpdateRef
 
 @struct.pytree
 class DOFs(struct.PyTreeMixin, abc.ABC):
-    shape: Sequence[int] = struct.static()
+    shape: Sequence[int] = struct.static(default=(), kw_only=True)
+
+    @classmethod
+    def from_mask(cls, mask: ArrayLike, /) -> "DOFs":
+        from .array import DOFsArray
+
+        mask = jnp.asarray(mask).ravel()
+        if not mask.any():
+            return DOFsArray()
+        idx: Integer[jax.Array, " DOF"] = jnp.nonzero(mask)[0]
+        return DOFsArray(idx, shape=idx.shape)
 
     @classmethod
     def union(cls, *dofs: "DOFs") -> "DOFs":
         from .array import DOFsArray
 
         if not dofs:
-            return DOFsArray(shape=(), _array=jnp.empty((0,), dtype=int))
-        array: Integer[jax.Array, " N"] = jnp.concat(
+            return DOFsArray()
+        idx: Integer[jax.Array, " N"] = jnp.concat(
             [jnp.asarray(d).ravel() for d in dofs]
         )
-        return DOFsArray(shape=array.shape, _array=array)
+        return DOFsArray(idx, shape=idx.shape)
 
     @abc.abstractmethod
     def __jax_array__(self) -> Integer[jax.Array, " N"]:

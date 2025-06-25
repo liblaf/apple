@@ -80,7 +80,7 @@ class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
         data: Mapping[str, jax.Array] = toolz.assoc(self._data, key, value)
         return attrs.evolve(self, _data=data)
 
-    def update(self, updates: MappingLike, /, **kwargs) -> Self:
+    def update(self, updates: MappingLike | None = None, /, **kwargs) -> Self:
         updates = as_dict(updates)
         updates = toolz.valmap(jnp.asarray, updates)
         data: Mapping[str, jax.Array] = toolz.merge(self._data, updates, kwargs)

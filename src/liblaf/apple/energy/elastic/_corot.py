@@ -1,4 +1,4 @@
-from ._elastic import Elastic
+from .elastic import Elastic
 
 
 class CoRot(Elastic):

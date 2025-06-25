@@ -3,6 +3,7 @@ from ._block_until_ready import block_until_ready_decorator
 from ._delegate import delegate
 from ._id import uniq_id, uniq_id_factory
 from ._implemented import implemented, not_implemented
+from ._is_array import is_array, is_array_like
 from ._lame_params import lame_params
 from ._random import Random
 from ._warp import jax_kernel
@@ -26,6 +27,8 @@ __all__ = [
     "cost_analysis",
     "delegate",
     "implemented",
+    "is_array",
+    "is_array_like",
     "jax_kernel",
     "jaxutils",
     "jit",

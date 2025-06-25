@@ -1,10 +1,16 @@
 import attrs
+import einops
+import jax
+import jax.numpy as jnp
+from jaxtyping import Float
+from loguru import logger
 
 from liblaf.apple import struct
 from liblaf.apple.sim.actor import Actor
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import make_dofs
 from liblaf.apple.sim.energy import Energy
+from liblaf.apple.sim.integrator import ImplicitEuler, SceneState, TimeIntegrator
 from liblaf.apple.sim.params import GlobalParams
 
 from .scene import Scene
@@ -12,12 +18,13 @@ from .scene import Scene
 
 @attrs.define
 class SceneBuilder:
-    actors: struct.NodeContainer[Actor] = attrs.field(
+    actors_concrete: struct.NodeContainer[Actor] = attrs.field(
         converter=struct.NodeContainer, factory=struct.NodeContainer
     )
     energies: struct.NodeContainer[Energy] = attrs.field(
         converter=struct.NodeContainer, factory=struct.NodeContainer
     )
+    integrator: TimeIntegrator = attrs.field(factory=lambda: ImplicitEuler())
     params: GlobalParams = attrs.field(factory=lambda: GlobalParams())
 
     @property
@@ -25,7 +32,7 @@ class SceneBuilder:
         return Dirichlet.union(
             *(
                 actor.dirichlet
-                for actor in self.actors.values()
+                for actor in self.actors_needed.values()
                 if actor.dirichlet is not None
             )
         )
@@ -39,7 +46,36 @@ class SceneBuilder:
 
     @property
     def n_dofs(self) -> int:
-        return sum(actor.n_dofs for actor in self.actors.values())
+        return sum(actor.n_dofs for actor in self.actors_concrete.values())
+
+    # region Attributes
+
+    @property
+    def displacement(self) -> Float[jax.Array, " DOF"]:
+        return self.gather_point_data("displacement")
+
+    @property
+    def force(self) -> Float[jax.Array, " DOF"]:
+        return self.gather_point_data("force")
+
+    @property
+    def mass(self) -> Float[jax.Array, " DOF"]:
+        mass: Float[jax.Array, " DOF"] = jnp.zeros((self.n_dofs,))
+        for actor in self.actors_concrete.values():
+            mass = actor.dofs.set(
+                mass, einops.repeat(actor.mass, "points -> points dim", dim=actor.dim)
+            )
+        if jnp.any(mass < 0):
+            logger.warning("mass < 0")
+        return mass
+
+    @property
+    def velocity(self) -> Float[jax.Array, " DOF"]:
+        return self.gather_point_data("velocity")
+
+    # endregion Attributes
+
+    # region Builder
 
     def add_energy(self, energy: Energy) -> Energy:
         self.energies = self.energies.add(energy)
@@ -49,7 +85,7 @@ class SceneBuilder:
         actor = actor.with_dofs(
             make_dofs((actor.n_points, actor.dim), offset=self.n_dofs)
         )
-        self.actors = self.actors.add(actor)
+        self.actors_concrete = self.actors_concrete.add(actor)
         return actor
 
     def finish(self) -> Scene:
@@ -57,6 +93,29 @@ class SceneBuilder:
             actors=self.actors_needed,
             dirichlet=self.dirichlet,
             energies=self.energies,
-            params=self.params,
+            integrator=self.integrator,
             n_dofs=self.n_dofs,
+            params=self.params,
+            state=SceneState(
+                {
+                    "displacement": self.displacement,
+                    "velocity": self.velocity,
+                    "force": self.force,
+                    "mass": self.mass,
+                }
+            ),
         )
+
+    # endregion Builder
+
+    # region Utilities
+
+    def gather_point_data(self, name: str) -> Float[jax.Array, " DOF"]:
+        data: Float[jax.Array, " DOF"] = jnp.zeros((self.n_dofs,))
+        for actor in self.actors_concrete.values():
+            if name not in actor.point_data:
+                continue
+            data = actor.dofs.set(data, actor.point_data[name])
+        return data
+
+    # endregion Utilities

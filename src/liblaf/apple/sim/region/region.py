@@ -5,6 +5,7 @@ import jax
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Float, Integer
+from loguru import logger
 
 from liblaf.apple import struct, utils
 from liblaf.apple.sim.element import Element
@@ -95,6 +96,16 @@ class Region(struct.PyTreeMixin):
         return result
 
     @utils.jit_method(inline=True)
+    def gather(
+        self, x: Float[jax.Array, "cells a *dim"]
+    ) -> Float[jax.Array, " {self.n_points} *dim"]:
+        return jax.ops.segment_sum(
+            einops.rearrange(x, "c a ... -> (c a) ..."),
+            einops.rearrange(self.cells, "c a -> (c a)"),
+            num_segments=self.n_points,
+        )
+
+    @utils.jit_method(inline=True)
     def gradient(
         self, x: Float[jax.Array, "points *dim"]
     ) -> Float[jax.Array, "{self.n_cells} {self.quadrature.n_points} *dim {self.dim}"]:
@@ -104,16 +115,46 @@ class Region(struct.PyTreeMixin):
         return result
 
     @utils.jit_method(inline=True)
+    def gradient_vjp(
+        self, x: Float[jax.Array, "c q *dim J"]
+    ) -> Float[
+        jax.Array,
+        "{self.n_cells} {self.quadrature.n_points} {self.element.n_points} *dim",
+    ]:
+        result: Float[jax.Array, "c q a *dim"] = einops.einsum(
+            x, self.dhdX, "c q ... J, c q a J -> c q a ..."
+        )
+        return result
+
+    @utils.jit_method(inline=True)
+    def integrate(
+        self, x: Float[jax.Array, "cells q *dim"]
+    ) -> Float[jax.Array, " {self.n_cells} *dim"]:
+        return einops.einsum(x, self.dV, "c q ..., c q -> c ...")
+
+    @utils.jit_method(inline=True)
     def scatter(
         self, x: Float[jax.Array, "points *dim"]
     ) -> Float[jax.Array, "{self.n_cells} {self.element.n_points} *dim"]:
         return x[self.cells]
 
+    @utils.jit_method(inline=True)
+    def squeeze_cq(self, x: Float[jax.Array, "c q ..."]) -> Float[jax.Array, "c*q ..."]:
+        return einops.rearrange(x, "c q ... -> (c q) ...")
+
+    @utils.jit_method(inline=True)
+    def unsqueeze_cq(
+        self, x: Float[jax.Array, "cq ..."]
+    ) -> Float[jax.Array, "c q ..."]:
+        return einops.rearrange(
+            x, "(c q) ... -> c q ...", c=self.n_cells, q=self.quadrature.n_points
+        )
+
     # endregion Operator
 
     # region Gradient
 
-    @utils.jit_method(validate=False)
+    # @utils.jit_method(validate=False)
     def with_grad(self) -> Self:
         h: Float[jax.Array, "q a"] = jnp.asarray(
             [self.element.function(q) for q in self.quadrature.points]
@@ -128,6 +169,8 @@ class Region(struct.PyTreeMixin):
         dV: Float[jax.Array, "c q"] = (
             jnp.linalg.det(dXdr) * self.quadrature.weights[jnp.newaxis, :]
         )
+        if jnp.any(dV <= 0):
+            logger.warning("dV <= 0")
         dhdX: Float[jax.Array, "c q a J"] = einops.einsum(
             dhdr, drdX, "q a I, c q I J -> c q a J"
         )

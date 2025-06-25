@@ -27,7 +27,7 @@ class CollisionVertFace(sim.Energy):
         return struct.FrozenDict((self.obj, self.solid))
 
     @override
-    def prepare(self) -> Self:
+    def pre_optim_iter(self) -> Self:
         self.mesh_wp.refit()
         collision, face, uv, target = detect_collision(
             self.obj.positions,

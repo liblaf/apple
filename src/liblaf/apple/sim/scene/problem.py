@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import attrs
 
 from liblaf.apple import optim
@@ -8,11 +10,14 @@ from .protocol import SceneProtocol, X, Y
 @attrs.define
 class SceneProblem(optim.ProblemProtocol):
     scene: SceneProtocol = attrs.field()
+    _callback: Callable | None = attrs.field(default=None, alias="callback")
 
     def callback(self, intermediate_result: optim.OptimizeResult) -> None:
         result: optim.OptimizeResult = intermediate_result
         x: X = result["x"]
-        self.scene = self.scene.prepare(x)
+        self.scene = self.scene.pre_optim_iter(x)
+        if callable(self._callback):
+            self._callback(result)
 
     def fun(self, x: X, /) -> Y:
         return self.scene.fun(x)

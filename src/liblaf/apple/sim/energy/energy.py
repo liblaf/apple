@@ -20,7 +20,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
 
     # region Procedure
 
-    def prepare(self, params: GlobalParams) -> Self:  # noqa: ARG002
+    def pre_optim_iter(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
     def with_actors(self, actors: struct.NodeContainer[Actor]) -> Self:
@@ -71,7 +71,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: GlobalParams
     ) -> Float[jax.Array, ""]:
-        return math.tree.vdot(self.hessp(x, p, params), p)
+        return math.tree.tree_vdot(self.hessp(x, p, params), p)
 
     @utils.not_implemented
     @utils.jit_method

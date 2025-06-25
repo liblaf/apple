@@ -1,51 +1,54 @@
 import einops
-import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-from jaxtyping import Bool, Float, Integer
+from jaxtyping import Bool, Float
 
-import liblaf.apple as apple  # noqa: PLR0402
 from liblaf import grapes, melon
+from liblaf.apple import energy, helper, optim, sim
 
 
 def main() -> None:
     grapes.init_logging()
-    geometry: apple.Geometry = gen_geometry()
-    scene: apple.Scene = gen_scene(geometry)
-    writer = melon.SeriesWriter("data/examples/static/stretch.vtu.series")
+    mesh: pv.UnstructuredGrid = gen_pyvista()
+    actor: sim.Actor = gen_actor(mesh)
+    builder: sim.SceneBuilder = gen_scene(actor)
+    actor = builder.actors_concrete[actor.id]
+    scene: sim.Scene = builder.finish()
 
-    def callback(result: apple.OptimizeResult) -> None:
+    optimizer = optim.PNCG(maxiter=10**3, tol=1e-6)
+
+    writer = melon.SeriesWriter("data/examples/static/stretch.vtu.series")
+    actor = scene.export_actor(actor)
+    mesh: pv.UnstructuredGrid = actor.to_pyvista()
+    writer.append(mesh)
+
+    def callback(result: optim.OptimizeResult) -> None:
+        nonlocal actor, scene
         if "Delta_E" in result:
             ic(result["Delta_E"] / result["Delta_E0"])
-        geometries: dict[str, apple.Geometry] = scene.make_geometries(result["x"])
-        writer.append(geometries["box"].mesh)
+        scene = scene.pre_optim_iter(result["x"])
+        actor = scene.export_actor(actor)
+        actor = helper.dump_optim_result(scene, actor, result)
+        mesh: pv.UnstructuredGrid = actor.to_pyvista()
+        writer.append(mesh)
 
-    solution: apple.OptimizeResult = apple.minimize(
-        scene.fun,
-        x0=jnp.zeros((scene.n_free,)),
-        jac=scene.jac,
-        jac_and_hess_diag=scene.jac_and_hess_diag,
-        hess_quad=scene.hess_quad,
-        method=apple.PNCG(maxiter=150, tol=1e-5),
-        callback=callback,
-    )
-    ic(solution)
-
-    geometries: dict[str, apple.Geometry] = scene.make_geometries(solution["x"])
-    melon.save("data/examples/static/stretch-solution.vtu", geometries["box"].mesh)
+    result: optim.OptimizeResult
+    scene, result = scene.solve(optimizer=optimizer, callback=callback)
+    ic(result)
 
 
-def gen_geometry(lr: float = 0.05) -> apple.Geometry:
+def gen_pyvista(lr: float = 0.05) -> pv.UnstructuredGrid:
     surface: pv.PolyData = pv.Box()
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
-    geometry: apple.Geometry = apple.Geometry(mesh=mesh, id="box")
-    return geometry
+    mesh.cell_data["density"] = 1.0
+    mesh.cell_data["lambda"] = 3.0
+    mesh.cell_data["mu"] = 1.0
+    return mesh
 
 
 def gen_dirichlet(
-    geometry: apple.Geometry,
-) -> tuple[Integer[np.ndarray, " dirichlet"], Float[np.ndarray, " dirichlet"]]:
-    mesh: pv.UnstructuredGrid = geometry.mesh
+    mesh: pv.UnstructuredGrid,
+) -> sim.Dirichlet:
     dirichlet_mask: Bool[np.ndarray, " points"] = np.zeros((mesh.n_points,), dtype=bool)
     dirichlet_values: Float[np.ndarray, " points 3"] = np.zeros(
         (mesh.n_points, 3), dtype=float
@@ -66,26 +69,24 @@ def gen_dirichlet(
     mesh.point_data["dirichlet-mask"] = dirichlet_mask
     mesh.point_data["dirichlet-values"] = dirichlet_values
     dirichlet_mask: Bool[np.ndarray, "points 3"] = einops.repeat(
-        dirichlet_mask, " points -> (points 3)"
+        dirichlet_mask, " points -> points 3"
     )
-    dirichlet_index: Integer[np.ndarray, " dirichlet"]
-    (dirichlet_index,) = np.nonzero(dirichlet_mask)
-    return dirichlet_index, dirichlet_values.ravel()[dirichlet_index]
+    return sim.Dirichlet.from_mask(dirichlet_mask, dirichlet_values)
 
 
-def gen_scene(geometry: apple.Geometry) -> apple.Scene:
-    dirichlet_index: Integer[np.ndarray, " dirichlet"]
-    dirichlet_values: Float[np.ndarray, " dirichlet"]
-    domain: apple.Domain = apple.Domain.from_geometry(geometry)
-    dirichlet_index, dirichlet_values = gen_dirichlet(geometry)
-    field: apple.Field = apple.Field.from_domain(
-        domain=domain, id="displacement"
-    ).with_dirichlet(dirichlet_index=dirichlet_index, dirichlet_values=dirichlet_values)
-    energy = apple.energy.elastic.PhaceStatic(field_id=field.id)
-    scene = apple.Scene()
-    scene.add_field(field)
-    scene.add_energy(energy)
-    return scene
+def gen_actor(mesh: pv.UnstructuredGrid) -> sim.Actor:
+    actor: sim.Actor = sim.Actor.from_pyvista(mesh)
+    dirichlet: sim.Dirichlet = gen_dirichlet(mesh)
+    actor = actor.set_dirichlet(dirichlet)
+    actor = helper.add_point_mass(actor)
+    return actor
+
+
+def gen_scene(actor: sim.Actor) -> sim.SceneBuilder:
+    builder = sim.SceneBuilder()
+    actor = builder.assign_dofs(actor)
+    builder.add_energy(energy.PhaceStatic.from_actor(actor))
+    return builder
 
 
 if __name__ == "__main__":

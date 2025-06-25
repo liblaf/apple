@@ -1,7 +1,9 @@
 from collections.abc import Sequence
 from typing import Self, override
 
+import chex
 import jax
+import jax.numpy as jnp
 from jaxtyping import ArrayLike, Float, Integer
 
 from liblaf.apple import struct, utils
@@ -15,6 +17,13 @@ from liblaf.apple.sim.region import Region
 class Field(struct.ArrayMixin, struct.PyTreeMixin):
     region: Region = struct.data(default=None)
     values: Float[jax.Array, "points *dim"] = struct.array(default=None)
+
+    @classmethod
+    def from_region(cls, region: Region, values: ArrayLike) -> Self:
+        values = jnp.asarray(values)
+        values = jnp.broadcast_to(values, (region.n_points, *values.shape[1:]))
+        chex.assert_shape(values, (region.n_points, ...))
+        return cls(region=region, values=values)
 
     # region ArrayMixin
 
@@ -69,6 +78,36 @@ class Field(struct.ArrayMixin, struct.PyTreeMixin):
     @property
     def points(self) -> Integer[jax.Array, "{self.n_points} {self.region.dim}"]:
         return self.region.points
+
+    @property
+    @utils.validate
+    def h(self) -> Float[jax.Array, "q a"]:
+        return self.region.h
+
+    @property
+    @utils.validate
+    def dhdr(self) -> Float[jax.Array, "q a J"]:
+        return self.region.dhdr
+
+    @property
+    @utils.validate
+    def dXdr(self) -> Float[jax.Array, "c q J J"]:
+        return self.region.dXdr
+
+    @property
+    @utils.validate
+    def drdX(self) -> Float[jax.Array, "c q J J"]:
+        return self.region.drdX
+
+    @property
+    @utils.validate
+    def dV(self) -> Float[jax.Array, "c q"]:
+        return self.region.dV
+
+    @property
+    @utils.validate
+    def dhdX(self) -> Float[jax.Array, "c q a J"]:
+        return self.region.dhdX
 
     # endregion Arrays
 

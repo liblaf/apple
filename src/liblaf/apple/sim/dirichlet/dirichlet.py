@@ -14,6 +14,19 @@ class Dirichlet(struct.PyTreeMixin):
     values: Shaped[jax.Array, " dirichlet"] = struct.array(default=None)
 
     @classmethod
+    def from_mask(cls, mask: ArrayLike, values: ArrayLike) -> Self:
+        mask = jnp.asarray(mask)
+        if not mask.any():
+            return cls()
+        values = jnp.asarray(values)
+        values = jnp.broadcast_to(values, mask.shape)
+        mask = mask.ravel()
+        values = values.ravel()
+        dofs: DOFs = DOFs.from_mask(mask)
+        values = values[mask]
+        return cls(dofs=dofs, values=values)
+
+    @classmethod
     def union(cls, *dirichlet: Self) -> Self:
         dirichlet: list[Self] = [d for d in dirichlet if d.dofs is not None]
         if not dirichlet:

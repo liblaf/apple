@@ -40,7 +40,7 @@ class PNCG(Optimizer):
     """
 
     d_hat: float = struct.data(default=jnp.inf)
-    maxiter: int = struct.data(default=1000)
+    maxiter: int = struct.data(default=150)
     tol: float = struct.data(default=1e-5)
 
     @override
@@ -64,19 +64,22 @@ class PNCG(Optimizer):
             state = self.step(problem, state, args=args)
             if it == 0:
                 Delta_E0 = state.Delta_E
+            n_iter = it + 1
             result.update(
                 alpha=state.alpha,
                 beta=state.beta,
-                Delta_E0=Delta_E0,
                 Delta_E=state.Delta_E,
-                g=state.g,
+                Delta_E0=Delta_E0,
                 hess_diag=state.hess_diag,
                 hess_quad=state.hess_quad,
+                jac=state.g,
+                n_iter=n_iter,
                 p=state.p,
                 P=state.P,
                 x=state.x,
             )
-            n_iter = it + 1
+            if not jnp.isfinite(state.x).all() or not jnp.isfinite(state.Delta_E).all():
+                break
             if callable(problem.callback):
                 problem.callback(result)
             if it > 0 and (Delta_E0 == 0 or self.tol * Delta_E0 > state.Delta_E):
@@ -127,6 +130,7 @@ class PNCG(Optimizer):
             beta = self.compute_beta(g_prev=state.g, g=g, p=p)
             p = -P * g + beta * p
         pHp: FloatScalar = problem.hess_quad(x, p, *args)
+        pHp = jnp.clip(pHp, a_min=jnp.finfo(float).eps)  # avoid division by zero
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp

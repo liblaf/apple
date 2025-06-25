@@ -5,7 +5,7 @@ import warp as wp
 from liblaf.apple.func import strain, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
-from ._arap import (
+from .arap import (
     arap_energy_density,
     arap_energy_density_hess_diag,
     arap_energy_density_hess_quad,
@@ -13,11 +13,17 @@ from ._arap import (
 )
 
 
+@wp.struct
+class PhaceStaticParams:
+    lambda_: float  # Lame's first parameter
+    mu: float  # Lame's second parameter
+
+
 @no_type_check
 @wp.func
-def phace_static_energy_density(F: mat33, params: wp.vec2) -> float:
-    mu = params[0]  # float
-    lambda_ = params[1]  # float
+def phace_static_energy_density(F: mat33, params: PhaceStaticParams) -> float:
+    mu = params.mu  # float
+    lambda_ = params.lambda_  # float
     J = wp.determinant(F)  # scalar
     Psi_ARAP = arap_energy_density(F=F, mu=mu)  # scalar
     Psi_VP = lambda_ * utils.square(J - 1.0)  # scalar
@@ -27,9 +33,11 @@ def phace_static_energy_density(F: mat33, params: wp.vec2) -> float:
 
 @no_type_check
 @wp.func
-def phace_static_first_piola_kirchhoff_stress(F: mat33, params: wp.vec2) -> mat33:
-    mu = params[0]  # float
-    lambda_ = params[1]  # float
+def phace_static_first_piola_kirchhoff_stress(
+    F: mat33, params: PhaceStaticParams
+) -> mat33:
+    mu = params.mu  # float
+    lambda_ = params.lambda_  # float
     J = wp.determinant(F)  # scalar
     g3 = strain.g3(F)  # mat33
     PK1_ARAP = arap_first_piola_kirchhoff_stress(F=F, mu=mu)  # mat33
@@ -41,10 +49,10 @@ def phace_static_first_piola_kirchhoff_stress(F: mat33, params: wp.vec2) -> mat3
 @no_type_check
 @wp.func
 def phace_static_energy_density_hess_diag(
-    F: mat33, params: wp.vec2, dh_dX: mat43
+    F: mat33, params: PhaceStaticParams, dh_dX: mat43
 ) -> mat43:
-    mu = params[0]  # float
-    lambda_ = params[1]  # float
+    mu = params.mu  # float
+    lambda_ = params.lambda_  # float
     g3 = strain.g3(F)  # mat33
     d2Psi_dI32 = 2.0 * lambda_  # scalar
     hess_diag_ARAP = arap_energy_density_hess_diag(F=F, mu=mu, dh_dX=dh_dX)  # mat43
@@ -57,10 +65,10 @@ def phace_static_energy_density_hess_diag(
 @no_type_check
 @wp.func
 def phace_static_energy_density_hess_quad(
-    F: mat33, p: mat43, params: wp.vec2, dh_dX: mat43
+    F: mat33, p: mat43, params: PhaceStaticParams, dh_dX: mat43
 ) -> float:
-    mu = params[0]  # float
-    lambda_ = params[1]  # float
+    mu = params.mu  # float
+    lambda_ = params.lambda_  # float
     J = wp.determinant(F)  # scalar
     g3 = strain.g3(F)  # mat33
     dPsi_dI3 = 2.0 * lambda_ * (J - 1.0)  # scalar

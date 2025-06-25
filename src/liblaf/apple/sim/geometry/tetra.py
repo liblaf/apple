@@ -35,3 +35,12 @@ class GeometryTetra(Geometry):
         surface: pv.PolyData = mesh.extract_surface()
         result: GeometryTriangle = GeometryTriangle.from_pyvista(surface)
         return result
+
+    @override
+    def to_pyvista(self, *, attributes: bool = True) -> pv.DataSet:
+        mesh: pv.UnstructuredGrid = pv.UnstructuredGrid(
+            {pv.CellType.TETRA: np.asarray(self.cells)}, np.asarray(self.points)
+        )
+        mesh.point_data.update(self.point_data)
+        mesh.cell_data.update(self.cell_data)
+        return mesh

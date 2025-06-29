@@ -56,10 +56,12 @@ def main(cfg: Config) -> None:
 
 
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
-    surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
-    mesh: pv.UnstructuredGrid = melon.tetwild(surface)
-    # mesh = pv.examples.cells.Tetrahedron()
-    # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
+    # surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
+    # mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
+    mesh: pv.UnstructuredGrid = cast(
+        "pv.UnstructuredGrid", pv.examples.download_tetrahedron()
+    )
     mesh.cell_data["density"] = cfg.density
     mesh.cell_data["lambda"] = cfg.lambda_
     mesh.cell_data["mu"] = cfg.mu
@@ -93,7 +95,7 @@ def gen_actor(cfg: Config) -> sim.Actor:
 def gen_scene(_cfg: Config, actor: sim.Actor) -> sim.SceneBuilder:
     builder = sim.SceneBuilder()
     actor = builder.assign_dofs(actor)
-    builder.add_energy(energy.EnergyZero.from_actor(actor))
+    builder.add_energy(energy.ARAP.from_actor(actor))
     return builder
 
 

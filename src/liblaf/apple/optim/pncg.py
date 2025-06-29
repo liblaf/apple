@@ -130,7 +130,8 @@ class PNCG(Optimizer):
             beta = self.compute_beta(g_prev=state.g, g=g, p=p)
             p = -P * g + beta * p
         pHp: FloatScalar = problem.hess_quad(x, p, *args)
-        pHp = jnp.clip(pHp, a_min=jnp.finfo(float).eps)  # avoid division by zero
+        pHp = jnp.nan_to_num(pHp, nan=0.0)
+        pHp = jnp.clip(pHp, a_min=jnp.finfo(float).eps * 1e3)  # avoid division by zero
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp

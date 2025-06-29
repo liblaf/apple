@@ -12,7 +12,7 @@ from . import (
     typed,
     utils,
 )
-from .energy import ARAP, Gravity, Inertia, PhaceStatic
+from .energy import ARAP, PhaceStatic
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
 from .physics import CollisionRigidSoft, Domain, Energy, Field, Geometry, Scene
@@ -26,8 +26,6 @@ __all__ = [
     "Energy",
     "Field",
     "Geometry",
-    "Gravity",
-    "Inertia",
     "OptimizeResult",
     "Optimizer",
     "OptimizerScipy",

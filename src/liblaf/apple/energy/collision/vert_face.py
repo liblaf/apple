@@ -27,9 +27,12 @@ class CollisionVertFace(sim.Energy):
 
     max_dist: Float[Array, ""] = struct.array(default=1e-2)
     rest_length: Float[Array, ""] = struct.array(default=1e-3)
-    stiffness: Float[Array, ""] = struct.array(default=1e3)
+    stiffness: Float[Array, ""] = struct.array(default=1e2)
 
     candidates: CandidatesVertFace = struct.data(factory=CandidatesVertFace)
+
+    hess_diag_filter: bool = struct.static(default=True, kw_only=True)
+    hess_quad_filter: bool = struct.static(default=True, kw_only=True)
 
     @classmethod
     def from_actors(
@@ -118,6 +121,8 @@ class CollisionVertFace(sim.Energy):
             hess, axis1=-2, axis2=-1
         )
         hess_diag_values = jnp.where(mask[:, None], hess_diag_values, 0.0)
+        if self.hess_diag_filter:
+            hess_diag_values = jnp.clip(hess_diag_values, a_min=0.0)
         hess_diag: struct.ArrayDict = struct.ArrayDict(
             {
                 self.soft.id: hess_diag_values,
@@ -138,6 +143,8 @@ class CollisionVertFace(sim.Energy):
             p_soft, hess, p_soft, "p I, p I J, p J -> p"
         )
         hess_quad_soft = jnp.where(mask, hess_quad_soft, 0.0)
+        if self.hess_quad_filter:
+            hess_quad_soft = jnp.clip(hess_quad_soft, a_min=0.0)
         return jnp.sum(hess_quad_soft)
 
     def make_t(self, x: struct.ArrayDict, /) -> Float[Array, " points dim"]:

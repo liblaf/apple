@@ -1,3 +1,4 @@
+from typing import cast
 
 import jax.numpy as jnp
 import pyvista as pv
@@ -8,13 +9,13 @@ from liblaf.apple import energy, helper, optim, sim
 
 
 class Config(cherries.BaseConfig):
-    duration: float = 3.0
+    duration: float = 5.0
     fps: float = 30.0
 
     d_hat: float = 1e-3
     density: float = 1e3
-    lambda_: float = 3e4
-    mu: float = 1e4
+    lambda_: float = 3 * 1e3
+    mu: float = 1 * 1e3
 
     @property
     def n_frames(self) -> int:
@@ -34,7 +35,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     soft = builder.actors_concrete[soft.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**3, d_hat=cfg.d_hat)
+    optimizer = optim.PNCG(maxiter=150, d_hat=cfg.d_hat)
 
     writer = melon.SeriesWriter(
         "data/examples/dynamics/collision.vtu.series", fps=cfg.fps
@@ -65,8 +66,11 @@ def main(cfg: Config) -> None:
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
     # surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
     # mesh: pv.UnstructuredGrid = melon.tetwild(surface)
-    mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
-    # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
+    # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
+    mesh: pv.UnstructuredGrid = cast(
+        "pv.UnstructuredGrid", pv.examples.download_tetrahedron()
+    )
+    mesh.scale(0.5, inplace=True)
     y_min: float
     _, _, y_min, _, _, _ = mesh.bounds
     mesh.translate((0, 0.2 - y_min, 0), inplace=True)
@@ -101,7 +105,7 @@ def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilde
     builder = sim.SceneBuilder()
     soft = builder.assign_dofs(soft)
     rigid = builder.assign_dofs(rigid)
-    builder.add_energy(energy.PhaceStatic.from_actor(soft))
+    builder.add_energy(energy.ARAP.from_actor(soft))
     builder.add_energy(
         energy.CollisionVertFace.from_actors(soft, rigid, rest_length=cfg.d_hat)
     )

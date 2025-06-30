@@ -10,8 +10,9 @@ from liblaf.apple.sim.actor import Actor
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import make_dofs
 from liblaf.apple.sim.energy import Energy
-from liblaf.apple.sim.integrator import ImplicitEuler, SceneState, TimeIntegrator
+from liblaf.apple.sim.integrator import ImplicitEuler, TimeIntegrator
 from liblaf.apple.sim.params import GlobalParams
+from liblaf.apple.sim.state import State
 
 from .scene import Scene
 
@@ -24,7 +25,7 @@ class SceneBuilder:
     energies: struct.NodeContainer[Energy] = attrs.field(
         converter=struct.NodeContainer, factory=struct.NodeContainer
     )
-    integrator: TimeIntegrator = attrs.field(factory=lambda: ImplicitEuler())
+    integrator: TimeIntegrator = attrs.field(factory=ImplicitEuler)
     params: GlobalParams = attrs.field(factory=lambda: GlobalParams())
 
     @property
@@ -101,7 +102,7 @@ class SceneBuilder:
             integrator=self.integrator,
             n_dofs=self.n_dofs,
             params=self.params,
-            state=SceneState(
+            state=State(
                 {
                     "displacement": self.displacement,
                     "velocity": self.velocity,

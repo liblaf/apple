@@ -9,6 +9,7 @@ from liblaf.apple import sim, struct, utils
 
 @struct.pytree
 class Elastic(sim.Energy):
+    actor: sim.Actor = struct.data()
     hess_diag_filter: bool = struct.static(default=True, kw_only=True)
     hess_quad_filter: bool = struct.static(default=True, kw_only=True)
 
@@ -21,10 +22,19 @@ class Elastic(sim.Energy):
         hess_quad_filter: bool = True,
     ) -> Self:
         return cls(
-            actors=struct.NodeContainer([actor]),
+            actor=actor,
             hess_diag_filter=hess_diag_filter,
             hess_quad_filter=hess_quad_filter,
         )
+
+    @property
+    @override
+    def actors(self) -> struct.NodeContainer[sim.Actor]:
+        return struct.NodeContainer([self.actor])
+
+    @override
+    def with_actors(self, actors: struct.NodeContainer[sim.Actor]) -> Self:
+        return self.evolve(actor=actors[self.actor.id])
 
     def make_field(self, x: struct.ArrayDict, /) -> sim.Field:
         x: Float[jax.Array, "points dim"] = x[self.actor.id]

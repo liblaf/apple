@@ -4,7 +4,7 @@ from jaxtyping import Float, PyTree
 from liblaf.apple import utils
 from liblaf.apple.math import tree as math_tree
 
-from . import functions
+from . import functional
 
 type FloatScalar = Float[jax.Array, ""]
 type X = PyTree
@@ -47,7 +47,7 @@ class AutoDiffMixin:
         if utils.is_implemented(self.jac_and_hess_diag):
             jac, hess_diag = self.jac_and_hess_diag(x, *args, **kwargs)
             return hess_diag
-        return functions.hess_diag(self.fun)(x, *args, **kwargs)
+        return functional.hess_diag(self.fun)(x, *args, **kwargs)
 
     @utils.not_implemented
     @utils.jit_method(inline=True)

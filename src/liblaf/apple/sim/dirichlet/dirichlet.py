@@ -1,8 +1,7 @@
 from typing import Self
 
-import jax
 import jax.numpy as jnp
-from jaxtyping import ArrayLike, Shaped
+from jaxtyping import Array, ArrayLike, Bool, Shaped
 from typing_extensions import deprecated
 
 from liblaf.apple import struct
@@ -12,7 +11,7 @@ from liblaf.apple.sim.dofs import DOFs
 @struct.pytree
 class Dirichlet(struct.PyTreeMixin):
     dofs: DOFs = struct.data(default=None)
-    values: Shaped[jax.Array, " dirichlet"] = struct.array(default=None)
+    values: Shaped[Array, " dirichlet"] = struct.array(default=None)
 
     @classmethod
     def from_mask(cls, mask: ArrayLike, values: ArrayLike) -> Self:
@@ -39,7 +38,7 @@ class Dirichlet(struct.PyTreeMixin):
         if not dirichlet:
             return cls()
         dofs: DOFs = DOFs.union(*(d.dofs for d in dirichlet))
-        values: Shaped[jax.Array, " dirichlet"] = jnp.concat(
+        values: Shaped[Array, " dirichlet"] = jnp.concat(
             [jnp.asarray(d.values).ravel() for d in dirichlet]
         )
         return cls(dofs=dofs, values=values)
@@ -50,12 +49,17 @@ class Dirichlet(struct.PyTreeMixin):
             return 0
         return self.dofs.size
 
-    def apply(self, x: ArrayLike, /) -> jax.Array:
+    def apply(self, x: ArrayLike, /) -> Array:
         if self.dofs is None:
             return jnp.asarray(x)
         return self.dofs.set(x, self.values)
 
-    def zero(self, x: ArrayLike, /) -> jax.Array:
+    def mask(self, x: ArrayLike, /) -> Bool[Array, " DOF"]:
+        if self.dofs is None:
+            return jnp.asarray(x)
+        return self.dofs.set(x, True)  # noqa: FBT003
+
+    def zero(self, x: ArrayLike, /) -> Array:
         if self.dofs is None:
             return jnp.asarray(x)
         return self.dofs.set(x, 0.0)

@@ -9,9 +9,10 @@ from liblaf.apple import optim, struct, utils
 from liblaf.apple.sim.actor import Actor
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.energy import Energy
-from liblaf.apple.sim.integrator import SceneState, TimeIntegrator
+from liblaf.apple.sim.integrator import TimeIntegrator
 from liblaf.apple.sim.params import GlobalParams
 from liblaf.apple.sim.scene.problem import SceneProblem
+from liblaf.apple.sim.state import State
 
 type X = Float[jax.Array, " DOF"]
 type FloatScalar = Float[jax.Array, ""]
@@ -26,7 +27,7 @@ class Scene(struct.PyTreeMixin):
     )
     integrator: TimeIntegrator = struct.data(kw_only=True)
     n_dofs: int = struct.static(kw_only=True)
-    state: SceneState = struct.container(factory=SceneState)
+    state: State = struct.container(factory=State)
     params: GlobalParams = struct.data(factory=GlobalParams)
 
     @property
@@ -106,13 +107,23 @@ class Scene(struct.PyTreeMixin):
     # region Procedure
 
     def pre_time_step(self) -> Self:
-        state: SceneState = self.integrator.pre_time_step(self.state, self.params)
+        state: State = self.integrator.pre_time_step(self.state, self.params)
         return self.evolve(state=state)
+        # actors: struct.NodeContainer[Actor] = self.actors
+        # for actor in self.actors.values():
+        #     actor_new: Actor = actor.pre_time_step()
+        #     actors = self.actors.add(actor_new)
+        # energies: struct.NodeContainer[Energy] = self.energies
+        # for energy in energies.values():
+        #     energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
+        #     energy_new = energy_new.pre_time_step(self.params)
+        #     energies = energies.add(energy_new)
+        # return self.evolve(actors=actors, energies=energies, state=state)
 
     def pre_optim_iter(self, x: X | None = None) -> Self:
         if x is None:
             x = self.x0
-        state: SceneState = self.integrator.pre_optim_iter(x, self.state, self.params)
+        state: State = self.integrator.pre_optim_iter(x, self.state, self.params)
         actors: struct.NodeContainer[Actor] = self.actors
         fields: struct.ArrayDict = self.scatter(x)
         for actor in actors.values():
@@ -136,7 +147,9 @@ class Scene(struct.PyTreeMixin):
         if optimizer is None:
             optimizer = optim.PNCG()
         x0: X = jnp.asarray(x0)
-        scene: Self = self.pre_time_step().pre_optim_iter(x0)
+        scene: Self = self
+        scene = scene.pre_time_step()
+        scene = scene.pre_optim_iter(x0)
         problem = SceneProblem(scene=scene, callback=callback)
         result: optim.OptimizeResult = optimizer.minimize(
             problem.fun,
@@ -152,7 +165,7 @@ class Scene(struct.PyTreeMixin):
         return cast("Self", problem.scene), result
 
     def step(self, x: X, /) -> Self:
-        state: SceneState = self.integrator.step(x, self.state, self.params)
+        state: State = self.integrator.step(x, self.state, self.params)
         return self.evolve(state=state)
 
     # endregion Procedure

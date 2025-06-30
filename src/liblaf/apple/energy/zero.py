@@ -11,9 +11,22 @@ type FloatScalar = Float[jax.Array, ""]
 
 @struct.pytree
 class EnergyZero(sim.Energy):
+    _actors: struct.NodeContainer[sim.Actor] = struct.container(
+        factory=struct.NodeContainer
+    )
+
     @classmethod
-    def from_actor(cls, actor: sim.Actor) -> Self:
-        return cls(actors=struct.NodeContainer([actor]))
+    def from_actors(cls, *actors: sim.Actor) -> Self:
+        return cls(_actors=struct.NodeContainer(actors))
+
+    @property
+    @override
+    def actors(self) -> struct.NodeContainer[sim.Actor]:
+        return self._actors
+
+    @override
+    def with_actors(self, actors: struct.NodeContainer[sim.Actor]) -> Self:
+        return self.evolve(_actors=actors)
 
     @override
     @utils.jit_method(inline=True)
@@ -23,14 +36,18 @@ class EnergyZero(sim.Energy):
     @override
     @utils.jit_method(inline=True)
     def jac(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> struct.ArrayDict:
-        return struct.ArrayDict({self.actor.id: jnp.zeros_like(x[self.actor.id])})
+        return struct.ArrayDict(
+            {actor.id: jnp.zeros_like(x[actor.id]) for actor in self.actors.values()}
+        )
 
     @override
     @utils.jit_method(inline=True)
     def hess_diag(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> struct.ArrayDict:
-        return struct.ArrayDict({self.actor.id: jnp.zeros_like(x[self.actor.id])})
+        return struct.ArrayDict(
+            {actor.id: jnp.zeros_like(x[actor.id]) for actor in self.actors.values()}
+        )
 
     @override
     @utils.jit_method(inline=True)

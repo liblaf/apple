@@ -8,6 +8,7 @@ from .params import GlobalParams
 from .quadrature import QuadratureTetra
 from .region import Region
 from .scene import Scene, SceneBuilder
+from .state import State
 
 __all__ = [
     "Actor",
@@ -25,4 +26,5 @@ __all__ = [
     "Region",
     "Scene",
     "SceneBuilder",
+    "State",
 ]

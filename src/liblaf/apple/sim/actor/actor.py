@@ -16,10 +16,13 @@ from liblaf.apple.sim.field.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.sim.region import Region
 
+from .protocol import ComponentProtocol
+
 
 @struct.pytree
 class Actor(struct.PyTreeNode):
     collision_mesh: wp.Mesh = struct.static(default=None)
+    components: list[ComponentProtocol] = struct.data(factory=list)
     dirichlet: Dirichlet = struct.data(factory=Dirichlet)
     dofs: DOFs = struct.data(factory=DOFsArray)
     region: Region = struct.data(default=None)
@@ -115,6 +118,9 @@ class Actor(struct.PyTreeNode):
 
     # region Procedure
 
+    def pre_time_step(self) -> Self:
+        return self
+
     def pre_optim_iter(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
@@ -192,18 +198,24 @@ class Actor(struct.PyTreeNode):
     def to_pyvista(self, *, attributes: bool = True) -> pv.DataSet:
         mesh: pv.DataSet = self.geometry.to_pyvista(attributes=attributes)
         if attributes:
-            dirichlet_values: Float[np.ndarray, " points dim"] = np.zeros(
+            dirichlet_values: Float[np.ndarray, "points dim"] = np.zeros(
                 (mesh.n_points, self.dim)
             )
             dirichlet_values = np.asarray(self.dirichlet.apply(dirichlet_values))
             dirichlet_mask: Bool[np.ndarray, "points dim"] = np.ones(
                 (mesh.n_points, self.dim), dtype=bool
             )
-            dirichlet_mask = ~np.asarray(
-                self.dirichlet.zero(dirichlet_mask), dtype=bool
-            )
+            dirichlet_mask = np.asarray(self.dirichlet.mask(dirichlet_mask), dtype=bool)
             mesh.point_data["dirichlet-values"] = dirichlet_values
             mesh.point_data["dirichlet-mask"] = dirichlet_mask
+        return mesh
+
+    def to_warp(self, **kwargs) -> wp.Mesh:
+        mesh: wp.Mesh = wp.Mesh(
+            wp.from_jax(self.positions, dtype=wp.vec3),
+            wp.from_jax(self.geometry.cells.ravel(), dtype=wp.int32),
+            **kwargs,
+        )
         return mesh
 
     # endregion Exchange

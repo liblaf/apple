@@ -97,8 +97,10 @@ def phace_static_energy_density_warp(
     Psi: wp.array(dtype=float),
 ) -> None:
     tid = wp.tid()
-    param = func.elastic.PhaceStaticParams(lambda_=params[tid][0], mu=params[tid][1])
-    Psi[tid] = func.elastic.phace_static_energy_density(F=F[tid], params=param)
+    params_struct = func.elastic.PhaceStaticParams(
+        lambda_=params[tid][0], mu=params[tid][1]
+    )
+    Psi[tid] = func.elastic.phace_static_energy_density(F=F[tid], params=params_struct)
 
 
 @no_type_check
@@ -109,9 +111,11 @@ def phace_static_first_piola_kirchhoff_stress_warp(
     PK1: wp.array(dtype=mat33),
 ) -> None:
     tid = wp.tid()
-    param = func.elastic.PhaceStaticParams(lambda_=params[tid][0], mu=params[tid][1])
+    params_struct = func.elastic.PhaceStaticParams(
+        lambda_=params[tid][0], mu=params[tid][1]
+    )
     PK1[tid] = func.elastic.phace_static_first_piola_kirchhoff_stress(
-        F=F[tid], params=param
+        F=F[tid], params=params_struct
     )
 
 
@@ -124,9 +128,11 @@ def phace_static_energy_density_hess_diag_warp(
     hess_diag: wp.array(dtype=mat43),
 ) -> None:
     tid = wp.tid()
-    param = func.elastic.PhaceStaticParams(lambda_=params[tid][0], mu=params[tid][1])
+    params_struct = func.elastic.PhaceStaticParams(
+        lambda_=params[tid][0], mu=params[tid][1]
+    )
     hess_diag[tid] = func.elastic.phace_static_energy_density_hess_diag(
-        F=F[tid], params=param, dh_dX=dh_dX[tid]
+        F=F[tid], params=params_struct, dh_dX=dh_dX[tid]
     )
 
 
@@ -140,7 +146,9 @@ def phace_static_energy_density_hess_quad_warp(
     hess_quad: wp.array(dtype=float),
 ) -> None:
     tid = wp.tid()
-    param = func.elastic.PhaceStaticParams(lambda_=params[tid][0], mu=params[tid][1])
+    params_struct = func.elastic.PhaceStaticParams(
+        lambda_=params[tid][0], mu=params[tid][1]
+    )
     hess_quad[tid] = func.elastic.phace_static_energy_density_hess_quad(
-        F=F[tid], p=p[tid], params=param, dh_dX=dh_dX[tid]
+        F=F[tid], p=p[tid], params=params_struct, dh_dX=dh_dX[tid]
     )

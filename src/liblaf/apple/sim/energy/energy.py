@@ -1,9 +1,8 @@
 import abc
 from typing import Self
 
-import cytoolz as toolz
 import jax
-from jaxtyping import Float
+from jaxtyping import Array, Float
 
 from liblaf.apple import math, struct, utils
 from liblaf.apple.sim.actor import Actor
@@ -12,19 +11,22 @@ from liblaf.apple.sim.params import GlobalParams
 
 @struct.pytree
 class Energy(struct.PyTreeNode, abc.ABC):
-    actors: struct.NodeContainer[Actor] = struct.container(factory=struct.NodeContainer)
-
     @property
-    def actor(self) -> Actor:
-        return toolz.first(self.actors.values())
+    @abc.abstractmethod
+    def actors(self) -> struct.NodeContainer[Actor]:
+        raise NotImplementedError
 
     # region Procedure
+
+    def pre_time_step(self, params: GlobalParams) -> Self:  # noqa: ARG002
+        return self
 
     def pre_optim_iter(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
+    @abc.abstractmethod
     def with_actors(self, actors: struct.NodeContainer[Actor]) -> Self:
-        return self.evolve(actors=actors)
+        raise NotImplementedError
 
     # endregion Procedure
 
@@ -32,7 +34,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
 
     @utils.not_implemented
     @utils.jit_method
-    def fun(self, x: struct.ArrayDict, /, params: GlobalParams) -> Float[jax.Array, ""]:
+    def fun(self, x: struct.ArrayDict, /, params: GlobalParams) -> Float[Array, ""]:
         if utils.is_implemented(self.fun_and_jac):
             fun, _ = self.fun_and_jac(x, params)
             return fun
@@ -70,14 +72,14 @@ class Energy(struct.PyTreeNode, abc.ABC):
     @utils.jit_method
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: GlobalParams
-    ) -> Float[jax.Array, ""]:
+    ) -> Float[Array, ""]:
         return math.tree.tree_vdot(self.hessp(x, p, params), p)
 
     @utils.not_implemented
     @utils.jit_method
     def fun_and_jac(
         self, x: struct.ArrayDict, /, params: GlobalParams
-    ) -> tuple[Float[jax.Array, ""], struct.ArrayDict]:
+    ) -> tuple[Float[Array, ""], struct.ArrayDict]:
         return self.fun(x, params), self.jac(x, params)
 
     @utils.not_implemented

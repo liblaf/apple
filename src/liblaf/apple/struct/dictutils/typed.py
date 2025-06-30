@@ -15,11 +15,11 @@ class SupportsKeysAndGetItem[KT, VT](Protocol):
 
 
 type KeyLike = str | tuple[str, Any] | Node
-type KeysLike = Iterable[KeyLike] | None
+type KeysLike = Iterable[str | Node] | None
 type MappingLike = (
     SupportsKeysAndGetItem[str, Any]
-    | SupportsKeysAndGetItem[KeyLike, Any]
-    | Iterable[tuple[KeyLike, Any]]
+    | SupportsKeysAndGetItem[str | Node, Any]
+    | Iterable[tuple[str | Node, Any]]
     | Iterable[Node]
     | None
 )

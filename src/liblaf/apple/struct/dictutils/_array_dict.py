@@ -33,7 +33,7 @@ class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
     def __pdoc__(self, **kwargs) -> wl.AbstractDoc:
         cls_kwargs: dict[str, Any] = kwargs.copy()
         cls_kwargs["show_type_module"] = cls_kwargs["show_dataclass_module"]
-        return wl.pdoc(type(self), **cls_kwargs) + wl.pdoc(self._data)
+        return wl.pdoc(type(self), **cls_kwargs) + wl.pdoc(self._data, **kwargs)
 
     # region Mapping[str, jax.Array]
 

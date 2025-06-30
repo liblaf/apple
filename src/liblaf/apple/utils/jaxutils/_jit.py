@@ -1,7 +1,8 @@
 import functools
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, TypedDict, Unpack, cast, overload
+from typing import Any, TypedDict, Unpack, overload
 
+import equinox as eqx
 import jax
 
 from ._validate import validate
@@ -11,6 +12,7 @@ class JitKwargs(TypedDict, total=False):
     static_argnums: int | Sequence[int] | None
     static_argnames: str | Iterable[str] | None
     inline: bool
+    filter: bool
     validate: bool | None
 
 
@@ -34,7 +36,9 @@ def jit(func: Callable | None = None, /, **kwargs) -> Any:
         return functools.partial(jit, **kwargs)
     if kwargs.pop("validate", True):
         func = validate(func)
-    return cast("JitWrapped", jax.jit(func, **kwargs))
+    if kwargs.pop("filter", False):
+        return eqx.filter_jit(func, **kwargs)
+    return jax.jit(func, **kwargs)
 
 
 @overload

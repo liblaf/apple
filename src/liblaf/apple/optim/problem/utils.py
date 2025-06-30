@@ -12,4 +12,4 @@ def not_implemented(*args, **kwargs) -> NoReturn:
 
 
 def implemented(func: Callable | None, /) -> TypeIs[Callable]:
-    return callable(func) and utils.implemented(func)
+    return callable(func) and utils.is_implemented(func)

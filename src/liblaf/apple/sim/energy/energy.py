@@ -33,7 +33,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
     @utils.not_implemented
     @utils.jit_method
     def fun(self, x: struct.ArrayDict, /, params: GlobalParams) -> Float[jax.Array, ""]:
-        if utils.implemented(self.fun_and_jac):
+        if utils.is_implemented(self.fun_and_jac):
             fun, _ = self.fun_and_jac(x, params)
             return fun
         raise NotImplementedError
@@ -41,10 +41,10 @@ class Energy(struct.PyTreeNode, abc.ABC):
     @utils.not_implemented
     @utils.jit_method
     def jac(self, x: struct.ArrayDict, /, params: GlobalParams) -> struct.ArrayDict:
-        if utils.implemented(self.fun_and_jac):
+        if utils.is_implemented(self.fun_and_jac):
             _, jac = self.fun_and_jac(x, params)
             return jac
-        if utils.implemented(self.jac_and_hess_diag):
+        if utils.is_implemented(self.jac_and_hess_diag):
             jac, _ = self.jac_and_hess_diag(x, params)
             return jac
         return jax.grad(self.fun)(x, params)
@@ -61,7 +61,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
     def hess_diag(
         self, x: struct.ArrayDict, /, params: GlobalParams
     ) -> struct.ArrayDict:
-        if utils.implemented(self.jac_and_hess_diag):
+        if utils.is_implemented(self.jac_and_hess_diag):
             _, hess_diag = self.jac_and_hess_diag(x, params)
             return hess_diag
         return math.hess_diag(self.fun)(x, params)

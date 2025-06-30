@@ -6,7 +6,6 @@ from . import (
     math,
     naive,
     optim,
-    physics,
     struct,
     testing,
     typed,
@@ -15,23 +14,16 @@ from . import (
 from .energy import ARAP, PhaceStatic
 from .math import broadcast_to
 from .optim import PNCG, Optimizer, OptimizeResult, OptimizerScipy, minimize
-from .physics import CollisionRigidSoft, Domain, Energy, Field, Geometry, Scene
 from .utils import Random, block_until_ready_decorator, jax_kernel, jit, lame_params
 
 __all__ = [
     "ARAP",
     "PNCG",
-    "CollisionRigidSoft",
-    "Domain",
-    "Energy",
-    "Field",
-    "Geometry",
     "OptimizeResult",
     "Optimizer",
     "OptimizerScipy",
     "PhaceStatic",
     "Random",
-    "Scene",
     "block_until_ready_decorator",
     "broadcast_to",
     "elem",
@@ -45,7 +37,6 @@ __all__ = [
     "minimize",
     "naive",
     "optim",
-    "physics",
     "struct",
     "testing",
     "typed",

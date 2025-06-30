@@ -1,12 +1,11 @@
 from typing import Any
 
 import equinox as eqx
-import jax
-from jaxtyping import ArrayLike
+from jaxtyping import Array, ArrayLike
 from typing_extensions import TypeIs
 
 
-def is_array(x: Any, /) -> TypeIs[jax.Array]:
+def is_array(x: Any, /) -> TypeIs[Array]:
     return eqx.is_array(x)
 
 

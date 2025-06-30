@@ -2,7 +2,7 @@ from typing import Self
 
 import felupe.quadrature
 import jax
-from jaxtyping import Float
+from jaxtyping import Array, Float
 
 from liblaf.apple import struct
 
@@ -19,8 +19,8 @@ class Scheme(struct.PyTreeMixin):
         1. [felupe.quadrature.Schema](https://felupe.readthedocs.io/en/latest/felupe/quadrature.html#felupe.quadrature.Scheme)
     """
 
-    points: Float[jax.Array, "q J"] = struct.array(default=None)
-    weights: Float[jax.Array, " q"] = struct.array(default=None)
+    points: Float[Array, "q J"] = struct.array(default=None)
+    weights: Float[Array, " q"] = struct.array(default=None)
 
     @classmethod
     def from_felupe(cls, scheme: felupe.quadrature.Scheme) -> Self:

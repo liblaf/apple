@@ -28,8 +28,8 @@ class GeometryTetra(Geometry):
             return ElementTetra()
 
     @override
-    def boundary(self) -> GeometryTriangle:
-        mesh: pv.UnstructuredGrid = self.to_pyvista(attributes=True)
+    def boundary(self, *, attributes: bool = True) -> GeometryTriangle:
+        mesh: pv.UnstructuredGrid = self.to_pyvista(attributes=attributes)
         mesh.cell_data["cell-id"] = np.arange(mesh.n_cells)
         mesh.point_data["point-id"] = np.arange(mesh.n_points)
         surface: pv.PolyData = mesh.extract_surface()
@@ -41,6 +41,7 @@ class GeometryTetra(Geometry):
         mesh: pv.UnstructuredGrid = pv.UnstructuredGrid(
             {pv.CellType.TETRA: np.asarray(self.cells)}, np.asarray(self.points)
         )
-        mesh.point_data.update(self.point_data)
-        mesh.cell_data.update(self.cell_data)
+        if attributes:
+            mesh.point_data.update(self.point_data)
+            mesh.cell_data.update(self.cell_data)
         return mesh

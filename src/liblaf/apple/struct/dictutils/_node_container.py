@@ -59,11 +59,6 @@ class NodeContainer[T: Node](tree.PyTreeMixin, Mapping[str, T]):
         data: Mapping[str, T] = toolz.dissoc(self._data, key)
         return type(self)(data)
 
-    # def set(self, key: KeyLike, value: T, /) -> Self:
-    #     key: str = as_key(key)
-    #     data: Mapping[str, T] = toolz.assoc(self._data, key, value)
-    #     return type(self)(data)
-
     def update(self, updates: MappingLike, /, **kwargs) -> Self:
         updates = as_dict(updates)
         data: Mapping[str, T] = toolz.merge(self._data, updates, kwargs)

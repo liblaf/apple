@@ -1,9 +1,8 @@
-import jax
-from jaxtyping import Float
+from jaxtyping import Array, Float
 
 from liblaf.apple import struct
 
 
 @struct.pytree
 class GlobalParams(struct.PyTreeMixin):
-    time_step: Float[jax.Array, ""] = struct.array(default=1 / 30)
+    time_step: Float[Array, ""] = struct.array(default=1 / 30)

@@ -1,10 +1,9 @@
 import functools
 from typing import Self
 
-import jax
 import pyvista as pv
 import warp as wp
-from jaxtyping import ArrayLike, Float, Integer
+from jaxtyping import Array, ArrayLike, Float, Integer
 
 from liblaf import grapes
 from liblaf.apple import struct
@@ -16,8 +15,8 @@ from .attributes import GeometryAttributes
 
 @struct.pytree
 class Geometry(struct.PyTreeMixin):
-    cells: Integer[jax.Array, "cells a"] = struct.array(default=None)
-    points: Float[jax.Array, "points dim"] = struct.array(default=None)
+    cells: Integer[Array, "cells a"] = struct.array(default=None)
+    points: Float[Array, "points dim"] = struct.array(default=None)
 
     cell_data: GeometryAttributes = struct.container(
         factory=GeometryAttributes.factory(pv.FieldAssociation.CELL)
@@ -61,11 +60,11 @@ class Geometry(struct.PyTreeMixin):
     # region Attributes
 
     @property
-    def cell_id(self) -> Integer[jax.Array, "cells"]:
+    def cell_id(self) -> Integer[Array, "cells"]:
         return self.cell_data.get("cell-id")  # pyright: ignore[reportReturnType]
 
     @property
-    def point_id(self) -> Integer[jax.Array, "points"]:
+    def point_id(self) -> Integer[Array, "points"]:
         return self.point_data.get("point-id")  # pyright: ignore[reportReturnType]
 
     # endregion Attributes
@@ -91,7 +90,7 @@ class Geometry(struct.PyTreeMixin):
 
     # region Geometric Operations
 
-    def boundary(self) -> "Geometry":
+    def boundary(self, *, attributes: bool = True) -> "Geometry":
         raise NotImplementedError
 
     # endregion Geometric Operations

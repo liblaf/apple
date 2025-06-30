@@ -1,6 +1,6 @@
 import jax
 import jax.numpy as jnp
-from jaxtyping import ArrayLike, Float, Integer
+from jaxtyping import Array, ArrayLike, Float, Integer
 
 from liblaf.apple import struct, utils
 from liblaf.apple.sim.quadrature import Scheme
@@ -23,12 +23,12 @@ class Element(struct.PyTreeMixin):
         return self.points.shape[0]
 
     @property
-    def cells(self) -> Integer[jax.Array, "points"]:
+    def cells(self) -> Integer[Array, "points"]:
         with jax.ensure_compile_time_eval():
             return jnp.arange(self.n_points)
 
     @property
-    def points(self) -> Float[jax.Array, "points dim"]:
+    def points(self) -> Float[Array, "points dim"]:
         raise NotImplementedError
 
     @property
@@ -36,9 +36,7 @@ class Element(struct.PyTreeMixin):
         return None  # pyright: ignore[reportReturnType]
 
     @utils.not_implemented
-    def function(
-        self, coords: Float[ArrayLike, "dim"], /
-    ) -> Float[jax.Array, "points"]:
+    def function(self, coords: Float[ArrayLike, "dim"], /) -> Float[Array, "points"]:
         """Return the shape functions at given coordinates."""
         raise NotImplementedError
 
@@ -46,9 +44,9 @@ class Element(struct.PyTreeMixin):
     @utils.jit_method(inline=True)
     def gradient(
         self, coords: Float[ArrayLike, "dim"], /
-    ) -> Float[jax.Array, "points dim"]:
+    ) -> Float[Array, "points dim"]:
         """Return the gradient of shape functions at given coordinates."""
-        if utils.implemented(self.function):
+        if utils.is_implemented(self.function):
             return jax.jacobian(self.function)(coords)
         raise NotImplementedError
 
@@ -56,8 +54,8 @@ class Element(struct.PyTreeMixin):
     @utils.jit_method(inline=True)
     def hessian(
         self, coords: Float[ArrayLike, "dim"], /
-    ) -> Float[jax.Array, "points dim dim"]:
+    ) -> Float[Array, "points dim dim"]:
         """Return the Hessian of shape functions at given coordinates."""
-        if utils.implemented(self.function):
+        if utils.is_implemented(self.function):
             return jax.hessian(self.function)(coords)
         return jax.jacobian(self.gradient)(coords)

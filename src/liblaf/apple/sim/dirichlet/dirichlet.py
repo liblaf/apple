@@ -3,6 +3,7 @@ from typing import Self
 import jax
 import jax.numpy as jnp
 from jaxtyping import ArrayLike, Shaped
+from typing_extensions import deprecated
 
 from liblaf.apple import struct
 from liblaf.apple.sim.dofs import DOFs
@@ -27,7 +28,13 @@ class Dirichlet(struct.PyTreeMixin):
         return cls(dofs=dofs, values=values)
 
     @classmethod
+    @deprecated("Manually create Dirichlet conditions instead.")
     def union(cls, *dirichlet: Self) -> Self:
+        """...
+
+        Note:
+            Dirichlet conditions can only be merged if they are defined on the same DOFs. To avoid unexpected behavior, we do not implement this method.
+        """
         dirichlet: list[Self] = [d for d in dirichlet if d.dofs is not None]
         if not dirichlet:
             return cls()

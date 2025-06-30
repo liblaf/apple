@@ -15,7 +15,7 @@ class AutoDiffMixin:
     @utils.not_implemented
     @utils.jit_method(inline=True)
     def fun(self, x: X, /, *args, **kwargs) -> FloatScalar:
-        if utils.implemented(self.fun_and_jac):
+        if utils.is_implemented(self.fun_and_jac):
             fun, _ = self.fun_and_jac(x, *args, **kwargs)
             return fun
         raise NotImplementedError
@@ -23,10 +23,10 @@ class AutoDiffMixin:
     @utils.not_implemented
     @utils.jit_method(inline=True)
     def jac(self, x: X, /, *args, **kwargs) -> X:
-        if utils.implemented(self.fun_and_jac):
+        if utils.is_implemented(self.fun_and_jac):
             _, jac = self.fun_and_jac(x, *args, **kwargs)
             return jac
-        if utils.implemented(self.jac_and_hess_diag):
+        if utils.is_implemented(self.jac_and_hess_diag):
             _, hess_diag = self.jac_and_hess_diag(x, *args, **kwargs)
             return hess_diag
         return jax.grad(self.fun)(x, *args, **kwargs)
@@ -44,7 +44,7 @@ class AutoDiffMixin:
     @utils.not_implemented
     @utils.jit_method(inline=True)
     def hess_diag(self, x: X, /, *args, **kwargs) -> X:
-        if utils.implemented(self.jac_and_hess_diag):
+        if utils.is_implemented(self.jac_and_hess_diag):
             jac, hess_diag = self.jac_and_hess_diag(x, *args, **kwargs)
             return hess_diag
         return functions.hess_diag(self.fun)(x, *args, **kwargs)

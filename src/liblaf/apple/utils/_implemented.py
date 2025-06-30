@@ -1,10 +1,10 @@
 from typing import Any
 
 
-def implemented(fn: Any) -> bool:
-    return not getattr(fn, "not_implemented", False)
+def is_implemented(fn: Any) -> bool:
+    return getattr(fn, "implemented", True)
 
 
 def not_implemented[C](fn: C) -> C:
-    fn.not_implemented = True  # pyright: ignore[reportAttributeAccessIssue]
+    object.__setattr__(fn, "implemented", False)  # bypass frozen instance
     return fn

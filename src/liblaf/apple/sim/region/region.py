@@ -149,13 +149,15 @@ class Region(struct.PyTreeMixin):
         return x[self.cells]
 
     @utils.jit_method(inline=True)
-    def squeeze_cq(self, x: Float[jax.Array, "c q ..."]) -> Float[jax.Array, "c*q ..."]:
+    def squeeze_cq(
+        self, x: Float[jax.Array, "c q *dim"]
+    ) -> Float[jax.Array, " c*q *dim"]:
         return einops.rearrange(x, "c q ... -> (c q) ...")
 
     @utils.jit_method(inline=True)
     def unsqueeze_cq(
-        self, x: Float[jax.Array, "cq ..."]
-    ) -> Float[jax.Array, "c q ..."]:
+        self, x: Float[jax.Array, " cq *dim"]
+    ) -> Float[jax.Array, "c q *dim"]:
         return einops.rearrange(
             x, "(c q) ... -> c q ...", c=self.n_cells, q=self.quadrature.n_points
         )
@@ -164,7 +166,6 @@ class Region(struct.PyTreeMixin):
 
     # region Gradient
 
-    # @utils.jit_method(validate=False)
     def with_grad(self) -> Self:
         h: Float[jax.Array, "q a"] = jnp.asarray(
             [self.element.function(q) for q in self.quadrature.points]

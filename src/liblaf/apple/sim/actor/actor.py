@@ -11,7 +11,7 @@ from jaxtyping import ArrayLike, Bool, Float
 from liblaf.apple import struct
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import DOFs, DOFsArray
-from liblaf.apple.sim.element import Element
+from liblaf.apple.sim.element import Element, ElementTriangle
 from liblaf.apple.sim.field.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.sim.region import Region
@@ -28,24 +28,29 @@ class Actor(struct.PyTreeNode):
     region: Region = struct.data(default=None)
 
     @classmethod
-    def from_pyvista(cls, mesh: pv.DataSet) -> Self:
+    def from_pyvista(cls, mesh: pv.DataSet, *, collision: bool | None = None) -> Self:
         geometry: Geometry = Geometry.from_pyvista(mesh)
-        region: Region = Region.from_geometry(geometry)
-        return cls.from_region(region)
+        return cls.from_geometry(geometry, collision=collision)
 
     @classmethod
-    def from_geometry(cls, geometry: Geometry) -> Self:
+    def from_geometry(
+        cls, geometry: Geometry, *, collision: bool | None = None
+    ) -> Self:
         region: Region = Region.from_geometry(geometry)
-        return cls.from_region(region)
+        return cls.from_region(region, collision=collision)
 
     @classmethod
-    def from_region(cls, region: Region) -> Self:
+    def from_region(cls, region: Region, *, collision: bool | None = None) -> Self:
+        if collision is None:
+            collision = isinstance(region.geometry.element, ElementTriangle)
         self: Self = cls(region=region)
         self = self.update(
             displacement=jnp.zeros((region.n_points, region.dim)),
             velocity=jnp.zeros((region.n_points, region.dim)),
             force=jnp.zeros((region.n_points, region.dim)),
         )
+        if collision:
+            self = self.with_collision_mesh()
         return self
 
     # region Structure
@@ -185,7 +190,7 @@ class Actor(struct.PyTreeNode):
     def with_collision_mesh(self) -> Self:
         if self.collision_mesh is not None:
             return self
-        mesh: wp.Mesh = self.geometry.to_warp()
+        mesh: wp.Mesh = self.to_warp()
         return self.evolve(collision_mesh=mesh)
 
     def with_dofs(self, dofs: DOFs) -> Self:

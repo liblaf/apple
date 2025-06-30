@@ -1,8 +1,10 @@
-from typing import Protocol, Self
+from typing import TYPE_CHECKING, Protocol, Self, runtime_checkable
 
-from .actor import Actor
+if TYPE_CHECKING:
+    from .actor import Actor
 
 
+@runtime_checkable
 class ComponentProtocol(Protocol):
     def register[T: Actor](self, actor: T) -> tuple[Self, T]: ...
     def pre_time_step[T: Actor](self, actor: T) -> tuple[Self, T]: ...

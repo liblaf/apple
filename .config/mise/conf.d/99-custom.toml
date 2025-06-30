@@ -1,5 +1,11 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
 [env]
+# ref: <https://docs.jax.dev/en/latest/config_options.html#jax_default_matmul_precision>
 JAX_DEFAULT_MATMUL_PRECISION = "high"
+
+# ref: <https://liblaf-grapes.readthedocs.io/en/stable/reference/liblaf/grapes/logging/#liblaf.grapes.logging.init_loguru>
+LOGGING_FILE = "{{ cwd }}/run.log"
+
+# ref: <https://docs.jax.dev/en/latest/gpu_memory_allocation.html>
 XLA_PYTHON_CLIENT_MEM_FRACTION = "0.1"

@@ -1,112 +1,79 @@
 # Changelog
 
-## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3...v0.1.0) (2025-06-30)
+## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3..v0.1.0) - 2025-06-30
 
+### 💥 BREAKING CHANGES
 
-### ⚠ BREAKING CHANGES
-
-* **collision:** CollisionVertFace interface changed with new required parameters. Actor initialization now requires explicit collision mesh handling.
-* **sim:** 
-* **sim:** Physics module (CollisionRigidSoft, Domain, Energy, Field, Geometry, Scene) and related APIs have been removed. Use the new sim system instead. Update any references to `implemented()` to use `is_implemented()`.
-* **sim:** Removed Gravity/Inertia energy classes, changed collision API, requires warp dependency. Update energy imports and collision handling code.
-* **sim:** refactor and enhance simulation framework
-* **optim:** 
-* **sim:** `Object` renamed to `Actor` and geometry interfaces modified. Update all simulation code using these components.
-* **optim:** Optimization module imports and base classes have been reorganized. Update imports from: `_abc` -> `optimizer`/`problem` `_pncg` -> `pncg`
-* **sim:** This restructures many core APIs including:
-    - Removal of old simulation core files
-    - Changes to geometry and element interfaces
-    - New dict utility implementations
-    - Reorganized module hierarchy
-* **dictutils/tree:** tree.mapping renamed to tree.container. Update any references to the old name in your code.
-* **tree:** Tree utilities have moved from liblaf.apple.struct.tree_util to liblaf.apple.tree. Update imports accordingly. Pytree registration behavior may differ for existing tree structures.
-* **sim:** Major API changes in simulation core including:
-    - Field -> AbstractField/Field/FieldGrad hierarchy
-    - Changed optimization interface
-    - Modified scene and object structure
-    - Updated dependency requirements
-* **core:** Requires updates to all code using custom PyTree, field, and data structure implementations. Field access patterns and tree operations have changed significantly.
-* **sim:** Inertia now requires sim.Energy interface with deps/with_deps methods. Energy calculation methods now take additional params argument.
-* **sim:** Entire simulation module interface has changed. Existing code using old Field, Object, or Energy classes will need to be updated to new architecture. Major version bump required for dependent packages.
-* **sim:** Many class locations have changed and APIs were reorganized. Update imports and implementations accordingly.
-* **sim:** Changes to geometry and region class structure. Existing code using Geometry ABC or old region classes will need updates. Mesh access now through 'pyvista' property instead of 'mesh'.
-* **sim:** Changes to Element, Geometry and Region interfaces require updates in dependent code.
-* **sim:** Major restructuring of simulation API including:
-    - Field and Object interfaces changed
-    - New required dependencies (felupe)
-    - Removed legacy flax.struct usage
-    - Modified core method signatures
-* **struct:** All classes using flax.struct need to migrate to the new Node system with appropriate field types. Field handling and PyTree registration behavior has changed significantly.
-* **simulation:** Modifies physics simulation API including Config structure. Requires updates to existing simulation code and adds new dependencies.
-* next ([#24](https://github.com/liblaf/apple/issues/24))
+- **collision:** restructure vertex-face collision system - ([971cbe2](https://github.com/liblaf/apple/commit/971cbe2c8f8f2d1f51421b6eb3aa8fb89eec4485))
+- **core:** migrate to Equinox PyTree management - ([e774eeb](https://github.com/liblaf/apple/commit/e774eeb4ea3a027bde3fddbf9b84dab701a17237))
+- **dictutils/tree:** add dictionary utilities and improve container fields - ([85ef3f1](https://github.com/liblaf/apple/commit/85ef3f1d0cb39a9f8da1ee1a15b4e0fa397bb330))
+- **optim:** rewrite PNCG with improved math utilities - ([6dcada1](https://github.com/liblaf/apple/commit/6dcada1fb8b5da19ea7d6c20822998d58a1bebef))
+- **optim:** restructure optimization module - ([11900ed](https://github.com/liblaf/apple/commit/11900edb9ed023841933a0590381448b96034688))
+- **sim:** restructure simulation components and state - ([1a38a3c](https://github.com/liblaf/apple/commit/1a38a3c3502d07ce0a361991878352d895950094))
+- **sim:** remove physics module and improve implementation checks - ([ad644d5](https://github.com/liblaf/apple/commit/ad644d560a7367f8924b97cd8b7e7ee72245010c))
+- **sim:** implement new collision detection system - ([9d1ffc4](https://github.com/liblaf/apple/commit/9d1ffc45bcc7f3f6e937fdbc82e206b5b4fd19a2))
+- **sim:** refactor and enhance simulation framework - ([620906a](https://github.com/liblaf/apple/commit/620906ad20361542fc33c7a9a031ba8cc96ea2b7))
+- **sim:** overhaul actor system and geometry handling - ([69b7e5b](https://github.com/liblaf/apple/commit/69b7e5b7b40fce9d181636fc79f3d6df890540d2))
+- **sim:** restructure core modules and utilities - ([79da255](https://github.com/liblaf/apple/commit/79da255851e0ce09351c22d125a6d726c3b7b60f))
+- **sim:** restructure core components and add collision detection - ([b967f7f](https://github.com/liblaf/apple/commit/b967f7fb6705c888db9de989e13330e853f279d9))
+- **sim:** migrate inertia to new framework - ([f4d2e8f](https://github.com/liblaf/apple/commit/f4d2e8f552ece5466f35c1961a70326573c42972))
+- **sim:** restructure core simulation modules - ([a0e2108](https://github.com/liblaf/apple/commit/a0e21080325a8cff8a1fb63fc2d724eaf9f487a6))
+- **sim:** restructure core components into ABCs - ([bdbe382](https://github.com/liblaf/apple/commit/bdbe3824d4a0e57ba96e4bc82d477eb934492259))
+- **sim:** reorganize geometry and field systems - ([53fbd66](https://github.com/liblaf/apple/commit/53fbd66b6a55005251b70863dbbaf606fd78a620))
+- **sim:** restructure element and geometry classes - ([3539cea](https://github.com/liblaf/apple/commit/3539cea691d29b3e97e2b477b21f40980338c589))
+- **sim:** restructure finite element simulation components - ([885fd8c](https://github.com/liblaf/apple/commit/885fd8c730db5b96ea876d58922202e8e9e2b4c2))
+- **simulation:** add rigid-soft collision handling and simulation framework - ([aa9ae7a](https://github.com/liblaf/apple/commit/aa9ae7a5385d344b80d505f8c9388c4f950fc594))
+- **struct:** replace flax.struct with custom Node system - ([80d15a4](https://github.com/liblaf/apple/commit/80d15a40cef0e9787fffe4a36c85dca629caf5a2))
+- **tree:** reorganize pytree utilities - ([314f218](https://github.com/liblaf/apple/commit/314f218ef59f92df88715183d7a63bb09718e878))
+- next (#24) - ([7620f38](https://github.com/liblaf/apple/commit/7620f386ff889b1a76bc3b919f603bc325213d81))
 
 ### ✨ Features
 
-* add benchmark tests and material models for FEM analysis ([888ffd8](https://github.com/liblaf/apple/commit/888ffd899714559008f5a7b6ee1b0fd47d8faa5b))
-* add dynamic simulation capabilities and improve physics modeling ([07b0d1c](https://github.com/liblaf/apple/commit/07b0d1c18aa5833d9d324d4992573433cf4eb4fe))
-* add PNCG optimizer and enhance elastic energy models ([59c1612](https://github.com/liblaf/apple/commit/59c16127759c01e888980465b31f75bf1bdd74db))
-* **apple:** add AbstractMinimizeProblem and fix_winding utility ([c661b07](https://github.com/liblaf/apple/commit/c661b07ad722c844e4fc1d52f53aebeec3d4a237))
-* **dictutils,tree:** add FrozenDict and ArrayMixin ([dee4731](https://github.com/liblaf/apple/commit/dee473197b2b4638fb2da7859264ca76331958c3))
-* **dictutils/tree:** add dictionary utilities and improve container fields ([85ef3f1](https://github.com/liblaf/apple/commit/85ef3f1d0cb39a9f8da1ee1a15b4e0fa397bb330))
-* **dynamics:** add collision example and update simulation parameters ([3906dcb](https://github.com/liblaf/apple/commit/3906dcb89ed3bcf0ddf76bc13e6afd5a94a53a65))
-* **dynamics:** add dynamic simulation capabilities to bunny example ([24b60bd](https://github.com/liblaf/apple/commit/24b60bd65306e98528694cf17495c877c9a4c35e))
-* **dynamics:** add gravity simulation with bunny example ([9134b72](https://github.com/liblaf/apple/commit/9134b72f0a2459b0e0ad1c0b637a4138edf33261))
-* **dynamics:** enhance collision detection with animation and visualization ([edd25ce](https://github.com/liblaf/apple/commit/edd25ce18d231be5d45c10c9a6c06d6675a67bee))
-* enhance physics simulation with Geometry class and PhaceStatic energy ([6968ad7](https://github.com/liblaf/apple/commit/6968ad78265c6f280496a4c658e201e2443c150a))
-* **jaw-motion:** add jaw motion simulation experiment ([213362d](https://github.com/liblaf/apple/commit/213362d324b09e3e920a771453553a4ce0e0bf0b))
-* **jaw-motion:** add muscle activation simulation ([8a4a95f](https://github.com/liblaf/apple/commit/8a4a95f9d21536405e3d4171e10f30380bb13365))
-* next ([#24](https://github.com/liblaf/apple/issues/24)) ([7620f38](https://github.com/liblaf/apple/commit/7620f386ff889b1a76bc3b919f603bc325213d81))
-* **optim:** add JIT support and Hessian diagonal computation ([4aea353](https://github.com/liblaf/apple/commit/4aea353aff08ff3663a12e480239e1c3083c6551))
-* **physics:** enhance scene optimization and inertia calculations ([5fa2302](https://github.com/liblaf/apple/commit/5fa2302511317b002e7eaf835706ab9501b4c416))
-* **physics:** refactor field system and add dynamics support ([b9e5e01](https://github.com/liblaf/apple/commit/b9e5e01ed807ff8acd3ac50adae0ea2c76264dd7))
-* **physics:** restructure physics module with new domain and field system ([07b2823](https://github.com/liblaf/apple/commit/07b2823befd1f28c7d1813821d3821c05dd43efe))
-* **sim:** implement new collision detection system ([9d1ffc4](https://github.com/liblaf/apple/commit/9d1ffc45bcc7f3f6e937fdbc82e206b5b4fd19a2))
-* **sim:** refactor and enhance simulation framework ([620906a](https://github.com/liblaf/apple/commit/620906ad20361542fc33c7a9a031ba8cc96ea2b7))
-* **simulation:** add rigid-soft collision handling and simulation framework ([aa9ae7a](https://github.com/liblaf/apple/commit/aa9ae7a5385d344b80d505f8c9388c4f950fc594))
-* **strain:** add naive implementations of Qs and h3_diag functions ([a8bf975](https://github.com/liblaf/apple/commit/a8bf975cd90ddfb94148c996818e6c509323428a))
-* **strain:** optimize and refactor tetrahedral strain calculations ([fe2218f](https://github.com/liblaf/apple/commit/fe2218f41e74d767a561da3822dcb7d2c668d82f))
-
+- **apple:** add AbstractMinimizeProblem and fix_winding utility - ([c661b07](https://github.com/liblaf/apple/commit/c661b07ad722c844e4fc1d52f53aebeec3d4a237))
+- **dictutils,tree:** add FrozenDict and ArrayMixin - ([dee4731](https://github.com/liblaf/apple/commit/dee473197b2b4638fb2da7859264ca76331958c3))
+- **dynamics:** enhance collision detection with animation and visualization - ([edd25ce](https://github.com/liblaf/apple/commit/edd25ce18d231be5d45c10c9a6c06d6675a67bee))
+- **dynamics:** add collision example and update simulation parameters - ([3906dcb](https://github.com/liblaf/apple/commit/3906dcb89ed3bcf0ddf76bc13e6afd5a94a53a65))
+- **dynamics:** add gravity simulation with bunny example - ([9134b72](https://github.com/liblaf/apple/commit/9134b72f0a2459b0e0ad1c0b637a4138edf33261))
+- **dynamics:** add dynamic simulation capabilities to bunny example - ([24b60bd](https://github.com/liblaf/apple/commit/24b60bd65306e98528694cf17495c877c9a4c35e))
+- **jaw-motion:** add muscle activation simulation - ([8a4a95f](https://github.com/liblaf/apple/commit/8a4a95f9d21536405e3d4171e10f30380bb13365))
+- **jaw-motion:** add jaw motion simulation experiment - ([213362d](https://github.com/liblaf/apple/commit/213362d324b09e3e920a771453553a4ce0e0bf0b))
+- **optim:** add JIT support and Hessian diagonal computation - ([4aea353](https://github.com/liblaf/apple/commit/4aea353aff08ff3663a12e480239e1c3083c6551))
+- **physics:** enhance scene optimization and inertia calculations - ([5fa2302](https://github.com/liblaf/apple/commit/5fa2302511317b002e7eaf835706ab9501b4c416))
+- **physics:** refactor field system and add dynamics support - ([b9e5e01](https://github.com/liblaf/apple/commit/b9e5e01ed807ff8acd3ac50adae0ea2c76264dd7))
+- **physics:** restructure physics module with new domain and field system - ([07b2823](https://github.com/liblaf/apple/commit/07b2823befd1f28c7d1813821d3821c05dd43efe))
+- **strain:** add naive implementations of Qs and h3_diag functions - ([a8bf975](https://github.com/liblaf/apple/commit/a8bf975cd90ddfb94148c996818e6c509323428a))
+- **strain:** optimize and refactor tetrahedral strain calculations - ([fe2218f](https://github.com/liblaf/apple/commit/fe2218f41e74d767a561da3822dcb7d2c668d82f))
+- enhance physics simulation with Geometry class and PhaceStatic energy - ([6968ad7](https://github.com/liblaf/apple/commit/6968ad78265c6f280496a4c658e201e2443c150a))
+- add PNCG optimizer and enhance elastic energy models - ([59c1612](https://github.com/liblaf/apple/commit/59c16127759c01e888980465b31f75bf1bdd74db))
+- add dynamic simulation capabilities and improve physics modeling - ([07b0d1c](https://github.com/liblaf/apple/commit/07b0d1c18aa5833d9d324d4992573433cf4eb4fe))
+- add benchmark tests and material models for FEM analysis - ([888ffd8](https://github.com/liblaf/apple/commit/888ffd899714559008f5a7b6ee1b0fd47d8faa5b))
 
 ### ⬆️ Dependencies
 
-* **deps:** update and relax dependency requirements ([a3e2597](https://github.com/liblaf/apple/commit/a3e259745e3a0eb49cf8ba49d7ad2d48498b56b4))
-* **deps:** update liblaf-grapes dependency to v0.1.28 ([68033eb](https://github.com/liblaf/apple/commit/68033ebc72eadf9e265915959c049363d2a4614f))
-* **deps:** update liblaf-melon dependency to v0.2.8 ([9ecefe1](https://github.com/liblaf/apple/commit/9ecefe192f31b49b1e1e10acba5a3d78ac58d343))
-
+- **deps:** update liblaf-melon dependency to v0.2.8 - ([9ecefe1](https://github.com/liblaf/apple/commit/9ecefe192f31b49b1e1e10acba5a3d78ac58d343))
+- **deps:** update liblaf-grapes dependency to v0.1.28 - ([68033eb](https://github.com/liblaf/apple/commit/68033ebc72eadf9e265915959c049363d2a4614f))
 
 ### ♻ Code Refactoring
 
-* **collision:** restructure vertex-face collision system ([971cbe2](https://github.com/liblaf/apple/commit/971cbe2c8f8f2d1f51421b6eb3aa8fb89eec4485))
-* **core:** migrate to Equinox PyTree management ([e774eeb](https://github.com/liblaf/apple/commit/e774eeb4ea3a027bde3fddbf9b84dab701a17237))
-* **optim:** restructure optimization module ([11900ed](https://github.com/liblaf/apple/commit/11900edb9ed023841933a0590381448b96034688))
-* **optim:** rewrite PNCG with improved math utilities ([6dcada1](https://github.com/liblaf/apple/commit/6dcada1fb8b5da19ea7d6c20822998d58a1bebef))
-* **optim:** simplify timing callback handling and update type hints ([31a4910](https://github.com/liblaf/apple/commit/31a4910189b5d6549a77218feb4ef3d0f1b36f98))
-* **physics:** restructure physics problem abstraction and material models ([7a4b236](https://github.com/liblaf/apple/commit/7a4b236d24c1e8cce2c738d0552baeb64fb11572))
-* refactor dependencies and add Object class for physics simulation ([b3dbbaf](https://github.com/liblaf/apple/commit/b3dbbaf80f8410765bcdfb3abe41e6698ae6e542))
-* reorganize configuration files and update dependencies ([b4e8d32](https://github.com/liblaf/apple/commit/b4e8d320b29592c945fa690edfe90e65ffac366a))
-* **sim:** improve physics examples and core components ([156445f](https://github.com/liblaf/apple/commit/156445fe566af413f51cebe213f089c7d660d12f))
-* **sim:** migrate inertia to new framework ([f4d2e8f](https://github.com/liblaf/apple/commit/f4d2e8f552ece5466f35c1961a70326573c42972))
-* **sim:** overhaul actor system and geometry handling ([69b7e5b](https://github.com/liblaf/apple/commit/69b7e5b7b40fce9d181636fc79f3d6df890540d2))
-* **sim:** remove physics module and improve implementation checks ([ad644d5](https://github.com/liblaf/apple/commit/ad644d560a7367f8924b97cd8b7e7ee72245010c))
-* **sim:** reorganize geometry and field systems ([53fbd66](https://github.com/liblaf/apple/commit/53fbd66b6a55005251b70863dbbaf606fd78a620))
-* **sim:** restructure core components and add collision detection ([b967f7f](https://github.com/liblaf/apple/commit/b967f7fb6705c888db9de989e13330e853f279d9))
-* **sim:** restructure core components into ABCs ([bdbe382](https://github.com/liblaf/apple/commit/bdbe3824d4a0e57ba96e4bc82d477eb934492259))
-* **sim:** restructure core modules and utilities ([79da255](https://github.com/liblaf/apple/commit/79da255851e0ce09351c22d125a6d726c3b7b60f))
-* **sim:** restructure core simulation modules ([a0e2108](https://github.com/liblaf/apple/commit/a0e21080325a8cff8a1fb63fc2d724eaf9f487a6))
-* **sim:** restructure element and geometry classes ([3539cea](https://github.com/liblaf/apple/commit/3539cea691d29b3e97e2b477b21f40980338c589))
-* **sim:** restructure finite element simulation components ([885fd8c](https://github.com/liblaf/apple/commit/885fd8c730db5b96ea876d58922202e8e9e2b4c2))
-* **sim:** restructure simulation components and state ([1a38a3c](https://github.com/liblaf/apple/commit/1a38a3c3502d07ce0a361991878352d895950094))
-* **strain:** optimize deformation gradient calculations ([6be27eb](https://github.com/liblaf/apple/commit/6be27eb6ba496231a43d72978504b88fb549f329))
-* **struct:** replace flax.struct with custom Node system ([80d15a4](https://github.com/liblaf/apple/commit/80d15a40cef0e9787fffe4a36c85dca629caf5a2))
-* **tree:** reorganize pytree utilities ([314f218](https://github.com/liblaf/apple/commit/314f218ef59f92df88715183d7a63bb09718e878))
-
+- **optim:** simplify timing callback handling and update type hints - ([31a4910](https://github.com/liblaf/apple/commit/31a4910189b5d6549a77218feb4ef3d0f1b36f98))
+- **physics:** restructure physics problem abstraction and material models - ([7a4b236](https://github.com/liblaf/apple/commit/7a4b236d24c1e8cce2c738d0552baeb64fb11572))
+- **sim:** improve physics examples and core components - ([156445f](https://github.com/liblaf/apple/commit/156445fe566af413f51cebe213f089c7d660d12f))
+- **strain:** optimize deformation gradient calculations - ([6be27eb](https://github.com/liblaf/apple/commit/6be27eb6ba496231a43d72978504b88fb549f329))
+- refactor dependencies and add Object class for physics simulation - ([b3dbbaf](https://github.com/liblaf/apple/commit/b3dbbaf80f8410765bcdfb3abe41e6698ae6e542))
+- reorganize configuration files and update dependencies - ([b4e8d32](https://github.com/liblaf/apple/commit/b4e8d320b29592c945fa690edfe90e65ffac366a))
 
 ### 👷 Build System
 
-* add Flax as a dependency ([97d5688](https://github.com/liblaf/apple/commit/97d5688de5e919ef986c10499975b5cc02a61c36))
-* update project configuration and dependencies ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
+- **deps:** update and relax dependency requirements - ([a3e2597](https://github.com/liblaf/apple/commit/a3e259745e3a0eb49cf8ba49d7ad2d48498b56b4))
+- add Flax as a dependency - ([97d5688](https://github.com/liblaf/apple/commit/97d5688de5e919ef986c10499975b5cc02a61c36))
+- update project configuration and dependencies - ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
 
-## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-20
+### ❤️ New Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
+
+## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-23
 
 ### ✨ Features
 
@@ -125,11 +92,6 @@
 
 - simplify physics problem builder pattern - ([1aff338](https://github.com/liblaf/apple/commit/1aff33837cac11433ed80cd4b6f3488edf88119f))
 - restructure physics problem implementation and optimization - ([e98f4c5](https://github.com/liblaf/apple/commit/e98f4c5733f6911e24815e8b1f544c5214623a65))
-
-### ❤️ New Contributors
-
-- @renovate[bot] made their first contribution in [#15](https://github.com/liblaf/apple/pull/15)
-- @liblaf made their first contribution
 
 ## [0.0.2](https://github.com/liblaf/apple/compare/v0.0.1..v0.0.2) - 2025-02-24
 
@@ -168,8 +130,8 @@
 
 ### ❤️ New Contributors
 
-- @github-actions[bot] made their first contribution in [#3](https://github.com/liblaf/apple/pull/3)
-- @renovate[bot] made their first contribution in [#4](https://github.com/liblaf/apple/pull/4)
+- [@github-actions[bot]](https://github.com/apps/github-actions) made their first contribution in [#3](https://github.com/liblaf/apple/pull/3)
+- [@renovate[bot]](https://github.com/apps/renovate) made their first contribution in [#4](https://github.com/liblaf/apple/pull/4)
 
 ## [0.0.0] - 2025-01-19
 
@@ -183,6 +145,6 @@
 
 ### ❤️ New Contributors
 
-- @release-please[bot] made their first contribution in [#1](https://github.com/liblaf/apple/pull/1)
-- @liblaf made their first contribution
-- @liblaf-bot[bot] made their first contribution
+- [@release-please[bot]](https://github.com/apps/release-please) made their first contribution in [#1](https://github.com/liblaf/apple/pull/1)
+- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution

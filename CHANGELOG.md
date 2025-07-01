@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/liblaf/apple/compare/v0.1.0...v0.2.0) (2025-07-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **collision:** Callback signature now includes scene parameter. Actor.from_pyvista now defaults to grad=True. Region.from_geometry requires explicit grad parameter.
+
+### ✨ Features
+
+* **collision:** add Hessian calculations and improve PNCG ([bb37387](https://github.com/liblaf/apple/commit/bb37387384334dc6a221344dc4b6424f3b34a30a))
+* **sim:** add free-fall example and center of mass utils ([7c1f1d4](https://github.com/liblaf/apple/commit/7c1f1d4a5cdf8a8417aac9525356bdaf9fcc6f8f))
+
 ## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3..v0.1.0) - 2025-06-30
 
 ### 💥 BREAKING CHANGES

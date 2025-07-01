@@ -17,7 +17,7 @@ class SceneProblem(optim.ProblemProtocol):
         x: X = result["x"]
         self.scene = self.scene.pre_optim_iter(x)
         if callable(self._callback):
-            self._callback(result)
+            self._callback(result, self.scene)
 
     def fun(self, x: X, /) -> Y:
         return self.scene.fun(x)

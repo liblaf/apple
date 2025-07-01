@@ -106,6 +106,7 @@ class Scene(struct.PyTreeMixin):
 
     # region Procedure
 
+    @utils.jit_method(inline=True, validate=False)
     def pre_time_step(self) -> Self:
         state: State = self.integrator.pre_time_step(self.state, self.params)
         return self.evolve(state=state)
@@ -120,6 +121,7 @@ class Scene(struct.PyTreeMixin):
         #     energies = energies.add(energy_new)
         # return self.evolve(actors=actors, energies=energies, state=state)
 
+    @utils.jit_method(inline=True, validate=False)
     def pre_optim_iter(self, x: X | None = None) -> Self:
         if x is None:
             x = self.x0
@@ -142,13 +144,13 @@ class Scene(struct.PyTreeMixin):
         optimizer: optim.Optimizer | None = None,
         callback: Callable | None = None,
     ) -> tuple[Self, optim.OptimizeResult]:
-        if x0 is None:
-            x0 = self.x0
         if optimizer is None:
             optimizer = optim.PNCG()
-        x0: X = jnp.asarray(x0)
         scene: Self = self
         scene = scene.pre_time_step()
+        if x0 is None:
+            x0 = self.integrator.make_x0(self.state, self.params)
+        x0: X = jnp.asarray(x0)
         scene = scene.pre_optim_iter(x0)
         problem = SceneProblem(scene=scene, callback=callback)
         result: optim.OptimizeResult = optimizer.minimize(

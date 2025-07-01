@@ -1,3 +1,10 @@
+r"""As-Rigid-As-Possible.
+
+$$
+\Psi = \frac{\mu}{2} \|F - R\|_F^2 = \frac{\mu}{2} (I_2 - 2 I_1 + 3)
+$$
+"""
+
 from typing import no_type_check
 
 import warp as wp

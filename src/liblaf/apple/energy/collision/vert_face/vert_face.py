@@ -9,6 +9,8 @@ from liblaf.apple import sim, struct, utils
 from .kernel import (
     collision_detect_vert_face_kernel,
     collision_energy_vert_face_fun_callable,
+    collision_energy_vert_face_hess_diag_callable,
+    collision_energy_vert_face_hess_quad_callable,
 )
 
 
@@ -109,6 +111,47 @@ class CollisionVertFace(sim.Energy):
         return struct.ArrayDict(
             {self.soft.id: jac_soft, self.rigid.id: jnp.zeros_like(x[self.rigid.id])}
         )
+
+    @override
+    @utils.jit_method(inline=True)
+    def hess_diag(
+        self, x: struct.ArrayDict, /, params: sim.GlobalParams
+    ) -> struct.ArrayDict:
+        points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
+        hess_diag: Float[Array, " points dim"]
+        (hess_diag,) = collision_energy_vert_face_hess_diag_callable(
+            points,
+            self.candidates.closest,
+            self.candidates.collision_to_vertex,
+            self.candidates.distance,
+            self.candidates.count.reshape((1,)),
+            self.rest_length.reshape((1,)),
+            self.stiffness.reshape((1,)),
+            output_dims={"hess_diag": (self.soft.n_points,)},
+        )
+        return struct.ArrayDict(
+            {self.soft.id: hess_diag, self.rigid.id: jnp.zeros_like(x[self.rigid.id])}
+        )
+
+    @override
+    @utils.jit_method(inline=True)
+    def hess_quad(
+        self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: sim.GlobalParams
+    ) -> Float[Array, ""]:
+        points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
+        hess_quad: Float[Array, " 1"]
+        (hess_quad,) = collision_energy_vert_face_hess_quad_callable(
+            points,
+            p[self.soft.id],
+            self.candidates.closest,
+            self.candidates.collision_to_vertex,
+            self.candidates.distance,
+            self.candidates.count.reshape((1,)),
+            self.rest_length.reshape((1,)),
+            self.stiffness.reshape((1,)),
+            output_dims={"hess_quad": (1,)},
+        )
+        return hess_quad.squeeze()
 
     def collide(self) -> CollisionCandidatesVertFace:
         (

@@ -97,17 +97,17 @@ class PNCG(Optimizer):
         alpha: FloatScalar = jnp.minimum(
             self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf)), -jnp.vdot(g, p) / pHp
         )
-        alpha = jnp.nan_to_num(alpha, nan=0.0)
+        # alpha = jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
     @utils.jit_method(inline=True)
-    def compute_beta(self, g_prev: X, g: X, p: X) -> FloatScalar:
+    def compute_beta(self, g_prev: X, g: X, p: X, P: X) -> FloatScalar:
         y: X = g - g_prev
         yTp: FloatScalar = jnp.vdot(y, p)
-        beta: FloatScalar = jnp.vdot(g, y) / yTp - (jnp.vdot(y, y) / yTp) * (
+        beta: FloatScalar = jnp.vdot(g, P * y) / yTp - (jnp.vdot(y, P * y) / yTp) * (
             jnp.vdot(p, g) / yTp
         )
-        beta = jnp.nan_to_num(beta, nan=0.0)
+        # beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
     # @utils.jit_method(static_argnames=("problem", "args"), inline=True)
@@ -127,11 +127,11 @@ class PNCG(Optimizer):
         if state.first:
             p = -P * g
         else:
-            beta = self.compute_beta(g_prev=state.g, g=g, p=p)
+            beta = self.compute_beta(g_prev=state.g, g=g, p=p, P=P)
             p = -P * g + beta * p
         pHp: FloatScalar = problem.hess_quad(x, p, *args)
-        pHp = jnp.nan_to_num(pHp, nan=0.0)
-        pHp = jnp.clip(pHp, a_min=jnp.finfo(float).eps * 1e3)  # avoid division by zero
+        # pHp = jnp.nan_to_num(pHp, nan=0.0)
+        # pHp = jnp.where(pHp > 0, pHp, 1.0)
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp

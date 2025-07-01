@@ -15,6 +15,9 @@ type FloatScalar = Float[jax.Array, ""]
 class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
     # region Procedure
 
+    def make_x0(self, state: State, params: GlobalParams) -> X:
+        return state.displacement + state.velocity * params.time_step
+
     def pre_time_step(self, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         return state
 

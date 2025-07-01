@@ -33,9 +33,9 @@ def h4_quad(
 ) -> float:
     dFdx_p = deformation_gradient_jvp(dh_dX, p)  # mat33
     return (
-        lambdas[0] * wp.ddot(Q0, dFdx_p)
-        + lambdas[1] * wp.ddot(Q1, dFdx_p)
-        + lambdas[2] * wp.ddot(Q2, dFdx_p)
+        lambdas[0] * utils.square(wp.ddot(Q0, dFdx_p))
+        + lambdas[1] * utils.square(wp.ddot(Q1, dFdx_p))
+        + lambdas[2] * utils.square(wp.ddot(Q2, dFdx_p))
     )
 
 

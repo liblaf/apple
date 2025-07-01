@@ -14,9 +14,10 @@ def main() -> None:
     mesh: pv.UnstructuredGrid = gen_pyvista()
     actor: sim.Actor = gen_actor(mesh)
     builder: sim.SceneBuilder = gen_scene(actor)
+    builder.integrator = sim.TimeIntegratorStatic()
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**4, tol=1e-10)
+    optimizer = optim.PNCG(maxiter=10**3, tol=1e-10)
 
     x0: Float[jax.Array, " DOF"] = gen_init(scene, mesh.length)
     scene = scene.pre_optim_iter(x0)
@@ -26,13 +27,11 @@ def main() -> None:
     mesh: pv.UnstructuredGrid = actor.to_pyvista()
     writer.append(mesh)
 
-    def callback(result: optim.OptimizeResult) -> None:
-        nonlocal actor, scene
-        if result["n_iter"] % 10 != 0:
-            return
-        if "Delta_E" in result:
-            ic(result["Delta_E"] / result["Delta_E0"])
-        scene = scene.pre_optim_iter(result["x"])
+    def callback(result: optim.OptimizeResult, scene: sim.Scene) -> None:
+        nonlocal actor
+        # if result["n_iter"] % 10 != 0:
+        #     return
+        ic(result)
         actor = scene.export_actor(actor)
         actor = helper.dump_optim_result(scene, actor, result)
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
@@ -46,6 +45,7 @@ def main() -> None:
 def gen_pyvista(lr: float = 0.05) -> pv.UnstructuredGrid:
     surface: pv.PolyData = pyvista.examples.download_bunny(load=True)
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
+    # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
     mesh.cell_data["density"] = 1.0
     mesh.cell_data["lambda"] = 3.0
     mesh.cell_data["mu"] = 1.0
@@ -74,7 +74,7 @@ def gen_dirichlet(mesh: pv.UnstructuredGrid) -> sim.Dirichlet:
 
 
 def gen_actor(mesh: pv.UnstructuredGrid) -> sim.Actor:
-    actor: sim.Actor = sim.Actor.from_pyvista(mesh)
+    actor: sim.Actor = sim.Actor.from_pyvista(mesh, grad=True)
     actor = actor.set_dirichlet(gen_dirichlet(mesh))
     actor = helper.add_point_mass(actor)
     return actor

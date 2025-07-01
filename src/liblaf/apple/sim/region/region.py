@@ -38,16 +38,10 @@ class Region(struct.PyTreeMixin):
 
     @classmethod
     def from_geometry(
-        cls,
-        geometry: Geometry,
-        quadrature: Scheme | None = None,
-        *,
-        grad: bool | None = None,
+        cls, geometry: Geometry, quadrature: Scheme | None = None, *, grad: bool = False
     ) -> Self:
         if quadrature is None:
             quadrature = geometry.quadrature
-        if grad is None:
-            grad = quadrature is not None
         self: Self = cls(geometry=geometry, quadrature=quadrature)
         if grad:
             self = self.with_grad()

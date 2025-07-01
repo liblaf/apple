@@ -12,6 +12,7 @@ def main() -> None:
     mesh: pv.UnstructuredGrid = gen_pyvista()
     actor: sim.Actor = gen_actor(mesh)
     builder: sim.SceneBuilder = gen_scene(actor)
+    builder.integrator = sim.TimeIntegratorStatic()
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
 
@@ -22,11 +23,8 @@ def main() -> None:
     mesh: pv.UnstructuredGrid = actor.to_pyvista()
     writer.append(mesh)
 
-    def callback(result: optim.OptimizeResult) -> None:
-        nonlocal actor, scene
-        if "Delta_E" in result:
-            ic(result["Delta_E"] / result["Delta_E0"])
-        scene = scene.pre_optim_iter(result["x"])
+    def callback(result: optim.OptimizeResult, scene: sim.Scene) -> None:
+        nonlocal actor
         actor = scene.export_actor(actor)
         actor = helper.dump_optim_result(scene, actor, result)
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
@@ -38,7 +36,7 @@ def main() -> None:
 
 
 def gen_pyvista(lr: float = 0.05) -> pv.UnstructuredGrid:
-    surface: pv.PolyData = pv.Box()
+    surface: pv.PolyData = pv.Cylinder(direction=(1, 0, 0))
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=lr)
     mesh.cell_data["density"] = 1.0
     mesh.cell_data["lambda"] = 3.0
@@ -75,7 +73,7 @@ def gen_dirichlet(
 
 
 def gen_actor(mesh: pv.UnstructuredGrid) -> sim.Actor:
-    actor: sim.Actor = sim.Actor.from_pyvista(mesh)
+    actor: sim.Actor = sim.Actor.from_pyvista(mesh, grad=True)
     dirichlet: sim.Dirichlet = gen_dirichlet(mesh)
     actor = actor.set_dirichlet(dirichlet)
     actor = helper.add_point_mass(actor)

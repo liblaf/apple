@@ -56,10 +56,10 @@ class Scene(struct.PyTreeMixin):
         jac_dict: struct.ArrayDict = struct.ArrayDict()
         for energy in self.energies.values():
             jac_dict += energy.jac(fields, self.params)
-            ic(energy.id, dict(energy.jac(fields, self.params)))
         jac: X = self.gather(jac_dict)
-        jac += self.integrator.jac(x, self.state, self.params)
-        ic(self.integrator.jac(x, self.state, self.params))
+        integrator_jac: X = self.integrator.jac(x, self.state, self.params)
+        # jax.debug.print("integrator.jac(): {}", integrator_jac)
+        jac += integrator_jac
         jac = self.dirichlet.zero(jac)  # apply dirichlet constraints
         return jac
 
@@ -81,7 +81,9 @@ class Scene(struct.PyTreeMixin):
         for energy in self.energies.values():
             hess_diag_dict += energy.hess_diag(fields, self.params)
         hess_diag: X = self.gather(hess_diag_dict)
-        hess_diag += self.integrator.hess_diag(x, self.state, self.params)
+        integrator_hess_diag: X = self.integrator.hess_diag(x, self.state, self.params)
+        # jax.debug.print("integrator.hess_diag(): {}", integrator_hess_diag)
+        hess_diag += integrator_hess_diag
         return hess_diag
 
     @utils.jit_method
@@ -91,7 +93,7 @@ class Scene(struct.PyTreeMixin):
         hess_quad: FloatScalar = jnp.zeros(())
         for energy in self.energies.values():
             hess_quad += energy.hess_quad(fields, fields_p, self.params)
-        hess_quad += ic(self.integrator.hess_quad(x, p, self.state, self.params))
+        hess_quad += self.integrator.hess_quad(x, p, self.state, self.params)
         return hess_quad
 
     @utils.jit_method

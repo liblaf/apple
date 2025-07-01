@@ -14,6 +14,15 @@ class ImplicitEuler(TimeIntegrator):
     # region Procedure
 
     @override
+    def make_x0(self, state: State, params: GlobalParams) -> X:
+        return state.displacement
+        return (
+            state.displacement
+            + params.time_step * state.velocity
+            + params.time_step**2 * state.force / state.mass
+        )
+
+    @override
     def pre_time_step(self, state: State, params: GlobalParams) -> State:
         return state.update(x_prev=state.displacement)
 

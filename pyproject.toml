@@ -72,6 +72,7 @@ dependencies = [
   "liblaf-grapes>=0.3.0,<0.4",
   "liblaf-melon>=0.4.0,<0.5",
   "loguru>=0.7.0,<0.8",
+  "matplotlib>=3.0.0,<4",
   "networkx>=3.0.0,<4",
   "numpy>=2.0.0,<3",
   "plum-dispatch>=2.0.0,<3",

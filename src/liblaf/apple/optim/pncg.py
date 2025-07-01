@@ -41,7 +41,7 @@ class PNCG(Optimizer):
 
     d_hat: float = struct.data(default=jnp.inf)
     maxiter: int = struct.data(default=150)
-    tol: float = struct.data(default=1e-5)
+    tol: float = struct.data(default=1e-10)
 
     @override
     def _minimize_impl(
@@ -94,10 +94,11 @@ class PNCG(Optimizer):
 
     @utils.jit_method(inline=True)
     def compute_alpha(self, g: X, p: X, pHp: FloatScalar) -> FloatScalar:
-        alpha: FloatScalar = jnp.minimum(
-            self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf)), -jnp.vdot(g, p) / pHp
-        )
-        # alpha = jnp.nan_to_num(alpha, nan=0.0)
+        alpha_1: FloatScalar = self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf))
+        alpha_2: FloatScalar = -jnp.vdot(g, p) / pHp
+        alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
+        alpha: FloatScalar = jnp.minimum(alpha_1, alpha_2)
+        jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
     @utils.jit_method(inline=True)

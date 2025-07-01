@@ -2676,8 +2676,8 @@ packages:
   timestamp: 1746642113092
 - pypi: ./
   name: liblaf-apple
-  version: 26.dev43+g11900ed.d20250624
-  sha256: cc74205a70ad7456aa1859ac5a1aa33d69fa04fee73c5f8e3aa8a2aef3c40d0f
+  version: 0.1.1.dev1+gbb37387.d20250701
+  sha256: 09e7ee312a28c26ab2fcbade15dbaa9df9e7bf6908467c95b3a64bf1731bd19a
   requires_dist:
   - beartype>=0.21.0,<0.22
   - chex>=0.1.0,<0.2
@@ -2693,6 +2693,7 @@ packages:
   - liblaf-grapes>=0.3.0,<0.4
   - liblaf-melon>=0.4.0,<0.5
   - loguru>=0.7.0,<0.8
+  - matplotlib>=3.0.0,<4
   - networkx>=3.0.0,<4
   - numpy>=2.0.0,<3
   - plum-dispatch>=2.0.0,<3

@@ -118,7 +118,7 @@ class Actor(struct.PyTreeNode):
         return self.point_data["force"]
 
     @property
-    def mass(self) -> Float[jax.Array, " points"]:
+    def mass(self) -> Float[jax.Array, "points"]:
         return self.point_data["mass"]
 
     # endregion Attributes

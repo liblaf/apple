@@ -1,17 +1,16 @@
 from collections.abc import Mapping
 from typing import Self
 
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 import warp as wp
-from jaxtyping import ArrayLike, Bool, Float
+from jaxtyping import Array, ArrayLike, Bool, Float, Shaped
 
 from liblaf.apple import struct
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import DOFs, DOFsArray
-from liblaf.apple.sim.element import Element, ElementTriangle
+from liblaf.apple.sim.element import Element
 from liblaf.apple.sim.field.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.sim.region import Region
@@ -42,9 +41,7 @@ class Actor(struct.PyTreeNode):
         return cls.from_region(region, collision=collision)
 
     @classmethod
-    def from_region(cls, region: Region, *, collision: bool | None = None) -> Self:
-        if collision is None:
-            collision = isinstance(region.geometry.element, ElementTriangle)
+    def from_region(cls, region: Region, *, collision: bool = False) -> Self:
         self: Self = cls(region=region)
         self = self.update(
             displacement=jnp.zeros((region.n_points, region.dim)),
@@ -90,7 +87,7 @@ class Actor(struct.PyTreeNode):
     # region Attributes
 
     @property
-    def points(self) -> Float[jax.Array, "points dim"]:
+    def points(self) -> Float[Array, "points dim"]:
         return self.geometry.points
 
     @property
@@ -102,23 +99,27 @@ class Actor(struct.PyTreeNode):
         return self.geometry.point_data
 
     @property
-    def displacement(self) -> Float[jax.Array, "points dim"]:
+    def field_data(self) -> GeometryAttributes:
+        return self.geometry.field_data
+
+    @property
+    def displacement(self) -> Float[Array, "points dim"]:
         return self.point_data["displacement"]
 
     @property
-    def positions(self) -> Float[jax.Array, "points dim"]:
+    def positions(self) -> Float[Array, "points dim"]:
         return self.points + self.displacement
 
     @property
-    def velocity(self) -> Float[jax.Array, "points dim"]:
+    def velocity(self) -> Float[Array, "points dim"]:
         return self.point_data["velocity"]
 
     @property
-    def force(self) -> Float[jax.Array, "points dim"]:
+    def force(self) -> Float[Array, "points dim"]:
         return self.point_data["force"]
 
     @property
-    def mass(self) -> Float[jax.Array, "points"]:
+    def mass(self) -> Float[Array, "points"]:
         return self.point_data["mass"]
 
     # endregion Attributes
@@ -132,9 +133,9 @@ class Actor(struct.PyTreeNode):
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
         actor: Self = self.update(displacement)
-        if self.collision_mesh is not None:
-            self.collision_mesh.points = wp.from_jax(actor.positions, dtype=wp.vec3)
-            self.collision_mesh.refit()
+        if actor.collision_mesh is not None:
+            actor.collision_mesh.points = wp.from_jax(actor.positions, dtype=wp.vec3)
+            actor.collision_mesh.refit()
         return actor
 
     def update(
@@ -176,18 +177,31 @@ class Actor(struct.PyTreeNode):
         actor = actor.update(displacement=dirichlet.apply(actor.displacement))
         return actor
 
-    def set_point_data(self, name: str, value: Float[ArrayLike, "points dim"]) -> Self:
+    def set_point_data(self, name: str, value: Shaped[ArrayLike, "points dim"]) -> Self:
         point_data: GeometryAttributes = self.point_data.set(name, value)
         return self.tree_at(lambda self: self.point_data, point_data)
 
+    def set_field_data(self, name: str, value: Shaped[ArrayLike, "..."]) -> Self:
+        field_data: GeometryAttributes = self.field_data.set(name, value)
+        return self.tree_at(lambda self: self.field_data, field_data)
+
     def update_point_data(
         self,
-        updates: Mapping[str, Float[ArrayLike, "points dim"]],
+        updates: Mapping[str, Shaped[ArrayLike, "points ..."]],
         /,
-        **kwargs: Float[ArrayLike, "points dim"],
+        **kwargs: Shaped[ArrayLike, "points ..."],
     ) -> Self:
         point_data: GeometryAttributes = self.point_data.update(updates, **kwargs)
         return self.tree_at(lambda self: self.point_data, replace=point_data)
+
+    def update_field_data(
+        self,
+        updates: Mapping[str, Shaped[ArrayLike, "..."]],
+        /,
+        **kwargs: Shaped[ArrayLike, "..."],
+    ) -> Self:
+        field_data: GeometryAttributes = self.field_data.update(updates, **kwargs)
+        return self.tree_at(lambda self: self.field_data, replace=field_data)
 
     def with_collision_mesh(self) -> Self:
         if self.collision_mesh is not None:

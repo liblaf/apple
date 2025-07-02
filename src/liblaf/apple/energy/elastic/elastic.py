@@ -70,6 +70,7 @@ class Elastic(sim.Energy):
         )
         if self.hess_diag_filter:
             hess_diag = jnp.clip(hess_diag, min=0.0)
+        # jax.debug.print("Elastic.hess_diag: {}", hess_diag)
         hess_diag: Float[jax.Array, "c a J"] = field.region.integrate(hess_diag)
         hess_diag: Float[jax.Array, "p J"] = field.region.gather(hess_diag)
         return struct.ArrayDict({self.actor.id: hess_diag})

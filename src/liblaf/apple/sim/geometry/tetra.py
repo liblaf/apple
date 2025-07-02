@@ -44,4 +44,5 @@ class GeometryTetra(Geometry):
         if attributes:
             mesh.point_data.update(self.point_data)
             mesh.cell_data.update(self.cell_data)
+            mesh.field_data.update(self.field_data)
         return mesh

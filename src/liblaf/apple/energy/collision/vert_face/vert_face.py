@@ -2,28 +2,27 @@ from typing import Self, override
 
 import jax.numpy as jnp
 import numpy as np
-from jaxtyping import Array, Float, Integer
+from jaxtyping import Array, Bool, Float, Integer
 
 from liblaf.apple import sim, struct, utils
 
 from .kernel import (
     collision_detect_vert_face_kernel,
-    collision_energy_vert_face_fun_callable,
-    collision_energy_vert_face_hess_diag_callable,
-    collision_energy_vert_face_hess_quad_callable,
+    collision_energy_vert_face_fun_kernel,
+    collision_energy_vert_face_hess_diag_kernel,
+    collision_energy_vert_face_hess_quad_kernel,
+    collision_energy_vert_face_jac_kernel,
 )
 
 
 @struct.pytree
 class CollisionCandidatesVertFace(struct.PyTreeMixin):
-    closest: Float[Array, " points 3"] = struct.array(default=None)
-    collision_to_vertex: Integer[Array, " points"] = struct.array(default=None)
-    count: Integer[Array, ""] = struct.array(default=None)
+    closest: Float[Array, "points 3"] = struct.array(default=None)
+    collide: Bool[Array, " points"] = struct.array(default=None)
     distance: Float[Array, " points"] = struct.array(default=None)
     face_id: Integer[Array, " points"] = struct.array(default=None)
     face_normal: Float[Array, "points 3"] = struct.array(default=None)
     uv: Float[Array, "points 2"] = struct.array(default=None)
-    vertex_to_collision: Integer[Array, " points"] = struct.array(default=None)
 
 
 @struct.pytree
@@ -31,10 +30,12 @@ class CollisionVertFace(sim.Energy):
     rigid: sim.Actor = struct.data(default=None)
     soft: sim.Actor = struct.data(default=None)
 
-    stiffness: Float[Array, ""] = struct.array(default=1e3)
+    stiffness: Float[Array, ""] = struct.array(default=1e5)
     rest_length: Float[Array, ""] = struct.array(default=1e-3)
     max_dist: Float[Array, ""] = struct.array(default=1e-2)
     epsilon: Float[Array, ""] = struct.array(default=1e-3)
+    filter_hess_diag: bool = struct.static(default=True, kw_only=True)
+    filter_hess_quad: bool = struct.static(default=True, kw_only=True)
 
     candidates: CollisionCandidatesVertFace = struct.data(
         factory=CollisionCandidatesVertFace
@@ -46,7 +47,7 @@ class CollisionVertFace(sim.Energy):
         rigid: sim.Actor,
         soft: sim.Actor,
         *,
-        stiffness: float = 1e3,
+        stiffness: float = 1e4,
         rest_length: float = 1e-3,
         max_dist: float | None = None,
         epsilon: float = 1e-3,
@@ -74,40 +75,42 @@ class CollisionVertFace(sim.Energy):
     @override
     def pre_optim_iter(self, params: sim.GlobalParams) -> Self:
         candidates: CollisionCandidatesVertFace = self.collide()
+        # wl.pprint(candidates, short_arrays=False)
         return self.evolve(candidates=candidates)
 
     @override
     @utils.jit_method(inline=True)
     def fun(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> Float[Array, ""]:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
-        energy: Float[Array, " 1"]
-        (energy,) = collision_energy_vert_face_fun_callable(
+        energy: Float[Array, " points"]
+        (energy,) = collision_energy_vert_face_fun_kernel(
             points,
             self.candidates.closest,
-            self.candidates.collision_to_vertex,
+            self.candidates.collide,
             self.candidates.distance,
-            self.candidates.count.reshape((1,)),
             self.rest_length.reshape((1,)),
             self.stiffness.reshape((1,)),
             output_dims={"energy": (1,)},
+            launch_dims=(self.soft.n_points,),
         )
-        return energy.squeeze()
+        return energy.sum()
 
     @override
     @utils.jit_method(inline=True)
     def jac(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> struct.ArrayDict:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
         jac_soft: Float[Array, " points dim"]
-        (jac_soft,) = collision_energy_vert_face_fun_callable(
+        (jac_soft,) = collision_energy_vert_face_jac_kernel(
             points,
             self.candidates.closest,
-            self.candidates.collision_to_vertex,
+            self.candidates.collide,
             self.candidates.distance,
-            self.candidates.count.reshape((1,)),
             self.rest_length.reshape((1,)),
             self.stiffness.reshape((1,)),
             output_dims={"jac": (self.soft.n_points,)},
+            launch_dims=(self.soft.n_points,),
         )
+        # jax.debug.print("CollisionVertFace.jac = {}", jac_soft)
         return struct.ArrayDict(
             {self.soft.id: jac_soft, self.rigid.id: jnp.zeros_like(x[self.rigid.id])}
         )
@@ -118,17 +121,19 @@ class CollisionVertFace(sim.Energy):
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> struct.ArrayDict:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
-        hess_diag: Float[Array, " points dim"]
-        (hess_diag,) = collision_energy_vert_face_hess_diag_callable(
+        hess_diag: Float[Array, "points dim"]
+        (hess_diag,) = collision_energy_vert_face_hess_diag_kernel(
             points,
             self.candidates.closest,
-            self.candidates.collision_to_vertex,
+            self.candidates.collide,
             self.candidates.distance,
-            self.candidates.count.reshape((1,)),
             self.rest_length.reshape((1,)),
             self.stiffness.reshape((1,)),
             output_dims={"hess_diag": (self.soft.n_points,)},
+            launch_dims=(self.soft.n_points,),
         )
+        if self.filter_hess_diag:
+            hess_diag = jnp.clip(hess_diag, min=0.0)
         return struct.ArrayDict(
             {self.soft.id: hess_diag, self.rigid.id: jnp.zeros_like(x[self.rigid.id])}
         )
@@ -139,55 +144,51 @@ class CollisionVertFace(sim.Energy):
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> Float[Array, ""]:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
-        hess_quad: Float[Array, " 1"]
-        (hess_quad,) = collision_energy_vert_face_hess_quad_callable(
+        hess_quad: Float[Array, " points"]
+        (hess_quad,) = collision_energy_vert_face_hess_quad_kernel(
             points,
             p[self.soft.id],
             self.candidates.closest,
-            self.candidates.collision_to_vertex,
+            self.candidates.collide,
             self.candidates.distance,
-            self.candidates.count.reshape((1,)),
             self.rest_length.reshape((1,)),
             self.stiffness.reshape((1,)),
-            output_dims={"hess_quad": (1,)},
+            output_dims={"hess_quad": (self.soft.n_points,)},
+            launch_dims=(self.soft.n_points,),
         )
-        return hess_quad.squeeze()
+        if self.filter_hess_quad:
+            hess_quad = jnp.clip(hess_quad, min=0.0)
+        return hess_quad.sum()
 
     def collide(self) -> CollisionCandidatesVertFace:
         (
             closest,
-            collision_to_vertex,
-            count,
+            collide,
             distance,
             face_id,
             face_normal,
             uv,
-            vertex_to_collision,
         ) = collision_detect_vert_face_kernel(
-            self.soft.points,
+            self.soft.positions,
             np.uint64(self.rigid.collision_mesh.id),
             self.rest_length.reshape((1,)),
             self.max_dist.reshape((1,)),
             self.epsilon.reshape((1,)),
             output_dims={
                 "closest": (self.soft.n_points,),
-                "collision_to_vertex": (self.soft.n_points,),
-                "count": (1,),
+                "collide": (self.soft.n_points,),
                 "distance": (self.soft.n_points,),
                 "face_id": (self.soft.n_points,),
                 "face_normal": (self.soft.n_points,),
                 "uv": (self.soft.n_points,),
-                "vertex_to_collision": (self.soft.n_points,),
             },
             launch_dims=(self.soft.n_points,),
         )
         return CollisionCandidatesVertFace(
             closest=closest,
-            collision_to_vertex=collision_to_vertex,
-            count=count.squeeze(),
+            collide=collide,
             distance=distance,
             face_id=face_id,
             face_normal=face_normal,
             uv=uv,
-            vertex_to_collision=vertex_to_collision,
         )

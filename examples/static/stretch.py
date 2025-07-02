@@ -16,7 +16,7 @@ def main() -> None:
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
 
-    optimizer = optim.PNCG(maxiter=10**3, tol=1e-6)
+    optimizer = optim.PNCG(maxiter=10**3, rtol=1e-6)
 
     writer = melon.SeriesWriter("data/examples/static/stretch.vtu.series")
     actor = scene.export_actor(actor)

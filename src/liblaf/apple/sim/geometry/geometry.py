@@ -24,6 +24,9 @@ class Geometry(struct.PyTreeMixin):
     point_data: GeometryAttributes = struct.container(
         factory=GeometryAttributes.factory(pv.FieldAssociation.POINT)
     )
+    field_data: GeometryAttributes = struct.container(
+        factory=GeometryAttributes.factory(pv.FieldAssociation.NONE)
+    )
 
     @classmethod
     def from_pyvista(cls, mesh: pv.DataSet) -> "Geometry":
@@ -80,11 +83,17 @@ class Geometry(struct.PyTreeMixin):
     def set_point_data(self, name: str, value: ArrayLike, /) -> Self:
         return self.update_point_data(self.point_data.set(name, value))
 
+    def set_field_data(self, name: str, value: ArrayLike, /) -> Self:
+        return self.evolve(field_data=self.field_data.set(name, value))
+
     def update_cell_data(self, cell_data: struct.MappingLike, /) -> Self:
         return self.evolve(cell_data=self.cell_data.update(cell_data))
 
     def update_point_data(self, point_data: struct.MappingLike, /) -> Self:
         return self.evolve(point_data=self.point_data.update(point_data))
+
+    def update_field_data(self, field_data: struct.MappingLike, /) -> Self:
+        return self.evolve(field_data=self.field_data.update(field_data))
 
     # endregion Manipulation
 

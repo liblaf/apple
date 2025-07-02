@@ -39,9 +39,10 @@ class PNCG(Optimizer):
         1. Xing Shen, Runyuan Cai, Mengxiao Bi, and Tangjie Lv. 2024. Preconditioned Nonlinear Conjugate Gradient Method for Real-time Interior-point Hyperelasticity. In ACM SIGGRAPH 2024 Conference Papers (SIGGRAPH '24). Association for Computing Machinery, New York, NY, USA, Article 96, 1–11. https://doi.org/10.1145/3641519.3657490
     """
 
+    atol: float = struct.data(default=0.0)
     d_hat: float = struct.data(default=jnp.inf)
     maxiter: int = struct.data(default=150)
-    tol: float = struct.data(default=1e-10)
+    rtol: float = struct.data(default=5e-5)
 
     @override
     def _minimize_impl(
@@ -82,7 +83,10 @@ class PNCG(Optimizer):
                 break
             if callable(problem.callback):
                 problem.callback(result)
-            if it > 0 and (Delta_E0 == 0 or self.tol * Delta_E0 > state.Delta_E):
+            if state.Delta_E <= self.atol:
+                result["success"] = True
+                break
+            if it > 0 and (state.Delta_E <= self.rtol * Delta_E0):
                 result["success"] = True
                 break
 

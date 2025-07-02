@@ -1,7 +1,8 @@
 from . import jax_utils, warp_utils
 from ._implemented import is_implemented, not_implemented
-from ._is_array import is_array, is_array_like
+from ._is_array import is_array, is_array_like, is_scalar
 from ._lame_params import lame_params
+from ._path import data, entrypoint
 from ._random import Random
 from .jax_utils import (
     CostAnalysis,
@@ -23,9 +24,12 @@ __all__ = [
     "Random",
     "block_until_ready_decorator",
     "cost_analysis",
+    "data",
+    "entrypoint",
     "is_array",
     "is_array_like",
     "is_implemented",
+    "is_scalar",
     "jax_callable",
     "jax_kernel",
     "jax_kernel",

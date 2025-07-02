@@ -50,7 +50,7 @@ class Scene(struct.PyTreeMixin):
         fun += self.integrator.fun(x, self.state, self.params)
         return fun
 
-    @utils.jit_method
+    @utils.jit_method(inline=True)
     def jac(self, x: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         jac_dict: struct.ArrayDict = struct.ArrayDict()
@@ -63,7 +63,7 @@ class Scene(struct.PyTreeMixin):
         jac = self.dirichlet.zero(jac)  # apply dirichlet constraints
         return jac
 
-    @utils.jit_method
+    @utils.jit_method(inline=True)
     def hessp(self, x: X, p: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         fields_p: struct.ArrayDict = self.scatter(p)
@@ -74,15 +74,16 @@ class Scene(struct.PyTreeMixin):
         hessp += self.integrator.hessp(x, p, self.state, self.params)
         return hessp
 
-    @utils.jit_method
+    @utils.jit_method(inline=True)
     def hess_diag(self, x: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         hess_diag_dict: struct.ArrayDict = struct.ArrayDict()
         for energy in self.energies.values():
             hess_diag_dict += energy.hess_diag(fields, self.params)
         hess_diag: X = self.gather(hess_diag_dict)
+        # jax.debug.print("energy.hess_diag: {}", hess_diag)
         integrator_hess_diag: X = self.integrator.hess_diag(x, self.state, self.params)
-        # jax.debug.print("integrator.hess_diag(): {}", integrator_hess_diag)
+        # jax.debug.print("integrator.hess_diag: {}", integrator_hess_diag)
         hess_diag += integrator_hess_diag
         return hess_diag
 
@@ -123,7 +124,7 @@ class Scene(struct.PyTreeMixin):
         #     energies = energies.add(energy_new)
         # return self.evolve(actors=actors, energies=energies, state=state)
 
-    @utils.jit_method(inline=True, validate=False)
+    # @utils.jit_method(inline=True, validate=False)
     def pre_optim_iter(self, x: X | None = None) -> Self:
         if x is None:
             x = self.x0

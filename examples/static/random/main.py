@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import einops
 import jax
 import numpy as np
@@ -5,24 +7,27 @@ import pyvista as pv
 import pyvista.examples
 from jaxtyping import Bool, Float
 
-from liblaf import grapes, melon
+from liblaf import cherries, melon
 from liblaf.apple import energy, helper, optim, sim, utils
 
 
-def main() -> None:
-    grapes.init_logging()
+class Config(cherries.BaseConfig):
+    output_dir: Path = utils.data("")
+
+
+def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = gen_pyvista()
     actor: sim.Actor = gen_actor(mesh)
     builder: sim.SceneBuilder = gen_scene(actor)
     builder.integrator = sim.TimeIntegratorStatic()
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**3, tol=1e-10)
+    optimizer = optim.PNCG(maxiter=10**3, rtol=1e-10)
 
     x0: Float[jax.Array, " DOF"] = gen_init(scene, mesh.length)
     scene = scene.pre_optim_iter(x0)
 
-    writer = melon.SeriesWriter("data/examples/static/random.vtu.series")
+    writer = melon.SeriesWriter(cfg.output_dir / "animation.vtu.series")
     actor = scene.export_actor(actor)
     mesh: pv.UnstructuredGrid = actor.to_pyvista()
     writer.append(mesh)
@@ -97,4 +102,4 @@ def gen_init(scene: sim.Scene, length: float) -> Float[jax.Array, " free"]:
 
 
 if __name__ == "__main__":
-    main()
+    cherries.run(main, play=True)

@@ -16,6 +16,7 @@ class SceneProblem(optim.ProblemProtocol):
         result: optim.OptimizeResult = intermediate_result
         x: X = result["x"]
         self.scene = self.scene.pre_optim_iter(x)
+        # ic(result)
         if callable(self._callback):
             self._callback(result, self.scene)
 

@@ -8,19 +8,19 @@ import pyvista as pv
 from jaxtyping import ArrayLike, Float
 
 from liblaf import cherries, melon
-from liblaf.apple import energy, helper, optim, sim
+from liblaf.apple import energy, helper, optim, sim, utils
 
 
 class Config(cherries.BaseConfig):
-    output_dir: Path = cherries.data("examples/dynamics/free-falling/")
+    output_dir: Path = utils.data("")
 
     dirichlet_thickness: float = 0.05
-    duration: float = 1.0
+    duration: float = 5.0
     fps: float = 30.0
 
     density: float = 1e3
-    lambda_: float = 3.0 * 1e-4
-    mu: float = 1.0 * 1e-4
+    lambda_: float = 3.0 * 1e4
+    mu: float = 1.0 * 1e4
 
     @property
     def n_frames(self) -> int:
@@ -88,10 +88,12 @@ def main(cfg: Config) -> None:
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
     surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
     mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    # mesh.scale(20.0 / mesh.length, inplace=True)
     # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
     # mesh: pv.UnstructuredGrid = cast(
     #     "pv.UnstructuredGrid", pv.examples.download_tetrahedron()
     # )
+    # mesh.scale(0.2 / mesh.length, inplace=True)
     mesh.cell_data["density"] = cfg.density
     mesh.cell_data["lambda"] = cfg.lambda_
     mesh.cell_data["mu"] = cfg.mu

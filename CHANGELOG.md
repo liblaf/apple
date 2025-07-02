@@ -1,6 +1,20 @@
 # Changelog
 
-## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3..v0.1.0) - 2025-06-30
+## [0.2.0](https://github.com/liblaf/apple/compare/v0.1.0..v0.2.0) - 2025-07-01
+
+### 💥 BREAKING CHANGES
+
+- **collision:** add Hessian calculations and improve PNCG - ([bb37387](https://github.com/liblaf/apple/commit/bb37387384334dc6a221344dc4b6424f3b34a30a))
+
+### ✨ Features
+
+- **sim:** add free-fall example and center of mass utils - ([7c1f1d4](https://github.com/liblaf/apple/commit/7c1f1d4a5cdf8a8417aac9525356bdaf9fcc6f8f))
+
+### ❤️ New Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.1.0](https://github.com/liblaf/apple/compare/v0.0.3..v0.1.0) - 2025-07-01
 
 ### 💥 BREAKING CHANGES
 
@@ -67,11 +81,6 @@
 - **deps:** update and relax dependency requirements - ([a3e2597](https://github.com/liblaf/apple/commit/a3e259745e3a0eb49cf8ba49d7ad2d48498b56b4))
 - add Flax as a dependency - ([97d5688](https://github.com/liblaf/apple/commit/97d5688de5e919ef986c10499975b5cc02a61c36))
 - update project configuration and dependencies - ([dbf4953](https://github.com/liblaf/apple/commit/dbf49536e976b10b2a129badd9fe091426725e6e))
-
-### ❤️ New Contributors
-
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
 
 ## [0.0.3](https://github.com/liblaf/apple/compare/v0.0.2..v0.0.3) - 2025-03-23
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1](https://github.com/liblaf/apple/compare/v0.2.0...v0.2.1) (2025-07-03)
+
+
+### ✨ Features
+
+* **examples:** add collision simulations and improve physics ([10c6916](https://github.com/liblaf/apple/commit/10c6916acf633d07e5bb01749b381b28d293dfc3))
+
+
+### ⬆️ Dependencies
+
+* **deps:** update dependency python to 3.13.* ([#18](https://github.com/liblaf/apple/issues/18)) ([4643411](https://github.com/liblaf/apple/commit/46434111bdfe0626f7a7ea89ac7a8cc2e2e18516))
+* **deps:** update dependency python to 3.13.* ([#30](https://github.com/liblaf/apple/issues/30)) ([6aebf70](https://github.com/liblaf/apple/commit/6aebf70ecbbdb92290aa21f317c84e02335659e7))
+
 ## [0.2.0](https://github.com/liblaf/apple/compare/v0.1.0..v0.2.0) - 2025-07-01
 
 ### 💥 BREAKING CHANGES

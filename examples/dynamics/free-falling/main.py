@@ -38,7 +38,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**3)
+    optimizer = optim.PNCG(maxiter=10**3, rtol=0.0, atol=1e-7)
 
     timestamps: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))
     displacement: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))

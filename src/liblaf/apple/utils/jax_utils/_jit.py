@@ -36,7 +36,7 @@ def jit(func: Callable | None = None, /, **kwargs) -> Any:
         return functools.partial(jit, **kwargs)
     if kwargs.pop("validate", True):
         func = validate(func)
-    if kwargs.pop("filter", False):
+    if kwargs.pop("filter", True):
         return eqx.filter_jit(func, **kwargs)
     return jax.jit(func, **kwargs)
 

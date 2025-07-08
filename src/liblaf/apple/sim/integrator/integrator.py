@@ -13,6 +13,10 @@ type FloatScalar = Float[jax.Array, ""]
 
 @struct.pytree
 class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
+    @property
+    def name(self) -> str:
+        return type(self).__qualname__
+
     # region Procedure
 
     def make_x0(self, state: State, params: GlobalParams) -> X:

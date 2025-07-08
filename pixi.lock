@@ -222,6 +222,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5c/5b/4e4fff7bad39adf89f735f2bc87248c81db71205b62bcc0d5ca5b606b3c3/nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/46/0c/c75bbfb967457a0b7670b8ad267bfc4fffdf341c074e0a80db06c24ccfd4/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/14/c6/b8964791afb59207765ddbcfeeda1ad50c134b039e62a3ccfb16808407e0/nvidia_nvshmem_cu12-3.2.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/ec/af/572825252f16f36eeecbc8e3b721913d2640d69b984fdb8907aa8b4b0975/objprint-0.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/94/1843518e420fa3ed6919835845df698c7e27e183cb997394e4a670973a65/omegaconf-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/e3/0d7a2ee7ae7293e794e7945ffeda942ff5e3a94de24be27cc3eb5ba6c188/openai-1.90.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/23/cd/066e86230ae37ed0be70aae89aabf03ca8d9f39c8aea0dec8029455b5540/opt_einsum-3.4.0-py3-none-any.whl
@@ -330,6 +331,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/37/66/40a09cfff237ad76ff22fad65bd1ed41c669e55a517b60c644271fc073d5/vhacdx-0.0.8.post2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/03/ff/7c0c86c43b3cbb927e0ccc0255cb4057ceba4799cd44ae95174ce8e8b5b2/vine-5.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f3/40/b1c265d4b2b62b58576588510fc4d1fe60a86319c8de99fd8e9fec617d2c/virtualenv-20.31.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/27/48/f7c18833434987bd56e53382209c681cec291a1ab97b93227104365dc28c/viztracer-1.0.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/db/a8/8f9cc6749331186e6a513bfe3745454f81d25f6e34c6024f88f80c71ed28/voluptuous-0.15.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9f/61/e998f3d118aa4e70d4cc8549dc0b67acfa138936ef9da896cbf87da21f7b/vtk-9.4.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/8d/96/04e7b441807b26b794da5b11e59ed7f83b2cf8af202bd7eba8ad2fa6046e/wadler_lindig-0.1.7-py3-none-any.whl
@@ -2676,8 +2678,8 @@ packages:
   timestamp: 1746642113092
 - pypi: ./
   name: liblaf-apple
-  version: 0.2.1.dev3+g6aebf70.d20250703
-  sha256: 09e7ee312a28c26ab2fcbade15dbaa9df9e7bf6908467c95b3a64bf1731bd19a
+  version: 0.2.2.dev2+gdfd7641.d20250708
+  sha256: 6e8dad7d8538ae6a86da1a4c4c9e23342cf0e26ef60f8846c7915d8196c2b6bd
   requires_dist:
   - beartype>=0.21.0,<0.22
   - chex>=0.1.0,<0.2
@@ -3485,6 +3487,11 @@ packages:
   version: 3.2.5
   sha256: e076957d5cc72e51061a04f2d46f55df477be53e8a55d0d621be08f7aefe1d00
   requires_python: '>=3'
+- pypi: https://files.pythonhosted.org/packages/ec/af/572825252f16f36eeecbc8e3b721913d2640d69b984fdb8907aa8b4b0975/objprint-0.3.0-py3-none-any.whl
+  name: objprint
+  version: 0.3.0
+  sha256: 489083bfc8baf0526f8fd6af74673799511532636f0ce4141133255ded773405
+  requires_python: '>=3.9'
 - pypi: https://files.pythonhosted.org/packages/e3/94/1843518e420fa3ed6919835845df698c7e27e183cb997394e4a670973a65/omegaconf-2.3.0-py3-none-any.whl
   name: omegaconf
   version: 2.3.0
@@ -4920,6 +4927,14 @@ packages:
   - setuptools>=68 ; extra == 'test'
   - time-machine>=2.10 ; platform_python_implementation == 'CPython' and extra == 'test'
   requires_python: '>=3.8'
+- pypi: https://files.pythonhosted.org/packages/27/48/f7c18833434987bd56e53382209c681cec291a1ab97b93227104365dc28c/viztracer-1.0.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  name: viztracer
+  version: 1.0.4
+  sha256: 06675e00b42049122524af9af32d9a801ea0627d59ba401290b66b510ede667c
+  requires_dist:
+  - objprint>=0.3.0
+  - orjson ; extra == 'full'
+  requires_python: '>=3.9'
 - pypi: https://files.pythonhosted.org/packages/db/a8/8f9cc6749331186e6a513bfe3745454f81d25f6e34c6024f88f80c71ed28/voluptuous-0.15.2-py3-none-any.whl
   name: voluptuous
   version: 0.15.2

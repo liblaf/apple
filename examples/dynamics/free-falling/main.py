@@ -5,10 +5,10 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import pyvista as pv
-from jaxtyping import ArrayLike, Float
+from jaxtyping import Array, ArrayLike, Float
 
 from liblaf import cherries, melon
-from liblaf.apple import energy, helper, optim, sim, utils
+from liblaf.apple import energy, helper, optim, sim, struct, utils
 
 
 class Config(cherries.BaseConfig):
@@ -19,8 +19,8 @@ class Config(cherries.BaseConfig):
     fps: float = 30.0
 
     density: float = 1e3
-    lambda_: float = 3.0 * 1e4
-    mu: float = 1.0 * 1e4
+    lambda_: float = 3.0 * 1e2
+    mu: float = 1.0 * 1e2
 
     @property
     def n_frames(self) -> int:
@@ -38,7 +38,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**3, rtol=0.0, atol=1e-7)
+    optimizer = optim.PNCG(maxiter=10**3, rtol=1e-10)
 
     timestamps: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))
     displacement: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))
@@ -51,8 +51,17 @@ def main(cfg: Config) -> None:
     timestamps[0] = 0.0
     displacement[0] = 0.0
     velocity[0] = 0.0
+
     for t in range(1, cfg.n_frames + 1):
         result: optim.OptimizeResult
+        scene = scene.pre_time_step()
+        x: Float[Array, " DOF"] = scene.x0
+        fields: struct.ArrayDict = scene.scatter(x)
+        fun: dict[str, Float[Array, ""]] = {}
+        for e in scene.energies.values():
+            fun[e.id] = e.fun(fields, scene.params)
+        fun[scene.integrator.name] = scene.integrator.fun(x, scene.state, scene.params)
+
         scene, result = scene.solve(optimizer=optimizer)
         if not result["success"]:
             ic(result)
@@ -60,6 +69,7 @@ def main(cfg: Config) -> None:
         actor = scene.export_actor(actor)
         actor = helper.dump_optim_result(scene, actor, result)
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
+        mesh.field_data.update(fun)
         timestamps[t] = t * cfg.time_step
         displacement[t] = jnp.linalg.norm(helper.center_of_mass_displacement(actor))
         velocity[t] = jnp.linalg.norm(helper.center_of_mass_velocity(actor))
@@ -86,14 +96,12 @@ def main(cfg: Config) -> None:
 
 
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
-    surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
-    mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    # surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
+    # mesh: pv.UnstructuredGrid = melon.tetwild(surface)
     # mesh.scale(20.0 / mesh.length, inplace=True)
     # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
-    # mesh: pv.UnstructuredGrid = cast(
-    #     "pv.UnstructuredGrid", pv.examples.download_tetrahedron()
-    # )
-    # mesh.scale(0.2 / mesh.length, inplace=True)
+    mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
+    mesh.scale(0.2 / mesh.length, inplace=True)
     mesh.cell_data["density"] = cfg.density
     mesh.cell_data["lambda"] = cfg.lambda_
     mesh.cell_data["mu"] = cfg.mu

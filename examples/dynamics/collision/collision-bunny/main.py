@@ -16,8 +16,8 @@ class Config(cherries.BaseConfig):
 
     d_hat: float = 1e-3
     density: float = 1e3
-    lambda_: float = 3 * 5e4
-    mu: float = 1 * 5e4
+    lambda_: float = 3 * 1e3
+    mu: float = 1 * 1e3
 
     @property
     def n_frames(self) -> int:
@@ -37,7 +37,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     soft = builder.actors_concrete[soft.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(atol=1e-8, d_hat=cfg.d_hat, maxiter=10**3, rtol=1e-3)
+    optimizer = optim.PNCG(atol=0.0, d_hat=cfg.d_hat, maxiter=10**3, rtol=5e-5)
 
     writer = melon.SeriesWriter(cfg.output_dir / "animation.vtu.series", fps=cfg.fps)
     melon.save(cfg.output_dir / "ground.vtp", ground.to_pyvista())

@@ -7,7 +7,13 @@ requires = ["hatch-vcs", "hatchling"]
 
 [dependency-groups]
 build = ["check-wheel-contents", "hatch", "twine"]
-dev = ["icecream", "liblaf-cherries", "marimo[recommended]", "sympy"]
+dev = [
+  "icecream",
+  "liblaf-cherries",
+  "marimo[recommended]",
+  "sympy",
+  "viztracer",
+]
 docs = [
   "docstring-inheritance",
   "griffe-fieldz",

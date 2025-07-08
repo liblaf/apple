@@ -7,7 +7,6 @@ from ._random import Random
 from .jax_utils import (
     CostAnalysis,
     JitKwargs,
-    JitWrapped,
     block_until_ready_decorator,
     cost_analysis,
     jit,
@@ -20,7 +19,6 @@ from .warp_utils import jax_callable, jax_kernel
 __all__ = [
     "CostAnalysis",
     "JitKwargs",
-    "JitWrapped",
     "Random",
     "block_until_ready_decorator",
     "cost_analysis",

@@ -47,7 +47,7 @@ class CollisionVertFace(sim.Energy):
         rigid: sim.Actor,
         soft: sim.Actor,
         *,
-        stiffness: float = 1e2,
+        stiffness: float = 1e3,
         rest_length: float = 1e-3,
         max_dist: float | None = None,
         epsilon: float = 1e-3,

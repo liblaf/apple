@@ -25,7 +25,7 @@ class EnumError(ValueError):
         self.value = value
 
 
-@utils.jit(static_argnames=("shape", "mode"))
+@utils.jit
 def broadcast_to(
     arr: ArrayLike, shape: Sequence[int], mode: BroadcastMode = BroadcastMode.LEADING
 ) -> jax.Array:

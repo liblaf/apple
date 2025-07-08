@@ -4,10 +4,10 @@
   "language": "en",
   "words": [
     "arap",
-    "argnums",
     "arithmatex",
     "asyncio",
     "chex",
+    "chexify",
     "cuda",
     "cython",
     "cytoolz",

@@ -125,30 +125,30 @@ class EnergyTetraElement:
 class EnergyTetra:
     elem: EnergyTetraElement
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def prepare(self, points: Float[jax.Array, "C 4 3"]) -> PyTree:
         return jax.vmap(self.elem.prepare)(points)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def fun(
         self, u: Float[jax.Array, "C 4 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, ""]:
         fun: Float[jax.Array, " C"] = jax.vmap(self.elem.fun)(u, q, aux)
         return jnp.sum(fun)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def jac(
         self, u: Float[jax.Array, "C 4 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, "C 4 3"]:
         return jax.vmap(self.elem.jac)(u, q, aux)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def hess(
         self, u: Float[jax.Array, "C 4 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, "C 4 3 4 3"]:
         return jax.vmap(self.elem.hess)(u, q, aux)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def hessp(
         self,
         u: Float[jax.Array, "C 4 3"],
@@ -158,13 +158,13 @@ class EnergyTetra:
     ) -> Float[jax.Array, "C 4 3"]:
         return jax.vmap(self.elem.hessp)(u, p, q, aux)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def hess_diag(
         self, u: Float[jax.Array, "C 4 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, "C 4 3"]:
         raise NotImplementedError
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def hess_quad(
         self,
         u: Float[jax.Array, "C 4 3"],
@@ -174,19 +174,19 @@ class EnergyTetra:
     ) -> Float[jax.Array, ""]:
         raise NotImplementedError
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def jac_and_hess_diag(
         self, u: Float[jax.Array, "C 4 3"], q: PyTree, aux: PyTree
     ) -> tuple[Float[jax.Array, "C 4 3"], Float[jax.Array, "C 4 3"]]:
         raise NotImplementedError
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def energy_density(
         self, F: Float[jax.Array, "C 3 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, " C"]:
         return jax.vmap(self.elem.energy_density)(F, q, aux)
 
-    @utils.jit(static_argnames=("self",))
+    @utils.jit
     def first_piola_kirchhoff_stress(
         self, F: Float[jax.Array, "C 3 3"], q: PyTree, aux: PyTree
     ) -> Float[jax.Array, "C 3 3"]:

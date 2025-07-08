@@ -10,7 +10,8 @@ from jaxtyping import jaxtyped
 def validate[T](*, typechecker: Callable = ...) -> Callable[[T], T]: ...
 @overload
 def validate[T](func: T, /, *, typechecker: Callable = ...) -> T: ...
-def validate(func: Any = None, /, *, typechecker: Callable = beartype.beartype) -> Any:
+def validate(func: Any = None, /, **kwargs) -> Any:
     if func is None:
-        return functools.partial(validate, typechecker=typechecker)
-    return jaxtyped(func, typechecker=typechecker)
+        return functools.partial(validate, **kwargs)
+    kwargs.setdefault("typechecker", beartype.beartype)
+    return jaxtyped(func, **kwargs)

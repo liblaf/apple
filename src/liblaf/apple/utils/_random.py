@@ -1,8 +1,7 @@
 from collections.abc import Sequence
 
 import jax
-from jax.typing import ArrayLike
-from jaxtyping import Key
+from jaxtyping import ArrayLike, Key
 
 
 class Random:

@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Self, override
+from typing import Self
 
 import chex
 import jax
@@ -14,7 +14,7 @@ from liblaf.apple.sim.region import Region
 
 
 @struct.pytree
-class Field(struct.ArrayMixin, struct.PyTreeMixin):
+class Field(struct.PyTreeMixin):
     region: Region = struct.data(default=None)
     values: Float[jax.Array, "points *dim"] = struct.array(default=None)
 
@@ -27,7 +27,6 @@ class Field(struct.ArrayMixin, struct.PyTreeMixin):
 
     # region ArrayMixin
 
-    @override
     def from_values(self, values: ArrayLike, /) -> Self:
         return self.evolve(values=values)
 

@@ -23,7 +23,7 @@ class Element(struct.PyTreeMixin):
         return self.points.shape[0]
 
     @property
-    def cells(self) -> Integer[Array, "points"]:
+    def cells(self) -> Integer[Array, " points"]:
         with jax.ensure_compile_time_eval():
             return jnp.arange(self.n_points)
 
@@ -36,14 +36,14 @@ class Element(struct.PyTreeMixin):
         return None  # pyright: ignore[reportReturnType]
 
     @utils.not_implemented
-    def function(self, coords: Float[ArrayLike, "dim"], /) -> Float[Array, "points"]:
+    def function(self, coords: Float[ArrayLike, " dim"], /) -> Float[Array, " points"]:
         """Return the shape functions at given coordinates."""
         raise NotImplementedError
 
     @utils.not_implemented
     @utils.jit_method(inline=True)
     def gradient(
-        self, coords: Float[ArrayLike, "dim"], /
+        self, coords: Float[ArrayLike, " dim"], /
     ) -> Float[Array, "points dim"]:
         """Return the gradient of shape functions at given coordinates."""
         if utils.is_implemented(self.function):
@@ -53,7 +53,7 @@ class Element(struct.PyTreeMixin):
     @utils.not_implemented
     @utils.jit_method(inline=True)
     def hessian(
-        self, coords: Float[ArrayLike, "dim"], /
+        self, coords: Float[ArrayLike, " dim"], /
     ) -> Float[Array, "points dim dim"]:
         """Return the Hessian of shape functions at given coordinates."""
         if utils.is_implemented(self.function):

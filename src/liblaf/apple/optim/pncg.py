@@ -100,9 +100,9 @@ class PNCG(Optimizer):
     def compute_alpha(self, g: X, p: X, pHp: FloatScalar) -> FloatScalar:
         alpha_1: FloatScalar = self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf))
         alpha_2: FloatScalar = -jnp.vdot(g, p) / pHp
-        alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
+        # alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
         alpha: FloatScalar = jnp.minimum(alpha_1, alpha_2)
-        jnp.nan_to_num(alpha, nan=0.0)
+        # alpha = jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
     @utils.jit_method(inline=True)
@@ -127,7 +127,7 @@ class PNCG(Optimizer):
         x: X = state.x
         g, hess_diag = problem.jac_and_hess_diag(x, *args)
         P: X = jnp.reciprocal(hess_diag)
-        P: X = jnp.nan_to_num(P, posinf=1.0, neginf=1.0)
+        # P: X = jnp.nan_to_num(P, posinf=1.0, neginf=1.0)
 
         if state.first:
             p = -P * g

@@ -1,6 +1,8 @@
+import collections
 from pathlib import Path
 from typing import cast
 
+import attrs
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,12 +17,12 @@ class Config(cherries.BaseConfig):
     output_dir: Path = utils.data("")
 
     dirichlet_thickness: float = 0.05
-    duration: float = 5.0
+    duration: float = 10.0
     fps: float = 30.0
 
     density: float = 1e3
-    lambda_: float = 3.0 * 1e2
-    mu: float = 1.0 * 1e2
+    lambda_: float = 3.0 * 1e3
+    mu: float = 1.0 * 1e3
 
     @property
     def n_frames(self) -> int:
@@ -31,6 +33,27 @@ class Config(cherries.BaseConfig):
         return 1 / self.fps
 
 
+@attrs.define
+class Callback:
+    fun: dict[str, list[Float[Array, ""]]] = attrs.field(
+        factory=lambda: collections.defaultdict(list)
+    )
+
+    def first(self, scene: sim.Scene) -> None:
+        result = optim.OptimizeResult({"x": scene.x0})
+        self.callback(result, scene)
+
+    def callback(self, result: optim.OptimizeResult, scene: sim.Scene) -> None:
+        x: Float[Array, " DOF"] = result["x"]
+        fields: struct.ArrayDict = scene.scatter(x)
+        for e in scene.energies.values():
+            self.fun[e.id].append(e.fun(fields, scene.params))
+        self.fun[scene.integrator.name].append(
+            scene.integrator.fun(x, scene.state, scene.params)
+        )
+        self.fun["Energy"].append(scene.fun(x))
+
+
 def main(cfg: Config) -> None:
     plt.rc("figure", dpi=300)
     actor: sim.Actor = gen_actor(cfg)
@@ -38,7 +61,7 @@ def main(cfg: Config) -> None:
     builder.params = builder.params.evolve(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
-    optimizer = optim.PNCG(maxiter=10**3, rtol=1e-10)
+    optimizer = optim.PNCG(maxiter=500, rtol=1e-10)
 
     timestamps: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))
     displacement: Float[np.ndarray, " frames"] = np.zeros((cfg.n_frames + 1,))
@@ -52,24 +75,29 @@ def main(cfg: Config) -> None:
     displacement[0] = 0.0
     velocity[0] = 0.0
 
+    scene = scene.pre_time_step()
     for t in range(1, cfg.n_frames + 1):
         result: optim.OptimizeResult
-        scene = scene.pre_time_step()
-        x: Float[Array, " DOF"] = scene.x0
-        fields: struct.ArrayDict = scene.scatter(x)
-        fun: dict[str, Float[Array, ""]] = {}
-        for e in scene.energies.values():
-            fun[e.id] = e.fun(fields, scene.params)
-        fun[scene.integrator.name] = scene.integrator.fun(x, scene.state, scene.params)
-
-        scene, result = scene.solve(optimizer=optimizer)
+        callback = Callback()
+        callback.first(scene.pre_time_step())
+        scene, result = scene.solve(optimizer=optimizer, callback=callback.callback)
         if not result["success"]:
             ic(result)
         scene = scene.step(result["x"])
         actor = scene.export_actor(actor)
         actor = helper.dump_optim_result(scene, actor, result)
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
-        mesh.field_data.update(fun)
+        mesh.field_data.update(callback.fun)
+
+        fields: struct.ArrayDict = scene.scatter(result["x"])
+        for e in scene.energies.values():
+            jac_dict: struct.ArrayDict = e.jac(fields, scene.params)
+            jac_flat: Float[Array, " DOF"] = scene.gather(jac_dict)
+            mesh.point_data[f"{e.id}.jac"] = actor.dofs.get(jac_flat)
+        mesh.point_data[f"{scene.integrator.name}.jac"] = actor.dofs.get(
+            scene.integrator.jac(result["x"], scene.state, scene.params)
+        )
+
         timestamps[t] = t * cfg.time_step
         displacement[t] = jnp.linalg.norm(helper.center_of_mass_displacement(actor))
         velocity[t] = jnp.linalg.norm(helper.center_of_mass_velocity(actor))

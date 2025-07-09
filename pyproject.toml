@@ -9,6 +9,7 @@ requires = ["hatch-vcs", "hatchling"]
 build = ["check-wheel-contents", "hatch", "twine"]
 dev = [
   "icecream",
+  "imageio[ffmpeg]>=2.37.0,<3",
   "liblaf-cherries",
   "marimo[recommended]",
   "sympy",

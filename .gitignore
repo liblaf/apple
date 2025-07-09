@@ -186,6 +186,8 @@ _version.py
 junit.xml
 playground/
 
+fig/
+
 *.jpg
 *.pdf
 *.png

@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1...v0.3.0) (2025-07-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **jax:** Changes to PyTree registration system and removal of JitWrapped type may require updates to dependent code. JIT compilation behavior may change due to removed static_argnames parameters.
+
+### ✨ Features
+
+* **sim:** add energy tracking callback and improve optimizer ([02b5003](https://github.com/liblaf/apple/commit/02b5003931e1f9cb2e0a346b7daa616c02a98a4a))
+* **sim:** enhance free-falling example with energy tracking ([8895f79](https://github.com/liblaf/apple/commit/8895f79b9446a5bd5df20f366331fd4d623962c4))
+
+
+### 🐛 Bug Fixes
+
+* **jax:** enable filter by default in jit wrapper ([dfd7641](https://github.com/liblaf/apple/commit/dfd7641a020e089275de1ba5cc7096c07c769b8d))
+
+
+### ♻ Code Refactoring
+
+* **examples:** adjust material and optimization parameters ([67cf83d](https://github.com/liblaf/apple/commit/67cf83d6ddf0547083535d4039c5a6d9e612ce05))
+* **jax:** simplify PyTree registration and jit utilities ([32147c2](https://github.com/liblaf/apple/commit/32147c2b83f8d8ee0b3e6b0d62b29a1c9d236ef3))
+
 ## [0.2.1](https://github.com/liblaf/apple/compare/v0.2.0..v0.2.1) - 2025-07-03
 
 ### ✨ Features

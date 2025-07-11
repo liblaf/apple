@@ -160,6 +160,7 @@ class CollisionVertFace(sim.Energy):
             hess_quad = jnp.clip(hess_quad, min=0.0)
         return hess_quad.sum()
 
+    @utils.jit_method()
     def collide(self) -> CollisionCandidatesVertFace:
         (
             closest,

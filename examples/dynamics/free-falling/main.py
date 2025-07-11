@@ -75,11 +75,11 @@ def main(cfg: Config) -> None:
     displacement[0] = 0.0
     velocity[0] = 0.0
 
-    scene = scene.pre_time_step()
     for t in range(1, cfg.n_frames + 1):
         result: optim.OptimizeResult
         callback = Callback()
-        callback.first(scene.pre_time_step())
+        scene = scene.pre_time_step()
+        callback.first(scene.pre_optim_iter())
         scene, result = scene.solve(optimizer=optimizer, callback=callback.callback)
         if not result["success"]:
             ic(result)
@@ -87,6 +87,7 @@ def main(cfg: Config) -> None:
         actor = scene.export_actor(actor)
         actor = helper.dump_optim_result(scene, actor, result)
         mesh: pv.UnstructuredGrid = actor.to_pyvista()
+        mesh.field_data["ratio"] = result["Delta_E"] / result["Delta_E0"]
         mesh.field_data.update(callback.fun)
 
         fields: struct.ArrayDict = scene.scatter(result["x"])
@@ -124,12 +125,12 @@ def main(cfg: Config) -> None:
 
 
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
-    # surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
-    # mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
+    mesh: pv.UnstructuredGrid = melon.tetwild(surface)
     # mesh.scale(20.0 / mesh.length, inplace=True)
     # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
-    mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
-    mesh.scale(0.2 / mesh.length, inplace=True)
+    # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())
+    # mesh.scale(0.2 / mesh.length, inplace=True)
     mesh.cell_data["density"] = cfg.density
     mesh.cell_data["lambda"] = cfg.lambda_
     mesh.cell_data["mu"] = cfg.mu

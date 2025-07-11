@@ -127,7 +127,7 @@ class PNCG(Optimizer):
         x: X = state.x
         g, hess_diag = problem.jac_and_hess_diag(x, *args)
         P: X = jnp.reciprocal(hess_diag)
-        # P: X = jnp.nan_to_num(P, posinf=1.0, neginf=1.0)
+        P: X = jnp.nan_to_num(P, nan=1.0, posinf=1.0, neginf=1.0)
 
         if state.first:
             p = -P * g
@@ -135,8 +135,8 @@ class PNCG(Optimizer):
             beta = self.compute_beta(g_prev=state.g, g=g, p=p, P=P)
             p = -P * g + beta * p
         pHp: FloatScalar = problem.hess_quad(x, p, *args)
-        # pHp = jnp.nan_to_num(pHp, nan=0.0)
-        # pHp = jnp.where(pHp > 0, pHp, 1.0)
+        pHp = jnp.nan_to_num(pHp, nan=0.0)
+        pHp = jnp.where(pHp > 0, pHp, 1.0)
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp

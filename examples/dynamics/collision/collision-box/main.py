@@ -54,7 +54,7 @@ class Callback:
 
 
 def main(cfg: Config) -> None:
-    grapes.init_logging()
+    grapes.logging.init()
     wp.init()
     soft: sim.Actor = gen_actor(cfg)
     ground: sim.Actor = gen_rigid(cfg)
@@ -146,4 +146,4 @@ def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilde
 
 
 if __name__ == "__main__":
-    cherries.run(main, play=True)
+    cherries.run(main, profile="playground")

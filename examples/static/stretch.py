@@ -8,7 +8,7 @@ from liblaf.apple import energy, helper, optim, sim
 
 
 def main() -> None:
-    grapes.init_logging()
+    grapes.logging.init()
     mesh: pv.UnstructuredGrid = gen_pyvista()
     actor: sim.Actor = gen_actor(mesh)
     builder: sim.SceneBuilder = gen_scene(actor)

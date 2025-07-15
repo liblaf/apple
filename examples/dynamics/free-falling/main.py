@@ -168,4 +168,4 @@ def plot_time_series(
 
 
 if __name__ == "__main__":
-    cherries.run(main, play=True)
+    cherries.run(main, profile="playground")

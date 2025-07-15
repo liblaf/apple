@@ -102,4 +102,4 @@ def gen_init(scene: sim.Scene, length: float) -> Float[jax.Array, " free"]:
 
 
 if __name__ == "__main__":
-    cherries.run(main, play=True)
+    cherries.run(main, profile="playground")

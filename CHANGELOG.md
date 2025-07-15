@@ -1,6 +1,20 @@
 # Changelog
 
-## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-11
+## [0.3.1](https://github.com/liblaf/apple/compare/v0.3.0..v0.3.1) - 2025-07-15
+
+### ⬆️ Dependencies
+
+- **deps:** update and simplify dependencies - ([dcbc065](https://github.com/liblaf/apple/commit/dcbc065ed738f67d1301ba6b7e42c897bbfdc257))
+
+### ♻ Code Refactoring
+
+- **examples:** clean up dynamics examples - ([6b29fa8](https://github.com/liblaf/apple/commit/6b29fa8881f4f57cfdd31419ac1fad62577dac1e))
+
+### ❤️ New Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-12
 
 ### 💥 BREAKING CHANGES
 
@@ -18,11 +32,6 @@
 ### ♻ Code Refactoring
 
 - **examples:** adjust material and optimization parameters - ([67cf83d](https://github.com/liblaf/apple/commit/67cf83d6ddf0547083535d4039c5a6d9e612ce05))
-
-### ❤️ New Contributors
-
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
 
 ## [0.2.1](https://github.com/liblaf/apple/compare/v0.2.0..v0.2.1) - 2025-07-04
 

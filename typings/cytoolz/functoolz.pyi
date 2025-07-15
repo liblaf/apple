@@ -1,3 +1,0 @@
-from collections.abc import Callable
-
-def juxt(*funcs: Callable) -> Callable: ...

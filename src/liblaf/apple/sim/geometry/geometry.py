@@ -13,8 +13,7 @@ from liblaf.apple.sim.quadrature import Scheme
 from .attributes import GeometryAttributes
 
 
-@struct.pytree
-class Geometry(struct.PyTreeMixin):
+class Geometry(struct.PyTree):
     cells: Integer[Array, "cells a"] = struct.array(default=None)
     points: Float[Array, "points dim"] = struct.array(default=None)
 
@@ -84,16 +83,16 @@ class Geometry(struct.PyTreeMixin):
         return self.update_point_data(self.point_data.set(name, value))
 
     def set_field_data(self, name: str, value: ArrayLike, /) -> Self:
-        return self.evolve(field_data=self.field_data.set(name, value))
+        return self.replace(field_data=self.field_data.set(name, value))
 
     def update_cell_data(self, cell_data: struct.MappingLike, /) -> Self:
-        return self.evolve(cell_data=self.cell_data.update(cell_data))
+        return self.replace(cell_data=self.cell_data.update(cell_data))
 
     def update_point_data(self, point_data: struct.MappingLike, /) -> Self:
-        return self.evolve(point_data=self.point_data.update(point_data))
+        return self.replace(point_data=self.point_data.update(point_data))
 
     def update_field_data(self, field_data: struct.MappingLike, /) -> Self:
-        return self.evolve(field_data=self.field_data.update(field_data))
+        return self.replace(field_data=self.field_data.update(field_data))
 
     # endregion Manipulation
 

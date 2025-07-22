@@ -18,13 +18,12 @@ from liblaf.apple.sim.region import Region
 from .protocol import ComponentProtocol
 
 
-@struct.pytree
 class Actor(struct.PyTreeNode):
-    collision_mesh: wp.Mesh = struct.static(default=None)
-    components: list[ComponentProtocol] = struct.data(factory=list)
-    dirichlet: Dirichlet = struct.data(factory=Dirichlet)
-    dofs: DOFs = struct.data(factory=DOFsArray)
-    region: Region = struct.data(default=None)
+    collision_mesh: wp.Mesh = struct.field(default=None, static=True)
+    components: list[ComponentProtocol] = struct.field(factory=list)
+    dirichlet: Dirichlet = struct.field(factory=Dirichlet)
+    dofs: DOFs = struct.field(factory=DOFsArray)
+    region: Region = struct.field(default=None)
 
     @classmethod
     def from_pyvista(
@@ -173,7 +172,7 @@ class Actor(struct.PyTreeNode):
 
     def set_dirichlet(self, dirichlet: Dirichlet) -> Self:
         actor: Self = self
-        actor = actor.evolve(dirichlet=dirichlet)
+        actor = actor.replace(dirichlet=dirichlet)
         actor = actor.update(displacement=dirichlet.apply(actor.displacement))
         return actor
 
@@ -207,10 +206,10 @@ class Actor(struct.PyTreeNode):
         if self.collision_mesh is not None:
             return self
         mesh: wp.Mesh = self.to_warp()
-        return self.evolve(collision_mesh=mesh)
+        return self.replace(collision_mesh=mesh)
 
     def with_dofs(self, dofs: DOFs) -> Self:
-        return self.evolve(dofs=dofs)
+        return self.replace(dofs=dofs)
 
     # endregion Modifications
 

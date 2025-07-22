@@ -1,6 +1,6 @@
 import functools
 from collections.abc import Callable
-from typing import Any, TypedDict, Unpack, overload
+from typing import Any, Literal, TypedDict, Unpack, overload
 
 import equinox as eqx
 import jax
@@ -9,7 +9,7 @@ from ._validate import validate
 
 
 class JitKwargs(TypedDict, total=False):
-    chexify: bool
+    donate: Literal["all", "all-except-first", "warn", "warn-except-first", "none"]
     filter: bool
     inline: bool
     validate: bool | None
@@ -24,16 +24,8 @@ def jit(func: Callable | None = None, /, **kwargs) -> Any:
         return functools.partial(jit, **kwargs)
     if kwargs.pop("validate", True):
         func = validate(func)
-    if kwargs.pop("filter", False):
+    if kwargs.pop("filter", True):
         func = eqx.filter_jit(func, **kwargs)
     else:
         func = jax.jit(func, **kwargs)
     return func
-
-
-@overload
-def jit_method[C: Callable](func: C, /, **kwargs: Unpack[JitKwargs]) -> C: ...
-@overload
-def jit_method[C: Callable](**kwargs: Unpack[JitKwargs]) -> Callable[[C], C]: ...
-def jit_method(*args, **kwargs) -> Any:
-    return jit(*args, **kwargs)

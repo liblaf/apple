@@ -58,7 +58,7 @@ def main(cfg: Config) -> None:
     plt.rc("figure", dpi=300)
     actor: sim.Actor = gen_actor(cfg)
     builder: sim.SceneBuilder = gen_scene(cfg, actor)
-    builder.params = builder.params.evolve(time_step=cfg.time_step)
+    builder.params = builder.params.replace(time_step=cfg.time_step)
     actor = builder.actors_concrete[actor.id]
     scene: sim.Scene = builder.finish()
     optimizer = optim.PNCG(maxiter=500, rtol=1e-10)

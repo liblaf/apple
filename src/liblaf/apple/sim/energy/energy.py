@@ -9,8 +9,7 @@ from liblaf.apple.sim.actor import Actor
 from liblaf.apple.sim.params import GlobalParams
 
 
-@struct.pytree
-class Energy(struct.PyTreeNode, abc.ABC):
+class Energy(struct.PyTreeNode):
     @property
     @abc.abstractmethod
     def actors(self) -> struct.NodeContainer[Actor]:
@@ -33,7 +32,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
     # region Optimization
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def fun(self, x: struct.ArrayDict, /, params: GlobalParams) -> Float[Array, ""]:
         if utils.is_implemented(self.fun_and_jac):
             fun, _ = self.fun_and_jac(x, params)
@@ -41,7 +40,7 @@ class Energy(struct.PyTreeNode, abc.ABC):
         raise NotImplementedError
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def jac(self, x: struct.ArrayDict, /, params: GlobalParams) -> struct.ArrayDict:
         if utils.is_implemented(self.fun_and_jac):
             _, jac = self.fun_and_jac(x, params)
@@ -52,14 +51,14 @@ class Energy(struct.PyTreeNode, abc.ABC):
         return jax.grad(self.fun)(x, params)
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def hessp(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: GlobalParams
     ) -> struct.ArrayDict:
         return math.jvp(self.jac)(x, p, params)
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def hess_diag(
         self, x: struct.ArrayDict, /, params: GlobalParams
     ) -> struct.ArrayDict:
@@ -69,21 +68,21 @@ class Energy(struct.PyTreeNode, abc.ABC):
         return math.hess_diag(self.fun)(x, params)
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: GlobalParams
     ) -> Float[Array, ""]:
         return math.tree.tree_vdot(self.hessp(x, p, params), p)
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def fun_and_jac(
         self, x: struct.ArrayDict, /, params: GlobalParams
     ) -> tuple[Float[Array, ""], struct.ArrayDict]:
         return self.fun(x, params), self.jac(x, params)
 
     @utils.not_implemented
-    @utils.jit_method
+    @utils.jit
     def jac_and_hess_diag(
         self, x: struct.ArrayDict, /, params: GlobalParams
     ) -> tuple[struct.ArrayDict, struct.ArrayDict]:

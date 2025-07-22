@@ -10,7 +10,6 @@ from .dofs import DOFs
 from .typed import IndexUpdateRef
 
 
-@struct.pytree
 class DOFsArray(DOFs):
     _array: Integer[jax.Array, " N"] = struct.array(
         factory=lambda: jnp.empty((0,), dtype=int)

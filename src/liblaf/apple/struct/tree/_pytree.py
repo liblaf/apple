@@ -1,41 +1,37 @@
-import functools
-from collections.abc import Callable
-from typing import dataclass_transform, overload
+import dataclasses
+from collections.abc import Callable, Sequence
+from typing import Any, Self, dataclass_transform
 
-import attrs
+import equinox as eqx
 
-from ._field_specifiers import array, container, data, static
-from ._register_attrs import register_attrs
+# pyright: enableExperimentalFeatures=true
+from typing_extensions import Sentinel
+
+from ._field import field
+
+MISSING = Sentinel("MISSING")
+type Node = Any
 
 
-@overload
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
+    frozen_default=True, field_specifiers=(dataclasses.field, eqx.field, field)
 )
-def pytree[T: type](cls: T, /, **kwargs) -> T: ...
-@overload
-@dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
-)
-def pytree[T: type](**kwargs) -> Callable[[T], T]: ...
-@dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, data, container, static)
-)
-def pytree[T: type](cls: T | None = None, /, **kwargs) -> Callable | T:
-    if cls is None:
-        return functools.partial(pytree, **kwargs)
-    kwargs.setdefault("field_transformer", _dataclass_names)
-    cls: T = attrs.frozen(cls, **kwargs)
-    cls = register_attrs(cls)
-    return cls
+class PyTree(eqx.Module):
+    def replace(self, **changes: Any) -> Self:
+        return dataclasses.replace(self, **changes)
 
-
-def _dataclass_names(
-    _cls: type, fields: list[attrs.Attribute]
-) -> list[attrs.Attribute]:
-    """...
-
-    References:
-        1. <https://www.attrs.org/en/stable/extending.html#automatic-field-transformation-and-modification>
-    """
-    return [field.evolve(alias=field.name) for field in fields]
+    def tree_at(
+        self,
+        where: Callable[[Self], Node | Sequence[Node]],
+        replace: Any | Sequence[Any] | MISSING = MISSING,
+        replace_fn: Callable[[Node], Any] | MISSING = MISSING,
+        is_leaf: Callable[[Any], bool] | None = None,
+    ) -> Self:
+        kwargs: dict[str, Any] = {}
+        if replace is not MISSING:
+            kwargs["replace"] = replace
+        if replace_fn is not MISSING:
+            kwargs["replace_fn"] = replace_fn
+        if is_leaf is not None:
+            kwargs["is_leaf"] = is_leaf
+        return eqx.tree_at(where, self, **kwargs)

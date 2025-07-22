@@ -142,6 +142,8 @@ def _get_attrs(obj: Any, names: Iterable[str]) -> list[tuple[str, Any]]:
 
 
 def _filter_fields(cls: type, *, static: bool) -> list[str]:
+    if not attrs.has(cls):
+        return []
     fields: list[str] = []
     for field in attrs.fields(cls):
         field: attrs.Attribute

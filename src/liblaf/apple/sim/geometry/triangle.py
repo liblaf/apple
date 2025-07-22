@@ -5,13 +5,11 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
-from liblaf.apple import struct
 from liblaf.apple.sim.element import Element, ElementTriangle
 
 from .geometry import Geometry
 
 
-@struct.pytree
 class GeometryTriangle(Geometry):
     @classmethod
     def from_pyvista(cls, mesh: pv.PolyData) -> Self:

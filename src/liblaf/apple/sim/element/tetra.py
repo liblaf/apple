@@ -4,13 +4,11 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array, ArrayLike, Float
 
-from liblaf.apple import struct
 from liblaf.apple.sim.quadrature import QuadratureTetra
 
 from .element import Element
 
 
-@struct.pytree
 class ElementTetra(Element):
     @property
     @override

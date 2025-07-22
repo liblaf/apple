@@ -1,6 +1,5 @@
+import dataclasses
 from collections.abc import Callable, MutableMapping
-
-import attrs
 
 from liblaf import grapes
 
@@ -10,23 +9,10 @@ from .jit import JitMixin
 from .timer import TimerMixin
 
 
-@attrs.frozen
 class OptimizationProblem(AutodiffMixin, ImplementMixin, JitMixin, TimerMixin):
-    fun: Callable | None = attrs.field(default=None)
-    jac: Callable | None = attrs.field(default=None)
-    hess: Callable | None = attrs.field(default=None)
-    hessp: Callable | None = attrs.field(default=None)
-    hess_diag: Callable | None = attrs.field(default=None)
-    hess_quad: Callable | None = attrs.field(default=None)
-    fun_and_jac: Callable | None = attrs.field(default=None)
-    jac_and_hess_diag: Callable | None = attrs.field(default=None)
-    callback: Callable | None = attrs.field(
-        default=None, metadata={"counter_name": "n_iter", "function": False}
-    )
-
     def update_result[T: MutableMapping](self, result: T) -> T:
-        for f in attrs.fields(type(self)):
-            f: attrs.Attribute
+        for f in dataclasses.fields(self):
+            f: dataclasses.Field
             func: Callable | None = getattr(self, f.name, None)
             try:
                 timer: grapes.BaseTimer = grapes.get_timer(func)

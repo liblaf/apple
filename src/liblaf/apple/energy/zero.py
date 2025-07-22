@@ -9,7 +9,6 @@ from liblaf.apple import sim, struct, utils
 type FloatScalar = Float[jax.Array, ""]
 
 
-@struct.pytree
 class EnergyZero(sim.Energy):
     _actors: struct.NodeContainer[sim.Actor] = struct.container(
         factory=struct.NodeContainer
@@ -26,22 +25,22 @@ class EnergyZero(sim.Energy):
 
     @override
     def with_actors(self, actors: struct.NodeContainer[sim.Actor]) -> Self:
-        return self.evolve(_actors=actors)
+        return self.replace(_actors=actors)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> FloatScalar:
         return jnp.zeros(())
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> struct.ArrayDict:
         return struct.ArrayDict(
             {actor.id: jnp.zeros_like(x[actor.id]) for actor in self.actors.values()}
         )
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> struct.ArrayDict:
@@ -50,7 +49,7 @@ class EnergyZero(sim.Energy):
         )
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> FloatScalar:

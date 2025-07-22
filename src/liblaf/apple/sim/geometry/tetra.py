@@ -5,14 +5,12 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 
-from liblaf.apple import struct
 from liblaf.apple.sim.element import Element, ElementTetra
 
 from .geometry import Geometry
 from .triangle import GeometryTriangle
 
 
-@struct.pytree
 class GeometryTetra(Geometry):
     @classmethod
     def from_pyvista(cls, mesh: pv.UnstructuredGrid) -> Self:

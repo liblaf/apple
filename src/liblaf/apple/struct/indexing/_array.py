@@ -9,12 +9,11 @@ from liblaf.apple.struct import tree
 from .index import Index
 
 
-@tree.pytree
 class IndexArray(Index):
     _index: Integer[jax.Array, "..."] = tree.array()
 
     def __getitem__(self, index: Any) -> Self:
-        return self.evolve(_index=self._index[index])
+        return self.replace(_index=self._index[index])
 
     @property
     @override

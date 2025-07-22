@@ -18,17 +18,16 @@ type X = Float[jax.Array, " DOF"]
 type FloatScalar = Float[jax.Array, ""]
 
 
-@struct.pytree
-class Scene(struct.PyTreeMixin):
+class Scene(struct.PyTree):
     actors: struct.NodeContainer[Actor] = struct.container(factory=struct.NodeContainer)
-    dirichlet: Dirichlet = struct.data(factory=Dirichlet)
+    dirichlet: Dirichlet = struct.field(factory=Dirichlet)
     energies: struct.NodeContainer[Energy] = struct.container(
         factory=struct.NodeContainer
     )
-    integrator: TimeIntegrator = struct.data(kw_only=True)
-    n_dofs: int = struct.static(kw_only=True)
+    integrator: TimeIntegrator = struct.field(kw_only=True)
+    n_dofs: int = struct.field(kw_only=True)
     state: State = struct.container(factory=State)
-    params: GlobalParams = struct.data(factory=GlobalParams)
+    params: GlobalParams = struct.field(factory=GlobalParams)
 
     @property
     def x0(self) -> X:
@@ -41,7 +40,7 @@ class Scene(struct.PyTreeMixin):
 
     # region Optimization
 
-    @utils.jit_method
+    @utils.jit
     def fun(self, x: X, /) -> FloatScalar:
         fields: struct.ArrayDict = self.scatter(x)
         fun: FloatScalar = jnp.zeros(())
@@ -50,7 +49,7 @@ class Scene(struct.PyTreeMixin):
         fun += self.integrator.fun(x, self.state, self.params)
         return fun
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         jac_dict: struct.ArrayDict = struct.ArrayDict()
@@ -63,7 +62,7 @@ class Scene(struct.PyTreeMixin):
         jac = self.dirichlet.zero(jac)  # apply dirichlet constraints
         return jac
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hessp(self, x: X, p: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         fields_p: struct.ArrayDict = self.scatter(p)
@@ -74,7 +73,7 @@ class Scene(struct.PyTreeMixin):
         hessp += self.integrator.hessp(x, p, self.state, self.params)
         return hessp
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(self, x: X, /) -> X:
         fields: struct.ArrayDict = self.scatter(x)
         hess_diag_dict: struct.ArrayDict = struct.ArrayDict()
@@ -87,7 +86,7 @@ class Scene(struct.PyTreeMixin):
         hess_diag += integrator_hess_diag
         return hess_diag
 
-    @utils.jit_method
+    @utils.jit
     def hess_quad(self, x: X, p: X, /) -> FloatScalar:
         fields: struct.ArrayDict = self.scatter(x)
         fields_p: struct.ArrayDict = self.scatter(p)
@@ -97,11 +96,11 @@ class Scene(struct.PyTreeMixin):
         hess_quad += self.integrator.hess_quad(x, p, self.state, self.params)
         return hess_quad
 
-    @utils.jit_method
+    @utils.jit
     def fun_and_jac(self, x: X, /) -> tuple[FloatScalar, X]:
         return self.fun(x), self.jac(x)
 
-    @utils.jit_method
+    @utils.jit
     def jac_and_hess_diag(self, x: X, /) -> tuple[X, X]:
         return self.jac(x), self.hess_diag(x)
 
@@ -109,10 +108,10 @@ class Scene(struct.PyTreeMixin):
 
     # region Procedure
 
-    @utils.jit_method(inline=True, validate=False)
+    @utils.jit(inline=True, validate=False)
     def pre_time_step(self) -> Self:
         state: State = self.integrator.pre_time_step(self.state, self.params)
-        return self.evolve(state=state)
+        return self.replace(state=state)
         # actors: struct.NodeContainer[Actor] = self.actors
         # for actor in self.actors.values():
         #     actor_new: Actor = actor.pre_time_step()
@@ -122,9 +121,9 @@ class Scene(struct.PyTreeMixin):
         #     energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
         #     energy_new = energy_new.pre_time_step(self.params)
         #     energies = energies.add(energy_new)
-        # return self.evolve(actors=actors, energies=energies, state=state)
+        # return self.replace(actors=actors, energies=energies, state=state)
 
-    # @utils.jit_method(inline=True, validate=False)
+    # @utils.jit(inline=True, validate=False)
     def pre_optim_iter(self, x: X | None = None) -> Self:
         if x is None:
             x = self.x0
@@ -139,7 +138,7 @@ class Scene(struct.PyTreeMixin):
             energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
             energy_new = energy_new.pre_optim_iter(self.params)
             energies = energies.add(energy_new)
-        return self.evolve(actors=actors, energies=energies, state=state)
+        return self.replace(actors=actors, energies=energies, state=state)
 
     def solve(
         self,
@@ -171,7 +170,7 @@ class Scene(struct.PyTreeMixin):
 
     def step(self, x: X, /) -> Self:
         state: State = self.integrator.step(x, self.state, self.params)
-        return self.evolve(state=state)
+        return self.replace(state=state)
 
     # endregion Procedure
 

@@ -1,3 +1,4 @@
+import dataclasses
 from collections.abc import Callable
 from typing import Any, Self
 
@@ -11,8 +12,8 @@ from .base import BaseProblem
 class JitMixin(BaseProblem):
     def jit(self) -> Self:
         changes: dict[str, Any] = {}
-        for f in attrs.fields(type(self)):
-            f: attrs.Attribute
+        for f in dataclasses.fields(self):
+            f: dataclasses.Field
             if not f.metadata.get("jit", True):
                 continue
             v: Callable | None = getattr(self, f.name, None)

@@ -1,16 +1,14 @@
 from typing import override
 
-import jax
 import jax.numpy as jnp
 
-from liblaf.apple import struct, utils
+from liblaf.apple import utils
 from liblaf.apple.sim.params import GlobalParams
 from liblaf.apple.sim.state import State
 
 from .integrator import FloatScalar, TimeIntegrator, X
 
 
-@struct.pytree
 class ImplicitEuler(TimeIntegrator):
     # region Procedure
 
@@ -40,7 +38,7 @@ class ImplicitEuler(TimeIntegrator):
     # region Optimization
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun(self, x: X, /, state: State, params: GlobalParams) -> FloatScalar:
         x_tilde: X = self.x_tilde(state=state, params=params)
         return (
@@ -50,7 +48,7 @@ class ImplicitEuler(TimeIntegrator):
         )
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: X, /, state: State, params: GlobalParams) -> X:
         # jax.debug.print(
         #     "ImplicitEuler.jac: x = {}, x_tilde = {}, mass = {}, time_step = {}",
@@ -63,12 +61,12 @@ class ImplicitEuler(TimeIntegrator):
         return state.mass * (x - x_tilde) / params.time_step**2
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(self, x: X, /, state: State, params: GlobalParams) -> X:
         return state.mass / params.time_step**2
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_quad(
         self, x: X, p: X, /, state: State, params: GlobalParams
     ) -> FloatScalar:

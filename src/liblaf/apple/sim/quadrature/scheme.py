@@ -7,8 +7,7 @@ from jaxtyping import Array, Float
 from liblaf.apple import struct
 
 
-@struct.pytree
-class Scheme(struct.PyTreeMixin):
+class Scheme(struct.PyTree):
     """A quadrature scheme with integration points $x_q$ and weights $w_q$. It approximates the integral of a function over a region $V$ by a weighted sum of function values $f_q = f(x_q)$, evaluated on the quadrature-points.
 
     Shape Annotations:

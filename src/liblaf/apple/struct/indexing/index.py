@@ -7,8 +7,7 @@ from jaxtyping import ArrayLike, Integer
 from liblaf.apple.struct import tree
 
 
-@tree.pytree
-class Index(tree.PyTreeMixin):
+class Index(tree.PyTree):
     def __getitem__(self, index: Any, /) -> "Index":
         raise NotImplementedError
 

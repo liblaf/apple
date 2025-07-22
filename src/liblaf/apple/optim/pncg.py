@@ -16,8 +16,7 @@ from .problem import X
 type FloatScalar = Float[jax.Array, ""]
 
 
-@struct.pytree
-class State(struct.PyTreeMixin):
+class State(struct.PyTree):
     alpha: FloatScalar = struct.array(default=None)
     beta: FloatScalar = struct.array(default=None)
     Delta_E: FloatScalar = struct.array(default=None)
@@ -28,10 +27,9 @@ class State(struct.PyTreeMixin):
     P: X = struct.array(default=None)
     x: X = struct.array(default=None)
 
-    first: bool = struct.static(default=True)
+    first: bool = struct.field(default=True)
 
 
-@struct.pytree
 class PNCG(Optimizer):
     """Preconditioned Nonlinear Conjugate Gradient Method.
 
@@ -39,10 +37,10 @@ class PNCG(Optimizer):
         1. Xing Shen, Runyuan Cai, Mengxiao Bi, and Tangjie Lv. 2024. Preconditioned Nonlinear Conjugate Gradient Method for Real-time Interior-point Hyperelasticity. In ACM SIGGRAPH 2024 Conference Papers (SIGGRAPH '24). Association for Computing Machinery, New York, NY, USA, Article 96, 1–11. https://doi.org/10.1145/3641519.3657490
     """
 
-    atol: float = struct.data(default=0.0)
-    d_hat: float = struct.data(default=jnp.inf)
-    maxiter: int = struct.data(default=150)
-    rtol: float = struct.data(default=5e-5)
+    atol: float = struct.field(default=0.0)
+    d_hat: float = struct.field(default=jnp.inf)
+    maxiter: int = struct.field(default=150)
+    rtol: float = struct.field(default=5e-5)
 
     @override
     def _minimize_impl(
@@ -96,7 +94,7 @@ class PNCG(Optimizer):
 
         return result
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def compute_alpha(self, g: X, p: X, pHp: FloatScalar) -> FloatScalar:
         alpha_1: FloatScalar = self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf))
         alpha_2: FloatScalar = -jnp.vdot(g, p) / pHp
@@ -105,7 +103,7 @@ class PNCG(Optimizer):
         # alpha = jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def compute_beta(self, g_prev: X, g: X, p: X, P: X) -> FloatScalar:
         y: X = g - g_prev
         yTp: FloatScalar = jnp.vdot(y, p)
@@ -115,7 +113,6 @@ class PNCG(Optimizer):
         # beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
-    # @utils.jit_method(static_argnames=("problem", "args"), inline=True)
     def step(self, problem: OptimizationProblem, state: State, args: Sequence) -> State:
         assert callable(problem.hess_quad)
         assert callable(problem.jac_and_hess_diag)
@@ -140,7 +137,7 @@ class PNCG(Optimizer):
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp
-        return state.evolve(
+        return state.replace(
             alpha=alpha,
             beta=beta,
             Delta_E=Delta_E,

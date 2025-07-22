@@ -1,7 +1,6 @@
 from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING, Any, Self, override
 
-import attrs
 import cytoolz as toolz
 import jax
 import jax.numpy as jnp
@@ -20,8 +19,7 @@ def as_array_dict(data: MappingLike, /) -> dict[str, jax.Array]:
     return {k: jnp.asarray(v) for k, v in data.items()}
 
 
-@tree.pytree
-class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
+class ArrayDict(tree.PyTree, Mapping[str, jax.Array]):
     _data: Mapping[str, jax.Array] = tree.container(
         converter=as_array_dict, factory=dict
     )
@@ -52,36 +50,36 @@ class ArrayDict(tree.PyTreeMixin, Mapping[str, jax.Array]):
     # endregion Mapping[str, jax.Array]
 
     def __add__(self, other: MappingLike, /) -> Self:
-        other: dict[str, jax.Array] = as_array_dict(other)  # pyright: ignore[reportAssignmentType]
+        other: dict[str, jax.Array] = as_array_dict(other)
         data: dict[str, jax.Array] = dict(self)
         for key, value in other.items():
             if key in data:
                 data[key] += value
             else:
                 data[key] = value
-        return attrs.evolve(self, _data=data)
+        return self.replace(_data=data)
 
     def clear(self) -> Self:
-        return attrs.evolve(self, _data={})
+        return self.replace(_data={})
 
     def key_filter(self, keys: KeysLike, /) -> Self:
         keys: list[str] = as_keys(keys)
         data: Mapping[str, jax.Array] = {k: self._data[k] for k in keys}
-        return attrs.evolve(self, _data=data)
+        return self.replace(_data=data)
 
     def pop(self, key: KeyLike, /) -> Self:
         key: str = as_key(key)
         data: Mapping[str, jax.Array] = toolz.dissoc(self._data, key)
-        return attrs.evolve(self, _data=data)
+        return self.replace(_data=data)
 
     def set(self, key: KeyLike, value: ArrayLike, /) -> Self:
         key: str = as_key(key)
         value: jax.Array = jnp.asarray(value)
         data: Mapping[str, jax.Array] = toolz.assoc(self._data, key, value)
-        return attrs.evolve(self, _data=data)
+        return self.replace(_data=data)
 
     def update(self, updates: MappingLike | None = None, /, **kwargs) -> Self:
         updates = as_dict(updates)
         updates = toolz.valmap(jnp.asarray, updates)
         data: Mapping[str, jax.Array] = toolz.merge(self._data, updates, kwargs)
-        return attrs.evolve(self, _data=data)
+        return self.replace(_data=data)

@@ -9,13 +9,10 @@ import scipy.optimize
 from jaxtyping import Float
 from numpy.typing import ArrayLike
 
-from liblaf.apple.struct import tree
-
 from .optimizer import Optimizer, OptimizeResult
 from .problem import OptimizationProblem
 
 
-@tree.pytree
 class OptimizerScipy(Optimizer):
     method: str = "trust-constr"
     tol: float | None = None

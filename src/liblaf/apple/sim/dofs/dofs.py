@@ -12,9 +12,8 @@ from liblaf.apple import struct
 from .typed import IndexUpdateRef
 
 
-@struct.pytree
-class DOFs(struct.PyTreeMixin, abc.ABC):
-    shape: Sequence[int] = struct.static(default=(0,), kw_only=True)
+class DOFs(struct.PyTree):
+    shape: Sequence[int] = struct.field(default=(0,), kw_only=True)
 
     @classmethod
     def from_mask(cls, mask: ArrayLike, /) -> "DOFs":
@@ -46,7 +45,7 @@ class DOFs(struct.PyTreeMixin, abc.ABC):
         return int(np.prod(self.shape))
 
     def ravel(self) -> Self:
-        return self.evolve(shape=(np.prod(self.shape),))
+        return self.replace(shape=(np.prod(self.shape),))
 
     # region Modifications
 

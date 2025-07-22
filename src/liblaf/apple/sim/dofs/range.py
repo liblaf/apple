@@ -10,9 +10,8 @@ from .dofs import DOFs
 from .typed import IndexUpdateRef
 
 
-@struct.pytree
 class DOFsRange(DOFs):
-    _range: range = struct.static()
+    _range: range = struct.field()
 
     @override
     def __jax_array__(self) -> Integer[jax.Array, " N"]:

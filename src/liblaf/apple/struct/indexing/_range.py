@@ -11,10 +11,9 @@ from ._array import IndexArray
 from .index import Index
 
 
-@tree.pytree
 class IndexRange(Index):
-    _range: range = tree.static()
-    _shape: Sequence[int] = tree.static()
+    _range: range = tree.field()
+    _shape: Sequence[int] = tree.field()
 
     def __getitem__(self, index: Any, /) -> "Index":
         return self.to_array()[index]

@@ -4,12 +4,9 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array, ArrayLike, Float
 
-from liblaf.apple import struct
-
 from .element import Element
 
 
-@struct.pytree
 class ElementTriangle(Element):
     @property
     @override

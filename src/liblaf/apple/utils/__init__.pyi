@@ -10,7 +10,6 @@ from .jax_utils import (
     block_until_ready_decorator,
     cost_analysis,
     jit,
-    jit_method,
     tree_at,
     validate,
 )
@@ -34,7 +33,6 @@ __all__ = [
     "jax_utils",
     "jit",
     "jit",
-    "jit_method",
     "lame_params",
     "not_implemented",
     "tree_at",

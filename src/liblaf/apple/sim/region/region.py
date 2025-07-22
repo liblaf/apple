@@ -13,10 +13,9 @@ from liblaf.apple.sim.geometry import Geometry
 from liblaf.apple.sim.quadrature import Scheme
 
 
-@struct.pytree
-class Region(struct.PyTreeMixin):
-    geometry: Geometry = struct.data(default=None)
-    quadrature: Scheme = struct.data(default=None)
+class Region(struct.PyTree):
+    geometry: Geometry = struct.field(default=None)
+    quadrature: Scheme = struct.field(default=None)
 
     h: Float[jax.Array, "q a"] = struct.array(default=None)
     dhdr: Float[jax.Array, "q a J"] = struct.array(default=None)
@@ -87,7 +86,7 @@ class Region(struct.PyTreeMixin):
 
     # region Operator
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def deformation_gradient(
         self, x: Float[jax.Array, "points J"]
     ) -> Float[
@@ -99,7 +98,7 @@ class Region(struct.PyTreeMixin):
         ]
         return result
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def gather(
         self, x: Float[jax.Array, "cells a *dim"]
     ) -> Float[jax.Array, " {self.n_points} *dim"]:
@@ -109,7 +108,7 @@ class Region(struct.PyTreeMixin):
             num_segments=self.n_points,
         )
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def gradient(
         self, x: Float[jax.Array, "points *dim"]
     ) -> Float[jax.Array, "{self.n_cells} {self.quadrature.n_points} *dim {self.dim}"]:
@@ -118,7 +117,7 @@ class Region(struct.PyTreeMixin):
         )
         return result
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def gradient_vjp(
         self, x: Float[jax.Array, "c q *dim J"]
     ) -> Float[
@@ -130,25 +129,25 @@ class Region(struct.PyTreeMixin):
         )
         return result
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def integrate(
         self, x: Float[jax.Array, "cells q *dim"]
     ) -> Float[jax.Array, " {self.n_cells} *dim"]:
         return einops.einsum(x, self.dV, "c q ..., c q -> c ...")
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def scatter(
         self, x: Float[jax.Array, "points *dim"]
     ) -> Float[jax.Array, "{self.n_cells} {self.element.n_points} *dim"]:
         return x[self.cells]
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def squeeze_cq(
         self, x: Float[jax.Array, "c q *dim"]
     ) -> Float[jax.Array, " c*q *dim"]:
         return einops.rearrange(x, "c q ... -> (c q) ...")
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def unsqueeze_cq(
         self, x: Float[jax.Array, " cq *dim"]
     ) -> Float[jax.Array, "c q *dim"]:
@@ -182,6 +181,6 @@ class Region(struct.PyTreeMixin):
         dhdX: Float[jax.Array, "c q a J"] = einops.einsum(
             dhdr, drdX, "q a I, c q I J -> c q a J"
         )
-        return self.evolve(h=h, dhdr=dhdr, dXdr=dXdr, drdX=drdX, dV=dV, dhdX=dhdX)
+        return self.replace(h=h, dhdr=dhdr, dXdr=dXdr, drdX=drdX, dV=dV, dhdX=dhdX)
 
     # endregion Gradient

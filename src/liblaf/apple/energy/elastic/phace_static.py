@@ -5,13 +5,12 @@ import jax.numpy as jnp
 import warp as wp
 from jaxtyping import Float
 
-from liblaf.apple import func, sim, struct, utils
+from liblaf.apple import func, sim, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
 from .elastic import Elastic
 
 
-@struct.pytree
 class PhaceStatic(Elastic):
     r"""As-Rigid-As-Possible.
 
@@ -33,7 +32,7 @@ class PhaceStatic(Elastic):
         return jnp.stack((self.lambda_, self.mu), axis=-1)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:
@@ -46,7 +45,7 @@ class PhaceStatic(Elastic):
         return Psi
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def first_piola_kirchhoff_stress(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q J J"]:
@@ -59,7 +58,7 @@ class PhaceStatic(Elastic):
         return PK1
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density_hess_diag(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q a J"]:
@@ -73,7 +72,7 @@ class PhaceStatic(Elastic):
         return hess_diag
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density_hess_quad(
         self, field: sim.Field, p: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:

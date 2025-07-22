@@ -4,13 +4,12 @@ import jax
 import warp as wp
 from jaxtyping import Float
 
-from liblaf.apple import func, sim, struct, utils
+from liblaf.apple import func, sim, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
 from .elastic import Elastic
 
 
-@struct.pytree
 class ARAP(Elastic):
     r"""As-Rigid-As-Possible.
 
@@ -24,7 +23,7 @@ class ARAP(Elastic):
         return self.actor.cell_data["mu"]
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:
@@ -37,7 +36,7 @@ class ARAP(Elastic):
         return Psi
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def first_piola_kirchhoff_stress(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q J J"]:
@@ -50,7 +49,7 @@ class ARAP(Elastic):
         return PK1
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density_hess_diag(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q a J"]:
@@ -65,7 +64,7 @@ class ARAP(Elastic):
         return hess_diag
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density_hess_quad(
         self, field: sim.Field, p: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:

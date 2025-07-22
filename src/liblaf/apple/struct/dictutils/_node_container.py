@@ -11,8 +11,7 @@ from ._as_key import as_key, as_keys
 from .typed import KeyLike, KeysLike, MappingLike, Node
 
 
-@tree.pytree
-class NodeContainer[T: Node](tree.PyTreeMixin, Mapping[str, T]):
+class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
     _data: Mapping[str, T] = tree.container(converter=as_dict, factory=dict)
 
     if TYPE_CHECKING:

@@ -6,8 +6,7 @@ from liblaf.apple import struct, utils
 from liblaf.apple.sim.quadrature import Scheme
 
 
-@struct.pytree
-class Element(struct.PyTreeMixin):
+class Element(struct.PyTree):
     """Base-class for a finite element which provides methods for plotting.
 
     References:
@@ -41,7 +40,7 @@ class Element(struct.PyTreeMixin):
         raise NotImplementedError
 
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def gradient(
         self, coords: Float[ArrayLike, " dim"], /
     ) -> Float[Array, "points dim"]:
@@ -51,7 +50,7 @@ class Element(struct.PyTreeMixin):
         raise NotImplementedError
 
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hessian(
         self, coords: Float[ArrayLike, " dim"], /
     ) -> Float[Array, "points dim dim"]:

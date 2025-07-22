@@ -3,7 +3,6 @@ from jaxtyping import Array, Float
 from liblaf.apple import struct
 
 
-@struct.pytree
 class State(struct.ArrayDict):
     @property
     def displacement(self) -> Float[Array, " DOF"]:

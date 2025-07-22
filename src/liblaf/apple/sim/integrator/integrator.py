@@ -11,8 +11,7 @@ type X = Float[jax.Array, " DOF"]
 type FloatScalar = Float[jax.Array, ""]
 
 
-@struct.pytree
-class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
+class TimeIntegrator(struct.PyTree, math.AutoDiffMixin):
     @property
     def name(self) -> str:
         return type(self).__qualname__
@@ -37,31 +36,31 @@ class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun(self, x: X, /, state: State, params: GlobalParams) -> FloatScalar:
         return super().fun(x, state, params)
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: X, /, state: State, params: GlobalParams) -> X:
         return super().jac(x, state, params)
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hessp(self, x: X, p: X, /, state: State, params: GlobalParams) -> X:
         return super().hessp(x, p, state, params)
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(self, x: X, /, state: State, params: GlobalParams) -> X:
         return super().hess_diag(x, state, params)
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_quad(
         self, x: X, p: X, /, state: State, params: GlobalParams
     ) -> FloatScalar:
@@ -69,7 +68,7 @@ class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun_and_jac(
         self, x: X, /, state: State, params: GlobalParams
     ) -> tuple[FloatScalar, X]:
@@ -77,7 +76,7 @@ class TimeIntegrator(struct.PyTreeMixin, math.AutoDiffMixin):
 
     @override
     @utils.not_implemented
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac_and_hess_diag(
         self, x: X, /, state: State, params: GlobalParams
     ) -> tuple[X, X]:

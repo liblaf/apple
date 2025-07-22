@@ -13,10 +13,9 @@ from liblaf.apple.sim.quadrature import Scheme
 from liblaf.apple.sim.region import Region
 
 
-@struct.pytree
-class Field(struct.PyTreeMixin):
-    region: Region = struct.data(default=None)
-    values: Float[jax.Array, "points *dim"] = struct.array(default=None)
+class Field(struct.PyTree):
+    region: Region = struct.field(default=None)
+    values: Float[jax.Array, "points *dim"] = struct.field(default=None)
 
     @classmethod
     def from_region(cls, region: Region, values: ArrayLike) -> Self:
@@ -28,7 +27,7 @@ class Field(struct.PyTreeMixin):
     # region ArrayMixin
 
     def from_values(self, values: ArrayLike, /) -> Self:
-        return self.evolve(values=values)
+        return self.replace(values=values)
 
     # endregion ArrayMixin
 
@@ -112,7 +111,7 @@ class Field(struct.PyTreeMixin):
 
     # region Operators
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def deformation_gradient(
         self,
     ) -> Float[
@@ -121,7 +120,7 @@ class Field(struct.PyTreeMixin):
     ]:
         return self.region.deformation_gradient(self.values)
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def grad(
         self,
     ) -> Float[

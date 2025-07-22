@@ -18,10 +18,9 @@ def _pretty_result(result: OptimizeResult) -> str:
     return repr(result)
 
 
-@tree.pytree
-class Optimizer(tree.PyTreeMixin, abc.ABC):
-    autodiff: bool = tree.static(default=False, kw_only=True)
-    jit: bool = tree.static(default=False, kw_only=True)
+class Optimizer(tree.PyTree):
+    autodiff: bool = tree.field(default=False, kw_only=True)
+    jit: bool = tree.field(default=False, kw_only=True)
 
     @property
     def name(self) -> str:

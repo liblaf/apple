@@ -7,11 +7,10 @@ from jaxtyping import Float
 from liblaf.apple import sim, struct, utils
 
 
-@struct.pytree
 class Elastic(sim.Energy):
-    actor: sim.Actor = struct.data()
-    hess_diag_filter: bool = struct.static(default=True, kw_only=True)
-    hess_quad_filter: bool = struct.static(default=True, kw_only=True)
+    actor: sim.Actor = struct.field()
+    hess_diag_filter: bool = struct.field(default=True, kw_only=True)
+    hess_quad_filter: bool = struct.field(default=True, kw_only=True)
 
     @classmethod
     def from_actor(
@@ -34,14 +33,14 @@ class Elastic(sim.Energy):
 
     @override
     def with_actors(self, actors: struct.NodeContainer[sim.Actor]) -> Self:
-        return self.evolve(actor=actors[self.actor.id])
+        return self.replace(actor=actors[self.actor.id])
 
     def make_field(self, x: struct.ArrayDict, /) -> sim.Field:
         x: Float[jax.Array, "points dim"] = x[self.actor.id]
         return self.actor.make_field(x)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> Float[jax.Array, ""]:
@@ -51,7 +50,7 @@ class Elastic(sim.Energy):
         return jnp.sum(Psi)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> struct.ArrayDict:
         field: sim.Field = self.make_field(x)
         jac: Float[jax.Array, "c q a J"] = self.energy_density_jac(field, params)
@@ -60,7 +59,7 @@ class Elastic(sim.Energy):
         return struct.ArrayDict({self.actor.id: jac})
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> struct.ArrayDict:
@@ -76,7 +75,7 @@ class Elastic(sim.Energy):
         return struct.ArrayDict({self.actor.id: hess_diag})
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> Float[jax.Array, ""]:
@@ -92,14 +91,14 @@ class Elastic(sim.Energy):
         return hess_quad
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun_and_jac(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> tuple[Float[jax.Array, ""], struct.ArrayDict]:
         return self.fun(x, params), self.jac(x, params)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac_and_hess_diag(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> tuple[struct.ArrayDict, struct.ArrayDict]:
@@ -115,7 +114,7 @@ class Elastic(sim.Energy):
     ) -> Float[jax.Array, "c q J J"]:
         raise NotImplementedError
 
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def energy_density_jac(
         self, field: sim.Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q a J"]:

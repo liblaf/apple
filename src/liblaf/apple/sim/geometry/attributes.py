@@ -7,9 +7,8 @@ import pyvista as pv
 from liblaf.apple import struct
 
 
-@struct.pytree
 class GeometryAttributes(struct.ArrayDict):
-    association: pv.FieldAssociation = struct.static(kw_only=True)
+    association: pv.FieldAssociation = struct.field(kw_only=True)
 
     if TYPE_CHECKING:
 

@@ -8,9 +8,8 @@ from liblaf.apple import struct
 from liblaf.apple.sim.dofs import DOFs
 
 
-@struct.pytree
-class Dirichlet(struct.PyTreeMixin):
-    dofs: DOFs = struct.data(default=None)
+class Dirichlet(struct.PyTree):
+    dofs: DOFs = struct.field(default=None)
     values: Shaped[Array, " dirichlet"] = struct.array(default=None)
 
     @classmethod

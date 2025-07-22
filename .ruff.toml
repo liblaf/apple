@@ -4,4 +4,4 @@ extend-exclude = ["marimo/*.py"]
 target-version = "py312"
 
 [lint]
-extend-ignore = ["F722", "N802", "N803", "N806", "N815", "RUF002"]
+ignore = ["F722", "N802", "N803", "N806", "N815", "RUF002"]

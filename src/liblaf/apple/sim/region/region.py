@@ -174,6 +174,9 @@ class Region(struct.PyTreeMixin):
         dV: Float[jax.Array, "c q"] = (
             jnp.linalg.det(dXdr) * self.quadrature.weights[jnp.newaxis, :]
         )
+        ic(jnp.count_nonzero(dV < 0).item())
+        ic(jnp.count_nonzero(dV == 0).item())
+        ic(jnp.count_nonzero(dV > 0).item())
         if jnp.any(dV <= 0):
             logger.warning("dV <= 0")
         dhdX: Float[jax.Array, "c q a J"] = einops.einsum(

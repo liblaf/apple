@@ -12,5 +12,6 @@
   ],
 
   "reportIncompatibleMethodOverride": "information",
-  "reportIncompatibleVariableOverride": "information"
+  "reportIncompatibleVariableOverride": "information",
+  "reportAttributeAccessIssue": "none"
 }

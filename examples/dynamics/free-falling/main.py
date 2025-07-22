@@ -127,6 +127,9 @@ def main(cfg: Config) -> None:
 def gen_pyvista(cfg: Config) -> pv.UnstructuredGrid:
     surface: pv.PolyData = cast("pv.PolyData", pv.examples.download_bunny())
     mesh: pv.UnstructuredGrid = melon.tetwild(surface)
+    print(mesh.cell_data["Volume"])
+    ic(np.count_nonzero(mesh.cell_data["Volume"] < 0.0))
+    ic(np.count_nonzero(mesh.cell_data["Volume"] > 0.0))
     # mesh.scale(20.0 / mesh.length, inplace=True)
     # mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()
     # mesh = cast("pv.UnstructuredGrid", pv.examples.download_tetrahedron())

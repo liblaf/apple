@@ -28,11 +28,13 @@ class OptimizationProblem(AutodiffMixin, ImplementMixin, JitMixin, TimerMixin):
         for f in attrs.fields(type(self)):
             f: attrs.Attribute
             func: Callable | None = getattr(self, f.name, None)
-            if not isinstance(func, grapes.TimedFunction):
+            try:
+                timer: grapes.BaseTimer = grapes.get_timer(func)
+            except AttributeError:
                 continue
-            if func.timing.height > 0:
-                func.timing.finish()
+            if len(timer) > 0:
+                timer.finish()
             key: str = f.metadata.get("counter_name", f"n_{f.name}")
             if key not in result:
-                result[key] = func.timing.height
+                result[key] = len(timer)
         return result

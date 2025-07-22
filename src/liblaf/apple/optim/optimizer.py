@@ -13,6 +13,11 @@ from .problem import OptimizationProblem
 class OptimizeResult(scipy.optimize.OptimizeResult): ...
 
 
+@grapes.logging.ic_arg_to_string_function.register
+def _pretty_result(result: OptimizeResult) -> str:
+    return repr(result)
+
+
 @tree.pytree
 class Optimizer(tree.PyTreeMixin, abc.ABC):
     autodiff: bool = tree.static(default=False, kw_only=True)
@@ -55,7 +60,7 @@ class Optimizer(tree.PyTreeMixin, abc.ABC):
         if self.jit:
             problem = problem.jit()
         problem = problem.timer()
-        with grapes.timer(label=self.name) as timer:
+        with grapes.timer(self.name) as timer:
             result: OptimizeResult = self._minimize_impl(problem, x0, args, **kwargs)
         result["time"] = timer.elapsed()
         result = problem.update_result(result)

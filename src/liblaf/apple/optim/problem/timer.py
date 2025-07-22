@@ -17,6 +17,6 @@ class TimerMixin(BaseProblem):
             v: Callable | None = getattr(self, f.name, None)
             if not implemented(v):
                 continue
-            v = grapes.timer(v, label=f"{f.name}()")
+            v = grapes.timer(v, name=f"{f.name}()")
             changes[f.name] = v
         return attrs.evolve(self, **changes)

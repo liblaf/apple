@@ -20,25 +20,24 @@ build:
     # ref: <https://docs.readthedocs.com/platform/stable/build-customization.html#install-dependencies-with-uv>
     pre_create_environment:
       #
-      - asdf plugin add pixi
-      - asdf install pixi latest
-      - asdf global pixi latest
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
       #
 
+    #
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
     #
 
     install:
       #
-      - pixi install --frozen
+      - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --all-extras --all-groups --frozen --link-mode copy
       #
 
     pre_build:
       - if test -f "docs/scripts/pre-build.sh"; then bash "docs/scripts/pre-build.sh"; fi
 
-    #
-    build:
-      html:
-        - pixi run mkdocs build --site-dir "$READTHEDOCS_OUTPUT/html/"
     #
 
 mkdocs:

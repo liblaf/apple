@@ -52,13 +52,13 @@ class ImplicitEuler(TimeIntegrator):
     @override
     @utils.jit_method(inline=True)
     def jac(self, x: X, /, state: State, params: GlobalParams) -> X:
-        jax.debug.print(
-            "ImplicitEuler.jac: x = {}, x_tilde = {}, mass = {}, time_step = {}",
-            x,
-            self.x_tilde(state=state, params=params),
-            state.mass,
-            params.time_step,
-        )
+        # jax.debug.print(
+        #     "ImplicitEuler.jac: x = {}, x_tilde = {}, mass = {}, time_step = {}",
+        #     x,
+        #     self.x_tilde(state=state, params=params),
+        #     state.mass,
+        #     params.time_step,
+        # )
         x_tilde: X = self.x_tilde(state=state, params=params)
         return state.mass * (x - x_tilde) / params.time_step**2
 

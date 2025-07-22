@@ -12,6 +12,7 @@ dev = [
   "imageio[ffmpeg]",
   "liblaf-cherries",
   "marimo[recommended]",
+  "mypy>=1.17.0",
   "sympy",
   "viztracer",
 ]
@@ -62,15 +63,15 @@ dependencies = [
   "chex>=0.1.0,<0.2",
   "cytoolz>=1.0.0,<2",
   "einops>=0.8.0,<0.9",
-  "equinox>=0.12.0,<0.13",
+  "equinox>=0.13.0,<0.14",
   "felupe>=9.0.0,<10",
   "flax>=0.10.0,<0.11",
   "ipctk>=1.0.0,<2",
   "jax[cuda12]>=0.6.0,<0.7",
   "jaxtyping>=0.3.0,<0.4",
   "lazy-loader>=0.4.0,<0.5",
-  "liblaf-grapes>=0.6.0,<0.7",
-  "liblaf-melon>=0.4.0,<0.5",
+  "liblaf-grapes>=1.0.0,<2",
+  "liblaf-melon>=0.5.0,<0.6",
   "loguru>=0.7.0,<0.8",
   "matplotlib>=3.0.0,<4",
   "networkx>=3.0.0,<4",
@@ -79,7 +80,6 @@ dependencies = [
   "pyvista>=0.45.0,<0.46",
   "rich>=14.0.0,<15",
   "scipy>=1.0.0,<2",
-  "tinyobjloader==2.0.0rc13",
   "wadler-lindig>=0.1.0,<0.2",
   "warp-lang>=1.0.0,<2",
 ]
@@ -118,25 +118,6 @@ packages = ["src/liblaf/"]
 [tool.hatch.version]
 source = "vcs"
 
-[tool.pixi.dependencies]
-python = "3.12.*"
-
-[tool.pixi.environments]
-default = { features = ["build", "dev", "docs", "test"] }
-
-[tool.pixi.project]
-channel-priority = "disabled"
-channels = ["conda-forge"]
-platforms = ["linux-64"]
-
-[tool.pixi.pypi-dependencies]
-"liblaf-apple" = { editable = true, path = "." }
-
-[tool.pixi.system-requirements]
-cuda = "12"
-libc = { family = "glibc", version = "2.41" }
-linux = "6.13"
-
 [tool.pytest.ini_options]
 addopts = [
   "--hypothesis-show-statistics",
@@ -145,3 +126,6 @@ addopts = [
   "--strict-markers",
 ]
 testpaths = ["benches/", "tests/"]
+
+[tool.uv]
+default-groups = "all"

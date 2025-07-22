@@ -17,6 +17,6 @@ class PyTreeNode(PyTree):
 
 def uniq_id(obj: Any) -> str:
     name: str = type(obj).__qualname__
-    id_: str = f"{name}_{_counter[name]:03d}"
+    id_: str = f"{name}-{_counter[name]:03d}"
     _counter[name] += 1
     return id_

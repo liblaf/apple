@@ -20,12 +20,12 @@ class GeometryTetra(Geometry):
         ).copy_attributes(mesh)
 
     @property
-    @override
+    @override  # Geometry
     def element(self) -> Element:
         with jax.ensure_compile_time_eval():
             return ElementTetra()
 
-    @override
+    @override  # Geometry
     def boundary(self, *, attributes: bool = True) -> GeometryTriangle:
         mesh: pv.UnstructuredGrid = self.to_pyvista(attributes=attributes)
         mesh.cell_data["cell-id"] = np.arange(mesh.n_cells)
@@ -34,7 +34,7 @@ class GeometryTetra(Geometry):
         result: GeometryTriangle = GeometryTriangle.from_pyvista(surface)
         return result
 
-    @override
+    @override  # Geometry
     def to_pyvista(self, *, attributes: bool = True) -> pv.DataSet:
         mesh: pv.UnstructuredGrid = pv.UnstructuredGrid(
             {pv.CellType.TETRA: np.asarray(self.cells)}, np.asarray(self.points)

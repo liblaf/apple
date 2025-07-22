@@ -61,7 +61,7 @@ def main(cfg: Config) -> None:
     soft: sim.Actor = gen_actor(cfg)
     ground: sim.Actor = gen_rigid(cfg)
     builder: sim.SceneBuilder = gen_scene(cfg, soft, ground)
-    builder.params = builder.params.evolve(time_step=cfg.time_step)
+    builder.params = builder.params.replace(time_step=cfg.time_step)
     soft = builder.actors_concrete[soft.id]
     scene: sim.Scene = builder.finish()
     optimizer = optim.PNCG(d_hat=cfg.d_hat, maxiter=500, rtol=1e-5)

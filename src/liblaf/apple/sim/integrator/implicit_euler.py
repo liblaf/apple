@@ -25,7 +25,8 @@ class ImplicitEuler(TimeIntegrator):
         return state.update(x_prev=state.displacement)
 
     @override
-    def pre_optim_iter(self, x: X, /, state: State, params: GlobalParams) -> State:
+    @utils.jit(inline=True)
+    def pre_optim_iter_jit(self, x: X, /, state: State, params: GlobalParams) -> State:
         return state.update(displacement=x)
 
     @override

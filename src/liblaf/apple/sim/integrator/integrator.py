@@ -24,7 +24,11 @@ class TimeIntegrator(struct.PyTree, math.AutoDiffMixin):
     def pre_time_step(self, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         return state
 
-    def pre_optim_iter(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
+    def pre_optim_iter(self, x: X, /, state: State, params: GlobalParams) -> State:
+        return self.pre_optim_iter_jit(x, state, params)
+
+    @utils.jit(inline=True)
+    def pre_optim_iter_jit(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         return state.update(displacement=x)
 
     def step(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002

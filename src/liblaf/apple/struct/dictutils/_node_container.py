@@ -12,7 +12,7 @@ from .typed import KeyLike, KeysLike, MappingLike, Node
 
 
 class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
-    _data: Mapping[str, T] = tree.container(converter=as_dict, factory=dict)
+    data: Mapping[str, T] = tree.container(converter=as_dict, factory=dict)
 
     if TYPE_CHECKING:
 
@@ -25,40 +25,40 @@ class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
             list(self.values()), **kwargs
         )
 
-    # region Mapping[str, T]
+    # region impl Mapping[str, T]
 
     @override
     def __getitem__(self, key: KeyLike, /) -> T:
         key: str = as_key(key)
-        return self._data[key]
+        return self.data[key]
 
     def __iter__(self) -> Iterator[str]:
-        yield from self._data
+        yield from self.data
 
     @override
     def __len__(self) -> int:
-        return len(self._data)
+        return len(self.data)
 
-    # endregion Mapping[str, T]
+    # endregion impl Mapping[str, T]
 
     def add(self, value: T, /) -> Self:
-        data: Mapping[str, T] = toolz.assoc(self._data, value.id, value)
-        return type(self)(data)
+        data: Mapping[str, T] = toolz.assoc(self.data, value.id, value)
+        return self.replace(data=data)
 
     def clear(self) -> Self:
-        return type(self)()
+        return self.replace(data={})
 
     def key_filter(self, keys: KeysLike, /) -> Self:
         keys: list[str] = as_keys(keys)
         data: Mapping[str, T] = {k: self[k] for k in keys}
-        return type(self)(data)
+        return self.replace(data=data)
 
     def pop(self, key: KeyLike, /) -> Self:
         key: str = as_key(key)
-        data: Mapping[str, T] = toolz.dissoc(self._data, key)
-        return type(self)(data)
+        data: Mapping[str, T] = toolz.dissoc(self.data, key)
+        return self.replace(data=data)
 
     def update(self, updates: MappingLike, /, **kwargs) -> Self:
         updates = as_dict(updates)
-        data: Mapping[str, T] = toolz.merge(self._data, updates, kwargs)
-        return type(self)(data)
+        data: Mapping[str, T] = toolz.merge(self.data, updates, kwargs)
+        return self.replace(data=data)

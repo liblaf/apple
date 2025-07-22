@@ -12,12 +12,12 @@ from liblaf.apple import energy, helper, optim, sim, utils
 class Config(cherries.BaseConfig):
     output_dir: Path = utils.data("")
     duration: float = 1.0
-    fps: float = 30.0
+    fps: float = 120.0
 
     d_hat: float = 1e-3
     density: float = 1e3
-    lambda_: float = 3 * 1e3
-    mu: float = 1 * 1e3
+    lambda_: float = 3 * 5e2
+    mu: float = 1 * 5e2
 
     @property
     def n_frames(self) -> int:
@@ -34,7 +34,7 @@ def main(cfg: Config) -> None:
     soft: sim.Actor = gen_actor(cfg)
     ground: sim.Actor = gen_rigid(cfg)
     builder: sim.SceneBuilder = gen_scene(cfg, soft, ground)
-    builder.params = builder.params.evolve(time_step=cfg.time_step)
+    builder.params = builder.params.replace(time_step=cfg.time_step)
     soft = builder.actors_concrete[soft.id]
     scene: sim.Scene = builder.finish()
     optimizer = optim.PNCG(d_hat=cfg.d_hat, maxiter=10**3, rtol=5e-5)
@@ -100,7 +100,7 @@ def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilde
     builder = sim.SceneBuilder()
     soft = builder.assign_dofs(soft)
     rigid = builder.assign_dofs(rigid)
-    builder.add_energy(energy.ARAP.from_actor(soft))
+    builder.add_energy(energy.PhaceStatic.from_actor(soft))
     builder.add_energy(
         energy.CollisionVertFace.from_actors(rigid, soft, rest_length=cfg.d_hat)
     )

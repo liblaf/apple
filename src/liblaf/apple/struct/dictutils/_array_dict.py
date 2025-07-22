@@ -20,7 +20,7 @@ def as_array_dict(data: MappingLike, /) -> dict[str, jax.Array]:
 
 
 class ArrayDict(tree.PyTree, Mapping[str, jax.Array]):
-    _data: Mapping[str, jax.Array] = tree.container(
+    data: Mapping[str, jax.Array] = tree.container(
         converter=as_array_dict, factory=dict
     )
 
@@ -31,55 +31,55 @@ class ArrayDict(tree.PyTree, Mapping[str, jax.Array]):
     def __pdoc__(self, **kwargs) -> wl.AbstractDoc:
         cls_kwargs: dict[str, Any] = kwargs.copy()
         cls_kwargs["show_type_module"] = cls_kwargs["show_dataclass_module"]
-        return wl.pdoc(type(self), **cls_kwargs) + wl.pdoc(self._data, **kwargs)
+        return wl.pdoc(type(self), **cls_kwargs) + wl.pdoc(self.data, **kwargs)
 
-    # region Mapping[str, jax.Array]
+    # region impl Mapping[str, jax.Array]
 
     @override
     def __getitem__(self, key: KeyLike, /) -> jax.Array:
         key: str = as_key(key)
-        return self._data[key]
+        return self.data[key]
 
     def __iter__(self) -> Iterator[str]:
-        yield from self._data
+        yield from self.data
 
     @override
     def __len__(self) -> int:
-        return len(self._data)
+        return len(self.data)
 
-    # endregion Mapping[str, jax.Array]
+    # endregion impl Mapping[str, jax.Array]
 
     def __add__(self, other: MappingLike, /) -> Self:
-        other: dict[str, jax.Array] = as_array_dict(other)
+        other: dict[str, jax.Array] = as_array_dict(other)  # pyright: ignore[reportAssignmentType]
         data: dict[str, jax.Array] = dict(self)
         for key, value in other.items():
             if key in data:
                 data[key] += value
             else:
                 data[key] = value
-        return self.replace(_data=data)
+        return self.replace(data=data)
 
     def clear(self) -> Self:
-        return self.replace(_data={})
+        return self.replace(data={})
 
     def key_filter(self, keys: KeysLike, /) -> Self:
         keys: list[str] = as_keys(keys)
-        data: Mapping[str, jax.Array] = {k: self._data[k] for k in keys}
-        return self.replace(_data=data)
+        data: Mapping[str, jax.Array] = {k: self.data[k] for k in keys}
+        return self.replace(data=data)
 
     def pop(self, key: KeyLike, /) -> Self:
         key: str = as_key(key)
-        data: Mapping[str, jax.Array] = toolz.dissoc(self._data, key)
-        return self.replace(_data=data)
+        data: Mapping[str, jax.Array] = toolz.dissoc(self.data, key)
+        return self.replace(data=data)
 
     def set(self, key: KeyLike, value: ArrayLike, /) -> Self:
         key: str = as_key(key)
         value: jax.Array = jnp.asarray(value)
-        data: Mapping[str, jax.Array] = toolz.assoc(self._data, key, value)
-        return self.replace(_data=data)
+        data: Mapping[str, jax.Array] = toolz.assoc(self.data, key, value)
+        return self.replace(data=data)
 
     def update(self, updates: MappingLike | None = None, /, **kwargs) -> Self:
         updates = as_dict(updates)
         updates = toolz.valmap(jnp.asarray, updates)
-        data: Mapping[str, jax.Array] = toolz.merge(self._data, updates, kwargs)
-        return self.replace(_data=data)
+        data: Mapping[str, jax.Array] = toolz.merge(self.data, updates, kwargs)
+        return self.replace(data=data)

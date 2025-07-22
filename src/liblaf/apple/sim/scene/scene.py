@@ -140,6 +140,39 @@ class Scene(struct.PyTree):
             energies = energies.add(energy_new)
         return self.replace(actors=actors, energies=energies, state=state)
 
+    @utils.jit(inline=True, validate=False)
+    def pre_optim_iter_jit(self, x: X | None = None) -> Self:
+        if x is None:
+            x = self.x0
+        state: State = self.integrator.pre_optim_iter_jit(x, self.state, self.params)
+        actors: struct.NodeContainer[Actor] = self.actors
+        fields: struct.ArrayDict = self.scatter(x)
+        for actor in actors.values():
+            actor_new: Actor = actor.pre_optim_iter_jit(fields[actor.id])
+            actors = actors.add(actor_new)
+        energies: struct.NodeContainer[Energy] = self.energies
+        for energy in energies.values():
+            energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
+            energy_new = energy_new.pre_optim_iter_jit(self.params)
+            energies = energies.add(energy_new)
+        return self.replace(actors=actors, energies=energies, state=state)
+
+    def pre_optim_iter_no_jit(self, x: X | None = None) -> Self:
+        if x is None:
+            x = self.x0
+        state: State = self.state
+        actors: struct.NodeContainer[Actor] = self.actors
+        fields: struct.ArrayDict = self.scatter(x)
+        for actor in actors.values():
+            actor_new: Actor = actor.pre_optim_iter_no_jit(fields[actor.id])
+            actors = actors.add(actor_new)
+        energies: struct.NodeContainer[Energy] = self.energies
+        for energy in energies.values():
+            energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
+            energy_new = energy_new.pre_optim_iter_no_jit(self.params)
+            energies = energies.add(energy_new)
+        return self.replace(actors=actors, energies=energies, state=state)
+
     def solve(
         self,
         x0: X | None = None,

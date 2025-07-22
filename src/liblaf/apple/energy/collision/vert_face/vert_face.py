@@ -1,9 +1,11 @@
 from typing import Self, override
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, Bool, Float, Integer
 
+from liblaf import grapes
 from liblaf.apple import sim, struct, utils
 
 from .kernel import (
@@ -15,8 +17,7 @@ from .kernel import (
 )
 
 
-@struct.pytree
-class CollisionCandidatesVertFace(struct.PyTreeMixin):
+class CollisionCandidatesVertFace(struct.PyTree):
     closest: Float[Array, "points 3"] = struct.array(default=None)
     collide: Bool[Array, " points"] = struct.array(default=None)
     distance: Float[Array, " points"] = struct.array(default=None)
@@ -25,19 +26,18 @@ class CollisionCandidatesVertFace(struct.PyTreeMixin):
     uv: Float[Array, "points 2"] = struct.array(default=None)
 
 
-@struct.pytree
 class CollisionVertFace(sim.Energy):
-    rigid: sim.Actor = struct.data(default=None)
-    soft: sim.Actor = struct.data(default=None)
+    rigid: sim.Actor = struct.field(default=None)
+    soft: sim.Actor = struct.field(default=None)
 
     stiffness: Float[Array, ""] = struct.array(default=1e5)
     rest_length: Float[Array, ""] = struct.array(default=1e-3)
     max_dist: Float[Array, ""] = struct.array(default=1e-2)
     epsilon: Float[Array, ""] = struct.array(default=1e-3)
-    filter_hess_diag: bool = struct.static(default=True, kw_only=True)
-    filter_hess_quad: bool = struct.static(default=True, kw_only=True)
+    filter_hess_diag: bool = struct.field(default=True, kw_only=True)
+    filter_hess_quad: bool = struct.field(default=True, kw_only=True)
 
-    candidates: CollisionCandidatesVertFace = struct.data(
+    candidates: CollisionCandidatesVertFace = struct.field(
         factory=CollisionCandidatesVertFace
     )
 
@@ -70,16 +70,15 @@ class CollisionVertFace(sim.Energy):
 
     @override
     def with_actors(self, actors: struct.NodeContainer[sim.Actor]) -> Self:
-        return self.evolve(rigid=actors[self.rigid.id], soft=actors[self.soft.id])
+        return self.replace(rigid=actors[self.rigid.id], soft=actors[self.soft.id])
 
     @override
     def pre_optim_iter(self, params: sim.GlobalParams) -> Self:
         candidates: CollisionCandidatesVertFace = self.collide()
-        # wl.pprint(candidates, short_arrays=False)
-        return self.evolve(candidates=candidates)
+        return self.replace(candidates=candidates)
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def fun(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> Float[Array, ""]:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
         energy: Float[Array, " points"]
@@ -96,7 +95,7 @@ class CollisionVertFace(sim.Energy):
         return energy.sum()
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def jac(self, x: struct.ArrayDict, /, params: sim.GlobalParams) -> struct.ArrayDict:
         points: Float[Array, "points dim"] = self.soft.points + x[self.soft.id]
         jac_soft: Float[Array, " points dim"]
@@ -116,7 +115,7 @@ class CollisionVertFace(sim.Energy):
         )
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_diag(
         self, x: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> struct.ArrayDict:
@@ -139,7 +138,7 @@ class CollisionVertFace(sim.Energy):
         )
 
     @override
-    @utils.jit_method(inline=True)
+    @utils.jit(inline=True)
     def hess_quad(
         self, x: struct.ArrayDict, p: struct.ArrayDict, /, params: sim.GlobalParams
     ) -> Float[Array, ""]:
@@ -160,7 +159,7 @@ class CollisionVertFace(sim.Energy):
             hess_quad = jnp.clip(hess_quad, min=0.0)
         return hess_quad.sum()
 
-    @utils.jit_method()
+    @utils.jit(inline=True)
     def collide(self) -> CollisionCandidatesVertFace:
         (
             closest,

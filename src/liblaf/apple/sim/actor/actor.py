@@ -7,7 +7,7 @@ import pyvista as pv
 import warp as wp
 from jaxtyping import Array, ArrayLike, Bool, Float, Shaped
 
-from liblaf.apple import struct
+from liblaf.apple import struct, utils
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import DOFs, DOFsArray
 from liblaf.apple.sim.element import Element
@@ -131,11 +131,25 @@ class Actor(struct.PyTreeNode):
     def pre_optim_iter(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
-        actor: Self = self.update(displacement)
-        if actor.collision_mesh is not None:
-            actor.collision_mesh.points = wp.from_jax(actor.positions, dtype=wp.vec3)
-            actor.collision_mesh.refit()
+        actor: Self = self.pre_optim_iter_jit(displacement)
+        actor = actor.pre_optim_iter_no_jit(displacement)
         return actor
+
+    @utils.jit(inline=True, validate=False)
+    def pre_optim_iter_jit(
+        self, displacement: Float[ArrayLike, "points dim"] | None = None
+    ) -> Self:
+        actor: Self = self.update(displacement)
+        return actor
+
+    def pre_optim_iter_no_jit(
+        self,
+        displacement: Float[ArrayLike, "points dim"] | None = None,  # noqa: ARG002
+    ) -> Self:
+        if self.collision_mesh is not None:
+            self.collision_mesh.points = wp.from_jax(self.positions, dtype=wp.vec3)
+            self.collision_mesh.refit()
+        return self
 
     def update(
         self,

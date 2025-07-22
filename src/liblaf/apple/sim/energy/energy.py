@@ -20,7 +20,16 @@ class Energy(struct.PyTreeNode):
     def pre_time_step(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
-    def pre_optim_iter(self, params: GlobalParams) -> Self:  # noqa: ARG002
+    def pre_optim_iter(self, params: GlobalParams) -> Self:
+        energy: Self = self.pre_optim_iter_jit(params)
+        energy = energy.pre_optim_iter_no_jit(params)
+        return energy
+
+    @utils.jit(inline=True, validate=False)
+    def pre_optim_iter_jit(self, params: GlobalParams) -> Self:  # noqa: ARG002
+        return self
+
+    def pre_optim_iter_no_jit(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
     @abc.abstractmethod

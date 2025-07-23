@@ -1,11 +1,9 @@
 from typing import Self, override
 
-import jax
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, Bool, Float, Integer
 
-from liblaf import grapes
 from liblaf.apple import sim, struct, utils
 
 from .kernel import (

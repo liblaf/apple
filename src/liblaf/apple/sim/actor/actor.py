@@ -27,21 +27,33 @@ class Actor(struct.PyTreeNode):
 
     @classmethod
     def from_pyvista(
-        cls, mesh: pv.DataSet, *, collision: bool = False, grad: bool = False
+        cls,
+        mesh: pv.DataSet,
+        *,
+        collision: bool = False,
+        grad: bool = False,
+        id_: str | None = None,
     ) -> Self:
         geometry: Geometry = Geometry.from_pyvista(mesh)
-        return cls.from_geometry(geometry, collision=collision, grad=grad)
+        return cls.from_geometry(geometry, collision=collision, grad=grad, id_=id_)
 
     @classmethod
     def from_geometry(
-        cls, geometry: Geometry, *, collision: bool = False, grad: bool = False
+        cls,
+        geometry: Geometry,
+        *,
+        collision: bool = False,
+        grad: bool = False,
+        id_: str | None = None,
     ) -> Self:
         region: Region = Region.from_geometry(geometry, grad=grad)
-        return cls.from_region(region, collision=collision)
+        return cls.from_region(region, collision=collision, id_=id_)
 
     @classmethod
-    def from_region(cls, region: Region, *, collision: bool = False) -> Self:
-        self: Self = cls(region=region)
+    def from_region(
+        cls, region: Region, *, collision: bool = False, id_: str | None = None
+    ) -> Self:
+        self: Self = cls(region=region, id=id_)  # pyright: ignore[reportArgumentType]
         self = self.update(
             displacement=jnp.zeros((region.n_points, region.dim)),
             velocity=jnp.zeros((region.n_points, region.dim)),

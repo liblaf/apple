@@ -186,6 +186,7 @@ class Scene(struct.PyTree):
         if x0 is None:
             x0 = self.integrator.make_x0(self.state, self.params)
         x0: X = jnp.asarray(x0)
+        x0 = self.dirichlet.apply(x0)
         scene = scene.pre_optim_iter(x0)
         problem = SceneProblem(scene=scene, callback=callback)
         result: optim.OptimizeResult = optimizer.minimize(

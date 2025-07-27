@@ -1,7 +1,5 @@
 from collections.abc import Callable
 
-import attrs
-
 from liblaf.apple import optim, struct
 
 from .protocol import SceneProtocol, X, Y

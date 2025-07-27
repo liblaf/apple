@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from typing import override
 
-import equinox as eqx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Float

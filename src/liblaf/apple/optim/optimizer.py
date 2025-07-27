@@ -58,7 +58,7 @@ class Optimizer(tree.PyTree):
             problem = problem.autodiff().implement()
         if self.jit:
             problem = problem.jit()
-        problem = problem.timer()
+        # problem = problem.timer()
         with grapes.timer(self.name) as timer:
             result: OptimizeResult = self._minimize_impl(problem, x0, args, **kwargs)
         result["time"] = timer.elapsed()

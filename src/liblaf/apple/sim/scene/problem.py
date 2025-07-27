@@ -2,20 +2,20 @@ from collections.abc import Callable
 
 import attrs
 
-from liblaf.apple import optim
+from liblaf.apple import optim, struct
 
 from .protocol import SceneProtocol, X, Y
 
 
-@attrs.define
-class SceneProblem(optim.ProblemProtocol):
-    scene: SceneProtocol = attrs.field()
-    _callback: Callable | None = attrs.field(default=None, alias="callback")
+class SceneProblem(struct.PyTree):
+    scene: SceneProtocol = struct.field()
+    _callback: Callable | None = struct.field(default=None)
 
     def callback(self, intermediate_result: optim.OptimizeResult) -> None:
         result: optim.OptimizeResult = intermediate_result
         x: X = result["x"]
-        self.scene = self.scene.pre_optim_iter(x)
+        object.__setattr__(self, "scene", self.scene.pre_optim_iter(x))
+        # self.scene = self.scene.pre_optim_iter(x)
         # ic(result)
         if callable(self._callback):
             self._callback(result, self.scene)

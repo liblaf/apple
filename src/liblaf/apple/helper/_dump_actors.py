@@ -3,16 +3,22 @@ from collections.abc import Mapping
 import pyvista as pv
 
 from liblaf.apple import energy as _energy
-from liblaf.apple import sim, struct
+from liblaf.apple import optim, sim, struct
+
+from ._dump_optim import dump_optim_result
 
 
-def dump_actors(scene: sim.Scene) -> struct.NodeContainer[sim.Actor]:
+def dump_actors(
+    scene: sim.Scene, result: optim.OptimizeResult | None = None
+) -> struct.NodeContainer[sim.Actor]:
     actors: struct.NodeContainer[sim.Actor] = struct.NodeContainer()
     for actor_old in scene.actors.values():
         actor: sim.Actor = actor_old.update(
             displacement=actor_old.dofs.get(scene.state.displacement),
             velocity=actor_old.dofs.get(scene.state.velocity),
         )
+        if result is not None:
+            actor = dump_optim_result(scene, actor, result)
         actors = actors.add(actor)
     for energy in scene.energies.values():
         if isinstance(energy, _energy.CollisionVertFace):

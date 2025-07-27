@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from typing import override
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Float
@@ -60,6 +61,12 @@ class PNCG(Optimizer):
 
         n_iter: int = 0
         for it in range(self.maxiter):
+            # data, aux = eqx.partition(problem.jac, eqx.is_array)
+            # ic(data.__wrapped__, data._self_wrapper, data._self_enabled)
+            # ic(aux.__wrapped__, data._self_wrapper,data._self_enabled)
+            # children, treedef = jax.tree.flatten(problem.jac)
+            # ic(children)
+            # ic(treedef)
             state = self.step(problem, state, args=args)
             if it == 0:
                 Delta_E0 = state.Delta_E
@@ -113,7 +120,9 @@ class PNCG(Optimizer):
         # beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
+    @utils.jit
     def step(self, problem: OptimizationProblem, state: State, args: Sequence) -> State:
+        ic("JIT Compiling ...")
         assert callable(problem.hess_quad)
         assert callable(problem.jac_and_hess_diag)
 

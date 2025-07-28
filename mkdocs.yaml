@@ -1,5 +1,3 @@
-# -*- mode: yaml; -*-
-
 INHERIT: .config/copier/mkdocs.yaml
 site_name: Apple
 site_description: TODO
@@ -8,5 +6,16 @@ plugins:
   mkdocstrings:
     handlers:
       python:
-        inventories:
-          - https://docs.python.org/3/objects.inv
+        options:
+          extensions:
+            # Official extensions
+            - griffe_inherited_docstrings
+            - griffe_pydantic:
+                schema: true
+            - griffe_warnings_deprecated
+            # Third-party extensions
+            - docstring_inheritance.griffe
+            - griffe_fieldz:
+                include_inherited: true
+            # - griffe_generics # RecursionError: maximum recursion depth exceeded
+            # - griffe_inherited_method_crossrefs # does not work

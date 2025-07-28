@@ -32,10 +32,8 @@ dependencies = [
   "einops>=0.8.0,<0.9",
   "equinox>=0.13.0,<0.14",
   "felupe>=9.0.0,<10",
-  "flax>=0.10.0,<0.11",
-  "h5py>=3.14.0",
   "ipctk>=1.0.0,<2",
-  "jax[cuda12]>=0.6.0,<0.7",
+  "jax[cuda12]>=0.7.0,<0.8",
   "jaxtyping>=0.3.0,<0.4",
   "lazy-loader>=0.4.0,<0.5",
   "liblaf-grapes>=1.0.0,<2",
@@ -44,7 +42,6 @@ dependencies = [
   "matplotlib>=3.0.0,<4",
   "networkx>=3.0.0,<4",
   "numpy>=2.0.0,<3",
-  "plum-dispatch>=2.0.0,<3",
   "pyvista>=0.45.0,<0.46",
   "rich>=14.0.0,<15",
   "scipy>=1.0.0,<2",
@@ -65,10 +62,8 @@ dynamic = ["version"]
 build = ["check-wheel-contents", "hatch", "twine"]
 dev = [
   "icecream",
-  "imageio[ffmpeg]",
   "liblaf-cherries",
   "marimo[recommended]",
-  "mypy>=1.17.0",
   "sympy",
   "viztracer",
 ]

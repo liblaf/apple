@@ -30,7 +30,7 @@ class Region(struct.PyTree):
         mesh: pv.DataSet,
         quadrature: Scheme | None = None,
         *,
-        grad: bool | None = None,
+        grad: bool = False,
     ) -> Self:
         geometry: Geometry = Geometry.from_pyvista(mesh)
         return cls.from_geometry(geometry, quadrature=quadrature, grad=grad)

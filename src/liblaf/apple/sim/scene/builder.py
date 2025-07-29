@@ -47,7 +47,7 @@ class SceneBuilder:
     def actors_needed(self) -> struct.NodeContainer[Actor]:
         actors: struct.NodeContainer[Actor] = struct.NodeContainer()
         for energy in self.energies.values():
-            actors = actors.update(energy.actors)
+            actors.update(energy.actors)
         return actors
 
     @property
@@ -84,14 +84,14 @@ class SceneBuilder:
     # region Builder
 
     def add_energy(self, energy: Energy) -> Energy:
-        self.energies = self.energies.add(energy)
+        self.energies.add(energy)
         return energy
 
     def assign_dofs(self, actor: Actor) -> Actor:
         actor = actor.with_dofs(
             make_dofs((actor.n_points, actor.dim), offset=self.n_dofs)
         )
-        self.actors_concrete = self.actors_concrete.add(actor)
+        self.actors_concrete.add(actor)
         return actor
 
     def finish(self) -> Scene:

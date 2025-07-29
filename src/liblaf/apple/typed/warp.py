@@ -1,4 +1,3 @@
-# pyright: reportAttributeAccessIssue=none
 # ruff: noqa: N801
 
 import warp.types

@@ -19,7 +19,7 @@ def dump_actors(
         )
         if result is not None:
             actor = dump_optim_result(scene, actor, result)
-        actors = actors.add(actor)
+        actors.add(actor)
     for energy in scene.energies.values():
         if isinstance(energy, _energy.CollisionVertFace):
             actor: sim.Actor = actors[energy.soft.id]
@@ -27,7 +27,7 @@ def dump_actors(
                 actor = actor.set_point_data("collide", energy.candidates.collide)
             if energy.candidates.distance is not None:
                 actor = actor.set_point_data("distance", energy.candidates.distance)
-            actors = actors.add(actor)
+            actors.add(actor)
     return actors
 
 

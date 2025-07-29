@@ -1,11 +1,10 @@
-# pyright: reportAttributeAccessIssue=none
-
 import functools
 from typing import Self
 
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, ArrayLike, Float, Integer
+from typing_extensions import deprecated
 
 from liblaf import grapes
 from liblaf.apple import struct
@@ -76,26 +75,40 @@ class Geometry(struct.PyTree):
     # region Manipulation
 
     def copy_attributes(self, mesh: "pv.DataSet | Geometry", /) -> Self:
-        return self.update_point_data(mesh.point_data).update_cell_data(mesh.cell_data)
+        self.point_data.update(mesh.point_data)
+        self.cell_data.update(mesh.cell_data)
+        self.field_data.update(mesh.field_data)
+        return self
 
+    @deprecated("Use `self.cell_data[name] = value` instead.")
     def set_cell_data(self, name: str, value: ArrayLike, /) -> Self:
-        return self.update_cell_data(self.cell_data.set(name, value))
+        self.cell_data[name] = value
+        return self
 
+    @deprecated("Use `self.point_data[name] = value` instead.")
     def set_point_data(self, name: str, value: ArrayLike, /) -> Self:
-        return self.update_point_data(self.point_data.set(name, value))
+        self.point_data[name] = value
+        return self
 
+    @deprecated("Use `self.field_data[name] = value` instead.")
     def set_field_data(self, name: str, value: ArrayLike, /) -> Self:
-        return self.replace(field_data=self.field_data.set(name, value))
+        self.field_data[name] = value
+        return self
 
+    @deprecated("Use `self.cell_data.update(...)` instead.")
     def update_cell_data(self, cell_data: struct.MappingLike, /) -> Self:
         self.cell_data.update(cell_data)
         return self
 
+    @deprecated("Use `self.point_data.update(...)` instead.")
     def update_point_data(self, point_data: struct.MappingLike, /) -> Self:
-        return self.replace(point_data=self.point_data.update(point_data))
+        self.point_data.update(point_data)
+        return self
 
+    @deprecated("Use `self.field_data.update(...)` instead.")
     def update_field_data(self, field_data: struct.MappingLike, /) -> Self:
-        return self.replace(field_data=self.field_data.update(field_data))
+        self.field_data.update(field_data)
+        return self
 
     # endregion Manipulation
 

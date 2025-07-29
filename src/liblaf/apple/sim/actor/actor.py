@@ -1,5 +1,3 @@
-# pyright: reportAttributeAccessIssue=none
-
 from collections.abc import Mapping
 from typing import Self
 
@@ -8,10 +6,11 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, ArrayLike, Bool, Float, Shaped
+from typing_extensions import deprecated
 
 from liblaf.apple import struct, utils
 from liblaf.apple.sim.dirichlet import Dirichlet
-from liblaf.apple.sim.dofs import DOFs, DOFsArray
+from liblaf.apple.sim.dofs import DOFs
 from liblaf.apple.sim.element import Element
 from liblaf.apple.sim.field.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
@@ -24,7 +23,7 @@ class Actor(struct.PyTreeNode):
     collision_mesh: wp.Mesh = struct.field(default=None, static=True)
     components: list[ComponentProtocol] = struct.field(factory=list)
     dirichlet: Dirichlet = struct.field(factory=Dirichlet)
-    dofs: DOFs = struct.field(factory=DOFsArray)
+    dofs: DOFs = struct.field(factory=DOFs)
     region: Region = struct.field(default=None)
 
     @classmethod
@@ -204,31 +203,35 @@ class Actor(struct.PyTreeNode):
         actor = actor.update(displacement=dirichlet.apply(actor.displacement))
         return actor
 
+    @deprecated("Use `self.point_data[name] = value` instead.")
     def set_point_data(self, name: str, value: Shaped[ArrayLike, "points dim"]) -> Self:
-        point_data: GeometryAttributes = self.point_data.set(name, value)
-        return self.tree_at(lambda self: self.point_data, point_data)
+        self.point_data[name] = value
+        return self
 
+    @deprecated("Use `self.field_data[name] = value` instead.")
     def set_field_data(self, name: str, value: Shaped[ArrayLike, "..."]) -> Self:
-        field_data: GeometryAttributes = self.field_data.set(name, value)
-        return self.tree_at(lambda self: self.field_data, field_data)
+        self.field_data[name] = value
+        return self
 
+    @deprecated("Use `self.point_data.update(...)` instead.")
     def update_point_data(
         self,
         updates: Mapping[str, Shaped[ArrayLike, "points ..."]],
         /,
         **kwargs: Shaped[ArrayLike, "points ..."],
     ) -> Self:
-        point_data: GeometryAttributes = self.point_data.update(updates, **kwargs)
-        return self.tree_at(lambda self: self.point_data, replace=point_data)
+        self.point_data.update(updates, **kwargs)
+        return self
 
+    @deprecated("Use `self.field_data.update(...)` instead.")
     def update_field_data(
         self,
         updates: Mapping[str, Shaped[ArrayLike, "..."]],
         /,
         **kwargs: Shaped[ArrayLike, "..."],
     ) -> Self:
-        field_data: GeometryAttributes = self.field_data.update(updates, **kwargs)
-        return self.tree_at(lambda self: self.field_data, replace=field_data)
+        self.field_data.update(updates, **kwargs)
+        return self
 
     def with_collision_mesh(self) -> Self:
         if self.collision_mesh is not None:

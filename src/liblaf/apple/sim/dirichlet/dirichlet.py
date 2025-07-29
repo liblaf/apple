@@ -36,7 +36,7 @@ class Dirichlet(struct.PyTree):
         dirichlet: list[Self] = [d for d in dirichlet if d.dofs is not None]
         if not dirichlet:
             return cls()
-        dofs: DOFs = DOFs.union(*(d.dofs for d in dirichlet))
+        dofs: DOFs = DOFs.union1d(*(d.dofs for d in dirichlet))
         values: Shaped[Array, " dirichlet"] = jnp.concat(
             [jnp.asarray(d.values).ravel() for d in dirichlet]
         )

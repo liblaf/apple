@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=none
+
 from typing import Any, no_type_check
 
 import warp as wp

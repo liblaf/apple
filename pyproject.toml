@@ -64,6 +64,7 @@ dev = [
   "icecream",
   "liblaf-cherries",
   "marimo[recommended]",
+  "mypy",
   "sympy",
   "viztracer",
 ]

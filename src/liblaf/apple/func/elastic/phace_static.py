@@ -19,7 +19,7 @@ class PhaceStaticParams:
     mu: float  # Lame's second parameter
 
 
-@no_type_check
+# @no_type_check
 @wp.func
 def phace_static_energy_density(F: mat33, params: PhaceStaticParams) -> float:
     mu = params.mu  # float

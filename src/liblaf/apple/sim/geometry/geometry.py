@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=none
+
 import functools
 from typing import Self
 

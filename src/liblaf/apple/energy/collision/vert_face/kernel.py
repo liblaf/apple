@@ -208,7 +208,7 @@ def collision_energy_vert_face_hess_quad_func(
     distance: float,
     rest_length: float,
     stiffness: float,
-) -> wp.float32:
+) -> float:
     t = point - closest
     rest_length = wp.sign(distance) * rest_length
     t_norm = wp.length(t)

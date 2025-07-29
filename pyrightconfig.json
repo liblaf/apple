@@ -3,12 +3,13 @@
   "extends": ".config/linters/pyrightconfig.json",
 
   "exclude": [
-    "**/node_modules",
+    ".old",
     "**/__pycache__",
     "**/.*",
+    "**/node_modules",
+    "exp/",
     "marimo/",
-    ".old",
-    "exp/"
+    "typings/warp/"
   ],
 
   "reportIncompatibleMethodOverride": "information",

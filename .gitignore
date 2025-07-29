@@ -205,3 +205,5 @@ fig/
 *.vtk
 *.vtp
 *.vtu
+
+.cherries/

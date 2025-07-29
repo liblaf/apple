@@ -1,24 +1,34 @@
-from warp import types
-from warp.types import mat33, vec2, vec3, vec4
+# pyright: reportAttributeAccessIssue=none
+# ruff: noqa: N801
+
+import warp.types
 
 
-class mat34f(types.matrix(shape=(3, 4), dtype=types.float32)): ...  # noqa: N801
+class vec2(warp.types.vector(2, float)): ...
 
 
-class mat43f(types.matrix(shape=(4, 3), dtype=types.float32)): ...  # noqa: N801
+class vec3(warp.types.vector(3, float)): ...
 
 
-class vec9f(types.vector(length=9, dtype=types.float32)): ...  # noqa: N801
+class vec4(warp.types.vector(4, float)): ...
 
 
-class vec12f(types.vector(length=12, dtype=types.float32)): ...  # noqa: N801
+class vec9(warp.types.vector(9, float)): ...
 
 
-mat34 = mat34f
-mat43 = mat43f
+class vec12(warp.types.vector(12, float)): ...
 
 
-vec9 = vec9f
-vec12 = vec12f
+class mat33(warp.types.matrix((3, 3), float)): ...
 
-__all__ = ["mat33", "mat34", "mat43", "vec2", "vec3", "vec4", "vec9", "vec12"]
+
+class mat34(warp.types.matrix((3, 4), float)): ...
+
+
+class mat43(warp.types.matrix((4, 3), float)): ...
+
+
+class mat44(warp.types.matrix((4, 4), float)): ...
+
+
+__all__ = ["mat33", "mat34", "mat43", "mat44", "vec2", "vec3", "vec4", "vec9", "vec12"]

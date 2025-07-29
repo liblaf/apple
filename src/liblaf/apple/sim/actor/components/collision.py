@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=none
+
 from typing import Self
 
 import warp as wp

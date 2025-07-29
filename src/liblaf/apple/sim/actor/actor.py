@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=none
+
 from collections.abc import Mapping
 from typing import Self
 

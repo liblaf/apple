@@ -1,8 +1,8 @@
 #:schema https://json.schemastore.org/ruff.json
 
 extend = ".config/linters/.ruff.toml"
-extend-exclude = ["marimo/*.py"]
+extend-exclude = ["marimo/*.py", "typings/warp/"]
 target-version = "py312"
 
 [lint]
-ignore = ["F722", "N802", "N803", "N806", "N815", "RUF002"]
+ignore = ["F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]

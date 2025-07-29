@@ -1,7 +1,7 @@
 from typing import Self
 
 import jax.numpy as jnp
-from jaxtyping import Array, ArrayLike, Bool, Shaped
+from jaxtyping import Array, ArrayLike, Bool, Integer, Shaped
 from typing_extensions import deprecated
 
 from liblaf.apple import struct
@@ -47,6 +47,13 @@ class Dirichlet(struct.PyTree):
         if self.dofs is None:
             return 0
         return self.dofs.size
+
+    def remap(
+        self, global_index: Integer[ArrayLike, " N"] | Integer[struct.Index, " N"]
+    ) -> Self:
+        if self.dofs is None:
+            return self
+        return self.replace(dofs=self.dofs.remap(global_index))
 
     def apply(self, x: ArrayLike, /) -> Array:
         if self.dofs is None:

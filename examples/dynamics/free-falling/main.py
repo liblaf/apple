@@ -94,8 +94,8 @@ def main(cfg: Config) -> None:
         for e in scene.energies.values():
             jac_dict: struct.ArrayDict = e.jac(fields, scene.params)
             jac_flat: Float[Array, " DOF"] = scene.gather(jac_dict)
-            mesh.point_data[f"{e.id}.jac"] = actor.dofs.get(jac_flat)
-        mesh.point_data[f"{scene.integrator.name}.jac"] = actor.dofs.get(
+            mesh.point_data[f"{e.id}.jac"] = actor.dofs_global.get(jac_flat)
+        mesh.point_data[f"{scene.integrator.name}.jac"] = actor.dofs_global.get(
             scene.integrator.jac(result["x"], scene.state, scene.params)
         )
 

@@ -12,43 +12,16 @@ from liblaf.apple import struct, utils
 from liblaf.apple.sim.dirichlet import Dirichlet
 from liblaf.apple.sim.dofs import DOFs
 from liblaf.apple.sim.element import Element
-from liblaf.apple.sim.field.field import Field
+from liblaf.apple.sim.field import Field
 from liblaf.apple.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.sim.region import Region
 
-from .protocol import ComponentProtocol
-
 
 class Actor(struct.PyTreeNodeMutable):
-    collision_mesh: wp.Mesh = struct.field(default=None, static=True)
-    components: list[ComponentProtocol] = struct.field(factory=list)
-    dirichlet: Dirichlet = struct.field(factory=Dirichlet)
-    dofs: DOFs = struct.field(factory=DOFs)
+    collision_mesh: wp.Mesh | None = struct.field(default=None, static=True)
+    dirichlet_local: Dirichlet | None = struct.field(default=None)
+    dofs_global: DOFs = struct.field(default=None)
     region: Region = struct.field(default=None)
-
-    @classmethod
-    def from_pyvista(
-        cls,
-        mesh: pv.DataSet,
-        *,
-        collision: bool = False,
-        grad: bool = False,
-        id_: str | None = None,
-    ) -> Self:
-        geometry: Geometry = Geometry.from_pyvista(mesh)
-        return cls.from_geometry(geometry, collision=collision, grad=grad, id_=id_)
-
-    @classmethod
-    def from_geometry(
-        cls,
-        geometry: Geometry,
-        *,
-        collision: bool = False,
-        grad: bool = False,
-        id_: str | None = None,
-    ) -> Self:
-        region: Region = Region.from_geometry(geometry, grad=grad)
-        return cls.from_region(region, collision=collision, id_=id_)
 
     @classmethod
     def from_region(
@@ -64,7 +37,37 @@ class Actor(struct.PyTreeNodeMutable):
             self = self.with_collision_mesh()
         return self
 
+    @classmethod
+    def from_geometry(
+        cls,
+        geometry: Geometry,
+        *,
+        collision: bool = False,
+        grad: bool = False,
+        id_: str | None = None,
+    ) -> Self:
+        region: Region = Region.from_geometry(geometry, grad=grad)
+        return cls.from_region(region, collision=collision, id_=id_)
+
+    @classmethod
+    def from_pyvista(
+        cls,
+        mesh: pv.DataSet,
+        *,
+        collision: bool = False,
+        grad: bool = False,
+        id_: str | None = None,
+    ) -> Self:
+        geometry: Geometry = Geometry.from_pyvista(mesh)
+        return cls.from_geometry(geometry, collision=collision, grad=grad, id_=id_)
+
     # region Structure
+
+    @property
+    def dirichlet_global(self) -> Dirichlet | None:
+        if self.dofs_global is None or self.dirichlet_local is None:
+            return None
+        return self.dirichlet_local.remap(self.dofs_global)
 
     @property
     def element(self) -> Element:
@@ -84,7 +87,9 @@ class Actor(struct.PyTreeNodeMutable):
 
     @property
     def n_dirichlet(self) -> int:
-        return self.dirichlet.size
+        if self.dirichlet_local is None:
+            return 0
+        return self.dirichlet_local.size
 
     @property
     def n_dofs(self) -> int:
@@ -144,10 +149,13 @@ class Actor(struct.PyTreeNodeMutable):
     def pre_optim_iter(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
-        actor: Self = self.pre_optim_iter_jit(displacement)
-        actor = actor.pre_optim_iter_no_jit(displacement)
-        return actor
+        self.update(displacement=displacement)
+        if self.collision_mesh is not None:
+            self.collision_mesh.points = wp.from_jax(self.positions, dtype=wp.vec3)
+            self.collision_mesh.refit()
+        return self
 
+    @deprecated("Actor.pre_optim_iter_jit() is deprecated.")
     @utils.jit(inline=True, validate=False)
     def pre_optim_iter_jit(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
@@ -155,6 +163,7 @@ class Actor(struct.PyTreeNodeMutable):
         actor: Self = self.update(displacement)
         return actor
 
+    @deprecated("Actor.pre_optim_iter_no_jit() is deprecated.")
     def pre_optim_iter_no_jit(
         self,
         displacement: Float[ArrayLike, "points dim"] | None = None,  # noqa: ARG002
@@ -170,14 +179,13 @@ class Actor(struct.PyTreeNodeMutable):
         velocity: Float[ArrayLike, "points dim"] | None = None,
         force: Float[ArrayLike, "points dim"] | None = None,
     ) -> Self:
-        actor: Self = self
         if displacement is not None:
-            actor = actor.set_point_data("displacement", displacement)
+            self.point_data["displacement"] = displacement
         if velocity is not None:
-            actor = actor.set_point_data("velocity", velocity)
+            self.point_data["velocity"] = velocity
         if force is not None:
-            actor = actor.set_point_data("force", force)
-        return actor
+            self.point_data["force"] = force
+        return self
 
     # endregion Procedure
 
@@ -196,12 +204,6 @@ class Actor(struct.PyTreeNodeMutable):
     # endregion Geometric Operations
 
     # region Modifications
-
-    def set_dirichlet(self, dirichlet: Dirichlet) -> Self:
-        actor: Self = self
-        actor = actor.replace(dirichlet=dirichlet)
-        actor = actor.update(displacement=dirichlet.apply(actor.displacement))
-        return actor
 
     @deprecated("Use `self.point_data[name] = value` instead.")
     def set_point_data(self, name: str, value: Shaped[ArrayLike, "points dim"]) -> Self:
@@ -239,6 +241,12 @@ class Actor(struct.PyTreeNodeMutable):
         mesh: wp.Mesh = self.to_warp()
         return self.replace(collision_mesh=mesh)
 
+    def with_dirichlet(self, dirichlet_local: Dirichlet) -> Self:
+        actor: Self = self
+        actor = actor.replace(dirichlet_local=dirichlet_local)
+        actor = actor.update(displacement=dirichlet_local.apply(actor.displacement))
+        return actor
+
     def with_dofs(self, dofs: DOFs) -> Self:
         return self.replace(dofs=dofs)
 
@@ -249,16 +257,21 @@ class Actor(struct.PyTreeNodeMutable):
     def to_pyvista(self, *, attributes: bool = True) -> pv.DataSet:
         mesh: pv.DataSet = self.geometry.to_pyvista(attributes=attributes)
         if attributes:
-            dirichlet_values: Float[np.ndarray, "points dim"] = np.zeros(
-                (mesh.n_points, self.dim)
-            )
-            dirichlet_values = np.asarray(self.dirichlet.apply(dirichlet_values))
             dirichlet_mask: Bool[np.ndarray, "points dim"] = np.zeros(
                 (mesh.n_points, self.dim), dtype=bool
             )
-            dirichlet_mask = np.asarray(self.dirichlet.mask(dirichlet_mask), dtype=bool)
-            mesh.point_data["dirichlet-values"] = dirichlet_values
+            dirichlet_values: Float[np.ndarray, "points dim"] = np.zeros(
+                (mesh.n_points, self.dim)
+            )
+            if self.dirichlet_local is not None:
+                dirichlet_mask = np.asarray(
+                    self.dirichlet_local.mask(dirichlet_mask), dtype=bool
+                )
+                dirichlet_values = np.asarray(
+                    self.dirichlet_local.apply(dirichlet_values)
+                )
             mesh.point_data["dirichlet-mask"] = dirichlet_mask
+            mesh.point_data["dirichlet-values"] = dirichlet_values
         return mesh
 
     def to_warp(self, **kwargs) -> wp.Mesh:

@@ -123,7 +123,6 @@ class Scene(struct.PyTree):
         #     energies = energies.add(energy_new)
         # return self.replace(actors=actors, energies=energies, state=state)
 
-    # @utils.jit(inline=True, validate=False)
     def pre_optim_iter(self, x: X | None = None) -> Self:
         if x is None:
             x = self.x0
@@ -137,39 +136,6 @@ class Scene(struct.PyTree):
         for energy in energies.values():
             energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
             energy_new = energy_new.pre_optim_iter(self.params)
-            energies.add(energy_new)
-        return self.replace(actors=actors, energies=energies, state=state)
-
-    @utils.jit(inline=True, validate=False)
-    def pre_optim_iter_jit(self, x: X | None = None) -> Self:
-        if x is None:
-            x = self.x0
-        state: State = self.integrator.pre_optim_iter_jit(x, self.state, self.params)
-        actors: struct.NodeContainer[Actor] = self.actors
-        fields: struct.ArrayDict = self.scatter(x)
-        for actor in actors.values():
-            actor_new: Actor = actor.pre_optim_iter_jit(fields[actor.id])
-            actors.add(actor_new)
-        energies: struct.NodeContainer[Energy] = self.energies
-        for energy in energies.values():
-            energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
-            energy_new = energy_new.pre_optim_iter_jit(self.params)
-            energies.add(energy_new)
-        return self.replace(actors=actors, energies=energies, state=state)
-
-    def pre_optim_iter_no_jit(self, x: X | None = None) -> Self:
-        if x is None:
-            x = self.x0
-        state: State = self.state
-        actors: struct.NodeContainer[Actor] = self.actors
-        fields: struct.ArrayDict = self.scatter(x)
-        for actor in actors.values():
-            actor_new: Actor = actor.pre_optim_iter_no_jit(fields[actor.id])
-            actors.add(actor_new)
-        energies: struct.NodeContainer[Energy] = self.energies
-        for energy in energies.values():
-            energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
-            energy_new = energy_new.pre_optim_iter_no_jit(self.params)
             energies.add(energy_new)
         return self.replace(actors=actors, energies=energies, state=state)
 
@@ -212,20 +178,20 @@ class Scene(struct.PyTree):
 
     def export_actor(self, actor: Actor) -> Actor:
         return actor.update(
-            displacement=actor.dofs.get(self.state.displacement),
-            velocity=actor.dofs.get(self.state.velocity),
+            displacement=actor.dofs_global.get(self.state.displacement),
+            velocity=actor.dofs_global.get(self.state.velocity),
         )
 
     def gather(self, arrays: struct.ArrayDict, /) -> X:
         result: X = jnp.zeros((self.n_dofs,))
         for key, value in arrays.items():
             actor: Actor = self.actors[key]
-            result = actor.dofs.add(result, value)
+            result = actor.dofs_global.add(result, value)
         return result
 
     def scatter(self, x: X, /) -> struct.ArrayDict:
         return struct.ArrayDict(
-            {actor.id: actor.dofs.get(x) for actor in self.actors.values()}
+            {actor.id: actor.dofs_global.get(x) for actor in self.actors.values()}
         )
 
     # endregion Utilities

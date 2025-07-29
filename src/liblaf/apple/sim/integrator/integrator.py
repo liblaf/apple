@@ -1,3 +1,4 @@
+import abc
 from typing import override
 
 import jax
@@ -18,23 +19,19 @@ class TimeIntegrator(struct.PyTree, math.AutoDiffMixin):
 
     # region Procedure
 
-    def make_x0(self, state: State, params: GlobalParams) -> X:
-        return state.displacement + state.velocity * params.time_step
+    def make_x0(self, state: State, params: GlobalParams) -> X:  # noqa: ARG002
+        return state.displacement
 
     def pre_time_step(self, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         return state
 
-    def pre_optim_iter(self, x: X, /, state: State, params: GlobalParams) -> State:
-        return self.pre_optim_iter_jit(x, state, params)
-
-    @utils.jit(inline=True)
-    def pre_optim_iter_jit(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
+    def pre_optim_iter(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         state.update(displacement=x)
         return state
 
-    def step(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
-        state.update(displacement=x)
-        return state
+    @abc.abstractmethod
+    def step(self, x: X, /, state: State, params: GlobalParams) -> State:
+        raise NotImplementedError
 
     # endregion Procedure
 

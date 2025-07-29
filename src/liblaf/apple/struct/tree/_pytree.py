@@ -1,6 +1,6 @@
 import dataclasses
 from collections.abc import Callable, Sequence
-from typing import Any, Self, dataclass_transform
+from typing import Any, ClassVar, Self, dataclass_transform
 
 import equinox as eqx
 
@@ -13,11 +13,9 @@ MISSING = Sentinel("MISSING")
 type Node = Any
 
 
-@dataclass_transform(
-    frozen_default=True,
-    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
-)
-class PyTree(eqx.Module):
+class PyTreeMixin:
+    __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
+
     def replace(self, **changes: Any) -> Self:
         return dataclasses.replace(self, **changes)
 
@@ -39,8 +37,15 @@ class PyTree(eqx.Module):
 
 
 @dataclass_transform(
+    frozen_default=True,
+    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
+)
+class PyTree(PyTreeMixin, eqx.Module): ...
+
+
+@dataclass_transform(
     frozen_default=False,
     field_specifiers=(dataclasses.field, eqx.field, array, container, field),
 )
-class PyTreeMutable(PyTree):
+class PyTreeMutable(PyTreeMixin, eqx.Module):
     __setattr__ = object.__setattr__  # pyright: ignore[reportAssignmentType]

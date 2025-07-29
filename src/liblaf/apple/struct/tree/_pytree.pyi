@@ -9,7 +9,7 @@ from ._field import array, container, field
 type Node = Any
 
 @type_check_only
-class _PyTreeBase:
+class PyTreeMixin:
     def replace(self, **changes: Any) -> Self: ...
     def tree_at(
         self,
@@ -23,10 +23,10 @@ class _PyTreeBase:
     frozen_default=True,
     field_specifiers=(dataclasses.field, eqx.field, array, container, field),
 )
-class PyTree(_PyTreeBase): ...
+class PyTree(PyTreeMixin): ...
 
 @dataclass_transform(
     frozen_default=False,
     field_specifiers=(dataclasses.field, eqx.field, array, container, field),
 )
-class PyTreeMutable(_PyTreeBase): ...
+class PyTreeMutable(PyTreeMixin): ...

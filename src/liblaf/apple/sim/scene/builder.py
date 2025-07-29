@@ -33,14 +33,14 @@ class SceneBuilder:
         mask: Bool[Array, " DOF"] = jnp.zeros((self.n_dofs,), dtype=bool)
         values: Float[Array, " DOF"] = jnp.zeros((self.n_dofs,))
         for actor in self.actors_needed.values():
-            if actor.dirichlet is None or actor.dirichlet.dofs is None:
+            if actor.dirichlet_local is None or actor.dirichlet_local.dofs is None:
                 continue
-            dofs: Integer[Array, " {actor.n_dofs}"] = jnp.asarray(actor.dofs)
-            idx: Integer[Array, " {actor.n_dirichlet}"] = actor.dirichlet.dofs.get(
-                dofs
-            ).ravel()
+            dofs: Integer[Array, " {actor.n_dofs}"] = jnp.asarray(actor.dofs_global)
+            idx: Integer[Array, " {actor.n_dirichlet}"] = (
+                actor.dirichlet_local.dofs.get(dofs).ravel()
+            )
             mask = mask.at[idx].set(True)
-            values = values.at[idx].set(actor.dirichlet.values.ravel())
+            values = values.at[idx].set(actor.dirichlet_local.values.ravel())
         return Dirichlet.from_mask(mask, values)
 
     @property
@@ -68,7 +68,7 @@ class SceneBuilder:
     def mass(self) -> Float[jax.Array, " DOF"]:
         mass: Float[jax.Array, " DOF"] = jnp.zeros((self.n_dofs,))
         for actor in self.actors_concrete.values():
-            mass = actor.dofs.set(
+            mass = actor.dofs_global.set(
                 mass, einops.repeat(actor.mass, "points -> points dim", dim=actor.dim)
             )
         if jnp.any(mass < 0):
@@ -121,7 +121,7 @@ class SceneBuilder:
         for actor in self.actors_concrete.values():
             if name not in actor.point_data:
                 continue
-            data = actor.dofs.set(data, actor.point_data[name])
+            data = actor.dofs_global.set(data, actor.point_data[name])
         return data
 
     # endregion Utilities

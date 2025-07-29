@@ -75,7 +75,7 @@ def gen_dirichlet(
 def gen_actor(mesh: pv.UnstructuredGrid) -> sim.Actor:
     actor: sim.Actor = sim.Actor.from_pyvista(mesh, grad=True)
     dirichlet: sim.Dirichlet = gen_dirichlet(mesh)
-    actor = actor.set_dirichlet(dirichlet)
+    actor = actor.with_dirichlet(dirichlet)
     actor = helper.add_point_mass(actor)
     return actor
 

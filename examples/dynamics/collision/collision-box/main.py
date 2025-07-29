@@ -124,7 +124,7 @@ def gen_rigid(_cfg: Config) -> sim.Actor:
     actor: sim.Actor = sim.Actor.from_pyvista(surface, collision=True)
     actor = actor.with_collision_mesh()
     actor = actor.set_point_data("mass", jnp.ones((actor.n_points,)))
-    actor = actor.set_dirichlet(
+    actor = actor.with_dirichlet(
         sim.Dirichlet.from_mask(
             jnp.ones((actor.n_dofs,), dtype=bool), jnp.zeros((actor.n_dofs,))
         )

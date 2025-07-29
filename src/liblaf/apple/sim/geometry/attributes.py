@@ -16,6 +16,7 @@ class GeometryAttributes(struct.ArrayDict):
             self,
             data: struct.MappingLike = None,
             /,
+            *,
             association: pv.FieldAssociation = ...,
         ) -> None: ...
 

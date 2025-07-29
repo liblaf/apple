@@ -40,7 +40,7 @@ def gen_scene(cfg: Config) -> sim.Scene:
     head: sim.Actor = sim.Actor.from_pyvista(head_pv, grad=True, id_="head")
     head = helper.add_point_mass(head)
     is_skull: Bool[Array, " P"] = head_pv.point_data["is-mandible"]
-    head = head.set_dirichlet(
+    head = head.with_dirichlet(
         sim.Dirichlet.from_mask(
             einops.repeat(is_skull, "P -> P D", D=3),
             values=jnp.zeros((head.n_points, 3), dtype=jnp.float32),
@@ -52,7 +52,7 @@ def gen_scene(cfg: Config) -> sim.Scene:
     ball_pv: pv.PolyData = pv.Icosphere(radius=0.1 * head_pv.length, center=center)
     ball_pv.point_data["mass"] = np.ones((ball_pv.n_points,))
     ball: sim.Actor = sim.Actor.from_pyvista(ball_pv, collision=True, id_="ball")
-    ball = ball.set_dirichlet(
+    ball = ball.with_dirichlet(
         sim.Dirichlet.from_mask(
             np.ones((ball.n_points, 3), dtype=bool), values=np.zeros((ball.n_points, 3))
         )
@@ -78,19 +78,19 @@ def update_dirichlet(scene: sim.Scene, displacement: Float[Array, "3"]) -> sim.S
     for actor in scene.actors.values():
         actor: sim.Actor
         if actor.id == "ball":
-            actor = actor.set_dirichlet(  # noqa: PLW2901
+            actor = actor.with_dirichlet(  # noqa: PLW2901
                 sim.Dirichlet.from_mask(
                     mask=jnp.ones((actor.n_points, 3), dtype=bool),
                     values=einops.repeat(displacement, "D -> P D", P=actor.n_points),
                 )
             )
-        if actor.dirichlet is None or actor.dirichlet.dofs is None:
+        if actor.dirichlet_local is None or actor.dirichlet_local.dofs is None:
             continue
         actors.add(actor)
-        dofs: Integer[Array, " DOF"] = jnp.asarray(actor.dofs)
-        idx: Integer[Array, " dirichlet"] = actor.dirichlet.dofs.get(dofs).ravel()
+        dofs: Integer[Array, " DOF"] = jnp.asarray(actor.dofs_global)
+        idx: Integer[Array, " dirichlet"] = actor.dirichlet_local.dofs.get(dofs).ravel()
         mask = mask.at[idx].set(True)
-        values = values.at[idx].set(actor.dirichlet.values.ravel())
+        values = values.at[idx].set(actor.dirichlet_local.values.ravel())
     return scene.replace(actors=actors, dirichlet=sim.Dirichlet.from_mask(mask, values))
 
 

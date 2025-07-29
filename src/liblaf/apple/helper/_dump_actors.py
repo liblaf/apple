@@ -14,8 +14,8 @@ def dump_actors(
     actors: struct.NodeContainer[sim.Actor] = struct.NodeContainer()
     for actor_old in scene.actors.values():
         actor: sim.Actor = actor_old.update(
-            displacement=actor_old.dofs.get(scene.state.displacement),
-            velocity=actor_old.dofs.get(scene.state.velocity),
+            displacement=actor_old.dofs_global.get(scene.state.displacement),
+            velocity=actor_old.dofs_global.get(scene.state.velocity),
         )
         if result is not None:
             actor = dump_optim_result(scene, actor, result)

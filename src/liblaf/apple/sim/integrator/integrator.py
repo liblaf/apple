@@ -29,10 +29,12 @@ class TimeIntegrator(struct.PyTree, math.AutoDiffMixin):
 
     @utils.jit(inline=True)
     def pre_optim_iter_jit(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
-        return state.update(displacement=x)
+        state.update(displacement=x)
+        return state
 
     def step(self, x: X, /, state: State, params: GlobalParams) -> State:  # noqa: ARG002
-        return state.update(displacement=x)
+        state.update(displacement=x)
+        return state
 
     # endregion Procedure
 

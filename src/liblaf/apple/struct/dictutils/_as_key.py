@@ -5,29 +5,17 @@ from typing import Any
 
 from liblaf import grapes
 
-from .typed import KeyLike, Node
+from .typed import KeyLike
 
 
-@functools.singledispatch
-def as_key(*args, **kwargs) -> str:
-    raise grapes.error.DispatchLookupError(as_key, args, kwargs)
-
-
-@as_key.register(str)
-def _(key: str) -> str:
-    return key
-
-
-@as_key.register(tuple)
-def _(pair: tuple[str, Any]) -> str:
-    key: str
-    key, _ = pair
-    return key
-
-
-@as_key.register(Node)
-def _(node: Node) -> str:
-    return node.id
+def as_key(key: Any, /) -> str:
+    if isinstance(key, str):
+        return key
+    if isinstance(key, tuple):
+        return key[0]
+    if (id_ := getattr(key, "id", None)) is not None:
+        return id_
+    raise grapes.error.DispatchLookupError(as_key, (key,), {})
 
 
 @functools.singledispatch

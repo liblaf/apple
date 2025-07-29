@@ -11,15 +11,13 @@ from .dictutils import (
     as_dict,
     as_key,
 )
-from .indexing import Index, IndexArray, IndexRange, as_index, make_index
+from .indexing import Index, as_index, make_index
 from .tree import PyTree, PyTreeNode, array, container, field, register_attrs
 
 __all__ = [
     "ArrayDict",
     "ArrayMixin",
     "Index",
-    "IndexArray",
-    "IndexRange",
     "KeyLike",
     "KeysLike",
     "MappingLike",

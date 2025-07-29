@@ -88,7 +88,8 @@ class Geometry(struct.PyTree):
         return self.replace(field_data=self.field_data.set(name, value))
 
     def update_cell_data(self, cell_data: struct.MappingLike, /) -> Self:
-        return self.replace(cell_data=self.cell_data.update(cell_data))
+        self.cell_data.update(cell_data)
+        return self
 
     def update_point_data(self, point_data: struct.MappingLike, /) -> Self:
         return self.replace(point_data=self.point_data.update(point_data))

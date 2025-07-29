@@ -1,7 +1,6 @@
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, Self, override
 
-import cytoolz as toolz
 import wadler_lindig as wl
 
 from liblaf.apple.struct import tree
@@ -11,8 +10,8 @@ from ._as_key import as_key, as_keys
 from .typed import KeyLike, KeysLike, MappingLike, Node
 
 
-class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
-    data: Mapping[str, T] = tree.container(converter=as_dict, factory=dict)
+class NodeContainer[T: Node](tree.PyTree, MutableMapping[str, T]):
+    data: dict[str, T] = tree.container(converter=as_dict, factory=dict)
 
     if TYPE_CHECKING:
 
@@ -25,13 +24,24 @@ class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
             list(self.values()), **kwargs
         )
 
-    # region impl Mapping[str, T]
+    # region impl MutableMapping[str, T]
 
     @override
     def __getitem__(self, key: KeyLike, /) -> T:
         key: str = as_key(key)
         return self.data[key]
 
+    @override
+    def __setitem__(self, key: KeyLike, value: T, /) -> None:
+        key: str = as_key(key)
+        self.data[key] = value
+
+    @override
+    def __delitem__(self, key: KeyLike, /) -> None:
+        key: str = as_key(key)
+        del self.data[key]
+
+    @override
     def __iter__(self) -> Iterator[str]:
         yield from self.data
 
@@ -39,26 +49,13 @@ class NodeContainer[T: Node](tree.PyTree, Mapping[str, T]):
     def __len__(self) -> int:
         return len(self.data)
 
-    # endregion impl Mapping[str, T]
+    # endregion impl MutableMapping[str, T]
 
-    def add(self, value: T, /) -> Self:
-        data: Mapping[str, T] = toolz.assoc(self.data, value.id, value)
-        return self.replace(data=data)
-
-    def clear(self) -> Self:
-        return self.replace(data={})
+    def add(self, value: T, /) -> None:
+        key: str = as_key(value)
+        self[key] = value
 
     def key_filter(self, keys: KeysLike, /) -> Self:
         keys: list[str] = as_keys(keys)
         data: Mapping[str, T] = {k: self[k] for k in keys}
-        return self.replace(data=data)
-
-    def pop(self, key: KeyLike, /) -> Self:
-        key: str = as_key(key)
-        data: Mapping[str, T] = toolz.dissoc(self.data, key)
-        return self.replace(data=data)
-
-    def update(self, updates: MappingLike, /, **kwargs) -> Self:
-        updates = as_dict(updates)
-        data: Mapping[str, T] = toolz.merge(self.data, updates, kwargs)
         return self.replace(data=data)

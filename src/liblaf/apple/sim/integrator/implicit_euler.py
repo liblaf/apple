@@ -22,17 +22,20 @@ class ImplicitEuler(TimeIntegrator):
 
     @override
     def pre_time_step(self, state: State, params: GlobalParams) -> State:
-        return state.update(x_prev=state.displacement)
+        state.update(x_prev=state.displacement)
+        return state
 
     @override
     @utils.jit(inline=True)
     def pre_optim_iter_jit(self, x: X, /, state: State, params: GlobalParams) -> State:
-        return state.update(displacement=x)
+        state.update(displacement=x)
+        return state
 
     @override
     def step(self, x: X, /, state: State, params: GlobalParams) -> State:
         velocity: X = (x - state.x_prev) / params.time_step
-        return state.update(displacement=x, velocity=velocity)
+        state.update(displacement=x, velocity=velocity)
+        return state
 
     # endregion Procedure
 

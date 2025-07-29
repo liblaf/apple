@@ -17,7 +17,7 @@ def as_array_dict(data: MappingLike, /) -> dict[str, Array]:
     return {k: jnp.asarray(v) for k, v in data.items()}
 
 
-class ArrayDict(tree.PyTree, MutableMapping[str, Array]):
+class ArrayDict(tree.PyTreeMutable, MutableMapping[str, Array]):
     data: dict[str, Array] = tree.container(converter=as_array_dict, factory=dict)
 
     if TYPE_CHECKING:

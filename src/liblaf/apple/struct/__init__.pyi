@@ -12,7 +12,16 @@ from .dictutils import (
     as_key,
 )
 from .indexing import Index, as_index, make_index
-from .tree import PyTree, PyTreeNode, array, container, field, register_attrs
+from .tree import (
+    PyTree,
+    PyTreeMutable,
+    PyTreeNode,
+    PyTreeNodeMutable,
+    array,
+    container,
+    field,
+    register_attrs,
+)
 
 __all__ = [
     "ArrayDict",
@@ -24,7 +33,9 @@ __all__ = [
     "Node",
     "NodeContainer",
     "PyTree",
+    "PyTreeMutable",
     "PyTreeNode",
+    "PyTreeNodeMutable",
     "SupportsKeysAndGetItem",
     "array",
     "as_dict",

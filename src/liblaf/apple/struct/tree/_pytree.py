@@ -7,14 +7,15 @@ import equinox as eqx
 # pyright: enableExperimentalFeatures=true
 from typing_extensions import Sentinel
 
-from ._field import field
+from ._field import array, container, field
 
 MISSING = Sentinel("MISSING")
 type Node = Any
 
 
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(dataclasses.field, eqx.field, field)
+    frozen_default=True,
+    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
 )
 class PyTree(eqx.Module):
     def replace(self, **changes: Any) -> Self:
@@ -35,3 +36,11 @@ class PyTree(eqx.Module):
         if is_leaf is not None:
             kwargs["is_leaf"] = is_leaf
         return eqx.tree_at(where, self, **kwargs)
+
+
+@dataclass_transform(
+    frozen_default=False,
+    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
+)
+class PyTreeMutable(PyTree):
+    __setattr__ = object.__setattr__  # pyright: ignore[reportAssignmentType]

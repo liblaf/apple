@@ -19,7 +19,7 @@ from liblaf.apple.sim.region import Region
 from .protocol import ComponentProtocol
 
 
-class Actor(struct.PyTreeNode):
+class Actor(struct.PyTreeNodeMutable):
     collision_mesh: wp.Mesh = struct.field(default=None, static=True)
     components: list[ComponentProtocol] = struct.field(factory=list)
     dirichlet: Dirichlet = struct.field(factory=Dirichlet)

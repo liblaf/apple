@@ -10,7 +10,7 @@ from ._as_key import as_key, as_keys
 from .typed import KeyLike, KeysLike, MappingLike, Node
 
 
-class NodeContainer[T: Node](tree.PyTree, MutableMapping[str, T]):
+class NodeContainer[T: Node](tree.PyTreeMutable, MutableMapping[str, T]):
     data: dict[str, T] = tree.container(converter=as_dict, factory=dict)
 
     if TYPE_CHECKING:

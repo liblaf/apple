@@ -155,8 +155,8 @@ class Actor(struct.PyTreeNodeMutable):
             self.collision_mesh.refit()
         return self
 
-    @deprecated("Actor.pre_optim_iter_jit() is deprecated.")
     @utils.jit(inline=True, validate=False)
+    @deprecated("Actor.pre_optim_iter_jit() is deprecated.")
     def pre_optim_iter_jit(
         self, displacement: Float[ArrayLike, "points dim"] | None = None
     ) -> Self:
@@ -247,8 +247,8 @@ class Actor(struct.PyTreeNodeMutable):
         actor = actor.update(displacement=dirichlet_local.apply(actor.displacement))
         return actor
 
-    def with_dofs(self, dofs: DOFs) -> Self:
-        return self.replace(dofs=dofs)
+    def with_dofs(self, dofs_global: DOFs) -> Self:
+        return self.replace(dofs_global=dofs_global)
 
     # endregion Modifications
 

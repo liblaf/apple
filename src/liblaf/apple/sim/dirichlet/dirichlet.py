@@ -9,7 +9,7 @@ from liblaf.apple.sim.dofs import DOFs
 
 
 class Dirichlet(struct.PyTree):
-    dofs: DOFs = struct.field(default=None)
+    dofs: DOFs | None = struct.field(default=None)
     values: Shaped[Array, " dirichlet"] = struct.array(default=None)
 
     @classmethod
@@ -33,6 +33,7 @@ class Dirichlet(struct.PyTree):
         Note:
             Dirichlet conditions can only be merged if they are defined on the same DOFs. To avoid unexpected behavior, we do not implement this method.
         """
+        raise NotImplementedError
         dirichlet: list[Self] = [d for d in dirichlet if d.dofs is not None]
         if not dirichlet:
             return cls()

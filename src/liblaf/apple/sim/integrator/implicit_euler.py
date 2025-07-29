@@ -73,5 +73,5 @@ class ImplicitEuler(TimeIntegrator):
         return (
             state.x_prev
             + params.time_step * state.velocity
-            + params.time_step**2 * state.force / state.mass
+            + params.time_step**2 * state.force_ext / state.mass
         )

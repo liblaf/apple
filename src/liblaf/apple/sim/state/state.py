@@ -13,8 +13,8 @@ class State(struct.ArrayDict):
         return self["velocity"]
 
     @property
-    def force(self) -> Float[Array, " DOF"]:
-        return self["force"]
+    def force_ext(self) -> Float[Array, " DOF"]:
+        return self["force-ext"]
 
     @property
     def mass(self) -> Float[Array, " DOF"]:

@@ -1,10 +1,10 @@
 from collections.abc import Iterator, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, Self, override
 
-import jax.numpy as jnp
 import wadler_lindig as wl
 from jaxtyping import Array, ArrayLike
 
+from liblaf.apple import utils
 from liblaf.apple.struct import tree
 
 from ._as_dict import as_dict
@@ -14,7 +14,7 @@ from .typed import KeyLike, KeysLike, MappingLike
 
 def as_array_dict(data: MappingLike, /) -> dict[str, Array]:
     data: dict[str, ArrayLike] = as_dict(data)  # pyright: ignore[reportAssignmentType]
-    return {k: jnp.asarray(v) for k, v in data.items()}
+    return {k: utils.asarray(v) for k, v in data.items()}
 
 
 class ArrayDict(tree.PyTreeMutable, MutableMapping[str, Array]):
@@ -39,7 +39,7 @@ class ArrayDict(tree.PyTreeMutable, MutableMapping[str, Array]):
     @override
     def __setitem__(self, key: KeyLike, value: ArrayLike, /) -> None:
         key: str = as_key(key)
-        value: Array = jnp.asarray(value)
+        value: Array = utils.asarray(value)
         self.data[key] = value
 
     @override

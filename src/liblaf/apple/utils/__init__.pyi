@@ -7,6 +7,7 @@ from ._random import Random
 from .jax_utils import (
     CostAnalysis,
     JitKwargs,
+    asarray,
     block_until_ready_decorator,
     cost_analysis,
     jit,
@@ -19,6 +20,7 @@ __all__ = [
     "CostAnalysis",
     "JitKwargs",
     "Random",
+    "asarray",
     "block_until_ready_decorator",
     "cost_analysis",
     "data",

@@ -4,7 +4,6 @@ from typing import override
 import jax
 import jax.numpy as jnp
 from jaxtyping import Float
-from loguru import logger
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct, utils

@@ -1,6 +1,42 @@
 # Changelog
 
-## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-11
+## [0.4.0](https://github.com/liblaf/apple/compare/v0.3.0..v0.4.0) - 2025-07-30
+
+### 💥 BREAKING CHANGES
+
+- **sim:** improve simulation components - ([46593af](https://github.com/liblaf/apple/commit/46593aff9e80000ba7507f0a3bdf06d97a7bc68f))
+- **sim:** simplify actor API and rename DOF/Dirichlet properties - ([bc99c4a](https://github.com/liblaf/apple/commit/bc99c4a70388ee993646308c777c2245a3187f1f))
+- **sim:** restructure core components for performance - ([292835f](https://github.com/liblaf/apple/commit/292835f03449c0bd7421d8b3e4fb14ba0d3fb1ca))
+- **state:** simplify state updates and container implementations - ([f007af5](https://github.com/liblaf/apple/commit/f007af5f23fe8bfd64488f3b6d18487651c62f74))
+- **struct:** migrate to Equinox PyTree system - ([a5e4888](https://github.com/liblaf/apple/commit/a5e488899aed60472e929ce0a6bdc711708a1ccc))
+
+### ✨ Features
+
+- **phace:** add open-mouth jaw animation example - ([5dfa5e3](https://github.com/liblaf/apple/commit/5dfa5e38ff1e23b295d1023e662a0a899cdc3774))
+- **simulation:** add ball-head collision example with visualization support - ([9550bf2](https://github.com/liblaf/apple/commit/9550bf2c07daf9e0c1509ea515581a3a043ebc60))
+- **struct:** add mutable tree variants - ([5ed48f6](https://github.com/liblaf/apple/commit/5ed48f6447be1092c76c8454297bbbab7ca1bab2))
+- Implement phace active and passive energy models - ([294f454](https://github.com/liblaf/apple/commit/294f454b359c31ae6e33d456989970e2acf0db6d))
+
+### 🐛 Bug Fixes
+
+- **uv.lock:** update simplejson source URLs and wheel paths - ([d5b3ce3](https://github.com/liblaf/apple/commit/d5b3ce31f877ebdd88a08688c9ba8256fb06d647))
+
+### ⬆️ Dependencies
+
+- **deps:** update and simplify dependencies - ([dcbc065](https://github.com/liblaf/apple/commit/dcbc065ed738f67d1301ba6b7e42c897bbfdc257))
+
+### ♻ Code Refactoring
+
+- **examples:** clean up dynamics examples - ([6b29fa8](https://github.com/liblaf/apple/commit/6b29fa8881f4f57cfdd31419ac1fad62577dac1e))
+- **sim:** simplify DOFs and attribute access - ([e5fee29](https://github.com/liblaf/apple/commit/e5fee299a8dc1b0f364aeeb6b20dd22fc5baac7f))
+- refactor code structure and remove redundant changes - ([3380053](https://github.com/liblaf/apple/commit/33800534f5952a7f5eb5aa5331af5feb8b22ba20))
+
+### ❤️ New Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
+
+## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-12
 
 ### 💥 BREAKING CHANGES
 
@@ -18,11 +54,6 @@
 ### ♻ Code Refactoring
 
 - **examples:** adjust material and optimization parameters - ([67cf83d](https://github.com/liblaf/apple/commit/67cf83d6ddf0547083535d4039c5a6d9e612ce05))
-
-### ❤️ New Contributors
-
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
 
 ## [0.2.1](https://github.com/liblaf/apple/compare/v0.2.0..v0.2.1) - 2025-07-04
 

@@ -200,6 +200,7 @@ fig/
 *.obj
 *.ply
 *.pvd
+*.pvsm
 *.series
 *.stl
 *.vtk

@@ -7,7 +7,7 @@ from jaxtyping import Float
 from liblaf.apple import func, sim, utils
 from liblaf.apple.typed.warp import mat33, mat43
 
-from .elastic import Elastic
+from ._elastic import Elastic, Field
 
 
 class ARAP(Elastic):
@@ -25,10 +25,10 @@ class ARAP(Elastic):
     @override
     @utils.jit(inline=True)
     def energy_density(
-        self, field: sim.Field, /, params: sim.GlobalParams
+        self, field: Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:
-        region: sim.Region = field.region
-        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field.values)
+        region: sim.Region = self.region
+        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field)
         F: Float[jax.Array, "cq J J"] = region.squeeze_cq(F)
         Psi: Float[jax.Array, " cq"]
         (Psi,) = arap_energy_density_warp(F, self.mu)
@@ -38,10 +38,10 @@ class ARAP(Elastic):
     @override
     @utils.jit(inline=True)
     def first_piola_kirchhoff_stress(
-        self, field: sim.Field, /, params: sim.GlobalParams
+        self, field: Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q J J"]:
-        region: sim.Region = field.region
-        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field.values)
+        region: sim.Region = self.region
+        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field)
         F: Float[jax.Array, "cq J J"] = region.squeeze_cq(F)
         PK1: Float[jax.Array, "cq J J"]
         (PK1,) = arap_first_piola_kirchhoff_stress_warp(F, self.mu)
@@ -51,11 +51,11 @@ class ARAP(Elastic):
     @override
     @utils.jit(inline=True)
     def energy_density_hess_diag(
-        self, field: sim.Field, /, params: sim.GlobalParams
+        self, field: Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q a J"]:
+        region: sim.Region = self.region
         hess_diag: Float[jax.Array, "cells 4 3"]
-        region: sim.Region = field.region
-        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field.values)
+        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field)
         F: Float[jax.Array, "cq J J"] = region.squeeze_cq(F)
         dhdX: Float[jax.Array, "cq a J"] = region.squeeze_cq(region.dhdX)
         hess_diag: Float[jax.Array, "cq a J"]
@@ -66,15 +66,15 @@ class ARAP(Elastic):
     @override
     @utils.jit(inline=True)
     def energy_density_hess_quad(
-        self, field: sim.Field, p: sim.Field, /, params: sim.GlobalParams
+        self, field: Field, p: Field, /, params: sim.GlobalParams
     ) -> Float[jax.Array, "c q"]:
-        region: sim.Region = field.region
-        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field.values)
+        region: sim.Region = self.region
+        F: Float[jax.Array, "c q J J"] = region.deformation_gradient(field)
         F: Float[jax.Array, "cq J J"] = region.squeeze_cq(F)
         dhdX: Float[jax.Array, "cq a J"] = region.squeeze_cq(region.dhdX)
         hess_quad: Float[jax.Array, " cq"]
         (hess_quad,) = arap_energy_density_hess_quad_warp(
-            F, region.scatter(p.values), self.mu, dhdX
+            F, region.scatter(p), self.mu, dhdX
         )
         hess_quad: Float[jax.Array, "c q"] = region.unsqueeze_cq(hess_quad)
         return hess_quad

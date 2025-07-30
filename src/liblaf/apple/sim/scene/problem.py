@@ -5,17 +5,15 @@ from liblaf.apple import optim, struct
 from .protocol import SceneProtocol, X, Y
 
 
-class SceneProblem(struct.PyTree):
+class SceneProblem(struct.PyTreeMutable):
     scene: SceneProtocol = struct.field()
     _callback: Callable | None = struct.field(default=None)
 
     def callback(self, intermediate_result: optim.OptimizeResult) -> None:
         result: optim.OptimizeResult = intermediate_result
         x: X = result["x"]
-        object.__setattr__(self, "scene", self.scene.pre_optim_iter(x))
-        # self.scene = self.scene.pre_optim_iter(x)
-        # ic(result)
-        if callable(self._callback):
+        self.scene = self.scene.pre_optim_iter(x)
+        if self._callback is not None:
             self._callback(result, self.scene)
 
     def fun(self, x: X, /) -> Y:

@@ -86,6 +86,10 @@ class Actor(struct.PyTreeNodeMutable):
         return self.region.dim
 
     @property
+    def n_cells(self) -> int:
+        return self.region.n_cells
+
+    @property
     def n_dirichlet(self) -> int:
         if self.dirichlet_local is None:
             return 0
@@ -132,8 +136,8 @@ class Actor(struct.PyTreeNodeMutable):
         return self.point_data["velocity"]
 
     @property
-    def force(self) -> Float[Array, "points dim"]:
-        return self.point_data["force"]
+    def force_ext(self) -> Float[Array, "points dim"]:
+        return self.point_data["force-ext"]
 
     @property
     def mass(self) -> Float[Array, "points"]:

@@ -1,14 +1,16 @@
 from . import collision, elastic
 from .collision import CollisionCandidatesVertFace, CollisionVertFace
-from .elastic import ARAP, PhaceStatic
+from .elastic import Arap, ArapActive, PhaceActive, PhacePassive
 from .zero import EnergyZero
 
 __all__ = [
-    "ARAP",
+    "Arap",
+    "ArapActive",
     "CollisionCandidatesVertFace",
     "CollisionVertFace",
     "EnergyZero",
-    "PhaceStatic",
+    "PhaceActive",
+    "PhacePassive",
     "collision",
     "elastic",
 ]

@@ -4,10 +4,11 @@ from ._center_of_mass import (
     center_of_mass_displacement,
     center_of_mass_velocity,
 )
-from ._collision import dump_collision
 from ._dump_actors import actors_to_pyvista, dump_actors
+from ._dump_all import dump_all_actors, dump_all_pyvista
+from ._dump_collision import dump_collision
 from ._dump_optim import dump_optim_result
-from ._force import DEFAULT_GRAVITY, add_gravity, clear_force
+from ._external_force import DEFAULT_GRAVITY, add_gravity, clear_force
 
 __all__ = [
     "DEFAULT_GRAVITY",
@@ -19,6 +20,8 @@ __all__ = [
     "center_of_mass_velocity",
     "clear_force",
     "dump_actors",
+    "dump_all_actors",
+    "dump_all_pyvista",
     "dump_collision",
     "dump_optim_result",
 ]

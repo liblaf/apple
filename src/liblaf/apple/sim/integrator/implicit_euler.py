@@ -23,6 +23,7 @@ class ImplicitEuler(TimeIntegrator):
         return state
 
     @override
+    @utils.jit(inline=True)
     def step(self, x: X, /, state: State, params: GlobalParams) -> State:
         velocity: X = (x - state.x_prev) / params.time_step
         state.update(displacement=x, velocity=velocity)

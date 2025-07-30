@@ -4,6 +4,7 @@ from typing import override
 import jax
 import jax.numpy as jnp
 from jaxtyping import Float
+from loguru import logger
 from numpy.typing import ArrayLike
 
 from liblaf.apple import struct, utils
@@ -104,9 +105,9 @@ class PNCG(Optimizer):
     def compute_alpha(self, g: X, p: X, pHp: FloatScalar) -> FloatScalar:
         alpha_1: FloatScalar = self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf))
         alpha_2: FloatScalar = -jnp.vdot(g, p) / pHp
-        # alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
+        alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
         alpha: FloatScalar = jnp.minimum(alpha_1, alpha_2)
-        # alpha = jnp.nan_to_num(alpha, nan=0.0)
+        alpha = jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
     @utils.jit(inline=True)
@@ -116,12 +117,11 @@ class PNCG(Optimizer):
         beta: FloatScalar = jnp.vdot(g, P * y) / yTp - (jnp.vdot(y, P * y) / yTp) * (
             jnp.vdot(p, g) / yTp
         )
-        # beta = jnp.nan_to_num(beta, nan=0.0)
+        beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
     @utils.jit
     def step(self, problem: OptimizationProblem, state: State, args: Sequence) -> State:
-        ic("JIT Compiling ...")
         assert callable(problem.hess_quad)
         assert callable(problem.jac_and_hess_diag)
 
@@ -132,7 +132,12 @@ class PNCG(Optimizer):
         x: X = state.x
         g, hess_diag = problem.jac_and_hess_diag(x, *args)
         P: X = jnp.reciprocal(hess_diag)
-        P: X = jnp.nan_to_num(P, nan=1.0, posinf=1.0, neginf=1.0)
+        # if not jnp.all(P > 0):
+        #     logger.warning("not all P > 0")
+        P_mean: FloatScalar = jnp.mean(
+            jnp.nan_to_num(P, nan=0.0, posinf=0.0, neginf=0.0)
+        )
+        P: X = jnp.nan_to_num(P, nan=P_mean, posinf=P_mean, neginf=P_mean)
 
         if state.first:
             p = -P * g
@@ -140,8 +145,8 @@ class PNCG(Optimizer):
             beta = self.compute_beta(g_prev=state.g, g=g, p=p, P=P)
             p = -P * g + beta * p
         pHp: FloatScalar = problem.hess_quad(x, p, *args)
-        pHp = jnp.nan_to_num(pHp, nan=0.0)
-        pHp = jnp.where(pHp > 0, pHp, 1.0)
+        # pHp = jnp.nan_to_num(pHp, nan=0.0)
+        # pHp = jnp.where(pHp > 0, pHp, 1.0)
         alpha: FloatScalar = self.compute_alpha(g=g, p=p, pHp=pHp)
         x += alpha * p
         Delta_E: FloatScalar = -alpha * jnp.vdot(g, p) - 0.5 * jnp.square(alpha) * pHp

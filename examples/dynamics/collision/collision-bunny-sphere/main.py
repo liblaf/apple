@@ -100,7 +100,7 @@ def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilde
     builder = sim.SceneBuilder()
     soft = builder.assign_dofs(soft)
     rigid = builder.assign_dofs(rigid)
-    builder.add_energy(energy.PhaceStatic.from_actor(soft))
+    builder.add_energy(energy.PhacePassive.from_actor(soft))
     builder.add_energy(
         energy.CollisionVertFace.from_actors(rigid, soft, rest_length=cfg.d_hat)
     )

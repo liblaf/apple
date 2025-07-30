@@ -13,13 +13,15 @@ from .problem import OptimizationProblem
 class OptimizeResult(scipy.optimize.OptimizeResult): ...
 
 
-@grapes.logging.ic_arg_to_string_function.register
-def _pretty_result(result: OptimizeResult) -> str:
+@grapes.logging.ic_arg_to_string_function.register(OptimizeResult)
+@grapes.logging.ic_arg_to_string_function.register(scipy.optimize.OptimizeResult)
+def _pretty_result(result: scipy.optimize.OptimizeResult) -> str:
     return repr(result)
 
 
 class Optimizer(tree.PyTree):
     autodiff: bool = tree.field(default=False, kw_only=True)
+    callback_init: bool = tree.field(default=False, kw_only=True)
     jit: bool = tree.field(default=False, kw_only=True)
 
     @property
@@ -53,7 +55,7 @@ class Optimizer(tree.PyTree):
             jac_and_hess_diag=jac_and_hess_diag,
             callback=callback,
         )
-        problem = problem.implement()
+        # problem = problem.implement()
         if self.autodiff:
             problem = problem.autodiff().implement()
         if self.jit:

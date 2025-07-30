@@ -31,6 +31,7 @@ class Scene(struct.PyTree):
 
     @property
     def x0(self) -> X:
+        return self.integrator.make_x0(self.state, self.params)
         x0: X
         if "displacement" in self.state:
             return self.state.displacement
@@ -81,9 +82,11 @@ class Scene(struct.PyTree):
             hess_diag_dict += energy.hess_diag(fields, self.params)
         hess_diag: X = self.gather(hess_diag_dict)
         # jax.debug.print("energy.hess_diag: {}", hess_diag)
-        integrator_hess_diag: X = self.integrator.hess_diag(x, self.state, self.params)
-        # jax.debug.print("integrator.hess_diag: {}", integrator_hess_diag)
-        hess_diag += integrator_hess_diag
+        hess_diag_integrator: X = self.integrator.hess_diag(x, self.state, self.params)
+        # jax.debug.print("integrator.hess_diag: {}", hess_diag_integrator)
+        hess_diag += hess_diag_integrator
+        if self.dirichlet.dofs is not None:
+            hess_diag = self.dirichlet.dofs.set(hess_diag, 1.0)
         return hess_diag
 
     @utils.jit
@@ -134,7 +137,9 @@ class Scene(struct.PyTree):
             actors.add(actor_new)
         energies: struct.NodeContainer[Energy] = self.energies
         for energy in energies.values():
-            energy_new: Energy = energy.with_actors(actors.key_filter(energy.actors))
+            energy_new: Energy = energy.with_actors(
+                actors.key_filter(energy.actors.keys())
+            )
             energy_new = energy_new.pre_optim_iter(self.params)
             energies.add(energy_new)
         return self.replace(actors=actors, energies=energies, state=state)
@@ -150,9 +155,9 @@ class Scene(struct.PyTree):
         scene: Self = self
         scene = scene.pre_time_step()
         if x0 is None:
-            x0 = self.integrator.make_x0(self.state, self.params)
+            x0 = self.integrator.make_x0(scene.state, scene.params)
         x0: X = jnp.asarray(x0)
-        x0 = self.dirichlet.apply(x0)
+        x0 = scene.dirichlet.apply(x0)
         scene = scene.pre_optim_iter(x0)
         problem = SceneProblem(scene=scene, _callback=callback)
         result: optim.OptimizeResult = optimizer.minimize(

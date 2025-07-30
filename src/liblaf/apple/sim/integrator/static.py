@@ -13,6 +13,7 @@ from .integrator import FloatScalar, TimeIntegrator, X
 class TimeIntegratorStatic(TimeIntegrator):
     @override
     def step(self, x: FloatScalar, /, state: State, params: GlobalParams) -> State:
+        state.update(displacement=x)
         return state
 
     @override

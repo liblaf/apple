@@ -21,6 +21,7 @@ class TimeIntegrator(struct.PyTree, math.AutoDiffMixin):
 
     def make_x0(self, state: State, params: GlobalParams) -> X:  # noqa: ARG002
         return state.displacement
+        # return state.displacement + state.velocity * params.time_step
 
     def pre_time_step(self, state: State, params: GlobalParams) -> State:  # noqa: ARG002
         return state

@@ -83,7 +83,7 @@ def gen_actor(mesh: pv.UnstructuredGrid) -> sim.Actor:
 def gen_scene(actor: sim.Actor) -> sim.SceneBuilder:
     builder = sim.SceneBuilder()
     actor = builder.assign_dofs(actor)
-    builder.add_energy(energy.PhaceStatic.from_actor(actor))
+    builder.add_energy(energy.PhacePassive.from_actor(actor))
     return builder
 
 

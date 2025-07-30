@@ -14,4 +14,5 @@ def add_point_mass[T: sim.Actor](actor: T) -> T:
         einops.repeat(cell_mass, "c -> c a", a=actor.element.n_points) / 4
     )
     point_mass: Float[Array, " points"] = actor.region.gather(cell_mass)
-    return actor.set_point_data("mass", point_mass)
+    actor.point_data["mass"] = point_mass
+    return actor

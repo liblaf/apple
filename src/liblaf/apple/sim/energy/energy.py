@@ -3,6 +3,7 @@ from typing import Self
 
 import jax
 from jaxtyping import Array, Float
+from typing_extensions import deprecated
 
 from liblaf.apple import math, struct, utils
 from liblaf.apple.sim.actor import Actor
@@ -20,15 +21,15 @@ class Energy(struct.PyTreeNode):
     def pre_time_step(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
-    def pre_optim_iter(self, params: GlobalParams) -> Self:
-        energy: Self = self.pre_optim_iter_jit(params)
-        energy = energy.pre_optim_iter_no_jit(params)
-        return energy
+    def pre_optim_iter(self, params: GlobalParams) -> Self:  # noqa: ARG002
+        return self
 
     @utils.jit(inline=True, validate=False)
+    @deprecated("deprecated.")
     def pre_optim_iter_jit(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 
+    @deprecated("deprecated.")
     def pre_optim_iter_no_jit(self, params: GlobalParams) -> Self:  # noqa: ARG002
         return self
 

@@ -39,7 +39,7 @@ def gen_scene(cfg: Config) -> sim.Scene:
     head_pv.cell_data["mu"] = cfg.mu
     head: sim.Actor = sim.Actor.from_pyvista(head_pv, grad=True, id_="head")
     head = helper.add_point_mass(head)
-    is_skull: Bool[Array, " P"] = head_pv.point_data["is-mandible"]
+    is_skull: Bool[Array, " P"] = head_pv.point_data["is-cranium"]
     head = head.with_dirichlet(
         sim.Dirichlet.from_mask(
             einops.repeat(is_skull, "P -> P D", D=3),
@@ -48,7 +48,9 @@ def gen_scene(cfg: Config) -> sim.Scene:
     )
 
     center: np.ndarray = np.asarray(head_pv.center)
-    center += np.asarray([0.21 * head_pv.length, 0.0, 0.2 * head_pv.length])
+    center += np.asarray(
+        [0.20 * head_pv.length, -0.05 * head_pv.length, 0.20 * head_pv.length]
+    )
     ball_pv: pv.PolyData = pv.Icosphere(radius=0.1 * head_pv.length, center=center)
     ball_pv.point_data["mass"] = np.ones((ball_pv.n_points,))
     ball: sim.Actor = sim.Actor.from_pyvista(ball_pv, collision=True, id_="ball")
@@ -58,10 +60,10 @@ def gen_scene(cfg: Config) -> sim.Scene:
         )
     )
 
-    builder = sim.SceneBuilder()
+    builder = sim.SceneBuilder(integrator=sim.TimeIntegratorStatic())
     ball = builder.assign_dofs(ball)
     head = builder.assign_dofs(head)
-    builder.add_energy(energy.PhaceStatic.from_actor(head))
+    builder.add_energy(energy.PhacePassive.from_actor(head))
     builder.add_energy(
         energy.CollisionVertFace.from_actors(
             rigid=ball, soft=head, rest_length=cfg.d_hat, stiffness=1e4
@@ -96,7 +98,7 @@ def update_dirichlet(scene: sim.Scene, displacement: Float[Array, "3"]) -> sim.S
 
 def main(cfg: Config) -> None:
     scene: sim.Scene = gen_scene(cfg)
-    optimizer = optim.PNCG(d_hat=cfg.d_hat, maxiter=10**3, rtol=1e-5)
+    optimizer = optim.PNCG(atol=7e-8, d_hat=cfg.d_hat, maxiter=10**3, rtol=1e-5)
     ball: sim.Actor = scene.actors["ball"]
     head: sim.Actor = scene.actors["head"]
     head_pv: pv.UnstructuredGrid = head.to_pyvista()

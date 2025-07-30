@@ -54,6 +54,10 @@ IndexedFabricArray = Generic[DType]
 Tile = Generic[DType, Shape]
 
 
+import warp.config as config
+
+__version__ = config.version
+
 @over
 def min(a: Scalar, b: Scalar) -> Scalar:
     """Return the minimum of two scalars."""

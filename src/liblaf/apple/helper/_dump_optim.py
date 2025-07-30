@@ -8,7 +8,7 @@ def dump_optim_result(
 ) -> sim.Actor:
     for key, value in result.items():
         if utils.is_array(value) and jnp.size(value) == scene.n_dofs:
-            actor = actor.set_point_data(key, actor.dofs_global.get(value))
+            actor.point_data[key] = actor.dofs_global.get(value)
         elif utils.is_scalar(value):
-            actor = actor.set_field_data(key, value)
+            actor.field_data[key] = value
     return actor

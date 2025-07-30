@@ -151,7 +151,7 @@ def gen_actor(cfg: Config) -> sim.Actor:
 def gen_scene(_cfg: Config, actor: sim.Actor) -> sim.SceneBuilder:
     builder = sim.SceneBuilder()
     actor = builder.assign_dofs(actor)
-    builder.add_energy(energy.ARAP.from_actor(actor))
+    builder.add_energy(energy.Arap.from_actor(actor))
     return builder
 
 

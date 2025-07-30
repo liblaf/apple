@@ -1,4 +1,3 @@
-import dis
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -6,7 +5,6 @@ import einops
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-import warp as wp
 from jaxtyping import Array, Bool, Float
 from loguru import logger
 

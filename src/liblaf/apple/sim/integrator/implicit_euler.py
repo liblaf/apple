@@ -1,5 +1,6 @@
 from typing import override
 
+import jax
 import jax.numpy as jnp
 
 from liblaf.apple import utils

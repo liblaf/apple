@@ -161,8 +161,9 @@ def collision_energy_vert_face_hess_diag_func(
     rest_length = wp.sign(distance) * rest_length
     t_norm = wp.length(t)
     tTt = wp.length_sq(t)
-    a = 1.0 / tTt - (t_norm - rest_length) / wp.pow(tTt, 1.5)
-    b = (t_norm - rest_length) / t_norm
+    # avoid division by zero
+    a = 1.0 / (tTt + 1e-3) - (t_norm - rest_length) / (wp.pow(tTt, 1.5) + 1e-3)
+    b = (t_norm - rest_length) / (t_norm + 1e-3)
     # return wp.vec3(0.0, 0.0, 0.0)
     return stiffness * (a * wp.cw_mul(t, t) + b * wp.vec3(1.0, 1.0, 1.0))
 
@@ -213,8 +214,8 @@ def collision_energy_vert_face_hess_quad_func(
     rest_length = wp.sign(distance) * rest_length
     t_norm = wp.length(t)
     tTt = wp.length_sq(t)
-    a = 1.0 / tTt - (t_norm - rest_length) / wp.pow(tTt, 1.5)
-    b = (t_norm - rest_length) / t_norm
+    a = 1.0 / (tTt + 1e-3) - (t_norm - rest_length) / (wp.pow(tTt, 1.5) + 1e-3)
+    b = (t_norm - rest_length) / (t_norm + 1e-3)
     return stiffness * (a * func.square(wp.dot(t, p)) + b * wp.dot(p, p))
 
 

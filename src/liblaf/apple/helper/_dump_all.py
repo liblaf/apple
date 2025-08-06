@@ -16,6 +16,14 @@ def dump_all_actors(
             actor_new: sim.Actor = dump_optim_result(
                 scene=scene, actor=actor, result=result
             )
+            if actor_new.dofs_global is not None:
+                actor_new.point_data["dofs-global"] = (
+                    actor_new.dofs_global.index.reshape(actor_new.points.shape)
+                )
+            if "collide" in actor_new.point_data:
+                del actor_new.point_data["collide"]
+            if "distance" in actor_new.point_data:
+                del actor_new.point_data["distance"]
             actors.add(actor_new)
     for energy in scene.energies.values():
         if isinstance(energy, _energy.CollisionVertFace):

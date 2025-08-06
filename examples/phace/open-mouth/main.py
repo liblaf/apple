@@ -16,7 +16,7 @@ from liblaf.apple import energy, helper, optim, sim, struct, utils
 class Config(cherries.BaseConfig):
     output_dir: Path = utils.data("animation")
     mesh: Path = utils.data("head.vtu")
-    duration: float = 1.0
+    duration: float = 0.1
     fps: float = 120.0
 
     d_hat: float = 0.1
@@ -105,7 +105,6 @@ def main(cfg: Config) -> None:
         scene = update_dirichlet(builder=builder, scene=scene, rotate_rad=jaw_rotate[t])
         result: optim.OptimizeResult
         scene, result = scene.solve(optimizer=optimizer)
-        scene = scene.step(result["x"])
         if not result["success"]:
             logger.error("{}", result)
         scene = scene.step(result["x"])
@@ -117,4 +116,4 @@ def main(cfg: Config) -> None:
 
 
 if __name__ == "__main__":
-    cherries.run(main, profile="playground")
+    cherries.run(lambda: main(Config()), profile="playground")

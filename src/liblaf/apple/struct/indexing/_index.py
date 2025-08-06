@@ -44,7 +44,7 @@ class Index(tree.PyTree):
         if self.shape is None:
             self.shape = self.index.shape  # pyright: ignore[reportAttributeAccessIssue]
 
-    def __getitem__(self, local_index: "ArrayLike | Index") -> "Index":
+    def __getitem__(self, local_index: "ArrayLike | Index") -> Self:
         local_index: Integer[Array, " ..."] = jnp.asarray(local_index)
         local_index_flat: Integer[Array, " N"] = local_index.ravel()
         return self.replace(index=self.index[local_index_flat], shape=local_index.shape)

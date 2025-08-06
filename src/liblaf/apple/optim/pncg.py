@@ -104,9 +104,9 @@ class PNCG(Optimizer):
     def compute_alpha(self, g: X, p: X, pHp: FloatScalar) -> FloatScalar:
         alpha_1: FloatScalar = self.d_hat / (2 * jnp.linalg.norm(p, ord=jnp.inf))
         alpha_2: FloatScalar = -jnp.vdot(g, p) / pHp
-        alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
+        # alpha_2: FloatScalar = jnp.nan_to_num(alpha_2, nan=0.0)
         alpha: FloatScalar = jnp.minimum(alpha_1, alpha_2)
-        alpha = jnp.nan_to_num(alpha, nan=0.0)
+        # alpha = jnp.nan_to_num(alpha, nan=0.0)
         return alpha
 
     @utils.jit(inline=True)
@@ -116,7 +116,7 @@ class PNCG(Optimizer):
         beta: FloatScalar = jnp.vdot(g, P * y) / yTp - (jnp.vdot(y, P * y) / yTp) * (
             jnp.vdot(p, g) / yTp
         )
-        beta = jnp.nan_to_num(beta, nan=0.0)
+        # beta = jnp.nan_to_num(beta, nan=0.0)
         return beta
 
     @utils.jit
@@ -133,10 +133,10 @@ class PNCG(Optimizer):
         P: X = jnp.reciprocal(hess_diag)
         # if not jnp.all(P > 0):
         #     logger.warning("not all P > 0")
-        P_mean: FloatScalar = jnp.mean(
-            jnp.nan_to_num(P, nan=0.0, posinf=0.0, neginf=0.0)
-        )
-        P: X = jnp.nan_to_num(P, nan=P_mean, posinf=P_mean, neginf=P_mean)
+        # P_mean: FloatScalar = jnp.mean(
+        #     jnp.nan_to_num(P, nan=0.0, posinf=0.0, neginf=0.0)
+        # )
+        # P: X = jnp.nan_to_num(P, nan=P_mean, posinf=P_mean, neginf=P_mean)
 
         if state.first:
             p = -P * g

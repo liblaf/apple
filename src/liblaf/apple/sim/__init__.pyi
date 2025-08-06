@@ -1,5 +1,6 @@
 from .actor import Actor
 from .dirichlet import Dirichlet
+from .dofs import DOFs
 from .element import Element, ElementTetra
 from .energy import Energy
 from .field import Field
@@ -13,6 +14,7 @@ from .state import State
 
 __all__ = [
     "Actor",
+    "DOFs",
     "Dirichlet",
     "Element",
     "ElementTetra",

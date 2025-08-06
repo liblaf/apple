@@ -17,6 +17,10 @@ def dump_actors(
             displacement=actor_old.dofs_global.get(scene.state.displacement),
             velocity=actor_old.dofs_global.get(scene.state.velocity),
         )
+        if actor.dofs_global is not None:
+            actor.point_data["dofs-global"] = actor.dofs_global.index.reshape(
+                actor.points.shape
+            )
         if result is not None:
             actor = dump_optim_result(scene, actor, result)
         actors.add(actor)

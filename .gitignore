@@ -208,3 +208,4 @@ fig/
 *.vtu
 
 .cherries/
+result.json

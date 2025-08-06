@@ -1,6 +1,5 @@
 from collections.abc import Mapping
 from pathlib import Path
-from typing import cast
 
 import jax.numpy as jnp
 import numpy as np

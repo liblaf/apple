@@ -1,3 +1,3 @@
-from . import energy, func, math, naive, optim, struct, typed, utils
+from ._version import __version__, __version_tuple__, version, version_tuple
 
-__all__ = ["energy", "func", "math", "naive", "optim", "struct", "typed", "utils"]
+__all__ = ["__version__", "__version_tuple__", "version", "version_tuple"]

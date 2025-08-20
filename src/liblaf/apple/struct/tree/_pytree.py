@@ -1,51 +1,70 @@
-import dataclasses
-from collections.abc import Callable, Sequence
-from typing import Any, ClassVar, Self, dataclass_transform
+import functools
+from collections.abc import Callable
+from typing import Any, dataclass_transform, overload
 
-import equinox as eqx
+import attrs
 
-# pyright: enableExperimentalFeatures=true
-from typing_extensions import Sentinel
+from liblaf import grapes
 
-from ._field import array, container, field
-
-MISSING = Sentinel("MISSING")
-type Node = Any
+from ._register_attrs import register_attrs
 
 
-class PyTreeMixin:
-    __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
-
-    def replace(self, **changes: Any) -> Self:
-        return dataclasses.replace(self, **changes)
-
-    def tree_at(
-        self,
-        where: Callable[[Self], Node | Sequence[Node]],
-        replace: Any | Sequence[Any] | MISSING = MISSING,
-        replace_fn: Callable[[Node], Any] | MISSING = MISSING,
-        is_leaf: Callable[[Any], bool] | None = None,
-    ) -> Self:
-        kwargs: dict[str, Any] = {}
-        if replace is not MISSING:
-            kwargs["replace"] = replace
-        if replace_fn is not MISSING:
-            kwargs["replace_fn"] = replace_fn
-        if is_leaf is not None:
-            kwargs["is_leaf"] = is_leaf
-        return eqx.tree_at(where, self, **kwargs)
-
-
-@dataclass_transform(
-    frozen_default=True,
-    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
-)
-class PyTree(PyTreeMixin, eqx.Module): ...
-
-
-@dataclass_transform(
-    frozen_default=False,
-    field_specifiers=(dataclasses.field, eqx.field, array, container, field),
-)
-class PyTreeMutable(PyTreeMixin, eqx.Module):
-    __setattr__ = object.__setattr__  # pyright: ignore[reportAssignmentType]
+@overload
+@dataclass_transform(field_specifiers=(attrs.field,))
+def pytree[C: type](
+    maybe_cls: C,
+    *,
+    these: dict[str, Any] | None = ...,
+    repr: bool = ...,
+    unsafe_hash: bool | None = ...,
+    hash: bool | None = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: bool | None = ...,
+    order: bool | None = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: bool | None = ...,
+    on_setattr: attrs._OnSetAttrArgType | None = ...,
+    field_transformer: attrs._FieldTransformer | None = ...,
+    match_args: bool = ...,
+) -> C: ...
+@overload
+@dataclass_transform(field_specifiers=(attrs.field,))
+def pytree[C: type](
+    *,
+    these: dict[str, Any] | None = ...,
+    repr: bool = ...,
+    unsafe_hash: bool | None = ...,
+    hash: bool | None = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: bool | None = ...,
+    order: bool | None = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: bool | None = ...,
+    on_setattr: attrs._OnSetAttrArgType | None = ...,
+    field_transformer: attrs._FieldTransformer | None = ...,
+    match_args: bool = ...,
+) -> Callable[[C], C]: ...
+def pytree[C: type](maybe_cls: type | None = None, **kwargs) -> Any:
+    if maybe_cls is None:
+        return functools.partial(pytree, **kwargs)
+    kwargs.setdefault("repr", False)
+    maybe_cls = attrs.define(maybe_cls, **kwargs)
+    maybe_cls = register_attrs(maybe_cls)
+    maybe_cls = grapes.wadler_lindig(maybe_cls)
+    return maybe_cls

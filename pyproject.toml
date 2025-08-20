@@ -5,7 +5,7 @@
 name = "liblaf-apple"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12"
 license = "MIT"
 authors = [
   { name = "liblaf", email = "30631553+liblaf@users.noreply.github.com" },

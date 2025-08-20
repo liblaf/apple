@@ -5,7 +5,7 @@
 name = "liblaf-apple"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 license = "MIT"
 authors = [
   { name = "liblaf", email = "30631553+liblaf@users.noreply.github.com" },
@@ -42,11 +42,11 @@ dependencies = [
   "matplotlib>=3.0.0,<4",
   "networkx>=3.0.0,<4",
   "numpy>=2.0.0,<3",
-  "pyvista>=0.45.0,<0.46",
+  "pyvista>=0.46.0,<0.47",
   "rich>=14.0.0,<15",
   "scipy>=1.0.0,<2",
   "wadler-lindig>=0.1.0,<0.2",
-  "warp-lang>=1.0.0,<2",
+  "warp-lang==1.9.0.dev20250818",
 ]
 dynamic = ["version"]
 
@@ -126,3 +126,10 @@ testpaths = ["benches/", "tests/"]
 
 [tool.uv]
 default-groups = "all"
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com/"
+
+[tool.uv.sources]
+warp-lang.index = "nvidia"

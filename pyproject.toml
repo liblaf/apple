@@ -12,7 +12,6 @@ authors = [
 ]
 keywords = []
 classifiers = [
-  # common classifiers
   # ref: <https://pypi.org/classifiers/>
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -26,27 +25,27 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.21.0,<0.22",
-  "chex>=0.1.0,<0.2",
-  "cytoolz>=1.0.0,<2",
-  "einops>=0.8.0,<0.9",
-  "equinox>=0.13.0,<0.14",
-  "felupe>=9.0.0,<10",
-  "ipctk>=1.0.0,<2",
-  "jax[cuda12]>=0.7.0,<0.8",
-  "jaxtyping>=0.3.0,<0.4",
-  "lazy-loader>=0.4.0,<0.5",
-  "liblaf-grapes>=1.0.0,<2",
-  "liblaf-melon>=0.5.0,<0.6",
-  "loguru>=0.7.0,<0.8",
-  "matplotlib>=3.0.0,<4",
-  "networkx>=3.0.0,<4",
-  "numpy>=2.0.0,<3",
-  "pyvista>=0.46.0,<0.47",
-  "rich>=14.0.0,<15",
-  "scipy>=1.0.0,<2",
-  "wadler-lindig>=0.1.0,<0.2",
-  "warp-lang==1.9.0.dev20250818",
+  "beartype>=0.21,<0.22",
+  "chex>=0.1,<0.2",
+  "cytoolz>=1,<2",
+  "einops>=0.8,<0.9",
+  "equinox>=0.13,<0.14",
+  "felupe>=9,<10",
+  "ipctk>=1,<2",
+  "jax[cuda12]>=0.7,<0.8",
+  "jaxtyping>=0.3,<0.4",
+  "lazy-loader>=0.4,<0.5",
+  "liblaf-grapes>=2,<3",
+  "liblaf-melon>=0.6,<0.7",
+  "loguru>=0.7,<0.8",
+  "matplotlib>=3.0,<4",
+  "networkx>=3.0,<4",
+  "numpy>=2.0,<3",
+  "pyvista>=0.46,<0.47",
+  "rich>=14,<15",
+  "scipy>=1,<2",
+  "wadler-lindig>=0.1,<0.2",
+  "warp-lang==1.9.0.dev20250825",
 ]
 dynamic = ["version"]
 
@@ -59,38 +58,23 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/apple"
 
 [dependency-groups]
-build = ["check-wheel-contents", "hatch", "twine"]
+build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 dev = [
-  "icecream",
-  "liblaf-cherries",
-  "marimo[recommended]",
-  "mypy",
-  "sympy",
-  "viztracer",
+  "icecream>=2,<3",
+  "liblaf-cherries>=0.4,<0.5",
+  "marimo[recommended]>=0.15,<0.16",
+  "sympy>=1,<2",
+  "viztracer>=1,<2",
 ]
-docs = [
-  "docstring-inheritance",
-  "griffe-fieldz",
-  "griffe-generics",
-  "griffe-inherited-docstrings",
-  "griffe-modernized-annotations",
-  "griffe-pydantic",
-  "griffe-warnings-deprecated",
-  "mdx-truly-sane-lists",
-  "mkdocs",
-  "mkdocs-api-autonav",
-  "mkdocs-autorefs",
-  "mkdocs-git-committers-plugin-2",
-  "mkdocs-git-revision-date-localized-plugin",
-  "mkdocs-include-markdown-plugin",
-  "mkdocs-material[imaging]",
-  "mkdocs-section-index",
-  "mkdocstrings",
-  "mkdocstrings-python",
-  "pymdown-extensions",
-  "ruff",
+docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
+test = [
+  "hypothesis>=6,<7",
+  "pytest-codspeed>=4,<5",
+  "pytest-cov>=6,<7",
+  "pytest-randomly>=3,<4",
+  "pytest-xdist>=3,<4",
+  "pytest>=8,<9",
 ]
-test = ["hypothesis", "pytest", "pytest-codspeed", "pytest-cov", "pytest-xdist"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -107,22 +91,34 @@ source = ["src/"]
 version-file = "src/liblaf/apple/_version.py"
 
 [tool.hatch.build.targets.sdist]
-only-include = ["src/"]
+only-include = ["src"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/liblaf/"]
+packages = ["src/liblaf"]
 
 [tool.hatch.version]
 source = "vcs"
 
+[tool.pyright]
+exclude = ["**/.*", "**/__pycache__", "**/marimo", "**/node_modules"]
+extends = ".config/linters/pyrightconfig.json"
+
 [tool.pytest.ini_options]
 addopts = [
+  "--doctest-modules",
   "--hypothesis-show-statistics",
   "--showlocals",
   "--strict-config",
   "--strict-markers",
 ]
-testpaths = ["benches/", "tests/"]
+testpaths = ["benches", "src", "tests"]
+
+[tool.ruff]
+extend = ".config/linters/.ruff.toml"
+extend-exclude = ["marimo"]
+
+[tool.ruff.lint]
+ignore = ["F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]
 
 [tool.uv]
 default-groups = "all"

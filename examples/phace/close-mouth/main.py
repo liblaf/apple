@@ -59,9 +59,9 @@ def gen_scene(cfg: Config) -> sim.SceneBuilder:
     lip_top_pv: pv.PolyData = surface_pv.extract_points(
         surface_pv.point_data["is-lip-top"], adjacent_cells=False
     ).extract_surface()
-    lip_bottom_pv: pv.PolyData = surface_pv.extract_points(
-        surface_pv.point_data["is-lip-bottom"], adjacent_cells=False
-    ).extract_surface()
+    # lip_bottom_pv: pv.PolyData = surface_pv.extract_points(
+    #     surface_pv.point_data["is-lip-bottom"], adjacent_cells=False
+    # ).extract_surface()
     lip_top: sim.Actor = sim.Actor.from_pyvista(
         lip_top_pv, collision=True, id_="lip-top"
     )

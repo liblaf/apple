@@ -46,7 +46,7 @@ dependencies = [
   "rich>=14.0.0,<15",
   "scipy>=1.0.0,<2",
   "wadler-lindig>=0.1.0,<0.2",
-  "warp-lang==1.9.0.dev20250818",
+  "warp-lang==1.9.0.dev20250825",
 ]
 dynamic = ["version"]
 

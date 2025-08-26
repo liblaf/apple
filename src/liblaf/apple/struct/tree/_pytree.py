@@ -8,11 +8,15 @@ from liblaf import grapes
 
 from ._register_attrs import register_attrs
 
+type OnSetAttrArgType = attrs._OnSetAttrArgType  # noqa: SLF001
+type FieldTransformer = attrs._FieldTransformer  # noqa: SLF001
+
 
 @overload
 @dataclass_transform(field_specifiers=(attrs.field,))
 def pytree[C: type](
-    maybe_cls: C,
+    cls: C,
+    /,
     *,
     these: dict[str, Any] | None = ...,
     repr: bool = ...,
@@ -31,8 +35,8 @@ def pytree[C: type](
     order: bool | None = ...,
     auto_detect: bool = ...,
     getstate_setstate: bool | None = ...,
-    on_setattr: attrs._OnSetAttrArgType | None = ...,
-    field_transformer: attrs._FieldTransformer | None = ...,
+    on_setattr: OnSetAttrArgType | None = ...,
+    field_transformer: FieldTransformer | None = ...,
     match_args: bool = ...,
 ) -> C: ...
 @overload
@@ -56,15 +60,15 @@ def pytree[C: type](
     order: bool | None = ...,
     auto_detect: bool = ...,
     getstate_setstate: bool | None = ...,
-    on_setattr: attrs._OnSetAttrArgType | None = ...,
-    field_transformer: attrs._FieldTransformer | None = ...,
+    on_setattr: OnSetAttrArgType | None = ...,
+    field_transformer: FieldTransformer | None = ...,
     match_args: bool = ...,
 ) -> Callable[[C], C]: ...
-def pytree[C: type](maybe_cls: type | None = None, **kwargs) -> Any:
-    if maybe_cls is None:
+def pytree[C: type](cls: type | None = None, /, **kwargs) -> Any:
+    if cls is None:
         return functools.partial(pytree, **kwargs)
     kwargs.setdefault("repr", False)
-    maybe_cls = attrs.define(maybe_cls, **kwargs)
-    maybe_cls = register_attrs(maybe_cls)
-    maybe_cls = grapes.wadler_lindig(maybe_cls)
-    return maybe_cls
+    cls = attrs.define(cls, **kwargs)
+    cls = register_attrs(cls)
+    cls = grapes.wadler_lindig(cls)
+    return cls

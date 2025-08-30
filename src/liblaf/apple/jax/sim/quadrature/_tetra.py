@@ -7,7 +7,7 @@ from jaxtyping import Array, Float
 
 from liblaf.apple.jax import tree
 
-from .scheme import Scheme
+from ._scheme import Scheme
 
 
 def _default_points() -> Float[Array, "q=1 J=3"]:

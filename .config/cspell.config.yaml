@@ -15,7 +15,10 @@ ignoreRandomStrings: true
 useGitignore: true
 words:
   - arap
+  - argnums
   - arithmatex
+  - asarray
+  - bfgs
   - chex
   - cuda
   - cython
@@ -26,6 +29,7 @@ words:
   - dmypy
   - dofs
   - einops
+  - einsum
   - felupe
   - fieldz
   - finfo
@@ -35,20 +39,26 @@ words:
   - icosphere
   - inlinehilite
   - ipctk
+  - ipykernel
   - ipynb
   - ipython
   - jaxtyping
   - koiter
   - lamé's
   - liblaf
+  - lineax
+  - mathbf
   - matmul
   - mkdocs
   - mkdocstrings
   - mypy
+  - nbconvert
+  - nbformat
   - ndarray
   - networkx
   - numprocesses
   - numpy
+  - optax
   - optim
   - phace
   - piola
@@ -62,6 +72,7 @@ words:
   - pydocstyle
   - pyenv
   - pyflow
+  - pygments
   - pylint
   - pymdownx
   - pypa
@@ -76,8 +87,8 @@ words:
   - pytype
   - pyvenv
   - pyvista
+  - regularizations
   - roboticists
-  - rosen
   - rtol
   - scipy
   - scrapy
@@ -89,7 +100,6 @@ words:
   - unflatten
   - unshallow
   - unvec
-  - vdot
   - venv
   - virtualenv
   - wadler

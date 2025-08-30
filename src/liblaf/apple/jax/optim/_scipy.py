@@ -6,16 +6,15 @@ import scipy.optimize
 from jaxtyping import Array, PyTree
 
 from liblaf import grapes
-from liblaf.apple import struct
 from liblaf.apple.jax import tree
 
 from ._minimizer import Minimizer
 from ._solution import Solution
 
 
-@struct.pytree
+@tree.pytree
 class MinimizerScipy(Minimizer):
-    method: str = struct.field(default="trust-constr")
+    method: str = tree.field(default="trust-constr")
 
     def minimize(
         self,

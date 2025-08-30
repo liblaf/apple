@@ -2,7 +2,6 @@ from collections.abc import Callable, Mapping
 from typing import Any, TypedDict, Unpack, overload
 
 import attrs
-import equinox as eqx
 import jax.numpy as jnp
 from jaxtyping import Array, ArrayLike
 

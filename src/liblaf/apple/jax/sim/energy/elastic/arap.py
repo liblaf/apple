@@ -4,13 +4,12 @@ import jax.numpy as jnp
 from jax import Array
 from jaxtyping import Float
 
-from liblaf.apple import struct
-from liblaf.apple.jax import math
+from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.energy.elastic._elastic import Elastic
-from liblaf.apple.types.jax._types import Vector
+from liblaf.apple.jax.typing import Vector
 
 
-@struct.pytree
+@tree.pytree
 class ARAP(Elastic):
     activation: Float[Array, "c J J"]
     mu: Float[Array, " c"]

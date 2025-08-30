@@ -1,5 +1,5 @@
-from liblaf.apple import struct
+from liblaf.apple.jax import tree
 
 
-@struct.pytree
+@tree.pytree
 class Minimizer: ...

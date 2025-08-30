@@ -4,14 +4,13 @@ import felupe.quadrature
 import jax
 from jaxtyping import Array, Float
 
-from liblaf.apple import struct
-from liblaf.apple.jax import math
+from liblaf.apple.jax import math, tree
 
 
-@struct.pytree
+@tree.pytree
 class Scheme:
-    points: Float[Array, "q J"] = struct.array()
-    weights: Float[Array, " q"] = struct.array()
+    points: Float[Array, "q J"] = tree.array()
+    weights: Float[Array, " q"] = tree.array()
 
     @classmethod
     def from_felupe(cls, scheme: felupe.quadrature.Scheme) -> Self:

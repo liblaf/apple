@@ -6,27 +6,26 @@ import pyvista as pv
 from jaxtyping import Array, Float, Integer
 from loguru import logger
 
-from liblaf.apple import struct
-from liblaf.apple.jax import math
+from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.element import Element, ElementTetra
 from liblaf.apple.jax.sim.quadrature import Scheme
 
 
-@struct.pytree
+@tree.pytree
 class Region:
-    element: Element = struct.field()
-    mesh: pv.UnstructuredGrid = struct.field()
-    quadrature: Scheme = struct.field()
+    element: Element = tree.field()
+    mesh: pv.UnstructuredGrid = tree.field()
+    quadrature: Scheme = tree.field()
 
-    points: Float[Array, "p J"] = struct.array()
-    cells: Integer[Array, "c a"] = struct.array()
+    points: Float[Array, "p J"] = tree.array()
+    cells: Integer[Array, "c a"] = tree.array()
 
-    h: Float[Array, "q a"] = struct.array(default=None)
-    dhdr: Float[Array, "q a J"] = struct.array(default=None)
-    dXdr: Float[Array, "c q J J"] = struct.array(default=None)
-    drdX: Float[Array, "c q J J"] = struct.array(default=None)
-    dV: Float[Array, "c q"] = struct.array(default=None)
-    dhdX: Float[Array, "c q a J"] = struct.array(default=None)
+    h: Float[Array, "q a"] = tree.array(default=None)
+    dhdr: Float[Array, "q a J"] = tree.array(default=None)
+    dXdr: Float[Array, "c q J J"] = tree.array(default=None)
+    drdX: Float[Array, "c q J J"] = tree.array(default=None)
+    dV: Float[Array, "c q"] = tree.array(default=None)
+    dhdX: Float[Array, "c q a J"] = tree.array(default=None)
 
     @classmethod
     def from_pyvista(cls, mesh: pv.UnstructuredGrid) -> Self:

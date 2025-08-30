@@ -1,10 +1,10 @@
 import jax
 
-from liblaf.apple import struct
-from liblaf.apple.types.jax import Scalar, Vector
+from liblaf.apple.jax import tree
+from liblaf.apple.jax.typing import Scalar, Vector
 
 
-@struct.pytree
+@tree.pytree
 class Energy:
     def fun(self, u: Vector) -> Scalar:
         raise NotImplementedError

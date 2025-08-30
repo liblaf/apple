@@ -1,12 +1,12 @@
 from jaxtyping import Array, Float
 
-from liblaf.apple import struct
+from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.energy._energy import Energy
 from liblaf.apple.jax.sim.region import Region
-from liblaf.apple.types import Scalar, Vector
+from liblaf.apple.jax.typing import Scalar, Vector
 
 
-@struct.pytree
+@tree.pytree
 class Elastic(Energy):
     region: Region
 

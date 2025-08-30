@@ -9,8 +9,8 @@ from liblaf.apple.jax.typing import Scalar, UpdatesData, UpdatesIndex, Vector
 
 @tree.pytree
 class Model:
-    energies: list[Energy] = tree.field(factory=list)
     dirichlet: Dirichlet = tree.field(factory=Dirichlet)
+    energies: list[Energy] = tree.field(factory=list)
 
     def fun(self, u: Vector) -> Scalar:
         outputs: list[Scalar] = [energy.fun(u) for energy in self.energies]

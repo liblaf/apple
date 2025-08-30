@@ -8,7 +8,7 @@ from loguru import logger
 
 from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.element import Element
-from liblaf.apple.jax.sim.geometry import Geometry
+from liblaf.apple.jax.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.jax.sim.quadrature import Scheme
 
 
@@ -62,6 +62,18 @@ class Region:
     @property
     def points(self) -> Float[Array, "p J"]:
         return self.geometry.points
+
+    @property
+    def point_data(self) -> GeometryAttributes:
+        return self.geometry.point_data
+
+    @property
+    def cell_data(self) -> GeometryAttributes:
+        return self.geometry.cell_data
+
+    @property
+    def field_data(self) -> GeometryAttributes:
+        return self.geometry.field_data
 
     def compute_grad(self) -> None:
         h: Float[Array, "q a"] = jnp.stack(

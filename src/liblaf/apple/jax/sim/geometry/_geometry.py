@@ -43,4 +43,4 @@ class Geometry:
     def copy_attributes(self, other: Self | pv.DataObject) -> None:
         self.point_data.update(as_array_dict(other.point_data))
         self.cell_data.update(as_array_dict(other.cell_data))
-        self.field_data.update(as_array_dict(other.field_data))  # pyright: ignore[reportArgumentType]
+        # self.field_data.update(as_array_dict(other.field_data))  # pyright: ignore[reportArgumentType]

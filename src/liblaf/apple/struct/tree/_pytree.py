@@ -6,6 +6,7 @@ import attrs
 
 from liblaf import grapes
 
+from ._field_specifiers import array, container, field
 from ._register_attrs import register_attrs
 
 type OnSetAttrArgType = attrs._OnSetAttrArgType  # noqa: SLF001
@@ -13,7 +14,7 @@ type FieldTransformer = attrs._FieldTransformer  # noqa: SLF001
 
 
 @overload
-@dataclass_transform(field_specifiers=(attrs.field,))
+@dataclass_transform(field_specifiers=(attrs.field, array, container, field))
 def pytree[C: type](
     cls: C,
     /,
@@ -40,7 +41,7 @@ def pytree[C: type](
     match_args: bool = ...,
 ) -> C: ...
 @overload
-@dataclass_transform(field_specifiers=(attrs.field,))
+@dataclass_transform(field_specifiers=(attrs.field, array, container, field))
 def pytree[C: type](
     *,
     these: dict[str, Any] | None = ...,
@@ -64,6 +65,7 @@ def pytree[C: type](
     field_transformer: FieldTransformer | None = ...,
     match_args: bool = ...,
 ) -> Callable[[C], C]: ...
+@dataclass_transform(field_specifiers=(attrs.field, array, container, field))
 def pytree[C: type](cls: type | None = None, /, **kwargs) -> Any:
     if cls is None:
         return functools.partial(pytree, **kwargs)

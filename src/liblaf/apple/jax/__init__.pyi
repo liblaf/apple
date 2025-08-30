@@ -1,3 +1,3 @@
-from . import math
+from . import math, optim, sim
 
-__all__ = ["math"]
+__all__ = ["math", "optim", "sim"]

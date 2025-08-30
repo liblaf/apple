@@ -19,4 +19,3 @@ $$
 - compute $\displaystyle \pdv{E}{\vb{q}}{\vb{u}} \vb{p}$ (**dense** matrix @ dense vector)
 - compute $\displaystyle \pdv{\mathcal{L}}{\vb{q}} = \vb{0}$
 - minimize $\mathcal{L}$ based on $\displaystyle \dv{\mathcal{L}}{\vb{q}}$ using **Gradient Descent**
-

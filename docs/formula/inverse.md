@@ -31,6 +31,7 @@ $$
 ###### Minimization Problem
 
 Compute loss using surface points.
+
 $$
 \begin{gather}
   \mathcal{L}(\vb{q}) = \norm{\vb{u} - \vb{T}}_F^2 + \text{regularizations} \\
@@ -60,6 +61,7 @@ $$
 ###### Minimization Problem
 
 **Compute loss using all points (including internal points).**
+
 $$
 \begin{gather}
   \mathcal{L}(\vb{q}) = \norm{\vb{u} - \vb{T}}_F^2 \\

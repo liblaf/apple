@@ -23,4 +23,3 @@ $$
   \pdv[2]{E}{\vb{u}} \vb{p} = - \pdv{\mathcal{L}}{\vb{u}} \label{eq:2}
 \end{gather}
 $$
-

@@ -2,7 +2,7 @@ from typing import Self
 
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Float, Integer
+from jaxtyping import Array, Float
 
 from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.energy._energy import Energy

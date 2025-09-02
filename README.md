@@ -42,7 +42,7 @@ TODO: DESCRIPTION <br />
 To install `liblaf-apple`, run the following command:
 
 ```bash
-$ uv add liblaf-apple
+uv add liblaf-apple
 ```
 
 <div align="right" markdown>
@@ -60,9 +60,9 @@ You can use Github Codespaces for online development:
 Or clone it for local development:
 
 ```bash
-$ gh repo clone liblaf/apple
-$ cd apple
-$ just test
+gh repo clone liblaf/apple
+cd apple
+just test
 ```
 
 <div align="right" markdown>

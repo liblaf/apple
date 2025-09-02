@@ -102,6 +102,7 @@ words:
   - unvec
   - venv
   - virtualenv
+  - vmap
   - wadler
   - xdist
   - xlabel

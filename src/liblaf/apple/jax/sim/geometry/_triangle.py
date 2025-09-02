@@ -11,7 +11,8 @@ class GeometryTriangle(Geometry):
     @override
     @classmethod
     def from_pyvista(cls, mesh: pv.PolyData) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
-        cells_local: Integer[Array, "c a"] = jnp.asarray(mesh.faces)
+        mesh = mesh.triangulate()  # pyright: ignore[reportAssignmentType]
+        cells_local: Integer[Array, "c a"] = jnp.asarray(mesh.regular_faces)
         self: Self = cls(points=jnp.asarray(mesh.points), cells_local=cells_local)
         self.copy_attributes(mesh)
         if (point_id := self.point_data.get("point-id")) is not None:

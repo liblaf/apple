@@ -1,2 +1,7 @@
 [core]
-    autostage = true
+analytics = false
+autostage = true
+remote = ssh
+
+['remote "ssh"']
+url = ssh://dvc.liblaf.me:56499/apple

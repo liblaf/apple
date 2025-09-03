@@ -1,25 +1,15 @@
 <div align="center" markdown><a name="readme-top"></a>
 
-<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Red%20apple/3D/red_apple_3d.png" style="height: 120px" />
-<img src="https://gw.alipayobjects.com/zos/kitchen/qJ3l3EPsdW/split.svg" style="height: 120px" />
-<img src="https://api.iconify.design/logos/python.svg" style="height: 120px; padding: 12px" />
+![apple](https://socialify.git.ci/liblaf/apple/image?description=1&forks=1&issues=1&language=1&logo=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fmicrosoft%2Ffluentui-emoji%2Fassets%2FRed%2520apple%2F3D%2Fred_apple_3d.png&name=1&owner=1&pulls=1&stargazers=1&theme=Auto)
 
-# Apple
-
-TODO: DESCRIPTION <br />
 [**Explore the docs »**](https://liblaf.github.io/apple/)
 
+[![Codecov](https://img.shields.io/codecov/c/github/liblaf/apple?logo=Codecov&label=Coverage)](https://codecov.io/gh/liblaf/apple)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/liblaf/apple/test.yaml?logo=GitHub%20Actions&label=Test)](https://github.com/liblaf/apple/actions/workflows/test.yaml)
+[![GitHub License](https://img.shields.io/github/license/liblaf/apple?label=License)](https://github.com/liblaf/apple/blob/main/LICENSE)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/liblaf-apple?logo=PyPI&label=Downloads)](https://pypi.org/project/liblaf-apple)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/liblaf-apple?logo=Python&label=Python)](https://pypi.org/project/liblaf-apple)
 [![PyPI - Version](https://img.shields.io/pypi/v/liblaf-apple?logo=PyPI&label=PyPI)](https://pypi.org/project/liblaf-apple)
-[![Codecov](https://img.shields.io/codecov/c/github/liblaf/apple?logo=Codecov&label=Coverage)](https://codecov.io/gh/liblaf/apple)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/liblaf/apple/test.yaml?logo=GitHub%20Actions&label=Test)](https://github.com/liblaf/apple/actions/workflows/test.yaml)
-<br />
-[![GitHub Contributors](https://img.shields.io/github/contributors/liblaf/apple?logo=GitHub&label=Contributors)](https://github.com/liblaf/apple/graphs/contributors)
-[![GitHub Forks](https://img.shields.io/github/forks/liblaf/apple)](https://github.com/liblaf/apple/forks)
-[![GitHub Repo Stars](https://img.shields.io/github/stars/liblaf/apple)](https://github.com/liblaf/apple/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/liblaf/apple?logo=GitHub&label=Issues)](https://github.com/liblaf/apple/issues)
-[![GitHub License](https://img.shields.io/github/license/liblaf/apple?label=License)](https://github.com/liblaf/apple/blob/main/LICENSE)
 
 [Changelog](https://github.com/liblaf/apple/blob/main/CHANGELOG.md) · [Report Bug](https://github.com/liblaf/apple/issues) · [Request Feature](https://github.com/liblaf/apple/issues)
 
@@ -77,7 +67,7 @@ Contributions of all types are more than welcome, if you are interested in contr
 
 [![](https://img.shields.io/badge/%F0%9F%A4%AF%20PR%20WELCOME-%E2%86%92-ffcb47?labelColor=black&style=for-the-badge)](https://github.com/liblaf/apple/pulls)
 
-[![](https://contrib.rocks/image?repo=liblaf%2Fapple)](https://github.com/liblaf/apple/graphs/contributors)
+[![](https://contrib.nn.ci/api?repo=liblaf/apple)](https://github.com/liblaf/apple/graphs/contributors)
 
 <div align="right" markdown>
 

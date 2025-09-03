@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import sympy
+
     return (sympy,)
 
 
@@ -27,6 +28,7 @@ def _(sympy):
                 [-z[1], z[0], 0],
             ]
         )
+
     return (hat,)
 
 
@@ -50,6 +52,7 @@ def _(sympy):
 def _(sympy):
     def vec(p: sympy.Matrix) -> list[sympy.Expr]:
         return p.T.flat()
+
     return (vec,)
 
 
@@ -71,6 +74,7 @@ def _(sympy):
             + p1.T @ (f2.cross(p0) - f0.cross(p2))
             + p2.T @ (f0.cross(p1) - f1.cross(p0))
         )
+
     return (h6_quad,)
 
 

@@ -3,7 +3,7 @@
 
 [project]
 name = "liblaf-apple"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
@@ -32,7 +32,7 @@ dependencies = [
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
   "ipctk>=1,<2",
-  "jax[cuda12]>=0.6,<0.7",
+  "jax[cuda12]>=0.7,<0.8",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=2,<3",
@@ -47,7 +47,7 @@ dependencies = [
   "rich>=14,<15",
   "scipy>=1,<2",
   "wadler-lindig>=0.1,<0.2",
-  "warp-lang==1.9.0.dev20250825",
+  "warp-lang==1.10.0.dev20250903",
 ]
 dynamic = ["version"]
 
@@ -63,21 +63,14 @@ dynamic = ["version"]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 dev = [
   "icecream>=2,<3",
-  "ipykernel>=6.30.1",
+  "ipykernel>=6,<7",
   "liblaf-cherries>=0.4,<0.5",
   "marimo[recommended]>=0.15,<0.16",
   "sympy>=1,<2",
   "viztracer>=1,<2",
 ]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
-test = [
-  "hypothesis>=6,<7",
-  "pytest-codspeed>=4,<5",
-  "pytest-cov>=6,<7",
-  "pytest-randomly>=3,<4",
-  "pytest-xdist>=3,<4",
-  "pytest>=8,<9",
-]
+test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=8,<9"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -118,8 +111,8 @@ addopts = [
 testpaths = ["benches", "src", "tests"]
 
 [tool.ruff]
+exclude = ["**/marimo/"]
 extend = ".config/linters/.ruff.toml"
-extend-exclude = ["marimo"]
 
 [tool.ruff.lint]
 ignore = ["F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]

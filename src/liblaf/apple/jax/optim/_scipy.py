@@ -3,7 +3,7 @@ from typing import Any
 
 import attrs
 import scipy.optimize
-from jaxtyping import Array, PyTree
+from jaxtyping import Array, Float, PyTree
 
 from liblaf import grapes
 from liblaf.apple.jax import tree
@@ -15,6 +15,7 @@ from ._solution import Solution
 @tree.pytree
 class MinimizerScipy(Minimizer):
     method: str = tree.field(default="trust-constr")
+    options: Mapping[str, Any] = tree.field(factory=lambda: {"verbose": 3})
 
     def minimize(
         self,
@@ -27,7 +28,7 @@ class MinimizerScipy(Minimizer):
         kwargs: Mapping[str, Any] = {},
         callback: Callable | None = None,
     ) -> Solution:
-        x0_flat: Array
+        x0_flat: Float[Array, " N"]
         unflatten: Callable[[Array], PyTree]
         x0_flat, unflatten = tree.flatten(x0)
         wrapper = _ProblemWrapper(args, kwargs, unflatten)
@@ -41,7 +42,7 @@ class MinimizerScipy(Minimizer):
             jac=jac,
             hessp=hessp,
             callback=callback,
-            options={"verbose": 3},
+            options=self.options,
         )
         return Solution(result)
 
@@ -60,7 +61,8 @@ class _ProblemWrapper:
             args: list = list(args)
             for i in unflatten_args:
                 args[i] = self.unflatten(args[i])
-            result = wrapped(*args, *self.args, **kwargs, **self.kwargs)
+            result: PyTree = wrapped(*args, *self.args, **kwargs, **self.kwargs)
+            result_flat: Float[Array, " ..."]
             result_flat, _ = tree.flatten(result)
             return result_flat
 

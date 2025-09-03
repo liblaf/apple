@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import sympy
+
     return (sympy,)
 
 
@@ -21,6 +22,7 @@ def _(sympy):
 def _(sympy):
     def vec33(F: sympy.Matrix) -> list[sympy.Expr]:
         return F.T.flat()
+
     return (vec33,)
 
 
@@ -29,6 +31,7 @@ def _(sympy):
     def unvec33(F: sympy.Matrix | list[sympy.Expr]) -> sympy.Matrix:
         F = sympy.Matrix(F)
         return F.reshape(3, 3).T
+
     return (unvec33,)
 
 
@@ -36,6 +39,7 @@ def _(sympy):
 def _(sympy):
     def vec43(x: sympy.Matrix) -> list[sympy.Expr]:
         return x.flat()
+
     return (vec43,)
 
 
@@ -44,6 +48,7 @@ def _(sympy):
     def unvec43(x: sympy.Matrix | list[sympy.Expr]) -> sympy.Matrix:
         x = sympy.Matrix(x)
         return x.reshape(4, 3)
+
     return (unvec43,)
 
 

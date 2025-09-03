@@ -111,6 +111,7 @@ class Region:
     def gradient(
         self, u: Float[Array, " points *shape"]
     ) -> Float[Array, "c q *shape J"]:
+        ic(u.shape, self.cells_global, self.scatter(u).shape)
         result: Float[Array, "c q *shape J"] = einops.einsum(
             self.scatter(u), self.dhdX, "c a ..., c q a J -> c q ... J"
         )

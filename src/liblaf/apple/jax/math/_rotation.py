@@ -15,9 +15,9 @@ def svd_rv(
     u, s, vh = jnp.linalg.svd(a, full_matrices=False)
     det_u: Float[Array, "*batch"] = jnp.linalg.det(u)
     det_v: Float[Array, "*batch"] = jnp.linalg.det(vh)
-    u = u.at[..., :, -1].set(u[..., :, -1] * det_u[..., None])
-    vh = vh.at[..., -1, :].set(vh[..., -1, :] * det_v[..., None])
-    s = s.at[..., -1].set(s[..., -1] * det_u * det_v)
+    u = u.at[..., :, -1].multiply(jnp.where(det_u < 0, -1, 1)[..., jnp.newaxis])
+    vh = vh.at[..., -1, :].multiply(jnp.where(det_v < 0, -1, 1)[..., jnp.newaxis])
+    s = s.at[..., -1].multiply(jnp.where(det_u * det_v < 0, -1, 1))
     return u, s, vh
 
 

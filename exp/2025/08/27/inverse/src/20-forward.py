@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
@@ -8,6 +9,8 @@ from loguru import logger
 from liblaf import cherries, melon
 from liblaf.apple.jax import optim, sim
 from liblaf.apple.jax.typing import Vector
+
+jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
 class Config(cherries.BaseConfig):

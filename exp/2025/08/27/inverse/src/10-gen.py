@@ -16,7 +16,7 @@ class Config(cherries.BaseConfig):
 
 def main(cfg: Config) -> None:
     surface: pv.PolyData = pv.Box(bounds=(0, 2, 0, 1, 0, 1))
-    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
+    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr, coarsen=True)
 
     dirichlet_mask: Bool[np.ndarray, "p J"] = np.zeros_like(mesh.points, dtype=np.bool_)
     dirichlet_values: Float[np.ndarray, "p J"] = np.zeros_like(
@@ -31,6 +31,7 @@ def main(cfg: Config) -> None:
     )
     mesh.cell_data["lambda"] = np.full((mesh.n_cells,), 3.0)
     mesh.cell_data["mu"] = np.full((mesh.n_cells,), 1.0)
+    ic(mesh)
     melon.save(cfg.output, mesh)
 
 

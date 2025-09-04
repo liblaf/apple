@@ -25,12 +25,13 @@ class MinimizerScipy(Minimizer):
         x0: PyTree,
         args: Sequence[Any] = (),
         kwargs: Mapping[str, Any] = {},
+        bounds: Any = None,
         callback: Callable | None = None,
     ) -> Solution:
         x0_flat: Float[Array, " N"]
         unflatten: Callable[[Array], PyTree]
         x0_flat, unflatten = tree.flatten(x0)
-        objective = objective.flatten(x0).partial(kwargs=kwargs)
+        objective = objective.flatten(unflatten).partial(kwargs=kwargs)
         fun: Callable | None
         jac: Callable | bool | None
         if objective.fun_and_jac is not None:
@@ -47,10 +48,12 @@ class MinimizerScipy(Minimizer):
             jac=jac,
             hess=objective.hess,
             hessp=objective.hessp,
+            bounds=bounds,
             tol=self.tol,
             callback=callback,
             options=self.options,
         )
+        result["x"] = unflatten(result["x"])
         return Solution(result)
 
 

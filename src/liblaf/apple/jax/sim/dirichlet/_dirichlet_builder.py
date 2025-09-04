@@ -1,5 +1,3 @@
-from collections.abc import Sequence
-
 import attrs
 import jax.numpy as jnp
 import pyvista as pv
@@ -42,18 +40,27 @@ class DirichletBuilder:
         self.values = self.values.at[point_id].set(dirichlet_values)
 
     def finish(self) -> Dirichlet:
-        index: Sequence[Integer[Array, " dirichlet"]] = jnp.nonzero(self.mask)
-        return Dirichlet(index=index, values=self.values[index])
+        mask_flat: Bool[Array, " N"] = self.mask.flatten()
+        index: Integer[Array, " dirichlet"]
+        (index,) = jnp.nonzero(mask_flat)
+        index_free: Integer[Array, " free"]
+        (index_free,) = jnp.nonzero(~mask_flat)
+        return Dirichlet(
+            index=index,
+            index_free=index_free,
+            n_dofs=self.mask.size,
+            values=self.values.flatten()[index],
+        )
 
     def resize(self, n_points: int) -> None:
         if n_points <= self.mask.shape[0]:
             return
-        new_mask: Bool[Array, "p J"] = jnp.zeros((n_points, self.dim), dtype=bool)
-        new_mask = new_mask.at[: self.mask.shape[0]].set(self.mask)
-        self.mask = new_mask
-        new_values: Float[Array, "p J"] = jnp.zeros((n_points, self.dim), dtype=float)
-        new_values = new_values.at[: self.values.shape[0]].set(self.values)
-        self.values = new_values
+        pad_width: tuple[tuple[int, int], tuple[int, int]] = (
+            (0, n_points - self.mask.shape[0]),
+            (0, 0),
+        )
+        self.mask = jnp.pad(self.mask, pad_width)
+        self.values = jnp.pad(self.values, pad_width)
 
 
 def _broadcast_to(a: ArrayLike, *, dtype: DTypeLike, shape: tuple[int, int]) -> Array:

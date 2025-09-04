@@ -1,6 +1,6 @@
 from . import element, energy, geometry, model, quadrature, region
 from .element import Element, ElementTetra
-from .energy import ARAP, ARAPActive, Elastic, Energy, Koiter
+from .energy import ARAP, ARAPActive, Elastic, Energy, Koiter, PhaceActive, PhaceStatic
 from .geometry import Geometry, GeometryAttributes, GeometryTetra, GeometryTriangle
 from .model import Model, ModelBuilder
 from .quadrature import QuadratureTetra, Scheme
@@ -20,6 +20,8 @@ __all__ = [
     "Koiter",
     "Model",
     "ModelBuilder",
+    "PhaceActive",
+    "PhaceStatic",
     "QuadratureTetra",
     "Region",
     "Scheme",

@@ -16,7 +16,7 @@ from liblaf.apple.jax import optim
 )
 @hypothesis.settings(max_examples=10)
 def test_minimize_scipy_trust_constr(x0: ArrayLike) -> None:
-    optimizer = optim.MinimizerScipy(method="trust-constr")
+    optimizer = optim.MinimizerScipy(method="trust-constr", options={"verbose": 3})
     solution: optim.Solution = optimizer.minimize(
         x0=x0,
         fun=scipy.optimize.rosen,
@@ -35,7 +35,7 @@ def test_minimize_scipy_trust_constr(x0: ArrayLike) -> None:
 )
 @hypothesis.settings(max_examples=10)
 def test_minimize_scipy_lbfgs(x0: ArrayLike) -> None:
-    optimizer = optim.MinimizerScipy(method="L-BFGS-B")
+    optimizer = optim.MinimizerScipy(method="L-BFGS-B", options={})
     solution: optim.Solution = optimizer.minimize(
         x0=x0, fun=scipy.optimize.rosen, jac=scipy.optimize.rosen_der
     )

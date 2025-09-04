@@ -4,9 +4,12 @@ import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
 
+from liblaf.apple.jax import tree
+
 from ._geometry import Geometry
 
 
+@tree.pytree
 class GeometryTriangle(Geometry):
     @override
     @classmethod

@@ -15,7 +15,7 @@ class Energy:
         index: UpdatesIndex = jnp.arange(data.shape[0])
         return data, index
 
-    def value_and_jac(self, u: Vector) -> tuple[Scalar, Updates]:
+    def fun_and_jac(self, u: Vector) -> tuple[Scalar, Updates]:
         value: Scalar
         data: UpdatesData
         value, data = jax.value_and_grad(self.fun)(u)

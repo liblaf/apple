@@ -2,9 +2,11 @@ import abc
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
+import attrs
 import scipy.optimize
 from jaxtyping import PyTree
 
+from liblaf import grapes
 from liblaf.apple.jax import tree
 
 from ._objective import Objective
@@ -29,9 +31,10 @@ class Minimizer(abc.ABC):
         jac_and_hess_diag: Callable | None = None,
         args: Sequence[Any] = (),
         kwargs: Mapping[str, Any] = {},
+        bounds: Any = None,
         callback: Callable | None = None,
     ) -> Solution:
-        objective = Objective(
+        objective: Objective = Objective(
             fun=fun,
             jac=jac,
             hess=hess,
@@ -41,11 +44,26 @@ class Minimizer(abc.ABC):
             fun_and_jac=fun_and_jac,
             jac_and_hess_diag=jac_and_hess_diag,
         )
-        objective.jit()
-        objective.timer()
-        return self._minimize_impl(
-            objective=objective, x0=x0, args=args, kwargs=kwargs, callback=callback
+        objective = objective.jit().timer()
+        solution: Solution = self._minimize_impl(
+            objective=objective,
+            x0=x0,
+            args=args,
+            kwargs=kwargs,
+            bounds=bounds,
+            callback=callback,
         )
+        for field in attrs.fields(type(objective)):
+            fn: Callable | None = getattr(objective, field.name)
+            if not callable(fn):
+                continue
+            timer: grapes.BaseTimer | None = grapes.unbind_getattr(
+                fn, "_self_timer", None
+            )
+            if timer is None:
+                continue
+            timer.log_summary()
+        return solution
 
     @abc.abstractmethod
     def _minimize_impl(
@@ -54,5 +72,6 @@ class Minimizer(abc.ABC):
         x0: PyTree,
         args: Sequence[Any] = (),
         kwargs: Mapping[str, Any] = {},
+        bounds: Any = None,
         callback: Callable | None = None,
     ) -> Solution: ...

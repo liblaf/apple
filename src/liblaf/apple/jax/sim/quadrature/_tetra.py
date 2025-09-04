@@ -20,6 +20,7 @@ def _default_weights() -> Float[Array, "q=1"]:
         return jnp.ones((1,)) / 6.0
 
 
+@tree.pytree
 class QuadratureTetra(Scheme):
     points: Float[Array, "q=1 J=3"] = tree.array(factory=_default_points)
     weights: Float[Array, "q=1"] = tree.array(factory=_default_weights)

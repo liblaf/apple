@@ -36,8 +36,11 @@ class ModelBuilder:
         )
         self.points = jnp.concat([self.points, mesh.points])
         self.dirichlet.resize(self.n_points)
-        self.add_dirichlet(mesh)
         return mesh
 
     def finish(self) -> Model:
-        return Model(dirichlet=self.dirichlet.finish(), energies=self.energies)
+        return Model(
+            dirichlet=self.dirichlet.finish(),
+            energies=self.energies,
+            points=self.points,
+        )

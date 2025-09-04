@@ -4,11 +4,13 @@ import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
 
+from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.element import ElementTetra
 
 from ._geometry import Geometry
 
 
+@tree.pytree
 class GeometryTetra(Geometry):
     @override
     @classmethod

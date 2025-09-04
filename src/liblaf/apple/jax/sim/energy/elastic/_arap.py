@@ -18,7 +18,7 @@ class ARAP(Elastic):
         return cls(region=region, mu=region.cell_data["mu"])
 
     def energy_density(self, F: Float[Array, "c q J J"]) -> Float[Array, "c q"]:
-        mu: Float[Array, " c"] = self.mu
+        mu: Float[Array, " c #q"] = self.mu[:, jnp.newaxis]
         R: Float[Array, "c q J J"]
         R, _ = math.polar_rv(F)
-        return mu[:, jnp.newaxis, jnp.newaxis] * jnp.sum((F - R) ** 2)
+        return 0.5 * mu * math.frobenius_norm_square(F - R)

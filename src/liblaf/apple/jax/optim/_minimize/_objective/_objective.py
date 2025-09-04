@@ -7,7 +7,7 @@ import equinox as eqx
 from jaxtyping import Array, PyTree
 
 from liblaf import grapes
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import tree
 
 FUNCTION_NAMES: list[str] = [
     "fun",
@@ -32,11 +32,7 @@ class Objective:
     fun_and_jac: Callable | None = None
     jac_and_hess_diag: Callable | None = None
 
-    def flatten(self, x0: PyTree) -> Self:
-        x0_flat: Array
-        unflatten: Callable[[Array], PyTree]
-        x0_flat, unflatten = tree.flatten(x0)
-
+    def flatten(self, unflatten: Callable[[Array], PyTree]) -> Self:
         def flatten(
             fn: Callable | None,
             *,
@@ -55,8 +51,7 @@ class Objective:
             ) -> Any:
                 args = list(args)
                 for i in arg_nums:
-                    arg_flat: Array = math.asarray(args[i], dtype=x0_flat.dtype)
-                    args[i] = unflatten(arg_flat)
+                    args[i] = unflatten(args[i])
                 outputs: Any = wrapped(*args, **kwargs)
                 if not multiple_outputs:
                     return tree.flatten(outputs)[0]

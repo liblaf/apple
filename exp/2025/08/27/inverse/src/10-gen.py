@@ -22,7 +22,7 @@ def main(cfg: Config) -> None:
     dirichlet_values: Float[np.ndarray, "p J"] = np.zeros_like(
         mesh.points, dtype=np.float32
     )
-    dirichlet_mask[mesh.points[:, 0] < 1e-3, 0] = True
+    dirichlet_mask[mesh.points[:, 0] < 1e-3, :] = True
     mesh.point_data["dirichlet-mask"] = dirichlet_mask
     mesh.point_data["dirichlet-values"] = dirichlet_values
 

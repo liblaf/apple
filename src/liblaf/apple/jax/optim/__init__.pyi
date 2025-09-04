@@ -1,9 +1,3 @@
-from ._minimizer import Minimizer
-from ._scipy import MinimizerScipy
-from ._solution import Solution
+from ._minimize import Minimizer, MinimizerScipy, Objective, Solution
 
-__all__ = [
-    "Minimizer",
-    "MinimizerScipy",
-    "Solution",
-]
+__all__ = ["Minimizer", "MinimizerScipy", "Objective", "Solution"]

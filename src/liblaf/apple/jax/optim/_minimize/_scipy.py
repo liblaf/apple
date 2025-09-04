@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from typing import Any
+from typing import Any, override
 
 import attrs
 import scipy.optimize
@@ -8,39 +8,46 @@ from jaxtyping import Array, Float, PyTree
 from liblaf import grapes
 from liblaf.apple.jax import tree
 
-from ._minimizer import Minimizer
-from ._solution import Solution
+from ._minimizer import Minimizer, Solution
+from ._objective import Objective
 
 
 @tree.pytree
 class MinimizerScipy(Minimizer):
     method: str = tree.field(default="trust-constr")
+    tol: float | None = tree.field(default=None)
     options: Mapping[str, Any] = tree.field(factory=lambda: {"verbose": 3})
 
-    def minimize(
+    @override
+    def _minimize_impl(
         self,
+        objective: Objective,
         x0: PyTree,
-        *,
-        fun: Callable,
-        jac: Callable,
-        hessp: Callable,
-        args: Iterable[Any] = (),
+        args: Sequence[Any] = (),
         kwargs: Mapping[str, Any] = {},
         callback: Callable | None = None,
     ) -> Solution:
         x0_flat: Float[Array, " N"]
         unflatten: Callable[[Array], PyTree]
         x0_flat, unflatten = tree.flatten(x0)
-        wrapper = _ProblemWrapper(args, kwargs, unflatten)
-        fun = wrapper.wraps(fun, unflatten_args=(0,))
-        jac = wrapper.wraps(jac, unflatten_args=(0,))
-        hessp = wrapper.wraps(hessp, unflatten_args=(0, 1))
+        objective = objective.flatten(x0).partial(kwargs=kwargs)
+        fun: Callable | None
+        jac: Callable | bool | None
+        if objective.fun_and_jac is not None:
+            fun = objective.fun_and_jac
+            jac = True
+        else:
+            fun = objective.fun
+            jac = objective.jac
         result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
             fun=fun,
             x0=x0_flat,
+            args=args,
             method=self.method,
             jac=jac,
-            hessp=hessp,
+            hess=objective.hess,
+            hessp=objective.hessp,
+            tol=self.tol,
             callback=callback,
             options=self.options,
         )

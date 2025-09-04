@@ -112,7 +112,7 @@ class Objective:
             fn: Callable | None = getattr(self, name)
             if not callable(fn):
                 continue
-            updates[name] = partial(fn, *args, **kwargs)
+            updates[name] = partial(fn, args, kwargs)
         return attrs.evolve(self, **updates)
 
     def timer(self) -> Self:

@@ -45,6 +45,7 @@ words:
   - jaxtyping
   - koiter
   - lamé's
+  - lbfgs
   - liblaf
   - lineax
   - mathbf
@@ -89,6 +90,7 @@ words:
   - pyvista
   - regularizations
   - roboticists
+  - rosen
   - rtol
   - scipy
   - scrapy
@@ -104,6 +106,5 @@ words:
   - virtualenv
   - vmap
   - wadler
-  - xdist
   - xlabel
   - ylabel

@@ -1,5 +1,7 @@
 from typing import Self, override
 
+import attrs
+import jax
 import jax.numpy as jnp
 from jax import Array
 from jaxtyping import Float
@@ -7,6 +9,7 @@ from jaxtyping import Float
 from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.jax.sim.region import Region
+from liblaf.apple.jax.typing import Vector
 
 from .utils import as_activation
 
@@ -39,3 +42,14 @@ class PhaceActive(Elastic):
         Psi_volume_preserving: Float[Array, "c q"] = lambda_ * (J - 1.0) ** 2
         Psi: Float[Array, "c q"] = Psi_ARAP + Psi_volume_preserving
         return Psi
+
+    def mixed_derivative_prod(self, u: Vector, p: Vector) -> Vector:
+        def fun(x: Array, q: Array) -> Array:
+            energy = attrs.evolve(self, activation=q)
+            return energy.fun(x)
+
+        def jac_q(x: Array) -> Array:
+            return jax.grad(fun, argnums=1)(x, self.activation)
+
+        _, outputs = jax.jvp(jac_q, (u,), (p,))
+        return outputs

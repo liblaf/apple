@@ -17,6 +17,9 @@ class Solution(scipy.optimize.OptimizeResult): ...
 
 @tree.pytree
 class Minimizer(abc.ABC):
+    jit: bool = tree.field(default=True)
+    timer: bool = tree.field(default=True)
+
     def minimize(
         self,
         x0: PyTree,
@@ -44,7 +47,10 @@ class Minimizer(abc.ABC):
             fun_and_jac=fun_and_jac,
             jac_and_hess_diag=jac_and_hess_diag,
         )
-        objective = objective.jit().timer()
+        if self.jit:
+            objective = objective.jit()
+        if self.timer:
+            objective = objective.timer()
         solution: Solution = self._minimize_impl(
             objective=objective,
             x0=x0,

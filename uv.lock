@@ -2924,7 +2924,7 @@ requires-dist = [
     { name = "rich", specifier = ">=14,<15" },
     { name = "scipy", specifier = ">=1,<2" },
     { name = "wadler-lindig", specifier = ">=0.1,<0.2" },
-    { name = "warp-lang", specifier = "==1.10.0.dev20250904", index = "https://pypi.nvidia.com/" },
+    { name = "warp-lang", specifier = "==1.10.0.dev20250907", index = "https://pypi.nvidia.com/" },
 ]
 
 [package.metadata.requires-dev]
@@ -6190,15 +6190,15 @@ wheels = [
 
 [[package]]
 name = "warp-lang"
-version = "1.10.0.dev20250904"
+version = "1.10.0.dev20250907"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
     { name = "numpy" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250904-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:2a6f6cf2910dbe2bda04291e7a6b9158e152793dc232ca273aea611132c3cea6" },
-    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250904-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:73b2743d5032d9cd6d45c358c69ccb131937b2f35ba24add741dee21ac05ff96" },
-    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250904-py3-none-win_amd64.whl", hash = "sha256:036ec05a533d4e1fb41ad4c8d3a2c0af47c1a080af1fdb899447b005b4d2b0d7" },
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250907-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:2bac6d7fd57c7e9393791314279f8f82add48df9f88231191e5edf208c5da415" },
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250907-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:58d165c9bd4c0784c2de28b3a09cc259e5bb9520d36a2bdc614db82f8e146d05" },
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.10.0.dev20250907-py3-none-win_amd64.whl", hash = "sha256:3968a88a7a97bb86cb2dcf0f4d100e5e3332f65f89ef89cac4cd2243e3d1c479" },
 ]
 
 [[package]]

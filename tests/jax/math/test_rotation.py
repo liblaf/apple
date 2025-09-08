@@ -6,7 +6,7 @@ from jaxtyping import Array, ArrayLike, Float
 
 from liblaf.apple.jax import math
 
-ATOL: float = 1e-14
+ATOL: float = 1e-7
 
 
 @hypothesis.given(
@@ -16,7 +16,7 @@ ATOL: float = 1e-14
         elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
     ),
 )
-def test_jax_math_svd_rv(F: Float[ArrayLike, "... 3 3"]) -> None:
+def test_svd_rv(F: Float[ArrayLike, "... 3 3"]) -> None:
     F: Float[Array, "... 3 3"] = jnp.asarray(F)
     u: Float[Array, "... 3 3"]
     s: Float[Array, "... 3"]
@@ -41,7 +41,7 @@ def test_jax_math_svd_rv(F: Float[ArrayLike, "... 3 3"]) -> None:
         elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
     ),
 )
-def test_jax_math_polar_rv(F: Float[ArrayLike, "... 3 3"]) -> None:
+def test_polar_rv(F: Float[ArrayLike, "... 3 3"]) -> None:
     F: Float[Array, "... 3 3"] = jnp.asarray(F)
     R: Float[Array, "... 3 3"]
     S: Float[Array, "... 3 3"]

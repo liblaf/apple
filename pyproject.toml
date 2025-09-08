@@ -78,6 +78,9 @@ build-backend = "hatchling.build"
 [tool.check-wheel-contents]
 ignore = ["W002"]
 
+[tool.coverage.report]
+exclude_also = ["@wp.func"]
+
 [tool.coverage.run]
 branch = true
 source = ["src/"]

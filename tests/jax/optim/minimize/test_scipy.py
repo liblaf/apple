@@ -1,22 +1,9 @@
 import hypothesis
 import hypothesis.extra.numpy as hnp
 import numpy as np
-import scipy.optimize
-from jaxtyping import ArrayLike, Float
+from jaxtyping import ArrayLike
 
-from liblaf.apple.jax import optim
-
-
-def rosen(x: ArrayLike) -> float:
-    return scipy.optimize.rosen(np.asarray(x))
-
-
-def rosen_der(x: ArrayLike) -> Float[np.ndarray, " N"]:
-    return scipy.optimize.rosen_der(np.asarray(x))
-
-
-def rosen_hess_prod(x: ArrayLike, p: ArrayLike) -> Float[np.ndarray, " N"]:
-    return scipy.optimize.rosen_hess_prod(np.asarray(x), np.asarray(p))
+from liblaf.apple.jax import optim, testing
 
 
 @hypothesis.given(
@@ -33,9 +20,9 @@ def test_minimize_scipy_trust_constr(x0: ArrayLike) -> None:
     )
     solution: optim.Solution = optimizer.minimize(
         x0=x0,
-        fun=scipy.optimize.rosen,
-        jac=scipy.optimize.rosen_der,
-        hessp=scipy.optimize.rosen_hess_prod,
+        fun=testing.rosen,
+        jac=testing.rosen_der,
+        hessp=testing.rosen_hess_prod,
     )
     np.testing.assert_allclose(solution["x"], 1.0)
 
@@ -51,6 +38,6 @@ def test_minimize_scipy_trust_constr(x0: ArrayLike) -> None:
 def test_minimize_scipy_lbfgs(x0: ArrayLike) -> None:
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", options={})
     solution: optim.Solution = optimizer.minimize(
-        x0=x0, fun=scipy.optimize.rosen, jac=scipy.optimize.rosen_der
+        x0=x0, fun=testing.rosen, jac=testing.rosen_der
     )
     np.testing.assert_allclose(solution["x"], 1.0, rtol=1e-4)

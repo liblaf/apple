@@ -35,6 +35,7 @@ words:
   - finfo
   - frobenius
   - getattr
+  - gmres
   - hessp
   - hynek
   - icosphere
@@ -51,6 +52,7 @@ words:
   - lineax
   - mathbf
   - matmul
+  - mengxiao
   - mkdocs
   - mkdocstrings
   - mypy
@@ -96,13 +98,16 @@ words:
   - scipy
   - scrapy
   - sdist
+  - shen
   - sympy
+  - tangjie
   - tombi
   - trimesh
   - undeformed
   - unflatten
   - unshallow
   - unvec
+  - vdot
   - venv
   - virtualenv
   - vmap

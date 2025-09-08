@@ -23,6 +23,7 @@ words:
   - cuda
   - cython
   - cytoolz
+  - ddot
   - dhdr
   - direnv
   - disp
@@ -56,6 +57,7 @@ words:
   - mkdocs
   - mkdocstrings
   - mypy
+  - nans
   - nbconvert
   - nbformat
   - ndarray

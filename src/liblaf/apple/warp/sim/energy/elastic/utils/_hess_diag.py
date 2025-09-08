@@ -1,0 +1,57 @@
+from typing import no_type_check
+
+import warp as wp
+
+from liblaf.apple.warp import math
+from liblaf.apple.warp.typing import mat33, mat43, vec3
+
+from ._deformation_gradient import deformation_gradient_vjp
+
+
+@wp.func
+@no_type_check
+def h1_diag(dh_dX: mat43, g1: mat33) -> mat43:
+    return math.cw_square(deformation_gradient_vjp(dh_dX, g1))
+
+
+@wp.func
+@no_type_check
+def h2_diag(dh_dX: mat43, g2: mat33) -> mat43:
+    return math.cw_square(deformation_gradient_vjp(dh_dX, g2))
+
+
+@wp.func
+@no_type_check
+def h3_diag(dh_dX: mat43, g3: mat33) -> mat43:
+    return math.cw_square(deformation_gradient_vjp(dh_dX, g3))
+
+
+@wp.func
+@no_type_check
+def h4_diag(dh_dX: mat43, *, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33) -> mat43:
+    W0 = deformation_gradient_vjp(dh_dX, Q0)  # mat43
+    W1 = deformation_gradient_vjp(dh_dX, Q1)  # mat43
+    W2 = deformation_gradient_vjp(dh_dX, Q2)  # mat43
+    return (
+        lambdas[0] * math.cw_square(W0)
+        + lambdas[1] * math.cw_square(W1)
+        + lambdas[2] * math.cw_square(W2)
+    )
+
+
+@wp.func
+@no_type_check
+def h5_diag(dh_dX: mat43) -> mat43:
+    t0 = wp.length_sq(dh_dX[0])
+    t1 = wp.length_sq(dh_dX[1])
+    t2 = wp.length_sq(dh_dX[2])
+    t3 = wp.length_sq(dh_dX[3])
+    return 2.0 * wp.matrix_from_rows(
+        vec3(t0, t0, t0), vec3(t1, t1, t1), vec3(t2, t2, t2), vec3(t3, t3, t3)
+    )
+
+
+@wp.func
+@no_type_check
+def h6_diag() -> mat43:
+    return mat43()

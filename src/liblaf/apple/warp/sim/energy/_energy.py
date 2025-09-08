@@ -1,0 +1,29 @@
+import warp as wp
+
+from liblaf.apple.jax import tree
+
+
+@tree.pytree
+class Energy:
+    def fun(self, u: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def jac(self, u: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def hess_diag(self, u: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def hess_prod(self, u: wp.array, p: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def hess_quad(self, u: wp.array, p: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def fun_and_jac(self, u: wp.array, fun: wp.array, jac: wp.array) -> None:
+        raise NotImplementedError
+
+    def jac_and_hess_diag(
+        self, u: wp.array, jac: wp.array, hess_diag: wp.array
+    ) -> None:
+        raise NotImplementedError

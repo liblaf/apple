@@ -19,6 +19,7 @@ def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
     mesh.point_data["point-id"] = np.arange(mesh.n_points, dtype=np.int32)
     surface = mesh.extract_surface()  # pyright: ignore[reportAssignmentType]
+    ic(mesh, surface)
     mesh.point_data["surface-mask"] = np.zeros((mesh.n_points,), dtype=np.bool_)
     mesh.point_data["surface-mask"][surface.point_data["point-id"]] = True
 

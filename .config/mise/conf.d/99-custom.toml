@@ -1,5 +1,0 @@
-#:schema https://mise.jdx.dev/schema/mise.json
-
-[env]
-# ref: <https://docs.jax.dev/en/latest/config_options.html#jax_default_matmul_precision>
-JAX_DEFAULT_MATMUL_PRECISION = "highest"

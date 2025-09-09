@@ -1,7 +1,9 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
 [env]
-JAX_ENABLE_X64 = true
+JAX_DEFAULT_MATMUL_PRECISION = "highest"
+JAX_ENABLE_X64 = "true"
+XLA_PYTHON_CLIENT_MEM_FRACTION = ".25"
 
 [task_config]
 includes = [".config/mise/tasks", ".config/copier/mise-tasks"]

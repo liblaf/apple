@@ -1,22 +1,16 @@
 import hypothesis
-import hypothesis.extra.numpy as hnp
 import jax.numpy as jnp
 import numpy as np
 import warp as wp
 from jaxtyping import Array, ArrayLike, Float
 
+from liblaf.apple.jax import testing
 from liblaf.apple.warp import math
 
 ATOL: float = 1e-7
 
 
-@hypothesis.given(
-    hnp.arrays(
-        np.float64,
-        hnp.array_shapes(min_dims=1, max_dims=1).map(lambda s: (*s, 3, 3)),
-        elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
-    ),
-)
+@hypothesis.given(testing.random_mat33(max_dims=1))
 def test_svd_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
     F: Float[Array, "batch 3 3"] = jnp.asarray(F)
     F_wp: wp.array = wp.from_jax(F, wp.mat33d)
@@ -36,13 +30,7 @@ def test_svd_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
     np.testing.assert_allclose(U @ S @ V.mT, F, atol=ATOL)
 
 
-@hypothesis.given(
-    hnp.arrays(
-        np.float64,
-        hnp.array_shapes(min_dims=1, max_dims=1).map(lambda s: (*s, 3, 3)),
-        elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
-    ),
-)
+@hypothesis.given(testing.random_mat33(max_dims=1))
 def test_polar_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
     F: Float[Array, "batch 3 3"] = jnp.asarray(F)
     F_wp: wp.array = wp.from_jax(F, wp.mat33d)

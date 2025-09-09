@@ -21,9 +21,11 @@ class Energy:
         raise NotImplementedError
 
     def fun_and_jac(self, u: wp.array, fun: wp.array, jac: wp.array) -> None:
-        raise NotImplementedError
+        self.fun(u, fun)
+        self.jac(u, jac)
 
     def jac_and_hess_diag(
         self, u: wp.array, jac: wp.array, hess_diag: wp.array
     ) -> None:
-        raise NotImplementedError
+        self.jac(u, jac)
+        self.hess_diag(u, hess_diag)

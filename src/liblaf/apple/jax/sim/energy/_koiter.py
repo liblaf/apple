@@ -39,7 +39,7 @@ class Koiter(Energy):
         beta: Float[Array, " c"] = math.asarray(geometry.cell_data["beta"], dtype=float)
         h: Float[Array, " c"] = math.asarray(geometry.cell_data["h"], dtype=float)
         Iu: Float[Array, "c 2 2"] = _first_fundamental_form(
-            geometry.points[geometry.cells_local]
+            geometry.points[geometry.cells_global]
         )
         pre_strain: Float[Array, " c"] = math.asarray(
             geometry.cell_data["pre-strain"], dtype=float
@@ -58,7 +58,7 @@ class Koiter(Energy):
     def fun(self, u: Vector) -> Scalar:
         I: Float[Array, "c 2 2"] = _first_fundamental_form(  # noqa: E741
             u[self.geometry.cells_global]
-            + self.geometry.points[self.geometry.cells_local]
+            + self.geometry.points[self.geometry.cells_global]
         )
         M: Float[Array, "c 2 2"] = (
             jnp.matmul(self.Iu_inv, I)

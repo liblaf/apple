@@ -48,8 +48,12 @@ class Region:
         return self
 
     @property
-    def cells_local(self) -> Integer[Array, "c a"]:
-        return self.geometry.cells_local
+    def n_cells(self) -> int:
+        return self.geometry.n_cells
+
+    @property
+    def cells(self) -> Integer[Array, "c a"]:
+        return self.geometry.cells
 
     @property
     def cells_global(self) -> Integer[Array, "c a"]:
@@ -83,7 +87,7 @@ class Region:
             [self.element.gradient(q) for q in self.quadrature.points]
         )
         dXdr: Float[Array, "c q J J"] = einops.einsum(
-            self.points[self.cells_local], dhdr, "c a I, q a J -> c q I J"
+            self.points[self.cells], dhdr, "c a I, q a J -> c q I J"
         )
         drdX: Float[Array, "c q J J"] = jnp.linalg.inv(dXdr)
         dV: Float[Array, "c q"] = (

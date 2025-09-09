@@ -1,22 +1,15 @@
 import equinox as eqx
 import hypothesis
-import hypothesis.extra.numpy as hnp
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, ArrayLike, Float
 
-from liblaf.apple.jax import math
+from liblaf.apple.jax import math, testing
 
 ATOL: float = 1e-7
 
 
-@hypothesis.given(
-    hnp.arrays(
-        np.float64,
-        hnp.array_shapes(min_dims=0).map(lambda s: (*s, 3, 3)),
-        elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
-    ),
-)
+@hypothesis.given(testing.random_mat33(min_dims=0))
 def test_svd_rv(F: Float[ArrayLike, "*batch 3 3"]) -> None:
     F: Float[Array, "*batch 3 3"] = jnp.asarray(F)
     u: Float[Array, "*batch 3 3"]
@@ -35,13 +28,7 @@ def test_svd_rv(F: Float[ArrayLike, "*batch 3 3"]) -> None:
     np.testing.assert_allclose(u @ S @ vh, F, atol=ATOL)
 
 
-@hypothesis.given(
-    hnp.arrays(
-        np.float64,
-        hnp.array_shapes(min_dims=0).map(lambda s: (*s, 3, 3)),
-        elements=hnp.from_dtype(np.dtype(np.float16), min_value=-1.0, max_value=1.0),
-    ),
-)
+@hypothesis.given(testing.random_mat33(min_dims=0))
 def test_polar_rv(F: Float[ArrayLike, "*batch 3 3"]) -> None:
     F: Float[Array, "*batch 3 3"] = jnp.asarray(F)
     R: Float[Array, "*batch 3 3"]

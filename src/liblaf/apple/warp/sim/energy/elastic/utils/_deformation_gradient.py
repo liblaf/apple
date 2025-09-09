@@ -2,7 +2,7 @@ from typing import no_type_check
 
 import warp as wp
 
-from liblaf.apple.warp.typing import mat33, mat43
+from liblaf.apple.warp.typing import float_, mat33, mat43
 
 
 @wp.func
@@ -16,7 +16,7 @@ def gradient(u: mat43, dhdX: mat43) -> mat33:
 @no_type_check
 def deformation_gradient(u: mat43, dhdX: mat43) -> mat33:
     r"""$F = \frac{\partial u}{\partial x} + I$."""
-    return gradient(u, dhdX) + wp.identity(3, dtype=float)
+    return gradient(u, dhdX) + wp.identity(3, dtype=float_)
 
 
 @wp.func

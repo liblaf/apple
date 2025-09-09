@@ -1,4 +1,5 @@
-from . import energy
-from .energy import Elastic, Energy
+from . import energy, model
+from .energy import ARAP, Elastic, Energy
+from .model import Model
 
-__all__ = ["Elastic", "Energy", "energy"]
+__all__ = ["ARAP", "Elastic", "Energy", "Model", "energy", "model"]

@@ -3,8 +3,9 @@ from typing import Self
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
 
-from liblaf.apple.jax import tree
+from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.element import Element
+from liblaf.apple.jax.typing import int_
 
 from ._attributes import GeometryAttributes, as_array_dict
 
@@ -12,8 +13,7 @@ from ._attributes import GeometryAttributes, as_array_dict
 @tree.pytree
 class Geometry:
     points: Float[Array, "p J"] = tree.array()
-    cells_local: Integer[Array, "c a"] = tree.array()
-    cells_global: Integer[Array, "c a"] = tree.array(default=None)
+    cells: Integer[Array, "c a"] = tree.array(default=None)
 
     point_data: GeometryAttributes = tree.field(
         factory=lambda: GeometryAttributes(association=pv.FieldAssociation.POINT)
@@ -39,6 +39,19 @@ class Geometry:
     @property
     def element(self) -> Element:
         raise NotImplementedError
+
+    @property
+    def n_cells(self) -> int:
+        return self.cells.shape[0]
+
+    @property
+    def point_id(self) -> Integer[Array, " p"]:
+        self.point_data["point-id"] = math.asarray(self.point_data["point-id"], int_)
+        return self.point_data["point-id"]
+
+    @property
+    def cells_global(self) -> Integer[Array, "c a"]:
+        return self.point_id[self.cells]
 
     def copy_attributes(self, other: Self | pv.DataObject) -> None:
         self.point_data.update(as_array_dict(other.point_data))

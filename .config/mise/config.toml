@@ -1,4 +1,7 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
+[env]
+JAX_ENABLE_X64 = true
+
 [task_config]
 includes = [".config/mise/tasks", ".config/copier/mise-tasks"]

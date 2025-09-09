@@ -39,8 +39,4 @@ class ModelBuilder:
         return mesh
 
     def finish(self) -> Model:
-        return Model(
-            dirichlet=self.dirichlet.finish(),
-            energies=self.energies,
-            points=self.points,
-        )
+        return Model(energies=self.energies)

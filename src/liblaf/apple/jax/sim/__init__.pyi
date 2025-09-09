@@ -1,4 +1,5 @@
-from . import element, energy, geometry, model, quadrature, region
+from . import dirichlet, element, energy, geometry, model, quadrature, region
+from .dirichlet import Dirichlet, DirichletBuilder
 from .element import Element, ElementTetra
 from .energy import ARAP, ARAPActive, Elastic, Energy, Koiter, PhaceActive, PhaceStatic
 from .geometry import Geometry, GeometryAttributes, GeometryTetra, GeometryTriangle
@@ -9,6 +10,8 @@ from .region import Region
 __all__ = [
     "ARAP",
     "ARAPActive",
+    "Dirichlet",
+    "DirichletBuilder",
     "Elastic",
     "Element",
     "ElementTetra",
@@ -25,6 +28,7 @@ __all__ = [
     "QuadratureTetra",
     "Region",
     "Scheme",
+    "dirichlet",
     "element",
     "energy",
     "geometry",

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import einops
@@ -16,6 +17,7 @@ from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.jax.typing import Scalar, Vector
 
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.25"
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
@@ -36,7 +38,7 @@ class Forward:
     model: sim.Model
     optimizer: optim.Minimizer = tree.field(
         factory=lambda: optim.MinimizerScipy(
-            timer=False, method="trust-constr", options={"verbose": 0}
+            timer=False, method="trust-constr", tol=1e-5, options={"verbose": 2}
         )
     )
 
@@ -83,12 +85,13 @@ class InversePhysics:
         solution: lx.Solution = lx.linear_solve(
             lx.FunctionLinearOperator(
                 lambda p: self.model.hess_prod(u, p),
-                input_structure=jax.ShapeDtypeStruct(u.shape, u.dtype),
+                jax.ShapeDtypeStruct(u.shape, u.dtype),
+                [lx.symmetric_tag, lx.positive_semidefinite_tag],
             ),
             -dLdu,
-            lx.AutoLinearSolver(well_posed=False),
+            lx.NormalCG(rtol=1e-5, atol=1e-5),
         )
-        logger.info(solution)
+        logger.info(lx.RESULTS[solution.result])
         p: Vector = solution.value
         outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)
         jac.activation += outputs[self.energy.id]["activation"]

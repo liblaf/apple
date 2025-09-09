@@ -11,12 +11,12 @@ from liblaf import cherries, melon
 class Config(cherries.BaseConfig):
     output: Path = cherries.output("10-input.vtu")
 
-    lr: float = 0.2
+    lr: float = 0.05
 
 
 def main(cfg: Config) -> None:
     surface: pv.PolyData = pv.Box(bounds=(0, 2, 0, 1, 0, 1))
-    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr, coarsen=True)
+    mesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=cfg.lr)
 
     dirichlet_mask: Bool[np.ndarray, "p J"] = np.zeros_like(mesh.points, dtype=np.bool_)
     dirichlet_values: Float[np.ndarray, "p J"] = np.zeros_like(

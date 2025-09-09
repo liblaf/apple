@@ -16,24 +16,24 @@ class Elastic(Energy):
     region: Region
 
     @classmethod
-    def from_region(cls, region: Region) -> Self:
-        return cls(region=region)
+    def from_region(cls, region: Region, **kwargs) -> Self:
+        return cls(region=region, **kwargs)
 
     @classmethod
     def from_geometry(
-        cls, geometry: Geometry, *, quadrature: Scheme | None = None
+        cls, geometry: Geometry, *, quadrature: Scheme | None = None, **kwargs
     ) -> Self:
         region: Region = Region.from_geometry(
             geometry, grad=True, quadrature=quadrature
         )
-        return cls.from_region(region)
+        return cls.from_region(region, **kwargs)
 
     @classmethod
     def from_pyvista(
-        cls, mesh: pv.UnstructuredGrid, *, quadrature: Scheme | None = None
+        cls, mesh: pv.UnstructuredGrid, *, quadrature: Scheme | None = None, **kwargs
     ) -> Self:
         geometry: Geometry = Geometry.from_pyvista(mesh)
-        return cls.from_geometry(geometry, quadrature=quadrature)
+        return cls.from_geometry(geometry, quadrature=quadrature, **kwargs)
 
     @override
     def fun(self, u: Vector) -> Scalar:

@@ -46,8 +46,7 @@ class Geometry:
 
     @property
     def point_id(self) -> Integer[Array, " p"]:
-        self.point_data["point-id"] = math.asarray(self.point_data["point-id"], int_)
-        return self.point_data["point-id"]
+        return math.asarray(self.point_data["point-id"], int_)
 
     @property
     def cells_global(self) -> Integer[Array, "c a"]:

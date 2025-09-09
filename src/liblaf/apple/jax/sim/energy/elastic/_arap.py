@@ -14,8 +14,8 @@ class ARAP(Elastic):
     mu: Float[Array, " c"]
 
     @classmethod
-    def from_region(cls, region: Region) -> Self:
-        return cls(region=region, mu=region.cell_data["mu"])
+    def from_region(cls, region: Region, **kwargs) -> Self:
+        return cls(region=region, mu=region.cell_data["mu"], **kwargs)
 
     def energy_density(self, F: Float[Array, "c q J J"]) -> Float[Array, "c q"]:
         mu: Float[Array, " c #q"] = self.mu[:, jnp.newaxis]

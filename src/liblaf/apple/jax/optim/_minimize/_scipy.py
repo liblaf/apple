@@ -40,6 +40,7 @@ class MinimizerScipy(Minimizer):
         else:
             fun = objective.fun
             jac = objective.jac
+        callback = wraps_callback(callback, unflatten)
         result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
             fun=fun,
             x0=x0_flat,
@@ -77,3 +78,17 @@ class _ProblemWrapper:
             return result_flat
 
         return wrapper(fn)
+
+
+def wraps_callback(
+    callback: Callable | None, unflatten: Callable[[Array], PyTree]
+) -> Callable | None:
+    if callback is None:
+        return None
+
+    def wrapper(intermediate_result: scipy.optimize.OptimizeResult) -> Any:
+        intermediate_result = Solution(intermediate_result)
+        intermediate_result["x"] = unflatten(intermediate_result["x"])
+        return callback(intermediate_result)
+
+    return wrapper

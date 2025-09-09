@@ -16,8 +16,8 @@ from ._model import Model, _default_points
 @tree.pytree
 class ModelBuilder:
     dirichlet: DirichletBuilder = tree.field(factory=DirichletBuilder)
-    energies_jax: list[EnergyJax] = tree.field(factory=list)
-    energies_warp: list[EnergyWarp] = tree.field(factory=list)
+    energies_jax: dict[str, EnergyJax] = tree.field(factory=dict)
+    energies_warp: dict[str, EnergyWarp] = tree.field(factory=dict)
     points: Float[Array, "p J"] = tree.array(factory=_default_points)
 
     @property
@@ -29,9 +29,9 @@ class ModelBuilder:
 
     def add_energy(self, energy: EnergyJax | EnergyWarp) -> None:
         if isinstance(energy, EnergyJax):
-            self.energies_jax.append(energy)
+            self.energies_jax[energy.id] = energy
         elif isinstance(energy, EnergyWarp):
-            self.energies_warp.append(energy)
+            self.energies_warp[energy.id] = energy
         else:
             raise NotImplementedError
 

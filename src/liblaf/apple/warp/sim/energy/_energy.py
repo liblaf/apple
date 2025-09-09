@@ -4,7 +4,7 @@ from liblaf.apple.jax import tree
 
 
 @tree.pytree
-class Energy:
+class Energy(tree.IdMixin):
     def fun(self, u: wp.array, output: wp.array) -> None:
         raise NotImplementedError
 

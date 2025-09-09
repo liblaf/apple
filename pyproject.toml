@@ -31,7 +31,7 @@ dependencies = [
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
   "ipctk>=1,<2",
-  "jax[cuda12]>=0.7,<0.8",
+  "jax[cuda12]>=0.6,<0.7",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1081> is resolved.
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=2,<3",
@@ -44,7 +44,7 @@ dependencies = [
   "optax>=0.2,<0.3",
   "pyvista>=0.46,<0.47",
   "rich>=14,<15",
-  "scikit-learn>=1.7.1",
+  "scikit-learn>=1,<2",
   "scipy>=1,<2",
   "wadler-lindig>=0.1,<0.2",
   "warp-lang>=1,<2",
@@ -84,7 +84,7 @@ exclude_also = ["@wp.func"]
 
 [tool.coverage.run]
 branch = true
-source = ["src/"]
+source = ["src"]
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/liblaf/apple/_version.py"

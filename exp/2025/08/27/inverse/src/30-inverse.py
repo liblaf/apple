@@ -1,15 +1,19 @@
 from pathlib import Path
 
 import einops
+import equinox as eqx
 import jax
 import jax.numpy as jnp
+import lineax as lx
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
 from loguru import logger
 
 from liblaf import cherries, grapes, melon
-from liblaf.apple.jax import optim, sim, tree
+from liblaf.apple import sim
+from liblaf.apple.jax import optim, tree
+from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.jax.typing import Scalar, Vector
 
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
@@ -22,7 +26,9 @@ class Config(cherries.BaseConfig):
     output: Path = cherries.output("30-inverse.vtu.series")
 
 
-type Params = Float[Array, "c J J"]
+@tree.pytree
+class Params:
+    activation: Float[Array, "c 6"] = tree.array()
 
 
 @tree.pytree
@@ -57,60 +63,63 @@ class InversePhysics:
     def model(self) -> sim.Model:
         return self.forward.model
 
+    @property
+    def energy(self) -> sim_jax.PhaceActive:
+        return self.model.model_jax.energies["elastic"]  # pyright: ignore[reportReturnType]
+
     def fun(self, params: Params) -> Scalar:
-        energy: sim.PhaceActive = self.model.energies[0]  # pyright: ignore[reportAssignmentType]
-        energy.activation = params
+        self.energy.activation = params.activation
         self.solution = self.forward.solve(self.solution)
         return self.loss(self.solution, params)
 
     def fun_and_jac(self, params: Params) -> tuple[Scalar, Params]:
-        energy: sim.PhaceActive = self.model.energies[0]  # pyright: ignore[reportAssignmentType]
-        energy.activation = params
+        self.energy.activation = params.activation
         u: Vector = self.forward.solve(self.solution)
-        assert not jnp.any(jnp.isnan(u))
         self.solution = u
-        loss: Scalar = self.loss(u, params)
-        jac: Params = self._jac(u, params)
-        with grapes.config.pretty.overrides(short_arrays=False):
-            ic(loss, jac[0])
-        return loss, jac
+        L: Scalar
+        dLdu: Vector
+        L, dLdu = jax.value_and_grad(self.loss)(u, params)
+        jac: Params = eqx.filter_grad(lambda params: self.loss(u, params))(params)
+        solution: lx.Solution = lx.linear_solve(
+            lx.FunctionLinearOperator(
+                lambda p: self.model.hess_prod(u, p),
+                input_structure=jax.ShapeDtypeStruct(u.shape, u.dtype),
+            ),
+            -dLdu,
+            lx.AutoLinearSolver(well_posed=False),
+        )
+        logger.info(solution)
+        p: Vector = solution.value
+        outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)
+        jac.activation += outputs[self.energy.id]["activation"]
+        return L, jac
 
     def loss(self, u: Vector, params: Params) -> Scalar:
         diff: Vector = u - self.target.point_data["solution"]
         diff = diff[self.target.point_data["is-surface"]]
         objective: Scalar = 0.5 * jnp.sum(diff**2)
         reg_weight = 1.0
-        activation_mean = jnp.mean(params, axis=0)
-        regularization = reg_weight * jnp.sum((params - activation_mean) ** 2)
+        activation_mean: Float[Array, "c 6"] = jnp.mean(params.activation, axis=0)
+        regularization: Float[Array, "c 6"] = reg_weight * jnp.sum(
+            (params.activation - activation_mean) ** 2
+        )
         loss: Scalar = objective + regularization
         return loss
-
-    def _jac(self, u: Vector, params: Params) -> Params:
-        energy: sim.PhaceActive = self.model.energies[0]  # pyright: ignore[reportAssignmentType]
-        L, dLdu = jax.value_and_grad(self.loss)(u, params)
-        dLdq = jax.grad(self.loss, argnums=1)(u, params)
-        p, info = jax.scipy.sparse.linalg.gmres(
-            lambda p: self.model.hess_prod(u, p), -dLdu, x0=jnp.zeros_like(u)
-        )
-        # p = jnp.nan_to_num(p)
-        logger.info(info)
-        assert not jnp.any(jnp.isnan(u))
-        assert not jnp.any(jnp.isnan(p))
-        jac = energy.mixed_derivative_prod(u, p)
-        return jac + dLdq
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    activation_gt: Float[Array, "c J J"] = jnp.reshape(
-        target.cell_data["activation"], (-1, 3, 3)
-    )
+    activation_gt: Float[Array, "c 6"] = jnp.asarray(target.cell_data["activation"])
 
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
-    builder.add_energy(sim.PhaceActive.from_pyvista(mesh))
+    builder.add_energy(
+        sim_jax.PhaceActive.from_pyvista(
+            mesh, id="elastic", requires_grad=("activation",)
+        )
+    )
     model: sim.Model = builder.finish()
 
     surface: pv.PolyData = target.extract_surface()  # pyright: ignore[reportAssignmentType]
@@ -127,10 +136,11 @@ def main(cfg: Config) -> None:
     writer = melon.SeriesWriter(cfg.output)
 
     def callback(intermediate_result: optim.Solution) -> None:
-        activation: Params = jnp.reshape(intermediate_result["x"], (-1, 3, 3))
+        params: Params = intermediate_result["x"]
+        activation: Float[Array, "c 6"] = params.activation
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(activation[0])
-        activation_residual: Params = activation - activation_gt
+        activation_residual: Float[Array, "c 6"] = activation - activation_gt
         mesh.cell_data["activation"] = np.asarray(activation)
         mesh.cell_data["activation-residual"] = np.asarray(activation_residual)
         mesh.point_data["solution"] = np.asarray(
@@ -142,13 +152,12 @@ def main(cfg: Config) -> None:
         result: pv.UnstructuredGrid = mesh.warp_by_vector("solution")  # pyright: ignore[reportAssignmentType]
         writer.append(result)
 
-    init_activation: Float[Array, "c J J"] = einops.repeat(
-        jnp.identity(3), "i j -> c i j", c=mesh.n_cells
+    init_params: Params = Params(
+        activation=einops.repeat(
+            jnp.asarray([1.0, 1.0, 1.0, 0.0, 0.0, 0.0]), "i -> c i", c=mesh.n_cells
+        )
     )
-    init_params: Params = init_activation
-
-    callback(optim.Solution({"x": init_params.flatten()}))
-
+    callback(optim.Solution({"x": init_params}))
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
     solution: optim.Solution = optimizer.minimize(
         x0=init_params, fun_and_jac=inverse.fun_and_jac, callback=callback

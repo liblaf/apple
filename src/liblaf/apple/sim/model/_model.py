@@ -168,6 +168,16 @@ class Model:
         jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
         return fun, jac
 
+    def mixed_derivative_prod(
+        self, u: Vector, p: Vector
+    ) -> dict[str, dict[str, Array]]:
+        u_full: Vector = self.to_full(u)
+        p_full: Vector = self.to_full(p, zero=True)
+        outputs: dict[str, dict[str, Array]] = self.model_jax.mixed_derivative_prod(
+            u_full, p_full
+        )
+        return outputs
+
     def reshape_or_extract_free(
         self, u: Vector, shape: Sequence[int], *, zero: bool = False
     ) -> Vector:

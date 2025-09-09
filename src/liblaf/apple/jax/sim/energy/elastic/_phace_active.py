@@ -23,12 +23,13 @@ class PhaceActive(Elastic):
 
     @override
     @classmethod
-    def from_region(cls, region: Region) -> Self:
+    def from_region(cls, region: Region, **kwargs) -> Self:
         return cls(
             region=region,
             activation=region.cell_data["activation"],
             lambda_=region.cell_data["lambda"],
             mu=region.cell_data["mu"],
+            **kwargs,
         )
 
     @override

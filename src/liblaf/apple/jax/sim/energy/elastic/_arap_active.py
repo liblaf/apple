@@ -21,11 +21,12 @@ class ARAPActive(Elastic):
     mu: Float[Array, " c"] = tree.array()
 
     @classmethod
-    def from_region(cls, region: Region) -> Self:
+    def from_region(cls, region: Region, **kwargs) -> Self:
         return cls(
             region=region,
             activation=region.cell_data["activation"],
             mu=region.cell_data["mu"],
+            **kwargs,
         )
 
     @override

@@ -1,0 +1,5 @@
+outs:
+- md5: d35f148355ec3b61b3b81c7c2c00414d
+  size: 3535836
+  hash: md5
+  path: 10-input.vtu

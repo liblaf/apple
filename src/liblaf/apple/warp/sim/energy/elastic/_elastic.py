@@ -200,7 +200,6 @@ class Elastic(Energy):
 
     @override
     def fun_and_jac(self, u: wp.array, fun: wp.array, jac: wp.array) -> None:
-        ic(self.dhdX.shape, self.dhdX, self.n_cells, self.quadrature.n_points)
         wp.launch(
             self.fun_and_jac_kernel,
             dim=(self.n_cells, self.quadrature.n_points),

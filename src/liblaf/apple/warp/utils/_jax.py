@@ -12,12 +12,17 @@ def jax_callable(
     func: Callable,
     *,
     num_outputs: int = 1,
+    graph_mode: ffi.GraphMode = ffi.GraphMode.JAX,
     output_dims: OutputDims | None = None,
     **kwargs,
 ) -> ffi.FfiCallable: ...
 @overload
 def jax_callable(
-    *, num_outputs: int = 1, output_dims: OutputDims | None = None, **kwargs
+    *,
+    num_outputs: int = 1,
+    graph_mode: ffi.GraphMode = ffi.GraphMode.JAX,
+    output_dims: OutputDims | None = None,
+    **kwargs,
 ) -> Callable[[Callable], ffi.FfiCallable]: ...
 def jax_callable(func: Callable | None = None, **kwargs) -> Any:
     if func is None:

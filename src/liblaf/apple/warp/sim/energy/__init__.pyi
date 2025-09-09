@@ -1,5 +1,5 @@
 from . import elastic
 from ._energy import Energy
-from .elastic import ARAP, Elastic
+from .elastic import Arap, ArapActive, Elastic
 
-__all__ = ["ARAP", "Elastic", "Energy", "elastic"]
+__all__ = ["Arap", "ArapActive", "Elastic", "Energy", "elastic"]

@@ -2,7 +2,7 @@ from typing import no_type_check
 
 import warp as wp
 
-from liblaf.apple.warp.typing import mat33, vec3
+from liblaf.apple.warp.typing import mat33, vec3, vec6
 
 
 @wp.func
@@ -18,6 +18,16 @@ def lambdas(sigma: vec3) -> vec3:
     lambda1 = wp.clamp(lambda1, _0, _1)
     lambda2 = wp.clamp(lambda2, _0, _1)
     return vec3(lambda0, lambda1, lambda2)
+
+
+@wp.func
+@no_type_check
+def make_activation_mat33(activation: vec6) -> mat33:
+    return wp.matrix_from_rows(
+        vec3(activation[0], activation[3], activation[4]),
+        vec3(activation[3], activation[1], activation[5]),
+        vec3(activation[4], activation[5], activation[2]),
+    )
 
 
 @wp.func

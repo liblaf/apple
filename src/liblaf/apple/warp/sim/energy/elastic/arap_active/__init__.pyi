@@ -1,5 +1,5 @@
 from . import func
-from ._arap import Arap
+from ._arap_active import ArapActive
 from .func import (
     Params,
     energy_density,
@@ -10,7 +10,7 @@ from .func import (
 )
 
 __all__ = [
-    "Arap",
+    "ArapActive",
     "Params",
     "energy_density",
     "energy_density_hess_diag",

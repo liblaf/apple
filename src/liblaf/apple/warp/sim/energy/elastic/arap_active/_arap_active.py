@@ -5,13 +5,13 @@ import warp as wp
 from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.region._region import Region
 from liblaf.apple.warp.sim.energy.elastic._elastic import Elastic
-from liblaf.apple.warp.typing import float_
+from liblaf.apple.warp.typing import float_, vec6
 
 from . import func
 
 
 @tree.pytree
-class Arap(Elastic):
+class ArapActive(Elastic):
     param_dtype: type = tree.field(default=func.Params)
     energy_density_func: wp.Function = tree.field(default=func.energy_density)
     first_piola_kirchhoff_stress_func: wp.Function = tree.field(
@@ -33,7 +33,10 @@ class Arap(Elastic):
         wp.launch(
             make_params_kernel,
             (region.n_cells,),
-            inputs=[wp.from_jax(region.cell_data["mu"], float_)],
+            inputs=[
+                wp.from_jax(region.cell_data["activation"], vec6),
+                wp.from_jax(region.cell_data["mu"], float_),
+            ],
             outputs=[params],
         )
         return params
@@ -41,7 +44,10 @@ class Arap(Elastic):
 
 @wp.kernel
 def make_params_kernel(
-    mu: wp.array(dtype=float_), output: wp.array(dtype=func.Params)
+    activation: wp.array(dtype=vec6),
+    mu: wp.array(dtype=float_),
+    output: wp.array(dtype=func.Params),
 ) -> None:
     cid = wp.tid()
+    output[cid].activation = activation[cid]
     output[cid].mu = mu[cid]

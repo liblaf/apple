@@ -66,7 +66,9 @@ class Model:
 
     @functools.cached_property
     def fun_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(output_dims={"output": (1,)})
+        @warp_utils.jax_callable(
+            graph_mode=ffi.GraphMode.WARP, output_dims={"output": (1,)}
+        )
         def jax_callable(
             u: wp.array(dtype=vec3), output: wp.array(dtype=float_)
         ) -> None:
@@ -77,7 +79,9 @@ class Model:
 
     @functools.cached_property
     def jac_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(output_dims={"output": (self.n_points,)})
+        @warp_utils.jax_callable(
+            graph_mode=ffi.GraphMode.WARP, output_dims={"output": (self.n_points,)}
+        )
         def jax_callable(u: wp.array(dtype=vec3), output: wp.array(dtype=vec3)) -> None:
             output.zero_()
             self.model_warp.jac(u, output)
@@ -86,7 +90,9 @@ class Model:
 
     @functools.cached_property
     def hess_prod_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(output_dims={"output": (self.n_points,)})
+        @warp_utils.jax_callable(
+            graph_mode=ffi.GraphMode.WARP, output_dims={"output": (self.n_points,)}
+        )
         def jax_callable(
             u: wp.array(dtype=vec3),
             p: wp.array(dtype=vec3),
@@ -100,7 +106,9 @@ class Model:
     @functools.cached_property
     def fun_and_jac_jax_callable(self) -> ffi.FfiCallable:
         @warp_utils.jax_callable(
-            num_outputs=2, output_dims={"fun": (1,), "jac": (self.n_points,)}
+            num_outputs=2,
+            graph_mode=ffi.GraphMode.WARP,
+            output_dims={"fun": (1,), "jac": (self.n_points,)},
         )
         def jax_callable(
             u: wp.array(dtype=vec3),

@@ -11,7 +11,7 @@ from liblaf import cherries, melon
 class Config(cherries.BaseConfig):
     output: Path = cherries.output("10-input.vtu")
 
-    lr: float = 0.05
+    lr: float = 0.02
 
 
 def main(cfg: Config) -> None:

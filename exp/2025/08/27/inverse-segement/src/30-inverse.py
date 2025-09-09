@@ -89,7 +89,7 @@ class InversePhysics:
         jac: Params = eqx.filter_grad(lambda params: self.loss(u, params))(params)
         solution: lx.Solution = lx.linear_solve(
             lx.FunctionLinearOperator(
-                lambda p: self.model.hess_prod(u, p),
+                eqx.filter_jit(lambda p: self.model.hess_prod(u, p)),
                 jax.ShapeDtypeStruct(u.shape, u.dtype),
                 [lx.symmetric_tag, lx.positive_semidefinite_tag],
             ),
@@ -119,7 +119,7 @@ class InversePhysics:
         return regularization
 
     def regularization_muscle(self, a: Float[Array, "c 6"]) -> Scalar:
-        return jnp.sum(a - jnp.mean(a, axis=0)) ** 2
+        return jnp.mean((a - jnp.mean(a, axis=0)) ** 2)
 
 
 def main(cfg: Config) -> None:

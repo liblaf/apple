@@ -1,3 +1,5 @@
+from collections.abc import Mapping, Sequence
+
 import jax
 import jax.numpy as jnp
 
@@ -7,6 +9,8 @@ from liblaf.apple.jax.typing import Scalar, Updates, UpdatesIndex, Vector
 
 @tree.pytree
 class Energy:
+    requires_grad: Sequence[str] = tree.field(default=(), kw_only=True)
+
     def fun(self, u: Vector) -> Scalar:
         raise NotImplementedError
 
@@ -38,3 +42,9 @@ class Energy:
         index: UpdatesIndex
         data, index = self.hess_prod(u, p)
         return jnp.vdot(p[index], data)
+
+    def mixed_derivative_prod(self, u: Vector, p: Vector) -> Mapping[str, Vector]:
+        outputs: dict[str, Vector] = {}
+        for name in self.requires_grad:
+            outputs[name] = getattr(self, f"mixed_derivative_prod_{name}")(u, p)
+        return outputs

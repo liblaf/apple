@@ -1,4 +1,5 @@
-from typing import Self
+from collections.abc import Callable
+from typing import Self, override
 
 import attrs
 import jax
@@ -9,14 +10,14 @@ from jaxtyping import Float
 from liblaf.apple.jax import math, tree
 from liblaf.apple.jax.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.jax.sim.region import Region
-from liblaf.apple.jax.typing import Vector
+from liblaf.apple.jax.typing import UpdatesData, UpdatesIndex, Vector
 
-from .utils import as_activation
+from . import utils
 
 
 @tree.pytree
 class ARAPActive(Elastic):
-    activation: Float[Array, "c J J"] = tree.array(converter=as_activation)
+    activation: Float[Array, "c 6"] = tree.array()
     mu: Float[Array, " c"] = tree.array()
 
     @classmethod
@@ -27,20 +28,28 @@ class ARAPActive(Elastic):
             mu=region.cell_data["mu"],
         )
 
+    @override
     def energy_density(self, F: Float[Array, "c q J J"]) -> Float[Array, "c q"]:
-        A: Float[Array, " c #q J J"] = self.activation[:, jnp.newaxis, :, :]
+        A: Float[Array, " c #q J J"] = utils.make_activation(self.activation)[
+            :, jnp.newaxis, :, :
+        ]
         mu: Float[Array, " c #q"] = self.mu[:, jnp.newaxis]
         R: Float[Array, "c q J J"]
         R, _ = math.polar_rv(F)
         return mu * math.frobenius_norm_square(F - R @ A)
 
-    def mixed_derivative_prod(self, u: Vector, p: Vector) -> Vector:
-        def fun(x: Array, q: Array) -> Array:
-            energy = attrs.evolve(self, activation=q)
-            return energy.fun(x)
+    def mixed_derivative_prod_activation(self, u: Vector, p: Vector) -> Vector:
+        def jac(q: Float[Array, "c 6"]) -> Vector:
+            energy: Self = attrs.evolve(self, activation=q)
+            data: UpdatesData
+            index: UpdatesIndex
+            data, index = energy.jac(u)
+            jac: Vector = jax.ops.segment_sum(data, index, num_segments=u.shape[0])
+            return jac
 
-        def jac_q(x: Array) -> Array:
-            return jax.grad(fun, argnums=1)(x, self.activation)
+        vjp: Callable[[Vector], Float[Array, "c 6"]]
+        _, vjp = jax.vjp(jac, self.activation)
 
-        _, outputs = jax.jvp(jac_q, (u,), (p,))
-        return outputs
+        output: Float[Array, "c 6"]
+        (output,) = vjp(p)
+        return output

@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, override
 
 import pyvista as pv
 from jaxtyping import Array, Float
@@ -35,6 +35,7 @@ class Elastic(Energy):
         geometry: Geometry = Geometry.from_pyvista(mesh)
         return cls.from_geometry(geometry, quadrature=quadrature)
 
+    @override
     def fun(self, u: Vector) -> Scalar:
         F: Float[Array, "c q J J"] = self.region.deformation_gradient(u)
         Psi: Float[Array, "c q"] = self.energy_density(F)

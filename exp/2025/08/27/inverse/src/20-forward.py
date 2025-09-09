@@ -7,7 +7,9 @@ import pyvista as pv
 from loguru import logger
 
 from liblaf import cherries, melon
-from liblaf.apple.jax import optim, sim
+from liblaf.apple import sim
+from liblaf.apple.jax import optim
+from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.jax.typing import Vector
 
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
@@ -24,7 +26,7 @@ def main(cfg: Config) -> None:
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
-    builder.add_energy(sim.PhaceActive.from_pyvista(mesh))
+    builder.add_energy(sim_jax.PhaceActive.from_pyvista(mesh))
 
     model: sim.Model = builder.finish()
     optimizer: optim.Minimizer = optim.MinimizerScipy(

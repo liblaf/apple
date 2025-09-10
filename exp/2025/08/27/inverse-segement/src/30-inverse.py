@@ -111,7 +111,7 @@ class InversePhysics:
         return loss
 
     def regularization(self, params: Params) -> Scalar:
-        reg_weight = 1.0
+        reg_weight = 1e-3
         regularization: Scalar = reg_weight * (
             self.regularization_muscle(params.activation[self.muscle_0_mask])
             + self.regularization_muscle(params.activation[self.muscle_1_mask])
@@ -119,7 +119,7 @@ class InversePhysics:
         return regularization
 
     def regularization_muscle(self, a: Float[Array, "c 6"]) -> Scalar:
-        return jnp.mean((a - jnp.mean(a, axis=0)) ** 2)
+        return jnp.sum((a - jnp.mean(a, axis=0)) ** 2)
 
 
 def main(cfg: Config) -> None:

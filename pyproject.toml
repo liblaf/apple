@@ -2,7 +2,7 @@
 
 [project]
 name = "liblaf-apple"
-description = ""
+description = "🍎 A JAX and Warp library for differentiable physics simulation, featuring elastic energy models and finite element methods."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
@@ -24,17 +24,17 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.21,<0.22",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1081> is resolved.
+  "beartype>=0.21,<0.22",
   "chex>=0.1,<0.2",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
   "ipctk>=1,<2",
-  "jax[cuda12]>=0.6,<0.7",
+  "jax[cuda12]>=0.6,<0.7",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1084> is resolved.
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=2,<3",
+  "liblaf-grapes>=4,<5",
   "liblaf-melon>=0.6,<0.7",
   "lineax>=0.0.8,<0.0.9",
   "loguru>=0.7,<0.8",

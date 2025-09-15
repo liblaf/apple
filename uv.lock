@@ -2926,7 +2926,7 @@ requires-dist = [
     { name = "jax", extras = ["cuda12"], specifier = ">=0.6,<0.7" },
     { name = "jaxtyping", specifier = ">=0.3,<0.4" },
     { name = "lazy-loader", specifier = ">=0.4,<0.5" },
-    { name = "liblaf-grapes", specifier = ">=2,<3" },
+    { name = "liblaf-grapes", specifier = ">=4,<5" },
     { name = "liblaf-melon", specifier = ">=0.6,<0.7" },
     { name = "lineax", specifier = ">=0.0.8,<0.0.9" },
     { name = "loguru", specifier = ">=0.7,<0.8" },
@@ -2967,7 +2967,7 @@ test = [
 
 [[package]]
 name = "liblaf-cherries"
-version = "0.4.1"
+version = "0.4.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2984,14 +2984,14 @@ dependencies = [
     { name = "rich" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/79/ab/a365c516a960adfa7ad17ef9d8d5c3b62cb1a82587857bb4254334a69b81/liblaf_cherries-0.4.1.tar.gz", hash = "sha256:2b810dec1e7933f357e2e01041a01321ace9a9fa0c417dddd22140bd8748cd4f", size = 13420, upload-time = "2025-09-04T07:48:56.035Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/c1/6148f388fd5f92a8ba3160410861c4d778ce74b146f7b85773ff994ec848/liblaf_cherries-0.4.2.tar.gz", hash = "sha256:fe746dfa1d2a67c90ebb1da0863f863f02c3ecb79892e054e505282a049d5bb8", size = 13963, upload-time = "2025-09-15T13:19:45.729Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/00/3824a3531ba977376e1d8e4029df3ec06d95de6d89e5ecf353f2a8cfa2b2/liblaf_cherries-0.4.1-py3-none-any.whl", hash = "sha256:c17d58af41af07982f20f93f859d359a1b30bacaafd9b8798d258c03dc8bb07d", size = 25006, upload-time = "2025-09-04T07:48:54.618Z" },
+    { url = "https://files.pythonhosted.org/packages/24/57/412fa976d2cf27863240aabd8001b6ac06e780a2e359c9adcdc11fe22eb4/liblaf_cherries-0.4.2-py3-none-any.whl", hash = "sha256:b7ff816c1db50d2cc2e99cfb48456e18b68aff6f4530d2ad757dc0f376951cdc", size = 25587, upload-time = "2025-09-15T13:19:44.474Z" },
 ]
 
 [[package]]
 name = "liblaf-grapes"
-version = "2.0.3"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "about-time" },
@@ -3010,20 +3010,18 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "rich" },
-    { name = "sortedcontainers" },
-    { name = "sortedcontainers-stubs" },
     { name = "typing-extensions" },
     { name = "wadler-lindig" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ab/f6/71a0efebcdab21e1c080e0fcfb7b3854dd03663b03f2b2bbda771a890353/liblaf_grapes-2.0.3.tar.gz", hash = "sha256:5041f29552d7f98559008ce565247a8be1dd8b3ec3d1f5b080b6a99ad54fccb0", size = 32282, upload-time = "2025-09-07T01:23:59.16Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/28/25/544355d590763ced658d64fc27640e2e94f436e056d370983760ccd5e537/liblaf_grapes-4.0.0.tar.gz", hash = "sha256:5ec34479f858af5eab2f432ec0bbea11bff721cd5c7dcf87523f2b98588ea347", size = 30027, upload-time = "2025-09-15T12:56:21.203Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/bb/dbec4eb9588aebd633557594f2b79470d943dfe60c578fba1c708fe8b8a9/liblaf_grapes-2.0.3-py3-none-any.whl", hash = "sha256:e89450cf557e7c8cd882304072a59fbb60b92661daa195cde946fa5b7efe5b52", size = 69470, upload-time = "2025-09-07T01:23:57.77Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/ec/6fc90c186020d514beb187df2b897b7967c385070cf7de800a54138709d5/liblaf_grapes-4.0.0-py3-none-any.whl", hash = "sha256:44f3145511d6b487c2c838c00697f8d60bf8df3c7feabd9df4faf30ab9b485bc", size = 62690, upload-time = "2025-09-15T12:56:19.321Z" },
 ]
 
 [[package]]
 name = "liblaf-melon"
-version = "0.6.0"
+version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -3047,9 +3045,9 @@ dependencies = [
     { name = "scipy" },
     { name = "trimesh", extra = ["easy"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ad/8d/f5b7b25dfcf221a816ef739bad1589da7aaa5680266b736df4ad1194dfa2/liblaf_melon-0.6.0.tar.gz", hash = "sha256:c0f61f71f4e52c6b6d207a92c104b6ef6d0d2bee4de9565bc3bb468f52bca7b6", size = 24765, upload-time = "2025-08-25T15:00:03.107Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/8e/0743a258565d4322fa58477cbfefb561be772125ff5b21c580a5168fdad0/liblaf_melon-0.6.1.tar.gz", hash = "sha256:71dcce84b6ee6e2852d82a8ee803bb05a72454f462f815d831cc6807ce188d36", size = 25447, upload-time = "2025-09-15T13:41:19.824Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/eb/c38f0a43b7dfdf12faf3550da230860a1927fc03049c0910c3421f7f5e54/liblaf_melon-0.6.0-py3-none-any.whl", hash = "sha256:7d2e8939f876362e8aa7d6976fe1f8a9b5fab108befb3da30903ee23761b1198", size = 60117, upload-time = "2025-08-25T14:59:59.37Z" },
+    { url = "https://files.pythonhosted.org/packages/53/c2/882558db33106138cc091e41bdb1d3634db6f42f91fe48a8a21195684a38/liblaf_melon-0.6.1-py3-none-any.whl", hash = "sha256:ce8b3668d657184f45e4fc95cfa58925ce4499a13f582457099cc554cb5bdf5c", size = 60826, upload-time = "2025-09-15T13:41:18.408Z" },
 ]
 
 [[package]]
@@ -5790,19 +5788,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
-]
-
-[[package]]
-name = "sortedcontainers-stubs"
-version = "2.4.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "sortedcontainers" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/19/13/2940fafc136048ec99c932bf0077613f1ae4693a313705162982335fe5fb/sortedcontainers_stubs-2.4.3.tar.gz", hash = "sha256:ba172daceda4bd617d2f6ffd24582261a494da92705409651967faa40ebc75dd", size = 6186, upload-time = "2025-04-23T07:42:00.238Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/3e/b0fbd7621e6430d33d234ad5e2dc9b0d4df575518f4790a2af934e1029ea/sortedcontainers_stubs-2.4.3-py3-none-any.whl", hash = "sha256:4496109dfa6645e4b675f57fbc7e42ec4d1bed2c74aab7fa379e0795e49fe406", size = 8816, upload-time = "2025-04-23T07:41:58.625Z" },
 ]
 
 [[package]]

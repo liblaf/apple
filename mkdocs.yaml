@@ -1,6 +1,3 @@
 INHERIT: .config/copier/mkdocs.yaml
 site_name: Apple
-site_description: TODO
-
-markdown_extensions:
-  smarty:
+site_description: 🍎 A JAX and Warp library for differentiable physics simulation, featuring elastic energy models and finite element methods.

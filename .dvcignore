@@ -3,10 +3,7 @@
 # the performance. Learn more at
 # https://dvc.org/doc/user-guide/dvcignore
 
-*.log
-*.log.gz
-*.log.jsonl
-*.log.jsonl.gz
-*.py
-
 .cherries/
+*.log
+*.log.*
+*.py

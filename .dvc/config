@@ -1,7 +1,10 @@
+# -*- mode: ini; -*-
+# ref: <https://dvc.org/doc/user-guide/project-structure/configuration>
+
 [core]
+remote = ssh
 analytics = false
 autostage = true
-remote = ssh
 
 ['remote "ssh"']
 url = ssh://dvc.liblaf.me:56499/apple

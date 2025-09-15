@@ -24,14 +24,14 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.21,<0.22",
+  "beartype>=0.21,<0.22",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1081> is resolved.
   "chex>=0.1,<0.2",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
   "ipctk>=1,<2",
-  "jax[cuda12]>=0.7,<0.8",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1081> is resolved.
+  "jax[cuda12]>=0.6,<0.7",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=2,<3",
@@ -60,7 +60,6 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/apple"
 
 [dependency-groups]
-build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=6,<7",
@@ -69,6 +68,7 @@ dev = [
   "sympy>=1,<2",
   "viztracer>=1,<2",
 ]
+build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
 test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=8,<9"]
 
@@ -111,7 +111,6 @@ addopts = [
   "--showlocals",
   "--strict-config",
   "--strict-markers",
-  "--suppress-no-test-exit-code",
 ]
 testpaths = ["benches", "src", "tests"]
 

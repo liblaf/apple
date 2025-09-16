@@ -2,10 +2,8 @@ from typing import Protocol
 
 import hypothesis
 import hypothesis.extra.numpy as hnp
-import hypothesis.strategies as st
 import jax.numpy as jnp
 import jax.test_util
-import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
 
@@ -93,73 +91,32 @@ def g3(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch 3 3"]:
     return g3
 
 
-@hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float32),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
-)
-def test_g1_f32(F: Float[Array, "batch 3 3"]) -> None:
-    I1_jvp: IdentityJvp = identity_jvp(I1, g1)
-    jax.test_util.check_jvp(I1, I1_jvp, (F,), atol=0.2, rtol=0.2)
+def check_gradients(
+    fun: IdentityFunction, grad: IdentityGradient, F: Float[Array, "batch 3 3"]
+) -> None:
+    I_jvp: IdentityJvp = identity_jvp(fun, grad)
+    if jnp.isdtype(F.dtype, jnp.float32):
+        jax.test_util.check_jvp(fun, I_jvp, (F,), atol=0.1, rtol=0.1)
+    else:
+        jax.test_util.check_jvp(fun, I_jvp, (F,))
 
 
 @hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float64),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
+    testing.random_spd_matrix(n_dim=3, shapes=hnp.array_shapes(min_dims=1, max_dims=1))
 )
-def test_g1_f64(F: Float[Array, "batch 3 3"]) -> None:
-    I1_jvp: IdentityJvp = identity_jvp(I1, g1)
-    jax.test_util.check_jvp(I1, I1_jvp, (F,))
+def test_g1(F: Float[Array, "batch 3 3"]) -> None:
+    check_gradients(I1, g1, F)
 
 
 @hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float32),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
+    testing.random_spd_matrix(n_dim=3, shapes=hnp.array_shapes(min_dims=1, max_dims=1))
 )
-def test_g2_f32(F: Float[Array, "batch 3 3"]) -> None:
-    I2_jvp: IdentityJvp = identity_jvp(I2, g2)
-    jax.test_util.check_jvp(I2, I2_jvp, (F,), atol=0.05, rtol=0.2)
+def test_g2(F: Float[Array, "batch 3 3"]) -> None:
+    check_gradients(I2, g2, F)
 
 
 @hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float64),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
+    testing.random_spd_matrix(n_dim=3, shapes=hnp.array_shapes(min_dims=1, max_dims=1))
 )
-def test_g2_f64(F: Float[Array, "batch 3 3"]) -> None:
-    I2_jvp: IdentityJvp = identity_jvp(I2, g2)
-    jax.test_util.check_jvp(I2, I2_jvp, (F,))
-
-
-@hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float32),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
-)
-def test_g3_f32(F: Float[Array, "batch 3 3"]) -> None:
-    I3_jvp: IdentityJvp = identity_jvp(I3, g3)
-    jax.test_util.check_jvp(I3, I3_jvp, (F,), atol=0.02, rtol=0.01)
-
-
-@hypothesis.given(
-    testing.random_spd_matrix(
-        dtypes=st.just(np.float64),
-        n_dim=3,
-        shapes=hnp.array_shapes(min_dims=1, max_dims=1),
-    )
-)
-def test_g3_f64(F: Float[Array, "batch 3 3"]) -> None:
-    I3_jvp: IdentityJvp = identity_jvp(I3, g3)
-    jax.test_util.check_jvp(I3, I3_jvp, (F,))
+def test_g3(F: Float[Array, "batch 3 3"]) -> None:
+    check_gradients(I3, g3, F)

@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import einops
 import hypothesis
@@ -28,79 +28,111 @@ def random_matrices(
     ).map(lambda a: jnp.asarray(a))
 
 
+def check_quad(
+    prod: Callable | wp.Function,
+    quad: Callable | wp.Function,
+    p: Float[Array, "batch 4 3"],
+    args: Sequence[wp.array],
+) -> None:
+    p_wp: wp.array = wp_utils.from_jax(p, (4, 3))
+    prod_wp: wp.array = wp.map(prod, p_wp, *args)  # pyright: ignore[reportAssignmentType]
+    prod_jax: Float[Array, "batch 4 3"] = wp.to_jax(prod_wp)
+    quad_wp: wp.array = wp.map(quad, p_wp, *args)  # pyright: ignore[reportAssignmentType]
+    quad_jax: Float[Array, " batch"] = wp.to_jax(quad_wp)
+    quad_expected: Float[Array, " batch"] = einops.einsum(
+        p, prod_jax, "batch i j, batch i j -> batch"
+    )
+    if jnp.isdtype(p.dtype, jnp.float32):
+        np.testing.assert_allclose(quad_jax, quad_expected, atol=1e-6, rtol=1e-6)
+    elif jnp.isdtype(p.dtype, jnp.float64):
+        np.testing.assert_allclose(quad_jax, quad_expected, atol=1e-15)
+    else:
+        np.testing.assert_allclose(quad_jax, quad_expected)
+
+
 @hypothesis.given(
-    dhdX=random_matrices((4, 3)), g1=random_matrices((3, 3)), p=random_matrices((4, 3))
+    p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)), g1=random_matrices((3, 3))
 )
 def test_h1_quad(
+    p: Float[Array, "batch 4 3"],
     dhdX: Float[Array, "batch 4 3"],
     g1: Float[Array, "batch 3 3"],
-    p: Float[Array, "batch 4 3"],
 ) -> None:
     dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
     g1_wp: wp.array = wp_utils.from_jax(g1, (3, 3))
-    p_wp: wp.array = wp_utils.from_jax(p, (4, 3))
-    h1_prod_wp: wp.array = wp.map(utils.h1_prod, dhdX_wp, g1_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h1_quad_wp: wp.array = wp.map(utils.h1_quad, dhdX_wp, g1_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h1_prod: Float[Array, "batch 4 3"] = wp.to_jax(h1_prod_wp)
-    h1_quad: Float[Array, " batch"] = wp.to_jax(h1_quad_wp)
-    h1_quad_expected: Float[Array, " batch"] = einops.einsum(
-        p, h1_prod, "batch i j, batch i j -> batch"
-    )
-    if np.isdtype(dhdX.dtype, np.float64):
-        np.testing.assert_allclose(h1_quad, h1_quad_expected)
-    elif np.isdtype(dhdX.dtype, np.float32):
-        np.testing.assert_allclose(h1_quad, h1_quad_expected, atol=1e-6, rtol=1e-6)
-    else:
-        np.testing.assert_allclose(h1_quad, h1_quad_expected)
+    args: Sequence[wp.array] = (dhdX_wp, g1_wp)
+    check_quad(utils.h1_prod, utils.h1_quad, p, args)
 
 
 @hypothesis.given(
-    dhdX=random_matrices((4, 3)), g2=random_matrices((3, 3)), p=random_matrices((4, 3))
+    p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)), g2=random_matrices((3, 3))
 )
 def test_h2_quad(
+    p: Float[Array, "batch 4 3"],
     dhdX: Float[Array, "batch 4 3"],
     g2: Float[Array, "batch 3 3"],
-    p: Float[Array, "batch 4 3"],
 ) -> None:
     dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
     g2_wp: wp.array = wp_utils.from_jax(g2, (3, 3))
-    p_wp: wp.array = wp_utils.from_jax(p, (4, 3))
-    h2_prod_wp: wp.array = wp.map(utils.h2_prod, dhdX_wp, g2_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h2_quad_wp: wp.array = wp.map(utils.h2_quad, dhdX_wp, g2_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h2_prod: Float[Array, "batch 4 3"] = wp.to_jax(h2_prod_wp)
-    h2_quad: Float[Array, " batch"] = wp.to_jax(h2_quad_wp)
-    h2_quad_expected: Float[Array, " batch"] = einops.einsum(
-        p, h2_prod, "batch i j, batch i j -> batch"
-    )
-    if np.isdtype(dhdX.dtype, np.float64):
-        np.testing.assert_allclose(h2_quad, h2_quad_expected)
-    elif np.isdtype(dhdX.dtype, np.float32):
-        np.testing.assert_allclose(h2_quad, h2_quad_expected, atol=1e-6, rtol=1e-6)
-    else:
-        np.testing.assert_allclose(h2_quad, h2_quad_expected)
+    args: Sequence[wp.array] = (dhdX_wp, g2_wp)
+    check_quad(utils.h2_prod, utils.h2_quad, p, args)
 
 
 @hypothesis.given(
-    dhdX=random_matrices((4, 3)), g3=random_matrices((3, 3)), p=random_matrices((4, 3))
+    p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)), g3=random_matrices((3, 3))
 )
 def test_h3_quad(
+    p: Float[Array, "batch 4 3"],
     dhdX: Float[Array, "batch 4 3"],
     g3: Float[Array, "batch 3 3"],
-    p: Float[Array, "batch 4 3"],
 ) -> None:
     dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
     g3_wp: wp.array = wp_utils.from_jax(g3, (3, 3))
-    p_wp: wp.array = wp_utils.from_jax(p, (4, 3))
-    h3_prod_wp: wp.array = wp.map(utils.h3_prod, dhdX_wp, g3_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h3_quad_wp: wp.array = wp.map(utils.h3_quad, dhdX_wp, g3_wp, p_wp)  # pyright: ignore[reportAssignmentType]
-    h3_prod: Float[Array, "batch 4 3"] = wp.to_jax(h3_prod_wp)
-    h3_quad: Float[Array, " batch"] = wp.to_jax(h3_quad_wp)
-    h3_quad_expected: Float[Array, " batch"] = einops.einsum(
-        p, h3_prod, "batch i j, batch i j -> batch"
-    )
-    if np.isdtype(dhdX.dtype, np.float64):
-        np.testing.assert_allclose(h3_quad, h3_quad_expected)
-    elif np.isdtype(dhdX.dtype, np.float32):
-        np.testing.assert_allclose(h3_quad, h3_quad_expected, atol=1e-6, rtol=1e-6)
-    else:
-        np.testing.assert_allclose(h3_quad, h3_quad_expected)
+    args: Sequence[wp.array] = (dhdX_wp, g3_wp)
+    check_quad(utils.h3_prod, utils.h3_quad, p, args)
+
+
+@hypothesis.given(
+    p=random_matrices((4, 3)),
+    dhdX=random_matrices((4, 3)),
+    lambdas=random_matrices((3,)),
+    Q0=random_matrices((3, 3)),
+    Q1=random_matrices((3, 3)),
+    Q2=random_matrices((3, 3)),
+)
+def test_h4_quad(
+    p: Float[Array, "batch 4 3"],
+    dhdX: Float[Array, "batch 4 3"],
+    lambdas: Float[Array, "batch 3"],
+    Q0: Float[Array, "batch 3 3"],
+    Q1: Float[Array, "batch 3 3"],
+    Q2: Float[Array, "batch 3 3"],
+) -> None:
+    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
+    lambdas_wp: wp.array = wp_utils.from_jax(lambdas, (3,))
+    Q0_wp: wp.array = wp_utils.from_jax(Q0, (3, 3))
+    Q1_wp: wp.array = wp_utils.from_jax(Q1, (3, 3))
+    Q2_wp: wp.array = wp_utils.from_jax(Q2, (3, 3))
+    args: Sequence[wp.array] = (dhdX_wp, lambdas_wp, Q0_wp, Q1_wp, Q2_wp)
+    check_quad(utils.h4_prod, utils.h4_quad, p, args)
+
+
+@hypothesis.given(p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)))
+def test_h5_quad(p: Float[Array, "batch 4 3"], dhdX: Float[Array, "batch 4 3"]) -> None:
+    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
+    args: Sequence[wp.array] = (dhdX_wp,)
+    check_quad(utils.h5_prod, utils.h5_quad, p, args)
+
+
+@hypothesis.given(
+    p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)), F=random_matrices((3, 3))
+)
+def test_h6_quad(
+    p: Float[Array, "batch 4 3"],
+    dhdX: Float[Array, "batch 4 3"],
+    F: Float[Array, "batch 3 3"],
+) -> None:
+    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
+    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
+    args: Sequence[wp.array] = (dhdX_wp, F_wp)
+    check_quad(utils.h6_prod, utils.h6_quad, p, args)

@@ -10,13 +10,13 @@ from ._deformation_gradient import deformation_gradient_jvp
 
 @wp.func
 @no_type_check
-def h1_quad(*, dhdX: mat43, g1: mat33, p: mat43):
+def h1_quad(p: mat43, *, dhdX: mat43, g1: mat33):
     """$p^T h_1 p$.
 
     Args:
+        p (mat43): ...
         dhdX (mat43): ...
         g1 (mat33): ...
-        p (mat43): ...
 
     Returns:
         (float): ...
@@ -26,13 +26,13 @@ def h1_quad(*, dhdX: mat43, g1: mat33, p: mat43):
 
 @wp.func
 @no_type_check
-def h2_quad(*, dhdX: mat43, g2: mat33, p: mat43):
+def h2_quad(p: mat43, *, dhdX: mat43, g2: mat33):
     """$p^T h_2 p$.
 
     Args:
+        p (mat43): ...
         dhdX (mat43): ...
         g2 (mat33): ...
-        p (mat43): ...
 
     Returns:
         (float): ...
@@ -42,13 +42,13 @@ def h2_quad(*, dhdX: mat43, g2: mat33, p: mat43):
 
 @wp.func
 @no_type_check
-def h3_quad(*, dhdX: mat43, g3: mat33, p: mat43):
+def h3_quad(p: mat43, *, dhdX: mat43, g3: mat33):
     """$p^T h_3 p$.
 
     Args:
+        p (mat43): ...
         dhdX (mat43): ...
         g3 (mat33): ...
-        p (mat43): ...
 
     Returns:
         (float): ...
@@ -58,10 +58,11 @@ def h3_quad(*, dhdX: mat43, g3: mat33, p: mat43):
 
 @wp.func
 @no_type_check
-def h4_quad(*, dhdX: mat43, lambdas: vec3, p: mat43, Q0: mat33, Q1: mat33, Q2: mat33):
+def h4_quad(p: mat43, *, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
     """$p^T h_4 p$.
 
     Args:
+        p (mat43): ...
         dhdX (mat43): ...
         lambdas (vec3): ...
         p (mat43): ...
@@ -82,29 +83,29 @@ def h4_quad(*, dhdX: mat43, lambdas: vec3, p: mat43, Q0: mat33, Q1: mat33, Q2: m
 
 @wp.func
 @no_type_check
-def h5_quad(*, dhdX: mat43, p: mat43):
+def h5_quad(p: mat43, *, dhdX: mat43):
     """$p^T h_5 p$.
 
     Args:
-        dhdX (mat43): ...
         p (mat43): ...
+        dhdX (mat43): ...
 
     Returns:
         (float): ...
     """
     dFdx_p = deformation_gradient_jvp(dhdX, p)  # mat33
-    return 2.0 * math.frobenius_norm_square(dFdx_p)
+    return type(dhdX[0, 0])(2.0) * math.frobenius_norm_square(dFdx_p)
 
 
 @wp.func
 @no_type_check
-def h6_quad(*, dhdX: mat43, F: mat33, p: mat43):
+def h6_quad(p: mat43, *, dhdX: mat43, F: mat33):
     """$p^T h_6 p$.
 
     Args:
+        p (mat43): ...
         dhdX (mat43): ...
         F (mat33): ...
-        p (mat43): ...
 
     Returns:
         (float): ...

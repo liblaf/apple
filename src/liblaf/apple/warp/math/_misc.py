@@ -5,7 +5,7 @@ import warp as wp
 
 @wp.func
 def cw_square(a: Any):
-    return a * a
+    return wp.cw_mul(a, a)
 
 
 @wp.func

@@ -60,6 +60,7 @@ words:
   - nbconvert
   - nbformat
   - ndarray
+  - ndindex
   - networkx
   - numprocesses
   - numpy

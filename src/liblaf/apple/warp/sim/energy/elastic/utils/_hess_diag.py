@@ -103,6 +103,6 @@ def h5_diag(*, dhdX: mat43):
 
 @wp.func
 @no_type_check
-def h6_diag():
+def h6_diag(*, dhdX: mat43, F: mat33):  # noqa: ARG001
     """$diag(h_6)$."""
-    raise NotImplementedError
+    return type(dhdX)()

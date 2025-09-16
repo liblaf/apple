@@ -119,10 +119,7 @@ exclude = ["**/marimo/"]
 extend = ".config/linters/.ruff.toml"
 
 [tool.ruff.lint]
-ignore = ["F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]
+ignore = ["ANN202", "F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]
 
 [tool.uv]
 default-groups = "all"
-
-# [tool.uv.sources]
-# warp-lang.url = "https://github.com/NVIDIA/warp/releases/download/v1.9.0/warp_lang-1.9.0+cu12-py3-none-manylinux_2_28_x86_64.whl"

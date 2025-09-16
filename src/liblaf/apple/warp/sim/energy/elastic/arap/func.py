@@ -9,7 +9,7 @@ from liblaf.apple.warp.typing import float_, mat33, mat43
 
 @wp.struct
 class Params:
-    mu: float_
+    mu: float
 
 
 @wp.func

@@ -10,8 +10,8 @@ from liblaf.apple.warp.typing import float_, mat33, mat43
 
 @wp.struct
 class Params:
-    lambda_: float_
-    mu: float_
+    lambda_: float
+    mu: float
 
 
 @wp.func

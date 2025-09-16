@@ -1,16 +1,17 @@
 from typing import no_type_check
 
 import warp as wp
+import warp.types as wpt
 
 from liblaf.apple.warp import math
 from liblaf.apple.warp.sim.energy.elastic import utils
-from liblaf.apple.warp.typing import float_, mat33, mat43, vec6
+from liblaf.apple.warp.typing import float_, mat33, mat43
 
 
 @wp.struct
 class Params:
-    activation: vec6
-    mu: float_
+    activation: wpt.vector(6, float)
+    mu: float
 
 
 @wp.func

@@ -1,18 +1,26 @@
-import warp as wp
+from typing import Any
 
-from liblaf.apple.warp.typing import float_, mat33
+import warp as wp
 
 
 @wp.func
-def cw_square(a: mat33) -> mat33:
+def cw_square(a: Any):
     return a * a
 
 
 @wp.func
-def frobenius_norm_square(a: mat33) -> float_:
-    return wp.ddot(a, a)
+def frobenius_norm_square(M: Any):
+    r"""$\norm{M}_F^2$.
+
+    Args:
+        M (matrix): ...
+
+    Returns:
+        (float): ...
+    """
+    return wp.ddot(M, M)
 
 
 @wp.func
-def square(a: float_) -> float_:
+def square(a: Any):
     return a * a

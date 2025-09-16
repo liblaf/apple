@@ -4,12 +4,11 @@ import hypothesis.extra.numpy as hnp
 import hypothesis.strategies as st
 import jax.numpy as jnp
 import numpy as np
-import sklearn.datasets
-from jaxtyping import Array, ArrayLike, DTypeLike, Float
+from jaxtyping import Array, DTypeLike, Float
 
 
 def random_mat33(
-    min_dims: int | None = 1, max_dims: int | None = None
+    min_dims: int = 1, max_dims: int | None = None
 ) -> st.SearchStrategy[Float[Array, "*batch 3 3"]]:
     return hnp.arrays(
         np.float64,
@@ -23,19 +22,24 @@ def random_mat33(
 @st.composite
 def random_spd_matrix(
     draw: st.DrawFn,
-    dtype: DTypeLike = float,
+    dtypes: st.SearchStrategy[DTypeLike] | None = None,
     n_dim: int = 3,
     shapes: st.SearchStrategy[Sequence[int]] | None = None,
 ) -> Float[Array, "*batch D D"]:
+    if dtypes is None:
+        dtypes = hnp.floating_dtypes(endianness="=", sizes=[32, 64])
     if shapes is None:
         shapes = hnp.array_shapes(min_dims=1, max_dims=1)
+    dtype: DTypeLike = draw(dtypes)
     shape: Sequence[int] = draw(shapes)
-    integers: st.SearchStrategy[int] = st.integers(min_value=0, max_value=4294967295)
-    matrices: list[Float[ArrayLike, " D D"]] = []
-    for _ in range(np.prod(shape)):
-        seed: int = draw(integers)
-        matrix: Float[ArrayLike, " D D"] = sklearn.datasets.make_spd_matrix(
-            n_dim, random_state=seed
+    A: Float[np.ndarray, "*batch D D"] = draw(
+        hnp.arrays(
+            dtype,
+            (*shape, n_dim, n_dim),
+            elements=hnp.from_dtype(np.dtype(np.float16), min_value=1.0, max_value=2.0),
         )
-        matrices.append(matrix)
-    return jnp.asarray(matrices, dtype=dtype).reshape(*shape, n_dim, n_dim)
+    )
+    X: Float[np.ndarray, "*batch D D"] = 0.5 * (A.mT + A) + n_dim * np.identity(
+        n_dim, dtype
+    )
+    return jnp.asarray(X, dtype)

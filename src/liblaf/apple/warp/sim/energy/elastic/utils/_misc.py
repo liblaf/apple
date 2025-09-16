@@ -1,13 +1,20 @@
-from typing import no_type_check
+from typing import Any, no_type_check
 
 import warp as wp
-
-from liblaf.apple.warp.typing import mat33, vec3, vec6
 
 
 @wp.func
 @no_type_check
-def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
+def lambdas(sigma: Any, *, clamp: bool = True):
+    """...
+
+    Args:
+        sigma (vec3): ...
+        clamp: ...
+
+    Returns:
+        lambdas (vec3): ...
+    """
     _2 = type(sigma[0])(2.0)
     lambda0 = _2 / (sigma[0] + sigma[1])
     lambda1 = _2 / (sigma[1] + sigma[2])
@@ -18,22 +25,41 @@ def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
         lambda0 = wp.clamp(lambda0, _0, _1)
         lambda1 = wp.clamp(lambda1, _0, _1)
         lambda2 = wp.clamp(lambda2, _0, _1)
-    return vec3(lambda0, lambda1, lambda2)
+    return wp.vector(lambda0, lambda1, lambda2)
 
 
 @wp.func
 @no_type_check
-def make_activation_mat33(activation: vec6) -> mat33:
+def make_activation_mat33(activation: Any):
+    """...
+
+    Args:
+        activation (vec6): ...
+
+    Returns:
+        mat33: ...
+    """
     return wp.matrix_from_rows(
-        vec3(activation[0], activation[3], activation[4]),
-        vec3(activation[3], activation[1], activation[5]),
-        vec3(activation[4], activation[5], activation[2]),
+        wp.vector(activation[0], activation[3], activation[4]),
+        wp.vector(activation[3], activation[1], activation[5]),
+        wp.vector(activation[4], activation[5], activation[2]),
     )
 
 
 @wp.func
 @no_type_check
-def Qs(U: mat33, V: mat33):  # noqa: ANN202
+def Qs(U: Any, V: Any):
+    """...
+
+    Args:
+        U (mat33): ...
+        V (mat33): ...
+
+    Returns:
+        Q0 (mat33): ...
+        Q1 (mat33): ...
+        Q2 (mat33): ...
+    """
     _2 = type(U[0, 0])(2.0)
     _sqrt2 = wp.sqrt(_2)
     U0 = U[:, 0]

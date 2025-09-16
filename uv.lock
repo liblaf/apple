@@ -2967,7 +2967,7 @@ test = [
 
 [[package]]
 name = "liblaf-cherries"
-version = "0.4.2"
+version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2984,9 +2984,9 @@ dependencies = [
     { name = "rich" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a9/c1/6148f388fd5f92a8ba3160410861c4d778ce74b146f7b85773ff994ec848/liblaf_cherries-0.4.2.tar.gz", hash = "sha256:fe746dfa1d2a67c90ebb1da0863f863f02c3ecb79892e054e505282a049d5bb8", size = 13963, upload-time = "2025-09-15T13:19:45.729Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/67/766f1c369c84c92107ca554c48e1a789beb334e82f0f74a771cd1b992f2c/liblaf_cherries-0.4.3.tar.gz", hash = "sha256:575200e721eeac75f11cc38be41f2de6ca56f8a4ce7dbb9fe8daca107c9bc866", size = 13985, upload-time = "2025-09-16T07:53:10.808Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/24/57/412fa976d2cf27863240aabd8001b6ac06e780a2e359c9adcdc11fe22eb4/liblaf_cherries-0.4.2-py3-none-any.whl", hash = "sha256:b7ff816c1db50d2cc2e99cfb48456e18b68aff6f4530d2ad757dc0f376951cdc", size = 25587, upload-time = "2025-09-15T13:19:44.474Z" },
+    { url = "https://files.pythonhosted.org/packages/08/f9/6855d8fe265dcab53eb869f9f55933d60eb4f472d1d8ca9050ccb5f5fd79/liblaf_cherries-0.4.3-py3-none-any.whl", hash = "sha256:9934db8974fd946c3d0855a06738bac615ab113bad47fa6cc17c25c5484babde", size = 25612, upload-time = "2025-09-16T07:53:09.345Z" },
 ]
 
 [[package]]

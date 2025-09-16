@@ -15,7 +15,6 @@ ignoreRandomStrings: true
 useGitignore: true
 words:
   - arap
-  - argnums
   - arithmatex
   - asarray
   - bfgs
@@ -36,7 +35,6 @@ words:
   - finfo
   - frobenius
   - getattr
-  - gmres
   - hessp
   - hynek
   - icosphere
@@ -45,6 +43,7 @@ words:
   - ipykernel
   - ipynb
   - ipython
+  - isdtype
   - jaxtyping
   - koiter
   - lamé's

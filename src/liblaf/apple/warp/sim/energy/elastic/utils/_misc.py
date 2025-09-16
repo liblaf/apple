@@ -7,16 +7,17 @@ from liblaf.apple.warp.typing import mat33, vec3, vec6
 
 @wp.func
 @no_type_check
-def lambdas(sigma: vec3) -> vec3:
-    _0 = type(sigma[0])(0.0)
-    _1 = type(sigma[0])(1.0)
+def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
     _2 = type(sigma[0])(2.0)
     lambda0 = _2 / (sigma[0] + sigma[1])
     lambda1 = _2 / (sigma[1] + sigma[2])
     lambda2 = _2 / (sigma[2] + sigma[0])
-    lambda0 = wp.clamp(lambda0, _0, _1)
-    lambda1 = wp.clamp(lambda1, _0, _1)
-    lambda2 = wp.clamp(lambda2, _0, _1)
+    if clamp:
+        _0 = type(sigma[0])(0.0)
+        _1 = type(sigma[0])(1.0)
+        lambda0 = wp.clamp(lambda0, _0, _1)
+        lambda1 = wp.clamp(lambda1, _0, _1)
+        lambda2 = wp.clamp(lambda2, _0, _1)
     return vec3(lambda0, lambda1, lambda2)
 
 

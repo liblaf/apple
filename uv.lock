@@ -2276,15 +2276,15 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.138.16"
+version = "6.138.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/21/2f/3f41181a7054f8049c0c2ef2eb8a86f43c2bfb0da7b0aba69c24019f56eb/hypothesis-6.138.16.tar.gz", hash = "sha256:08f9015dadc877ce5ca04752efc56df797238148a44d1c69db656ed29bfbbf73", size = 466040, upload-time = "2025-09-13T23:26:07.448Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/d9/933014091e35e849a1555bc87866809dd985bb558d43734e5b9cd2191c1f/hypothesis-6.138.17.tar.gz", hash = "sha256:2419eef387211c63bed091938cf17fa909898f064d320e996bcd90383f5ce3c6", size = 466016, upload-time = "2025-09-15T22:09:21.512Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/f3/6aa509411e72828ad1c6ed107e9efe7b3e1464e8ef620bb39338954bff58/hypothesis-6.138.16-py3-none-any.whl", hash = "sha256:63dde4b45a04caef2a59ccae5541083cbadfe7605435e7a23454fe7c2113577c", size = 533690, upload-time = "2025-09-13T23:26:03.93Z" },
+    { url = "https://files.pythonhosted.org/packages/92/81/fbb1beddafb8bfc1deff69cbf6e2aaba10c1c7bdafe7a323845539ba14af/hypothesis-6.138.17-py3-none-any.whl", hash = "sha256:b2cf91f1926445cf4d44f5ec9a955c7f637f93e34247ac04e4fb44d010141c85", size = 533688, upload-time = "2025-09-15T22:09:18.063Z" },
 ]
 
 [[package]]
@@ -2991,7 +2991,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-grapes"
-version = "4.0.0"
+version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "about-time" },
@@ -3014,9 +3014,9 @@ dependencies = [
     { name = "wadler-lindig" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/25/544355d590763ced658d64fc27640e2e94f436e056d370983760ccd5e537/liblaf_grapes-4.0.0.tar.gz", hash = "sha256:5ec34479f858af5eab2f432ec0bbea11bff721cd5c7dcf87523f2b98588ea347", size = 30027, upload-time = "2025-09-15T12:56:21.203Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/3f/babe0cd5234f663e49710f1775eff647da5ef58a68c1fbe853609c36f7c3/liblaf_grapes-4.1.0.tar.gz", hash = "sha256:0c943786e1a3199bea4967399c93b14f310b59491582157061a07a04ba26becd", size = 30240, upload-time = "2025-09-16T06:58:59.896Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/ec/6fc90c186020d514beb187df2b897b7967c385070cf7de800a54138709d5/liblaf_grapes-4.0.0-py3-none-any.whl", hash = "sha256:44f3145511d6b487c2c838c00697f8d60bf8df3c7feabd9df4faf30ab9b485bc", size = 62690, upload-time = "2025-09-15T12:56:19.321Z" },
+    { url = "https://files.pythonhosted.org/packages/09/6a/b90c7b76bb6ad6251cc105b9c52a4bf3aa840ff7683d0d2ec6bde297961f/liblaf_grapes-4.1.0-py3-none-any.whl", hash = "sha256:c0e647ae3d733504510051e7ee6b015d29bdf76d3df4c1a58f064fdaab7dd11d", size = 63292, upload-time = "2025-09-16T06:58:58.262Z" },
 ]
 
 [[package]]
@@ -3285,7 +3285,7 @@ wheels = [
 
 [[package]]
 name = "marimo"
-version = "0.15.3"
+version = "0.15.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -3306,9 +3306,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/a9/a5f39815e93688219fcad5604e14578c2dec54447370f9ec79256c4d01dc/marimo-0.15.3.tar.gz", hash = "sha256:110e90229381b963349b0a9ec33177ad700e73e76c20b500ed60d082c81ba0c5", size = 31720473, upload-time = "2025-09-11T17:55:31.892Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/47/e9bb4f87b14f745765aa70856c0c03326704c02771f74f7e245107ba2956/marimo-0.15.5.tar.gz", hash = "sha256:71a66d30e840efb7a59ef06a0deabf22f47ae723fe80fbdd0bc9db1aad555193", size = 33506642, upload-time = "2025-09-15T18:01:53.053Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/97/bb/e922181c69207b3eea4717f74fcdf806b4a5669caa7e31b0b7a9c5e30c1b/marimo-0.15.3-py3-none-any.whl", hash = "sha256:199c55bbc369db64dc20a1ed98814bfea321820acdabb7e01b262fea8f46507d", size = 31965498, upload-time = "2025-09-11T17:55:26.796Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/97/4bfb1eaf08af0aa41851ebc207f1813ca8423067a1382a61c11472599693/marimo-0.15.5-py3-none-any.whl", hash = "sha256:87a8c7f4023c40c91d229ea8edb038dcb13eca41c4c3e074050a863ed39b2770", size = 33894087, upload-time = "2025-09-15T18:01:48.674Z" },
 ]
 
 [package.optional-dependencies]
@@ -4198,7 +4198,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.107.2"
+version = "1.107.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -4210,9 +4210,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/66/61b0c63b68df8a22f8763d7d632ea7255edb4021dca1859f4359a5659b85/openai-1.107.2.tar.gz", hash = "sha256:a11fe8d4318e98e94309308dd3a25108dec4dfc1b606f9b1c5706e8d88bdd3cb", size = 564155, upload-time = "2025-09-12T19:52:21.159Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/24/7fb5749bcf66b52209e3ece05cb4eaeae2102e95f8ae77589e8afaf70ba8/openai-1.107.3.tar.gz", hash = "sha256:69bb8032b05c5f00f7660e422f70f9aabc94793b9a30c5f899360ed21e46314f", size = 564194, upload-time = "2025-09-15T20:09:20.159Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/65/e51a77a368eed7b9cc22ce394087ab43f13fa2884724729b716adf2da389/openai-1.107.2-py3-none-any.whl", hash = "sha256:d159d4f3ee3d9c717b248c5d69fe93d7773a80563c8b1ca8e9cad789d3cf0260", size = 946937, upload-time = "2025-09-12T19:52:19.355Z" },
+    { url = "https://files.pythonhosted.org/packages/16/1d/58ad0084451f64a9193de48c0afd63047682ffdedb6ae1d494a203e03fd5/openai-1.107.3-py3-none-any.whl", hash = "sha256:4ca54a847235ac04c6320da70fdc06b62d71439de9ec0aa40d5690c3064d4025", size = 947600, upload-time = "2025-09-15T20:09:18.219Z" },
 ]
 
 [[package]]
@@ -4226,7 +4226,7 @@ wheels = [
 
 [[package]]
 name = "optax"
-version = "0.2.5"
+version = "0.2.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "absl-py" },
@@ -4235,9 +4235,9 @@ dependencies = [
     { name = "jaxlib" },
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c0/75/1e011953c48be502d4d84fa8458e91be7c6f983002511669bddd7b1a065f/optax-0.2.5.tar.gz", hash = "sha256:b2e38c7aea376186deae758ba7a258e6ef760c6f6131e9e11bc561c65386d594", size = 258548, upload-time = "2025-06-10T17:00:47.544Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/3b/90c11f740a3538200b61cd2b7d9346959cb9e31e0bdea3d2f886b7262203/optax-0.2.6.tar.gz", hash = "sha256:ba8d1e12678eba2657484d6feeca4fb281b8066bdfd5efbfc0f41b87663109c0", size = 269660, upload-time = "2025-09-15T22:41:24.76Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b9/33/f86091c706db1a5459f501830241afff2ecab3532725c188ea57be6e54de/optax-0.2.5-py3-none-any.whl", hash = "sha256:966deae936207f268ac8f564d8ed228d645ac1aaddefbbf194096d2299b24ba8", size = 354324, upload-time = "2025-06-10T17:00:46.062Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/ec/19c6cc6064c7fc8f0cd6d5b37c4747849e66040c6ca98f86565efc2c227c/optax-0.2.6-py3-none-any.whl", hash = "sha256:f875251a5ab20f179d4be57478354e8e21963373b10f9c3b762b94dcb8c36d91", size = 367782, upload-time = "2025-09-15T22:41:22.825Z" },
 ]
 
 [[package]]
@@ -5637,15 +5637,15 @@ wheels = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.37.1"
+version = "2.38.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/be/ffc232c32d0be18f8e4eff7a22dffc1f1fef2894703d64cc281a80e75da6/sentry_sdk-2.37.1.tar.gz", hash = "sha256:531751da91aa62a909b42a7be155b41f6bb0de9df6ae98441d23b95de2f98475", size = 346235, upload-time = "2025-09-09T13:48:27.137Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b2/22/60fd703b34d94d216b2387e048ac82de3e86b63bc28869fb076f8bb0204a/sentry_sdk-2.38.0.tar.gz", hash = "sha256:792d2af45e167e2f8a3347143f525b9b6bac6f058fb2014720b40b84ccbeb985", size = 348116, upload-time = "2025-09-15T15:00:37.846Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/c3/cba447ab531331d165d9003c04473be944a308ad916ca2345b5ef1969ed9/sentry_sdk-2.37.1-py2.py3-none-any.whl", hash = "sha256:baaaea6608ed3a639766a69ded06b254b106d32ad9d180bdbe58f3db9364592b", size = 368307, upload-time = "2025-09-09T13:48:25.271Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/84/bde4c4bbb269b71bc09316af8eb00da91f67814d40337cc12ef9c8742541/sentry_sdk-2.38.0-py2.py3-none-any.whl", hash = "sha256:2324aea8573a3fa1576df7fb4d65c4eb8d9929c8fa5939647397a07179eef8d0", size = 370346, upload-time = "2025-09-15T15:00:35.821Z" },
 ]
 
 [[package]]

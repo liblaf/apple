@@ -72,5 +72,5 @@ def pytree[C: type](cls: type | None = None, /, **kwargs) -> Any:
     kwargs.setdefault("repr", False)
     cls = attrs.define(cls, **kwargs)
     cls = register_attrs(cls)
-    cls = grapes.wadler_lindig(cls)
+    cls = grapes.auto_repr(cls)
     return cls

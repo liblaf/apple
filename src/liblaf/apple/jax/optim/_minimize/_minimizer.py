@@ -51,14 +51,16 @@ class Minimizer(abc.ABC):
             objective = objective.jit()
         if self.timer:
             objective = objective.timer()
-        solution: Solution = self._minimize_impl(
-            objective=objective,
-            x0=x0,
-            args=args,
-            kwargs=kwargs,
-            bounds=bounds,
-            callback=callback,
-        )
+        with grapes.timer(name="minimize") as timer:
+            solution: Solution = self._minimize_impl(
+                objective=objective,
+                x0=x0,
+                args=args,
+                kwargs=kwargs,
+                bounds=bounds,
+                callback=callback,
+            )
+        solution["time"] = timer.elapsed()
         for field in attrs.fields(type(objective)):
             fn: Callable | None = getattr(objective, field.name)
             if not callable(fn):

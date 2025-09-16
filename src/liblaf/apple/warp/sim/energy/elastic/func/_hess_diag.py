@@ -3,14 +3,14 @@ from typing import no_type_check
 import warp as wp
 
 from liblaf.apple.warp import math
-from liblaf.apple.warp.typing import mat33, mat43, vec3
+from liblaf.apple.warp.typing.generics import mat33, mat43, vec3
 
 from ._deformation_gradient import deformation_gradient_vjp
 
 
 @wp.func
 @no_type_check
-def h1_diag(*, dhdX: mat43, g1: mat33):
+def h1_diag(dhdX: mat43, g1: mat33):
     """$diag(h_1)$.
 
     Args:
@@ -25,7 +25,7 @@ def h1_diag(*, dhdX: mat43, g1: mat33):
 
 @wp.func
 @no_type_check
-def h2_diag(*, dhdX: mat43, g2: mat33):
+def h2_diag(dhdX: mat43, g2: mat33):
     """$diag(h_2)$.
 
     Args:
@@ -40,7 +40,7 @@ def h2_diag(*, dhdX: mat43, g2: mat33):
 
 @wp.func
 @no_type_check
-def h3_diag(*, dhdX: mat43, g3: mat33):
+def h3_diag(dhdX: mat43, g3: mat33):
     """$diag(h_3)$.
 
     Args:
@@ -55,7 +55,7 @@ def h3_diag(*, dhdX: mat43, g3: mat33):
 
 @wp.func
 @no_type_check
-def h4_diag(*, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
+def h4_diag(dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
     """$diag(h_4)$.
 
     Args:
@@ -80,7 +80,7 @@ def h4_diag(*, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
 
 @wp.func
 @no_type_check
-def h5_diag(*, dhdX: mat43):
+def h5_diag(dhdX: mat43):
     """$diag(h_5)$.
 
     Args:
@@ -103,6 +103,6 @@ def h5_diag(*, dhdX: mat43):
 
 @wp.func
 @no_type_check
-def h6_diag(*, dhdX: mat43, F: mat33):  # noqa: ARG001
+def h6_diag(dhdX: mat43, F: mat33):  # noqa: ARG001
     """$diag(h_6)$."""
     return type(dhdX)()

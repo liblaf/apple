@@ -1,14 +1,13 @@
 import functools
 from collections.abc import Sequence
 
-import equinox as eqx
 import jax.numpy as jnp
 import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
 from warp.jax_experimental import ffi
 
-import liblaf.apple.warp.utils as warp_utils
+import liblaf.apple.warp.utils as wp_utils
 from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.dirichlet import Dirichlet
 from liblaf.apple.jax.sim.model import Model as ModelJax
@@ -28,26 +27,6 @@ class Model:
     model_jax: ModelJax = tree.field(factory=ModelJax)
     model_warp: ModelWarp = tree.field(factory=ModelWarp)
 
-    @staticmethod
-    @eqx.filter_jit
-    def static_fun(u: Vector, model: "Model") -> Scalar:
-        return model.fun(u)
-
-    @staticmethod
-    @eqx.filter_jit
-    def static_jac(u: Vector, model: "Model") -> Vector:
-        return model.jac(u)
-
-    @staticmethod
-    @eqx.filter_jit
-    def static_hess_prod(u: Vector, p: Vector, model: "Model") -> Vector:
-        return model.hess_prod(u, p)
-
-    @staticmethod
-    @eqx.filter_jit
-    def static_fun_and_jac(u: Vector, model: "Model") -> tuple[Scalar, Vector]:
-        return model.fun_and_jac(u)
-
     @property
     def n_dirichlet(self) -> int:
         return self.dirichlet.n_dirichlet
@@ -66,7 +45,7 @@ class Model:
 
     @functools.cached_property
     def fun_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(
+        @wp_utils.jax_callable(
             graph_mode=ffi.GraphMode.WARP, output_dims={"output": (1,)}
         )
         def jax_callable(
@@ -79,7 +58,7 @@ class Model:
 
     @functools.cached_property
     def jac_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(
+        @wp_utils.jax_callable(
             graph_mode=ffi.GraphMode.WARP, output_dims={"output": (self.n_points,)}
         )
         def jax_callable(u: wp.array(dtype=vec3), output: wp.array(dtype=vec3)) -> None:
@@ -89,8 +68,19 @@ class Model:
         return jax_callable
 
     @functools.cached_property
+    def hess_diag_jax_callable(self) -> ffi.FfiCallable:
+        @wp_utils.jax_callable(
+            graph_mode=ffi.GraphMode.WARP, output_dims={"output": (self.n_points,)}
+        )
+        def jax_callable(u: wp.array(dtype=vec3), output: wp.array(dtype=vec3)) -> None:
+            output.zero_()
+            self.model_warp.hess_diag(u, output)
+
+        return jax_callable
+
+    @functools.cached_property
     def hess_prod_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(
+        @wp_utils.jax_callable(
             graph_mode=ffi.GraphMode.WARP, output_dims={"output": (self.n_points,)}
         )
         def jax_callable(
@@ -104,8 +94,23 @@ class Model:
         return jax_callable
 
     @functools.cached_property
+    def hess_quad_jax_callable(self) -> ffi.FfiCallable:
+        @wp_utils.jax_callable(
+            graph_mode=ffi.GraphMode.WARP, output_dims={"hess_quad": (1,)}
+        )
+        def jax_callable(
+            u: wp.array(dtype=vec3),
+            p: wp.array(dtype=vec3),
+            output: wp.array(dtype=float_),
+        ) -> None:
+            output.zero_()
+            self.model_warp.hess_quad(u, p, output)
+
+        return jax_callable
+
+    @functools.cached_property
     def fun_and_jac_jax_callable(self) -> ffi.FfiCallable:
-        @warp_utils.jax_callable(
+        @wp_utils.jax_callable(
             num_outputs=2,
             graph_mode=ffi.GraphMode.WARP,
             output_dims={"fun": (1,), "jac": (self.n_points,)},
@@ -118,6 +123,24 @@ class Model:
             fun.zero_()
             jac.zero_()
             self.model_warp.fun_and_jac(u, fun, jac)
+
+        return jax_callable
+
+    @functools.cached_property
+    def jac_and_hess_diag_jax_callable(self) -> ffi.FfiCallable:
+        @wp_utils.jax_callable(
+            num_outputs=2,
+            graph_mode=ffi.GraphMode.WARP,
+            output_dims={"jac": (self.n_points,), "hess_diag": (self.n_points,)},
+        )
+        def jax_callable(
+            u: wp.array(dtype=vec3),
+            jac: wp.array(dtype=vec3),
+            hess_diag: wp.array(dtype=vec3),
+        ) -> None:
+            jac.zero_()
+            hess_diag.zero_()
+            self.model_warp.jac_and_hess_diag(u, jac, hess_diag)
 
         return jax_callable
 
@@ -140,6 +163,17 @@ class Model:
         jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
         return jac
 
+    def hess_diag(self, u: Vector) -> Vector:
+        u_full: Vector = self.to_full(u)
+        hess_diag_jax: Vector = self.model_jax.hess_diag(u_full)
+        hess_diag_wp: Vector
+        (hess_diag_wp,) = self.hess_diag_jax_callable(
+            u_full, output_dims={"output": (self.n_points,)}
+        )
+        hess_diag: Vector = hess_diag_jax + hess_diag_wp
+        hess_diag = self.reshape_or_extract_free(hess_diag, u.shape, zero=False)
+        return hess_diag
+
     def hess_prod(self, u: Vector, p: Vector) -> Vector:
         u_full: Vector = self.to_full(u)
         p_full: Vector = self.to_full(p, zero=True)
@@ -151,6 +185,17 @@ class Model:
         hess_prod: Vector = hess_prod_jax + hess_prod_wp
         hess_prod = self.reshape_or_extract_free(hess_prod, u.shape, zero=False)
         return hess_prod
+
+    def hess_quad(self, u: Vector, p: Vector) -> Scalar:
+        u_full: Vector = self.to_full(u)
+        p_full: Vector = self.to_full(p, zero=True)
+        hess_quad_jax: Scalar = self.model_jax.hess_quad(u_full, p_full)
+        hess_quad_wp: Scalar
+        (hess_quad_wp,) = self.hess_quad_jax_callable(
+            u_full, p_full, output_dims={"output": (1,)}
+        )
+        hess_quad_wp = hess_quad_wp.squeeze()
+        return hess_quad_jax + hess_quad_wp
 
     def fun_and_jac(self, u: Vector) -> tuple[Scalar, Vector]:
         u_full: Vector = self.to_full(u)
@@ -167,6 +212,22 @@ class Model:
         jac: Vector = jac_jax + jac_wp
         jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
         return fun, jac
+
+    def jac_and_hess_diag(self, u: Vector) -> tuple[Vector, Vector]:
+        u_full: Vector = self.to_full(u)
+        jac_jax: Vector
+        hess_diag_jax: Vector
+        jac_jax, hess_diag_jax = self.model_jax.jac_and_hess_diag(u_full)
+        jac_wp: Vector
+        hess_diag_wp: Vector
+        jac_wp, hess_diag_wp = self.jac_and_hess_diag_jax_callable(
+            u_full, output_dims={"jac": (self.n_points,), "hess_diag": (self.n_points,)}
+        )
+        jac: Vector = jac_jax + jac_wp
+        hess_diag: Vector = hess_diag_jax + hess_diag_wp
+        jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
+        hess_diag = self.reshape_or_extract_free(hess_diag, u.shape, zero=False)
+        return jac, hess_diag
 
     def mixed_derivative_prod(
         self, u: Vector, p: Vector

@@ -1,34 +1,39 @@
 from typing import no_type_check
 
 import warp as wp
-import warp.types as wpt
 
 from liblaf.apple.warp import math
-from liblaf.apple.warp.sim.energy.elastic import utils
-from liblaf.apple.warp.typing import float_, mat33, mat43
+from liblaf.apple.warp.sim.energy.elastic import func as _func
+from liblaf.apple.warp.typing import float_, mat33, mat43, vec6
+
+
+@wp.struct
+class ParamsElem:
+    activation: vec6
+    mu: float_
 
 
 @wp.struct
 class Params:
-    activation: wpt.vector(6, float)
-    mu: float
+    activation: wp.array(dtype=vec6)
+    mu: wp.array(dtype=float_)
 
 
 @wp.func
 @no_type_check
-def energy_density(F: mat33, params: Params) -> None:
-    A = utils.make_activation_mat33(params.activation)  # mat33
+def energy_density(F: mat33, params: ParamsElem):  # -> float:
+    A = _func.make_activation_mat33(params.activation)  # mat33
     R, _ = math.polar_rv(F)  # mat33
     Psi = (
-        type(params.mu)(0.5) * params.mu * math.frobenius_norm_square(F - R @ A)
+        type(F[0, 0])(0.5) * params.mu * math.frobenius_norm_square(F - R @ A)
     )  # float
     return Psi
 
 
 @wp.func
 @no_type_check
-def first_piola_kirchhoff_stress_tensor(F: mat33, params: Params) -> mat33:
-    A = utils.make_activation_mat33(params.activation)  # mat33
+def first_piola_kirchhoff_stress_tensor(F: mat33, params: ParamsElem):  # -> mat33:
+    A = _func.make_activation_mat33(params.activation)  # mat33
     R, _ = math.polar_rv(F)  # mat33
     PK1 = params.mu * (F - R @ A)  # mat33
     return PK1
@@ -36,37 +41,48 @@ def first_piola_kirchhoff_stress_tensor(F: mat33, params: Params) -> mat33:
 
 @wp.func
 @no_type_check
-def energy_density_hess_diag(F: mat33, dhdX: mat43, params: Params) -> mat33:
+def energy_density_hess_diag(F: mat33, dhdX: mat43, params: ParamsElem):  # -> mat43:
     U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-    lambdas = utils.lambdas(s)  # vec3
-    Q0, Q1, Q2 = utils.Qs(U, V)  # mat33, mat33, mat33
-    h4_diag = utils.h4_diag(dhdX=dhdX, lambdas=lambdas, Q0=Q0, Q1=Q1, Q2=Q2)  # mat43
-    h5_diag = utils.h5_diag(dh_dX=dhdX)  # mat43
+    lambdas = _func.lambdas(s)  # vec3
+    Q0, Q1, Q2 = _func.Qs(U, V)  # mat33, mat33, mat33
+    h4_diag = _func.h4_diag(dhdX, lambdas, Q0, Q1, Q2)  # mat43
+    h5_diag = _func.h5_diag(dhdX)  # mat43
     h_diag = -type(F[0, 0])(2.0) * h4_diag + h5_diag  # mat43
-    return type(params.mu)(0.5) * params.mu * h_diag  # mat43
+    return type(F[0, 0])(0.5) * params.mu * h_diag  # mat43
 
 
 @wp.func
 @no_type_check
-def energy_density_hess_prod(F: mat33, p: mat43, dhdX: mat43, params: Params) -> mat43:
+def energy_density_hess_prod(
+    F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+):  # -> mat43:
     U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-    lambdas = utils.lambdas(s)  # vec3
-    Q0, Q1, Q2 = utils.Qs(U, V)  # mat33, mat33, mat33
-    h4_prod = utils.h4_prod(
-        dhdX=dhdX, lambdas=lambdas, p=p, Q0=Q0, Q1=Q1, Q2=Q2
-    )  # mat43
-    h5_prod = utils.h5_prod(dhdX=dhdX, p=p)  # mat43
+    lambdas = _func.lambdas(s)  # vec3
+    Q0, Q1, Q2 = _func.Qs(U, V)  # mat33, mat33, mat33
+    h4_prod = _func.h4_prod(p, dhdX, lambdas, Q0, Q1, Q2)  # mat43
+    h5_prod = _func.h5_prod(p, dhdX)  # mat43
     h_prod = -type(F[0, 0])(2.0) * h4_prod + h5_prod  # mat43
-    return type(params.mu)(0.5) * params.mu * h_prod  # mat43
+    return type(F[0, 0])(0.5) * params.mu * h_prod  # mat43
 
 
 @wp.func
 @no_type_check
-def energy_density_hess_quad(F: mat33, p: mat43, dhdX: mat43, params: Params) -> float_:
+def energy_density_hess_quad(
+    F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+):  # -> float:
     U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-    lambdas = utils.lambdas(s)  # vec3
-    Q0, Q1, Q2 = utils.Qs(U, V)  # mat33, mat33, mat33
-    h4_quad = utils.h4_quad(p=p, dhdX=dhdX, lambdas=lambdas, Q0=Q0, Q1=Q1, Q2=Q2)
-    h5_quad = utils.h5_quad(p=p, dhdX=dhdX)
+    lambdas = _func.lambdas(s)  # vec3
+    Q0, Q1, Q2 = _func.Qs(U, V)  # mat33, mat33, mat33
+    h4_quad = _func.h4_quad(p, dhdX, lambdas, Q0, Q1, Q2)
+    h5_quad = _func.h5_quad(p, dhdX)
     h_quad = -type(F[0, 0])(2.0) * h4_quad + h5_quad
-    return type(params.mu)(0.5) * params.mu * h_quad
+    return type(F[0, 0])(0.5) * params.mu * h_quad
+
+
+@wp.func
+@no_type_check
+def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    cell_params = ParamsElem()
+    cell_params.activation = params.activation[cid]
+    cell_params.mu = params.mu[cid]
+    return cell_params

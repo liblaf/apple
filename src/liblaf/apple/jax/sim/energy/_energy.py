@@ -20,13 +20,6 @@ class Energy(tree.IdMixin):
         index: UpdatesIndex = jnp.arange(data.shape[0])
         return data, index
 
-    def fun_and_jac(self, u: Vector) -> tuple[Scalar, Updates]:
-        value: Scalar
-        data: Vector
-        value, data = jax.value_and_grad(self.fun)(u)
-        index: UpdatesIndex = jnp.arange(data.shape[0])
-        return value, (data, index)
-
     def hess_diag(self, u: Vector) -> Updates:
         data: Vector = math.hess_diag(self.fun, u)
         index: UpdatesIndex = jnp.arange(data.shape[0])
@@ -43,6 +36,18 @@ class Energy(tree.IdMixin):
         index: UpdatesIndex
         data, index = self.hess_prod(u, p)
         return jnp.vdot(p[index], data)
+
+    def fun_and_jac(self, u: Vector) -> tuple[Scalar, Updates]:
+        value: Scalar
+        data: Vector
+        value, data = jax.value_and_grad(self.fun)(u)
+        index: UpdatesIndex = jnp.arange(data.shape[0])
+        return value, (data, index)
+
+    def jac_and_hess_diag(self, u: Vector) -> tuple[Updates, Updates]:
+        jac: Updates = self.jac(u)
+        hess_diag: Updates = self.hess_diag(u)
+        return jac, hess_diag
 
     def mixed_derivative_prod(self, u: Vector, p: Vector) -> dict[str, Array]:
         outputs: dict[str, Array] = {}

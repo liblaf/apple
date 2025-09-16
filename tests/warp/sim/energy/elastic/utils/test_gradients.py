@@ -10,7 +10,7 @@ from jaxtyping import Array, Float
 from liblaf.apple.jax import testing
 from liblaf.apple.warp import math
 from liblaf.apple.warp import utils as wp_utils
-from liblaf.apple.warp.sim.energy.elastic import utils
+from liblaf.apple.warp.sim.energy.elastic import func
 
 
 class IdentityFunction(Protocol):
@@ -46,47 +46,47 @@ def identity_jvp(fun: IdentityFunction, grad: IdentityGradient) -> IdentityJvp:
 
 
 def I1(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
     S_wp: wp.array
     _, S_wp = wp.map(math.polar_rv, F_wp)  # pyright: ignore[reportAssignmentType, reportGeneralTypeIssues]
-    I1_wp: wp.array = wp.map(utils.I1, S_wp)  # pyright: ignore[reportAssignmentType]
+    I1_wp: wp.array = wp.map(func.I1, S_wp)  # pyright: ignore[reportAssignmentType]
     I1: Float[Array, " batch"] = wp.to_jax(I1_wp)
     return I1
 
 
 def I2(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
-    I2_wp: wp.array = wp.map(utils.I2, F_wp)  # pyright: ignore[reportAssignmentType]
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
+    I2_wp: wp.array = wp.map(func.I2, F_wp)  # pyright: ignore[reportAssignmentType]
     I2: Float[Array, " batch"] = wp.to_jax(I2_wp)
     return I2
 
 
 def I3(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
-    I3_wp: wp.array = wp.map(utils.I3, F_wp)  # pyright: ignore[reportAssignmentType]
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
+    I3_wp: wp.array = wp.map(func.I3, F_wp)  # pyright: ignore[reportAssignmentType]
     I3: Float[Array, " batch"] = wp.to_jax(I3_wp)
     return I3
 
 
 def g1(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch 3 3"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
     R_wp: wp.array
     R_wp, _ = wp.map(math.polar_rv, F_wp)  # pyright: ignore[reportAssignmentType, reportGeneralTypeIssues]
-    g1_wp: wp.array = wp.map(utils.g1, R_wp)  # pyright: ignore[reportAssignmentType]
+    g1_wp: wp.array = wp.map(func.g1, R_wp)  # pyright: ignore[reportAssignmentType]
     g1: Float[Array, "batch 3 3"] = wp.to_jax(g1_wp)
     return g1
 
 
 def g2(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch 3 3"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
-    g2_wp: wp.array = wp.map(utils.g2, F_wp)  # pyright: ignore[reportAssignmentType]
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
+    g2_wp: wp.array = wp.map(func.g2, F_wp)  # pyright: ignore[reportAssignmentType]
     g2: Float[Array, "batch 3 3"] = wp.to_jax(g2_wp)
     return g2
 
 
 def g3(F: Float[Array, "batch 3 3"]) -> Float[Array, " batch 3 3"]:
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
-    g3_wp: wp.array = wp.map(utils.g3, F_wp)  # pyright: ignore[reportAssignmentType]
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
+    g3_wp: wp.array = wp.map(func.g3, F_wp)  # pyright: ignore[reportAssignmentType]
     g3: Float[Array, "batch 3 3"] = wp.to_jax(g3_wp)
     return g3
 

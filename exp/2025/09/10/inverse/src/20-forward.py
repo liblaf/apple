@@ -27,14 +27,18 @@ def main(cfg: Config) -> None:
 
     model: sim.Model = builder.finish()
     optimizer: optim.Minimizer = optim.MinimizerScipy(
-        method="trust-constr", options={"verbose": 3}
+        method="trust-constr", tol=1e-5, options={"verbose": 3}
     )
+    optimizer: optim.Minimizer = optim.MinimizerPNCG(rtol=1e-5, maxiter=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=jnp.zeros((model.n_free,)),
-        fun=sim.Model.static_fun,
-        jac=sim.Model.static_jac,
-        hessp=sim.Model.static_hess_prod,
-        fun_and_jac=sim.Model.static_fun_and_jac,
+        fun=sim.fun,
+        jac=sim.jac,
+        hessp=sim.hess_prod,
+        hess_diag=sim.hess_diag,
+        hess_quad=sim.hess_quad,
+        fun_and_jac=sim.fun_and_jac,
+        jac_and_hess_diag=sim.jac_and_hess_diag,
         args=(model,),
     )
     logger.info(solution)

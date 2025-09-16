@@ -5,7 +5,7 @@ import warp as wp
 
 @wp.func
 @no_type_check
-def g1(*, R: Any):
+def g1(R: Any):
     r"""Gradient of $I_1$ w.r.t. $F$.
 
     $$
@@ -23,7 +23,7 @@ def g1(*, R: Any):
 
 @wp.func
 @no_type_check
-def g2(*, F: Any):
+def g2(F: Any):
     """Gradient of $I_2$ w.r.t. $F$.
 
     $$
@@ -41,7 +41,7 @@ def g2(*, F: Any):
 
 @wp.func
 @no_type_check
-def g3(*, F: Any):
+def g3(F: Any):
     r"""Gradient of $I_3$ w.r.t. $F$.
 
     $$

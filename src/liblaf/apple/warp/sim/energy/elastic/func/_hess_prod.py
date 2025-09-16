@@ -2,14 +2,14 @@ from typing import no_type_check
 
 import warp as wp
 
-from liblaf.apple.warp.typing import mat33, mat43, vec3
+from liblaf.apple.warp.typing.generics import mat33, mat43, vec3
 
 from ._deformation_gradient import deformation_gradient_jvp, deformation_gradient_vjp
 
 
 @wp.func
 @no_type_check
-def h1_prod(p: mat43, *, dhdX: mat43, g1: mat33):
+def h1_prod(p: mat43, dhdX: mat43, g1: mat33):
     """$h_1 p$.
 
     Args:
@@ -26,7 +26,7 @@ def h1_prod(p: mat43, *, dhdX: mat43, g1: mat33):
 
 @wp.func
 @no_type_check
-def h2_prod(p: mat43, *, dhdX: mat43, g2: mat33):
+def h2_prod(p: mat43, dhdX: mat43, g2: mat33):
     """$h_2 p$.
 
     Args:
@@ -43,7 +43,7 @@ def h2_prod(p: mat43, *, dhdX: mat43, g2: mat33):
 
 @wp.func
 @no_type_check
-def h3_prod(p: mat43, *, dhdX: mat43, g3: mat33):
+def h3_prod(p: mat43, dhdX: mat43, g3: mat33):
     """$h_3 p$.
 
     Args:
@@ -60,7 +60,7 @@ def h3_prod(p: mat43, *, dhdX: mat43, g3: mat33):
 
 @wp.func
 @no_type_check
-def h4_prod(p: mat43, *, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
+def h4_prod(p: mat43, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
     """$h_4 p$.
 
     Args:
@@ -86,7 +86,7 @@ def h4_prod(p: mat43, *, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: m
 
 @wp.func
 @no_type_check
-def h5_prod(p: mat43, *, dhdX: mat43):
+def h5_prod(p: mat43, dhdX: mat43):
     """$h_5 p$.
 
     Args:
@@ -102,7 +102,7 @@ def h5_prod(p: mat43, *, dhdX: mat43):
 
 @wp.func
 @no_type_check
-def h6_prod(p: mat43, *, dhdX: mat43, F: mat33):
+def h6_prod(p: mat43, dhdX: mat43, F: mat33):
     """$h_6 p$.
 
     Args:

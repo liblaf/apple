@@ -119,7 +119,17 @@ exclude = ["**/marimo/"]
 extend = ".config/linters/.ruff.toml"
 
 [tool.ruff.lint]
-ignore = ["ANN202", "F722", "N802", "N803", "N806", "N815", "PLR0913", "RUF002"]
+ignore = [
+  "ANN201",
+  "ANN202",
+  "F722",
+  "N802",
+  "N803",
+  "N806",
+  "N815",
+  "PLR0913",
+  "RUF002",
+]
 
 [tool.uv]
 default-groups = "all"

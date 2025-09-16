@@ -3,14 +3,14 @@ from typing import no_type_check
 import warp as wp
 
 from liblaf.apple.warp import math
-from liblaf.apple.warp.typing import mat33, mat43, vec3
+from liblaf.apple.warp.typing.generics import mat33, mat43, vec3
 
 from ._deformation_gradient import deformation_gradient_jvp
 
 
 @wp.func
 @no_type_check
-def h1_quad(p: mat43, *, dhdX: mat43, g1: mat33):
+def h1_quad(p: mat43, dhdX: mat43, g1: mat33):
     """$p^T h_1 p$.
 
     Args:
@@ -26,7 +26,7 @@ def h1_quad(p: mat43, *, dhdX: mat43, g1: mat33):
 
 @wp.func
 @no_type_check
-def h2_quad(p: mat43, *, dhdX: mat43, g2: mat33):
+def h2_quad(p: mat43, dhdX: mat43, g2: mat33):
     """$p^T h_2 p$.
 
     Args:
@@ -42,7 +42,7 @@ def h2_quad(p: mat43, *, dhdX: mat43, g2: mat33):
 
 @wp.func
 @no_type_check
-def h3_quad(p: mat43, *, dhdX: mat43, g3: mat33):
+def h3_quad(p: mat43, dhdX: mat43, g3: mat33):
     """$p^T h_3 p$.
 
     Args:
@@ -58,7 +58,7 @@ def h3_quad(p: mat43, *, dhdX: mat43, g3: mat33):
 
 @wp.func
 @no_type_check
-def h4_quad(p: mat43, *, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
+def h4_quad(p: mat43, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33):
     """$p^T h_4 p$.
 
     Args:
@@ -83,7 +83,7 @@ def h4_quad(p: mat43, *, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: m
 
 @wp.func
 @no_type_check
-def h5_quad(p: mat43, *, dhdX: mat43):
+def h5_quad(p: mat43, dhdX: mat43):
     """$p^T h_5 p$.
 
     Args:
@@ -99,7 +99,7 @@ def h5_quad(p: mat43, *, dhdX: mat43):
 
 @wp.func
 @no_type_check
-def h6_quad(p: mat43, *, dhdX: mat43, F: mat33):
+def h6_quad(p: mat43, dhdX: mat43, F: mat33):
     """$p^T h_6 p$.
 
     Args:

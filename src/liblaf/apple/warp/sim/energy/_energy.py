@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import warp as wp
 
 from liblaf.apple.jax import tree
@@ -5,6 +7,8 @@ from liblaf.apple.jax import tree
 
 @tree.pytree
 class Energy(tree.IdMixin):
+    requires_grad: Sequence[str] = tree.field(default=(), kw_only=True)
+
     def fun(self, u: wp.array, output: wp.array) -> None:
         raise NotImplementedError
 

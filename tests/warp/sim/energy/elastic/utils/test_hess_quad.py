@@ -10,7 +10,7 @@ import warp as wp
 from jaxtyping import Array, Float
 
 import liblaf.apple.warp.utils as wp_utils
-from liblaf.apple.warp.sim.energy.elastic import utils
+from liblaf.apple.warp.sim.energy.elastic import func
 
 
 def random_matrices(
@@ -34,7 +34,7 @@ def check_quad(
     p: Float[Array, "batch 4 3"],
     args: Sequence[wp.array],
 ) -> None:
-    p_wp: wp.array = wp_utils.from_jax(p, (4, 3))
+    p_wp: wp.array = wp_utils.to_warp(p, wp_utils.MatrixLike(4, 3))
     prod_wp: wp.array = wp.map(prod, p_wp, *args)  # pyright: ignore[reportAssignmentType]
     prod_jax: Float[Array, "batch 4 3"] = wp.to_jax(prod_wp)
     quad_wp: wp.array = wp.map(quad, p_wp, *args)  # pyright: ignore[reportAssignmentType]
@@ -58,10 +58,10 @@ def test_h1_quad(
     dhdX: Float[Array, "batch 4 3"],
     g1: Float[Array, "batch 3 3"],
 ) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
-    g1_wp: wp.array = wp_utils.from_jax(g1, (3, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
+    g1_wp: wp.array = wp_utils.to_warp(g1, wp_utils.MatrixLike(3, 3))
     args: Sequence[wp.array] = (dhdX_wp, g1_wp)
-    check_quad(utils.h1_prod, utils.h1_quad, p, args)
+    check_quad(func.h1_prod, func.h1_quad, p, args)
 
 
 @hypothesis.given(
@@ -72,10 +72,10 @@ def test_h2_quad(
     dhdX: Float[Array, "batch 4 3"],
     g2: Float[Array, "batch 3 3"],
 ) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
-    g2_wp: wp.array = wp_utils.from_jax(g2, (3, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
+    g2_wp: wp.array = wp_utils.to_warp(g2, wp_utils.MatrixLike(3, 3))
     args: Sequence[wp.array] = (dhdX_wp, g2_wp)
-    check_quad(utils.h2_prod, utils.h2_quad, p, args)
+    check_quad(func.h2_prod, func.h2_quad, p, args)
 
 
 @hypothesis.given(
@@ -86,10 +86,10 @@ def test_h3_quad(
     dhdX: Float[Array, "batch 4 3"],
     g3: Float[Array, "batch 3 3"],
 ) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
-    g3_wp: wp.array = wp_utils.from_jax(g3, (3, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
+    g3_wp: wp.array = wp_utils.to_warp(g3, wp_utils.MatrixLike(3, 3))
     args: Sequence[wp.array] = (dhdX_wp, g3_wp)
-    check_quad(utils.h3_prod, utils.h3_quad, p, args)
+    check_quad(func.h3_prod, func.h3_quad, p, args)
 
 
 @hypothesis.given(
@@ -108,20 +108,20 @@ def test_h4_quad(
     Q1: Float[Array, "batch 3 3"],
     Q2: Float[Array, "batch 3 3"],
 ) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
-    lambdas_wp: wp.array = wp_utils.from_jax(lambdas, (3,))
-    Q0_wp: wp.array = wp_utils.from_jax(Q0, (3, 3))
-    Q1_wp: wp.array = wp_utils.from_jax(Q1, (3, 3))
-    Q2_wp: wp.array = wp_utils.from_jax(Q2, (3, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
+    lambdas_wp: wp.array = wp_utils.to_warp(lambdas, wp_utils.VectorLike(3))
+    Q0_wp: wp.array = wp_utils.to_warp(Q0, wp_utils.MatrixLike(3, 3))
+    Q1_wp: wp.array = wp_utils.to_warp(Q1, wp_utils.MatrixLike(3, 3))
+    Q2_wp: wp.array = wp_utils.to_warp(Q2, wp_utils.MatrixLike(3, 3))
     args: Sequence[wp.array] = (dhdX_wp, lambdas_wp, Q0_wp, Q1_wp, Q2_wp)
-    check_quad(utils.h4_prod, utils.h4_quad, p, args)
+    check_quad(func.h4_prod, func.h4_quad, p, args)
 
 
 @hypothesis.given(p=random_matrices((4, 3)), dhdX=random_matrices((4, 3)))
 def test_h5_quad(p: Float[Array, "batch 4 3"], dhdX: Float[Array, "batch 4 3"]) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
     args: Sequence[wp.array] = (dhdX_wp,)
-    check_quad(utils.h5_prod, utils.h5_quad, p, args)
+    check_quad(func.h5_prod, func.h5_quad, p, args)
 
 
 @hypothesis.given(
@@ -132,7 +132,7 @@ def test_h6_quad(
     dhdX: Float[Array, "batch 4 3"],
     F: Float[Array, "batch 3 3"],
 ) -> None:
-    dhdX_wp: wp.array = wp_utils.from_jax(dhdX, (4, 3))
-    F_wp: wp.array = wp_utils.from_jax(F, (3, 3))
+    dhdX_wp: wp.array = wp_utils.to_warp(dhdX, wp_utils.MatrixLike(4, 3))
+    F_wp: wp.array = wp_utils.to_warp(F, wp_utils.MatrixLike(3, 3))
     args: Sequence[wp.array] = (dhdX_wp, F_wp)
-    check_quad(utils.h6_prod, utils.h6_quad, p, args)
+    check_quad(func.h6_prod, func.h6_quad, p, args)

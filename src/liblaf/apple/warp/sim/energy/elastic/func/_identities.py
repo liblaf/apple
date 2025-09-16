@@ -1,6 +1,6 @@
 import warp as wp
 
-from liblaf.apple.warp.typing import mat33
+from liblaf.apple.warp.typing.generics import mat33
 
 
 @wp.func

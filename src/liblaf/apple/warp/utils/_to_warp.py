@@ -32,6 +32,11 @@ def to_warp(
 ) -> wp.array:
     match grapes.array_kind(a):
         case "numpy":
+            assert isinstance(a, np.ndarray)
+            if isinstance(dtype, MatrixLike):
+                dtype = wpt.matrix(dtype.shape, wp.dtype_from_numpy(a.dtype))
+            elif isinstance(dtype, VectorLike):
+                dtype = wpt.vector(dtype.length, wp.dtype_from_numpy(a.dtype))
             return wp.from_numpy(
                 a, dtype=dtype, shape=shape, requires_grad=requires_grad
             )

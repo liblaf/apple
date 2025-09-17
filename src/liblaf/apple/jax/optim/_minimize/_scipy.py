@@ -14,9 +14,9 @@ from ._objective import Objective
 
 @tree.pytree
 class MinimizerScipy(Minimizer):
-    method: str = tree.field(default="trust-constr")
-    tol: float | None = tree.field(default=None)
-    options: Mapping[str, Any] = tree.field(factory=lambda: {"verbose": 3})
+    method: str = "trust-constr"
+    tol: float | None = None
+    options: Mapping[str, Any] = {}
 
     @override
     def _minimize_impl(

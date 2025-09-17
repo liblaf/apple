@@ -45,12 +45,12 @@ class Geometry:
         return self.cells.shape[0]
 
     @property
-    def point_id(self) -> Integer[Array, " p"]:
-        return math.asarray(self.point_data["point-id"], int_)
+    def point_ids(self) -> Integer[Array, " p"]:
+        return math.asarray(self.point_data["point-ids"], int_)
 
     @property
     def cells_global(self) -> Integer[Array, "c a"]:
-        return self.point_id[self.cells]
+        return self.point_ids[self.cells]
 
     def copy_attributes(self, other: Self | pv.DataObject) -> None:
         self.point_data.update(as_array_dict(other.point_data))

@@ -15,7 +15,7 @@ def make_activation(activation: Float[Array, "c 6"]) -> Float[Array, "c 3 3"]:
     A = A.at[:, 1, 0].set(activation[:, 3])
     A = A.at[:, 2, 0].set(activation[:, 4])
     A = A.at[:, 2, 1].set(activation[:, 5])
-    A += jnp.identity(3, activation.dtype)
+    # A += jnp.identity(3, activation.dtype)
     return A
 
 

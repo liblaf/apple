@@ -118,9 +118,8 @@ class InversePhysics:
                 ),
                 -dLdu,
                 # lx.GMRES(rtol=1e-5, atol=1e-5, stagnation_iters=50, restart=50),
-                lx.NormalCG(rtol=1e-3, atol=1e-3),
+                lx.NormalCG(rtol=1e-5, atol=1e-5),
                 options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
-                throw=False,
             )
         logger.info(lx.RESULTS[solution.result])
         logger.info(solution.stats)
@@ -135,7 +134,7 @@ class InversePhysics:
         diff = diff[self.target.point_data["is-surface"]]
         objective: Scalar = 0.5 * jnp.sum(diff**2)
 
-        regularization: Float[Array, ""] = 1e3 * self.reg_mean(
+        regularization: Float[Array, ""] = 1e2 * self.reg_mean(
             params
         ) + 1.0 * self.reg_act(params)
 
@@ -143,38 +142,50 @@ class InversePhysics:
         return loss
 
     def reg_mean(self, params: Params) -> Scalar:
-        activation_mean: Float[Array, "c 6"] = jnp.mean(params.activation, axis=0)
-        regularization: Float[Array, ""] = jnp.dot(
-            self.active_volume,
-            jnp.sum(
-                (params.activation - activation_mean[jnp.newaxis, ...]) ** 2, axis=-1
-            ),
-        )
+        regularization: Float[Array, ""] = jnp.zeros(())
+        for muscle_id in range(len(self.target.field_data["muscle-names"])):
+            muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
+            activation: Float[Array, " c 6"] = params.activation[muscle_mask]
+            active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
+            activation_mean: Float[Array, " 6"] = jnp.mean(activation, axis=0)
+            regularization += jnp.dot(
+                active_volume,
+                jnp.sum((activation - activation_mean[jnp.newaxis, ...]) ** 2, axis=-1),
+            )
         return regularization
 
     def reg_act(self, params: Params) -> Scalar:
         # direction: Float[Array, "c 3"] = jnp.asarray(
         #     self.target.cell_data["muscle-direction"]
         # )
-        Q = jnp.identity(3)[jnp.newaxis, ...]
-        gamma = jnp.reciprocal(jnp.mean(params.activation[:, 0]))
-        gamma = jax.lax.stop_gradient(gamma)
-        regularization: Float[Array, ""] = jnp.dot(
-            self.active_volume,
-            jnp.sum(
-                jnp.square(
-                    Q.mT
-                    @ jnp.diagflat(
-                        jnp.asarray(
-                            [jnp.reciprocal(gamma), jnp.sqrt(gamma), jnp.sqrt(gamma)]
-                        )
-                    )[jnp.newaxis, ...]
-                    @ Q
-                    - utils.make_activation(params.activation)
+        regularization: Float[Array, ""] = jnp.zeros(())
+        for muscle_id in range(len(self.target.field_data["muscle-names"])):
+            muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
+            activation: Float[Array, " c 6"] = params.activation[muscle_mask]
+            active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
+            Q = jnp.identity(3)[jnp.newaxis, ...]
+            gamma = jnp.reciprocal(jnp.mean(activation[:, 0]))
+            gamma = jax.lax.stop_gradient(gamma)
+            regularization += jnp.dot(
+                active_volume,
+                jnp.sum(
+                    jnp.square(
+                        Q.mT
+                        @ jnp.diagflat(
+                            jnp.asarray(
+                                [
+                                    jnp.reciprocal(gamma),
+                                    jnp.sqrt(gamma),
+                                    jnp.sqrt(gamma),
+                                ]
+                            )
+                        )[jnp.newaxis, ...]
+                        @ Q
+                        - utils.make_activation(activation)
+                    ),
+                    axis=(-2, -1),
                 ),
-                axis=(-2, -1),
-            ),
-        )
+            )
         return regularization
 
 

@@ -31,7 +31,7 @@ class ModelBuilder:
         self.energies.append(energy)
 
     def assign_dofs[T: pv.DataSet](self, mesh: T) -> T:
-        mesh.point_data["point-id"] = np.arange(
+        mesh.point_data["point-ids"] = np.arange(
             self.n_points, self.n_points + mesh.n_points
         )
         self.points = jnp.concat([self.points, mesh.points])

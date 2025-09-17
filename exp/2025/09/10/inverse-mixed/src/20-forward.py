@@ -23,7 +23,7 @@ def main(cfg: Config) -> None:
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
-    builder.add_energy(sim_wp.ArapActive.from_pyvista(mesh))
+    builder.add_energy(sim_wp.Phace.from_pyvista(mesh))
 
     model: sim.Model = builder.finish()
     optimizer: optim.Minimizer = optim.MinimizerScipy(
@@ -44,7 +44,7 @@ def main(cfg: Config) -> None:
     logger.info(solution)
     u: Vector = model.to_full(solution["x"])
     mesh.point_data["solution"] = np.asarray(u[mesh.point_data["point-ids"]])
-    # mesh.warp_by_vector("solution", inplace=True)
+    mesh.warp_by_vector("solution", inplace=True)
     melon.save(cfg.output, mesh)
 
 

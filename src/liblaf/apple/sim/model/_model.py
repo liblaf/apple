@@ -1,6 +1,7 @@
 import functools
 from collections.abc import Sequence
 
+import equinox as eqx
 import jax.numpy as jnp
 import numpy as np
 import warp as wp
@@ -144,6 +145,7 @@ class Model:
 
         return jax_callable
 
+    @eqx.filter_jit
     def fun(self, u: Vector) -> Scalar:
         u_full: Vector = self.to_full(u)
         outputs_jax: Scalar = self.model_jax.fun(u_full)
@@ -152,6 +154,7 @@ class Model:
         output_wp = output_wp.squeeze()
         return outputs_jax + output_wp
 
+    @eqx.filter_jit
     def jac(self, u: Vector) -> Vector:
         u_full: Vector = self.to_full(u)
         jac_jax: Vector = self.model_jax.jac(u_full)
@@ -163,6 +166,7 @@ class Model:
         jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
         return jac
 
+    @eqx.filter_jit
     def hess_diag(self, u: Vector) -> Vector:
         u_full: Vector = self.to_full(u)
         hess_diag_jax: Vector = self.model_jax.hess_diag(u_full)
@@ -174,6 +178,7 @@ class Model:
         hess_diag = self.reshape_or_extract_free(hess_diag, u.shape, zero=False)
         return hess_diag
 
+    @eqx.filter_jit
     def hess_prod(self, u: Vector, p: Vector) -> Vector:
         u_full: Vector = self.to_full(u)
         p_full: Vector = self.to_full(p, zero=True)
@@ -186,6 +191,7 @@ class Model:
         hess_prod = self.reshape_or_extract_free(hess_prod, u.shape, zero=False)
         return hess_prod
 
+    @eqx.filter_jit
     def hess_quad(self, u: Vector, p: Vector) -> Scalar:
         u_full: Vector = self.to_full(u)
         p_full: Vector = self.to_full(p, zero=True)
@@ -197,6 +203,7 @@ class Model:
         hess_quad_wp = hess_quad_wp.squeeze()
         return hess_quad_jax + hess_quad_wp
 
+    @eqx.filter_jit
     def fun_and_jac(self, u: Vector) -> tuple[Scalar, Vector]:
         u_full: Vector = self.to_full(u)
         fun_jax: Scalar
@@ -213,6 +220,7 @@ class Model:
         jac = self.reshape_or_extract_free(jac, u.shape, zero=True)
         return fun, jac
 
+    @eqx.filter_jit
     def jac_and_hess_diag(self, u: Vector) -> tuple[Vector, Vector]:
         u_full: Vector = self.to_full(u)
         jac_jax: Vector
@@ -237,6 +245,13 @@ class Model:
         outputs: dict[str, dict[str, Array]] = self.model_jax.mixed_derivative_prod(
             u_full, p_full
         )
+        outputs_wp: dict[str, dict[str, wp.array]] = (
+            self.model_warp.mixed_derivative_prod(
+                wp_utils.to_warp(u_full, vec3), wp_utils.to_warp(p_full, vec3)
+            )
+        )
+        for key, value in outputs_wp.items():
+            outputs[key] = {k: wp.to_jax(v) for k, v in value.items()}
         return outputs
 
     def reshape_or_extract_free(

@@ -39,3 +39,12 @@ class Model:
     ) -> None:
         for energy in self.energies.values():
             energy.jac_and_hess_diag(u, jac, hess_diag)
+
+    def mixed_derivative_prod(
+        self, u: wp.array, p: wp.array
+    ) -> dict[str, dict[str, wp.array]]:
+        outputs: dict[str, dict[str, wp.array]] = {
+            energy.id: energy.mixed_derivative_prod(u, p)
+            for energy in self.energies.values()
+        }
+        return outputs

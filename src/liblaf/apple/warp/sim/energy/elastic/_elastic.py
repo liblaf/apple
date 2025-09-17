@@ -26,6 +26,9 @@ class Elastic(Energy):
     first_piola_kirchhoff_stress_func: wp.Function = tree.field(default=None)
     get_cell_params: wp.Function = tree.field(default=None)
 
+    clamp_hess_diag: bool = True
+    clamp_hess_quad: bool = True
+
     @classmethod
     def from_region(cls, region: Region, **kwargs) -> Self:
         self: Self = cls(
@@ -45,11 +48,6 @@ class Elastic(Energy):
     ) -> Self:
         region: Region = Region.from_pyvista(mesh, grad=True, quadrature=quadrature)
         return cls.from_region(region, **kwargs)
-
-    def __attrs_post_init__(self) -> None:
-        for name in self.requires_grad:
-            arr: wp.array = getattr(self.params, name)
-            arr.requires_grad = True
 
     @property
     def n_cells(self) -> int:
@@ -134,6 +132,13 @@ class Elastic(Energy):
             hess_diag = dV[cid, qid] * self.energy_density_hess_diag_func(
                 F, dhdX[cid, qid], cell_params
             )  # mat43
+            if wp.static(self.clamp_hess_diag):
+                hess_diag = wp.matrix_from_rows(
+                    wp.max(hess_diag[0], type(hess_diag[0])()),
+                    wp.max(hess_diag[1], type(hess_diag[1])()),
+                    wp.max(hess_diag[2], type(hess_diag[2])()),
+                    wp.max(hess_diag[3], type(hess_diag[3])()),
+                )
             for i in range(4):
                 output[vid[i]] += hess_diag[i]
 
@@ -201,9 +206,12 @@ class Elastic(Energy):
             p3 = p[vid[3]]  # vec3
             p_cell = wp.matrix_from_rows(p0, p1, p2, p3)  # mat43
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
-            output[0] += dV[cid, qid] * self.energy_density_hess_quad_func(
+            hess_quad = dV[cid, qid] * self.energy_density_hess_quad_func(
                 F, p_cell, dhdX[cid, qid], cell_params
             )
+            if wp.static(self.clamp_hess_quad):
+                hess_quad = wp.max(hess_quad, type(hess_quad)(0.0))
+            output[0] += hess_quad
 
         return kernel  # pyright: ignore[reportReturnType]
 
@@ -268,6 +276,13 @@ class Elastic(Energy):
             hess_diag_cell = dV[cid, qid] * self.energy_density_hess_diag_func(
                 F, dhdX[cid, qid], cell_params
             )  # mat43
+            if wp.static(self.clamp_hess_diag):
+                hess_diag = wp.matrix_from_rows(
+                    wp.max(hess_diag[0], type(hess_diag[0])()),
+                    wp.max(hess_diag[1], type(hess_diag[1])()),
+                    wp.max(hess_diag[2], type(hess_diag[2])()),
+                    wp.max(hess_diag[3], type(hess_diag[3])()),
+                )
             for i in range(4):
                 jac[vid[i]] += jac_cell[i]
                 hess_diag[vid[i]] += hess_diag_cell[i]
@@ -341,3 +356,19 @@ class Elastic(Energy):
             inputs=[u, self.cells, self.dhdX, self.dV, self.params],
             outputs=[jac, hess_diag],
         )
+
+    @override
+    def mixed_derivative_prod(self, u: wp.array, p: wp.array) -> dict[str, wp.array]:
+        if not self.requires_grad:
+            return {}
+        for name in self.requires_grad:
+            getattr(self.params, name).grad.zero_()
+        output: wp.array = wp.zeros_like(u)
+        with wp.Tape() as tape:
+            self.jac(u, output)
+        tape.backward(grads={output: p})
+        outputs: dict[str, wp.array] = {
+            name: getattr(self.params, name).grad for name in self.requires_grad
+        }
+        ic(outputs["activation"].numpy())
+        return outputs

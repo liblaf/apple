@@ -33,3 +33,8 @@ class Energy(tree.IdMixin):
     ) -> None:
         self.jac(u, jac)
         self.hess_diag(u, hess_diag)
+
+    def mixed_derivative_prod(self, u: wp.array, p: wp.array) -> dict[str, wp.array]:  # noqa: ARG002
+        if not self.requires_grad:
+            return {}
+        raise NotImplementedError

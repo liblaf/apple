@@ -45,10 +45,10 @@ class ModelBuilder:
 
     def finish(self) -> Model:
         return Model(
+            points=self.points,
             dirichlet=self.dirichlet.finish(),
             model_jax=self.finish_jax(),
             model_warp=self.finish_warp(),
-            points=self.points,
         )
 
     def finish_jax(self) -> ModelJax:

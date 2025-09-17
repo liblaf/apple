@@ -76,6 +76,5 @@ def energy_density_hess_quad(
 @wp.func
 @no_type_check
 def get_cell_params(params: Params, cid: int) -> ParamsElem:
-    p = ParamsElem()
-    p.mu = params.mu[cid]
+    p = ParamsElem(mu=params.mu[cid])
     return p

@@ -70,6 +70,8 @@ class Minimizer(abc.ABC):
             )
             if timer is None:
                 continue
+            if len(timer) == 0:
+                continue
             timer.log_summary()
         return solution
 

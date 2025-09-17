@@ -1,4 +1,5 @@
 import equinox as eqx
+from jaxtyping import Array
 
 from liblaf.apple.jax.typing import Scalar, Vector
 
@@ -40,3 +41,9 @@ def jac_and_hess_diag(
     x: Vector, model: Model, *args, **kwargs
 ) -> tuple[Vector, Vector]:
     return model.jac_and_hess_diag(x, *args, **kwargs)
+
+
+def mixed_derivative_prod(
+    x: Vector, p: Vector, model: Model, *args, **kwargs
+) -> dict[str, dict[str, Array]]:
+    return model.mixed_derivative_prod(x, p, *args, **kwargs)

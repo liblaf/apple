@@ -277,11 +277,11 @@ class Elastic(Energy):
                 F, dhdX[cid, qid], cell_params
             )  # mat43
             if wp.static(self.clamp_hess_diag):
-                hess_diag = wp.matrix_from_rows(
-                    wp.max(hess_diag[0], type(hess_diag[0])()),
-                    wp.max(hess_diag[1], type(hess_diag[1])()),
-                    wp.max(hess_diag[2], type(hess_diag[2])()),
-                    wp.max(hess_diag[3], type(hess_diag[3])()),
+                hess_diag_cell = wp.matrix_from_rows(
+                    wp.max(hess_diag_cell[0], type(hess_diag_cell[0])()),
+                    wp.max(hess_diag_cell[1], type(hess_diag_cell[1])()),
+                    wp.max(hess_diag_cell[2], type(hess_diag_cell[2])()),
+                    wp.max(hess_diag_cell[3], type(hess_diag_cell[3])()),
                 )
             for i in range(4):
                 jac[vid[i]] += jac_cell[i]

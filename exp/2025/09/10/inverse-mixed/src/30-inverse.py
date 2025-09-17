@@ -78,7 +78,7 @@ class InversePhysics:
         return self.forward.model
 
     @property
-    def energy(self) -> sim_wp.ArapActive:
+    def energy(self) -> sim_wp.Phace:
         return self.model.model_warp.energies["elastic"]  # pyright: ignore[reportReturnType]
 
     @property
@@ -119,11 +119,13 @@ class InversePhysics:
                 -dLdu,
                 # lx.GMRES(rtol=1e-5, atol=1e-5, stagnation_iters=50, restart=50),
                 lx.NormalCG(rtol=1e-5, atol=1e-5),
-                options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
+                # options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
             )
         logger.info(lx.RESULTS[solution.result])
         logger.info(solution.stats)
         p: Vector = solution.value
+        with grapes.config.pretty.overrides(short_arrays=False):
+            ic(p)
         outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)
         jac.activation += outputs[self.energy.id]["activation"]
         ic(L)
@@ -134,16 +136,31 @@ class InversePhysics:
         diff = diff[self.target.point_data["is-surface"]]
         objective: Scalar = 0.5 * jnp.sum(diff**2)
 
-        regularization: Float[Array, ""] = 1e2 * self.reg_mean(
-            params
-        ) + 1.0 * self.reg_act(params)
+        regularization: Float[Array, ""] = (
+            1e3 * self.reg_mean(params)
+            + 1.0 * self.reg_act(params)
+            + 1e2 * self.reg_fat(params)
+        )
 
         loss: Scalar = objective + regularization
         return loss
 
+    def reg_fat(self, params: Params) -> Scalar:
+        regularization: Float[Array, ""] = jnp.zeros(())
+        fat_mask = self.target.cell_data["muscle-ids"] == -1
+        activation: Float[Array, " c 6"] = params.activation[fat_mask]
+        target_activation: Float[Array, " 6"] = jnp.asarray(
+            [1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+        )
+        regularization += jnp.dot(
+            self.target.cell_data["Volume"][fat_mask],
+            jnp.sum((activation - target_activation[jnp.newaxis, :]) ** 2, axis=-1),
+        )
+        return regularization
+
     def reg_mean(self, params: Params) -> Scalar:
         regularization: Float[Array, ""] = jnp.zeros(())
-        for muscle_id in range(len(self.target.field_data["muscle-names"])):
+        for muscle_id in range(2):
             muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
             activation: Float[Array, " c 6"] = params.activation[muscle_mask]
             active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
@@ -159,7 +176,7 @@ class InversePhysics:
         #     self.target.cell_data["muscle-direction"]
         # )
         regularization: Float[Array, ""] = jnp.zeros(())
-        for muscle_id in range(len(self.target.field_data["muscle-names"])):
+        for muscle_id in range(2):
             muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
             activation: Float[Array, " c 6"] = params.activation[muscle_mask]
             active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
@@ -198,9 +215,7 @@ def main(cfg: Config) -> None:
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
     builder.add_energy(
-        sim_wp.ArapActive.from_pyvista(
-            mesh, id="elastic", requires_grad=("activation",)
-        )
+        sim_wp.Phace.from_pyvista(mesh, id="elastic", requires_grad=("activation",))
     )
     model: sim.Model = builder.finish()
 
@@ -220,7 +235,11 @@ def main(cfg: Config) -> None:
 
     def callback(intermediate_result: optim.Solution) -> None:
         params: Params = intermediate_result["x"]
+        fat_mask = inverse.target.cell_data["muscle-ids"] == -1
         activation: Float[Array, "c 6"] = params.activation
+        activation = activation.at[fat_mask].set(
+            jnp.asarray([1.0, 1.0, 1.0, 0.0, 0.0, 0.0])
+        )
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(activation[0])
         activation_residual: Float[Array, "c 6"] = activation - activation_gt
@@ -241,7 +260,7 @@ def main(cfg: Config) -> None:
         )
     )
     callback(optim.Solution({"x": init_params}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-8, options={})
     solution: optim.Solution = optimizer.minimize(
         x0=init_params, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

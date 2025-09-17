@@ -61,6 +61,7 @@ def main(cfg: Config) -> None:
     mesh.cell_data["mu"] = 1.0  # pyright: ignore[reportArgumentType]
 
     muscles: pv.MultiBlock = gen_muscles()
+    muscles.save("muscles.vtm")
     mesh.cell_data["activation"] = einops.repeat(
         np.asarray([1.0, 1.0, 1.0, 0.0, 0.0, 0.0]), "i -> c i", c=mesh.n_cells
     )
@@ -87,8 +88,8 @@ def main(cfg: Config) -> None:
 
     muscle_ids: Integer[np.ndarray, " c"] = mesh.cell_data["muscle-ids"]
     activation: Float[np.ndarray, " c 6"] = mesh.cell_data["activation"]
-    activation[muscle_ids == 0, :3] = [2.0, 0.7, 0.7]  # pyright: ignore[reportArgumentType]
-    activation[muscle_ids == 1, :3] = [0.5, 1.4, 1.4]  # pyright: ignore[reportArgumentType]
+    activation[muscle_ids == 0, :3] = [1.0 / 0.5, np.sqrt(0.5), np.sqrt(0.5)]  # pyright: ignore[reportArgumentType]
+    activation[muscle_ids == 1, :3] = [1.0 / 2.0, np.sqrt(2.0), np.sqrt(2.0)]  # pyright: ignore[reportArgumentType]
     mesh.cell_data["activation"] = activation
     melon.save(cfg.output, mesh)
 

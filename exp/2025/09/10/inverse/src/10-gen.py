@@ -28,7 +28,7 @@ def main(cfg: Config) -> None:
     mesh.point_data["dirichlet-values"] = dirichlet_values
 
     mesh.cell_data["activation"] = einops.repeat(
-        np.asarray([0.5, 1.0, 1.0, 0.0, 0.0, 0.0]), "i -> c i", c=mesh.n_cells
+        np.asarray([0.5, 1.4, 1.4, 0.0, 0.0, 0.0]), "i -> c i", c=mesh.n_cells
     )
     mesh.cell_data["active-fraction"] = np.full((mesh.n_cells,), 1.0)
     mesh.cell_data["muscle-direction"] = einops.repeat(

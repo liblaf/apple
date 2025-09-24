@@ -31,18 +31,16 @@ def energy_density(F: mat33, params: ParamsElem):  # -> float:
     _1 = type(F[0, 0])(1.0)
     _2 = type(F[0, 0])(2.0)
     J = _f.I3(F)  # float
-    Psi_ARAP_active = _2 * arap_active.energy_density(
+    Psi_ARAP_active = arap_active.energy_density(
         F, arap_active.ParamsElem(activation=params.activation, mu=params.mu)
     )  # float
-    Psi_ARAP_passive = _2 * arap.energy_density(
-        F, arap.ParamsElem(mu=params.mu)
-    )  # float
+    Psi_ARAP_passive = arap.energy_density(F, arap.ParamsElem(mu=params.mu))  # float
     Psi_ARAP = (
         params.active_fraction * Psi_ARAP_active
         + (_1 - params.active_fraction) * Psi_ARAP_passive
     )  # float
     Psi_VP = params.lambda_ * math.square(J - _1)  # float
-    Psi = Psi_ARAP + Psi_VP  # float
+    Psi = _2 * Psi_ARAP + Psi_VP  # float
     return Psi
 
 
@@ -53,10 +51,10 @@ def first_piola_kirchhoff_stress_tensor(F: mat33, params: ParamsElem):  # -> mat
     _2 = type(F[0, 0])(2.0)
     J = _f.I3(F)  # float
     g3 = _f.g3(F)  # mat33
-    PK1_ARAP_active = _2 * arap_active.first_piola_kirchhoff_stress_tensor(
+    PK1_ARAP_active = arap_active.first_piola_kirchhoff_stress_tensor(
         F, arap_active.ParamsElem(activation=params.activation, mu=params.mu)
     )  # mat33
-    PK1_ARAP_passive = _2 * arap.first_piola_kirchhoff_stress_tensor(
+    PK1_ARAP_passive = arap.first_piola_kirchhoff_stress_tensor(
         F, arap.ParamsElem(mu=params.mu)
     )  # mat33
     PK1_ARAP = (
@@ -64,7 +62,7 @@ def first_piola_kirchhoff_stress_tensor(F: mat33, params: ParamsElem):  # -> mat
         + (_1 - params.active_fraction) * PK1_ARAP_passive
     )  # mat33
     PK1_VP = _2 * params.lambda_ * (J - _1) * g3  # mat33
-    PK1 = PK1_ARAP + PK1_VP  # mat33
+    PK1 = _2 * PK1_ARAP + PK1_VP  # mat33
     return PK1
 
 
@@ -74,10 +72,11 @@ def energy_density_hess_diag(F: mat33, dhdX: mat43, params: ParamsElem):  # -> m
     _1 = type(F[0, 0])(1.0)
     _2 = type(F[0, 0])(2.0)
     J = _f.I3(F)  # float
-    diag_arap_active = _2 * arap_active.energy_density_hess_diag(
+    g3 = _f.g3(F)  # mat33
+    diag_arap_active = arap_active.energy_density_hess_diag(
         F, dhdX, arap_active.ParamsElem(activation=params.activation, mu=params.mu)
     )  # mat43
-    diag_arap_passive = _2 * arap.energy_density_hess_diag(
+    diag_arap_passive = arap.energy_density_hess_diag(
         F, dhdX, arap.ParamsElem(mu=params.mu)
     )  # mat43
     diag_arap = (
@@ -86,10 +85,10 @@ def energy_density_hess_diag(F: mat33, dhdX: mat43, params: ParamsElem):  # -> m
     )  # mat43
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
-    h3_diag = _f.h3_diag(dhdX, F)  # mat43
+    h3_diag = _f.h3_diag(dhdX, g3)  # mat43
     h6_diag = _f.h6_diag(dhdX, F)  # mat43
     diag_vp = d2Psi_dI32 * h3_diag + dPsi_dI3 * h6_diag  # mat43
-    diag = diag_arap + diag_vp  # mat43
+    diag = _2 * diag_arap + diag_vp  # mat43
     return diag
 
 
@@ -101,10 +100,11 @@ def energy_density_hess_prod(
     _1 = type(F[0, 0])(1.0)
     _2 = type(F[0, 0])(2.0)
     J = _f.I3(F)  # float
-    prod_arap_active = _2 * arap_active.energy_density_hess_prod(
+    g3 = _f.g3(F)  # mat33
+    prod_arap_active = arap_active.energy_density_hess_prod(
         F, p, dhdX, arap_active.ParamsElem(activation=params.activation, mu=params.mu)
     )  # mat43
-    prod_arap_passive = _2 * arap.energy_density_hess_prod(
+    prod_arap_passive = arap.energy_density_hess_prod(
         F, p, dhdX, arap.ParamsElem(mu=params.mu)
     )  # mat43
     prod_arap = (
@@ -113,10 +113,10 @@ def energy_density_hess_prod(
     )  # mat43
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
-    h3_prod = _f.h3_prod(p, dhdX, F)  # mat43
+    h3_prod = _f.h3_prod(p, dhdX, g3)  # mat43
     h6_prod = _f.h6_prod(p, dhdX, F)  # mat43
     prod_vp = d2Psi_dI32 * h3_prod + dPsi_dI3 * h6_prod  # mat43
-    prod = prod_arap + prod_vp  # mat43
+    prod = _2 * prod_arap + prod_vp  # mat43
     return prod
 
 
@@ -128,10 +128,11 @@ def energy_density_hess_quad(
     _1 = type(F[0, 0])(1.0)
     _2 = type(F[0, 0])(2.0)
     J = _f.I3(F)  # float
-    quad_arap_active = _2 * arap_active.energy_density_hess_quad(
+    g3 = _f.g3(F)  # mat33
+    quad_arap_active = arap_active.energy_density_hess_quad(
         F, p, dhdX, arap_active.ParamsElem(activation=params.activation, mu=params.mu)
     )
-    quad_arap_passive = _2 * arap.energy_density_hess_quad(
+    quad_arap_passive = arap.energy_density_hess_quad(
         F, p, dhdX, arap.ParamsElem(mu=params.mu)
     )
     quad_arap = (
@@ -140,10 +141,10 @@ def energy_density_hess_quad(
     )
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
-    h3_quad = _f.h3_quad(p, dhdX, F)  # float
+    h3_quad = _f.h3_quad(p, dhdX, g3)  # float
     h6_quad = _f.h6_quad(p, dhdX, F)  # float
     quad_vp = d2Psi_dI32 * h3_quad + dPsi_dI3 * h6_quad  # float
-    quad = quad_arap + quad_vp  # float
+    quad = _2 * quad_arap + quad_vp  # float
     return quad
 
 

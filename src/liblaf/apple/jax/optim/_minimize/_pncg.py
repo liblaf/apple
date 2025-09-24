@@ -52,6 +52,8 @@ class MinimizerPNCG(Minimizer):
         callback: Callable[..., Any] | None = None,
     ) -> Solution:
         assert bounds is None
+        assert callable(objective.hess_quad)
+        assert callable(objective.jac_and_hess_diag)
 
         x0_flat: Vector
         unflatten: Callable[[Array], PyTree]
@@ -128,7 +130,7 @@ class MinimizerPNCG(Minimizer):
             beta: Scalar = 0.0
             p = -P * g
         else:
-            beta: Scalar = self.compute_beta(g_prev=state.g, g=g, p=state.p, P=state.P)
+            beta: Scalar = self.compute_beta(g_prev=state.g, g=g, p=state.p, P=P)
             p = -P * g + beta * state.p
         pHp: Scalar = hess_quad(x, p, *args, **kwargs)
         alpha: Scalar = self.compute_alpha(g=g, p=p, pHp=pHp)

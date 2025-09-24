@@ -1,3 +1,4 @@
+import functools
 import os
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import lineax as lx
 import numpy as np
 import pyvista as pv
 import warp as wp
-from jaxtyping import Array, Float
+from jaxtyping import Array, Bool, Float
 from loguru import logger
 
 import liblaf.apple.warp.sim as sim_wp
@@ -46,9 +47,10 @@ class Params:
 class Forward:
     model: sim.Model
     optimizer: optim.Minimizer = tree.field(
-        factory=lambda: optim.MinimizerScipy(
-            method="trust-constr", tol=1e-5, options={"verbose": 3}
-        )
+        # factory=lambda: optim.MinimizerScipy(
+        #     method="trust-constr", tol=1e-5, options={"verbose": 3}
+        # )
+        factory=lambda: optim.MinimizerPNCG(rtol=1e-5, maxiter=1000)
     )
 
     def solve(self, x0: Vector) -> Vector:
@@ -59,6 +61,7 @@ class Forward:
             jac=sim.jac,
             hessp=sim.hess_prod,
             hess_diag=sim.hess_diag,
+            hess_quad=sim.hess_quad,
             fun_and_jac=sim.fun_and_jac,
             jac_and_hess_diag=sim.jac_and_hess_diag,
             args=(self.model,),
@@ -83,13 +86,26 @@ class InversePhysics:
 
     @property
     def active_volume(self) -> Float[Array, " c"]:
-        if "Volume" not in self.target.cell_data:
-            self.target = self.target.compute_cell_sizes()  # pyright: ignore[reportAttributeAccessIssue]
+        if "Volume" not in self.input.cell_data:
+            self.input = self.input.compute_cell_sizes()  # pyright: ignore[reportAttributeAccessIssue]
         active_fraction: Float[Array, " c"] = jnp.asarray(
-            self.target.cell_data["active-fraction"]
+            self.input.cell_data["active-fraction"]
         )
-        volume: Float[Array, " c"] = jnp.asarray(self.target.cell_data["Volume"])
+        volume: Float[Array, " c"] = jnp.asarray(self.input.cell_data["Volume"])
         return active_fraction * volume
+
+    @functools.cached_property
+    def active_mask(self) -> Bool[Array, " c"]:
+        return jnp.asarray(self.input.cell_data["active-fraction"]) > 1e-3
+
+    @property
+    def n_active_cells(self) -> int:
+        return int(jnp.count_nonzero(self.active_mask))
+
+    def make_params(self, q: Array) -> Params:
+        activation: Float[Array, "c 6"] = jnp.zeros((self.input.n_cells, 6))
+        activation = activation.at[self.active_mask].set(q)
+        return Params(activation=activation)
 
     def fun(self, params: Params) -> Scalar:
         wp.copy(
@@ -98,7 +114,8 @@ class InversePhysics:
         self.solution = self.forward.solve(self.solution)
         return self.loss(self.solution, params)
 
-    def fun_and_jac(self, params: Params) -> tuple[Scalar, Params]:
+    def fun_and_jac(self, q: Array) -> tuple[Scalar, Array]:
+        params: Params = self.make_params(q)
         wp.copy(
             self.energy.params.activation, wp_utils.to_warp(params.activation, vec6)
         )
@@ -118,8 +135,9 @@ class InversePhysics:
                 ),
                 -dLdu,
                 # lx.GMRES(rtol=1e-5, atol=1e-5, stagnation_iters=50, restart=50),
+                # lx.NormalCG(rtol=1e-5, atol=1e-5),
                 lx.NormalCG(rtol=1e-5, atol=1e-5),
-                # options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
+                options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
             )
         logger.info(lx.RESULTS[solution.result])
         logger.info(solution.stats)
@@ -129,7 +147,7 @@ class InversePhysics:
         outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)
         jac.activation += outputs[self.energy.id]["activation"]
         ic(L)
-        return L, jac
+        return L, jac.activation[self.active_mask]
 
     def loss(self, u: Vector, params: Params) -> Scalar:
         diff: Vector = u - self.target.point_data["solution"]
@@ -137,9 +155,9 @@ class InversePhysics:
         objective: Scalar = 0.5 * jnp.sum(diff**2)
 
         regularization: Float[Array, ""] = (
-            1e3 * self.reg_mean(params)
-            + 1.0 * self.reg_act(params)
-            + 1e2 * self.reg_fat(params)
+            1e3 * self.regularize_mean(params)
+            + 1e3 * self.regularize_shear(params)
+            + 1e3 * self.regularize_volume(params)
         )
 
         loss: Scalar = objective + regularization
@@ -158,7 +176,7 @@ class InversePhysics:
         )
         return regularization
 
-    def reg_mean(self, params: Params) -> Scalar:
+    def regularize_mean(self, params: Params) -> Scalar:
         regularization: Float[Array, ""] = jnp.zeros(())
         for muscle_id in range(2):
             muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
@@ -205,6 +223,31 @@ class InversePhysics:
             )
         return regularization
 
+    def regularize_shear(self, params: Params) -> Scalar:
+        regularization: Float[Array, ""] = jnp.zeros(())
+        for muscle_id in range(2):
+            muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
+            activation: Float[Array, " c 6"] = params.activation[muscle_mask]
+            active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
+            regularization += jnp.dot(
+                active_volume, jnp.sum(activation[:, 3:] ** 2, axis=-1)
+            )
+        return regularization
+
+    def regularize_volume(self, params: Params) -> Scalar:
+        regularization: Float[Array, ""] = jnp.zeros(())
+        for muscle_id in range(2):
+            muscle_mask = self.target.cell_data["muscle-ids"] == muscle_id
+            activation: Float[Array, " c 6"] = params.activation[muscle_mask]
+            active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
+            regularization += jnp.dot(
+                active_volume,
+                jnp.square(
+                    activation[:, 0] * activation[:, 1] * activation[:, 2] - 1.0
+                ),
+            )
+        return regularization
+
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
@@ -234,7 +277,8 @@ def main(cfg: Config) -> None:
     writer = melon.SeriesWriter(cfg.output)
 
     def callback(intermediate_result: optim.Solution) -> None:
-        params: Params = intermediate_result["x"]
+        q: Array = intermediate_result["x"]
+        params: Params = inverse.make_params(q)
         fat_mask = inverse.target.cell_data["muscle-ids"] == -1
         activation: Float[Array, "c 6"] = params.activation
         activation = activation.at[fat_mask].set(
@@ -254,15 +298,15 @@ def main(cfg: Config) -> None:
         # result: pv.UnstructuredGrid = mesh.warp_by_vector("solution")  # pyright: ignore[reportAssignmentType]
         writer.append(mesh)
 
-    init_params: Params = Params(
-        activation=einops.repeat(
-            jnp.asarray([1.0, 1.0, 1.0, 0.0, 0.0, 0.0]), "i -> c i", c=mesh.n_cells
-        )
+    init_q: Array = einops.repeat(
+        jnp.asarray([1.0, 1.0, 1.0, 0.0, 0.0, 0.0]),
+        "i -> c i",
+        c=inverse.n_active_cells,
     )
-    callback(optim.Solution({"x": init_params}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-8, options={})
+    callback(optim.Solution({"x": init_q}))
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
     solution: optim.Solution = optimizer.minimize(
-        x0=init_params, fun_and_jac=inverse.fun_and_jac, callback=callback
+        x0=init_q, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
     callback(solution)
     ic(solution)

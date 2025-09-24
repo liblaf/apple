@@ -5,9 +5,9 @@ from liblaf import melon
 
 
 def main() -> None:
-    # mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(
-    #     "data/30-inverse.vtu/30-inverse_000021.vtu"
-    # )
+    mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(
+        "data/30-inverse.vtu/30-inverse_000061.vtu"
+    )
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid("data/10-input.vtu")
     activation = mesh.cell_data["activation"]
     muscle_ids = mesh.cell_data["muscle-ids"]

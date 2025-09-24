@@ -13,6 +13,13 @@ from . import func
 
 @tree.pytree
 class Arap(Elastic):
+    r"""As-Rigid-As-Possible.
+
+    $$
+    \Psi = \frac{\mu}{2} \|F - R\|_F^2 = \frac{\mu}{2} (I_2 - 2 I_1 + 3)
+    $$
+    """
+
     energy_density_func: wp.Function = tree.field(default=func.energy_density)
     first_piola_kirchhoff_stress_func: wp.Function = tree.field(
         default=func.first_piola_kirchhoff_stress_tensor

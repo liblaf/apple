@@ -9,10 +9,10 @@
 * **jax:** add active material models and enhance optimization infrastructure
 * **sim:** Existing energy and quadrature imports have been refactored to use private modules. Update imports from `sim.energy.arap` to `sim.energy.elastic._arap` and similar changes for quadrature components.
 * **struct:** This removes the PyTree and PyTreeMutable base classes, and the associated replace and tree_at methods. Existing code using these classes will need to migrate to the new @pytree decorator pattern.
-* **sim:** 
-* **sim:** 
-* **state:** 
-* **sim:** 
+* **sim:**
+* **sim:**
+* **state:**
+* **sim:**
 * **struct:** All classes using @struct.pytree or PyTreeMixin need to be updated to use Equinox's Module system. Field declarations now use field() instead of data/static.
 
 ### ✨ Features

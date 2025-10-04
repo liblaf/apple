@@ -24,7 +24,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.21,<0.22",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1084> is resolved.
+  "beartype>=0.22,<0.23",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1084> is resolved.
   "chex>=0.1,<0.2",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",

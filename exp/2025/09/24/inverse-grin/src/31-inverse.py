@@ -232,7 +232,6 @@ class Inverse:
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    activation_gt: Float[Array, "c 6"] = jnp.asarray(target.cell_data["activation"])
 
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
@@ -249,18 +248,33 @@ def main(cfg: Config) -> None:
         input=mesh,
         solution=jnp.zeros_like(model.points),
     )
+    activation_gt: Float[Array, "ca 6"] = sim_jax.transform_activation(
+        jnp.asarray(target.cell_data["activation"]),
+        inverse.muscle_orientation[inverse.active_mask],
+        inverse=True,
+    )
+
     writer = melon.SeriesWriter(cfg.output)
 
     def callback(intermediate_result: optim.Solution) -> None:
         logger.info(intermediate_result)
         q: Array = intermediate_result["x"]
         params: Params = inverse.make_params(q)
-        activation: Float[Array, "c 6"] = params.activation
+        muscle_mask: Bool[Array, " c"] = inverse.active_mask
+        activation: Float[Array, "ca 6"] = sim_jax.transform_activation(
+            params.activation[muscle_mask],
+            inverse.muscle_orientation[muscle_mask],
+            inverse=True,
+        )
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(activation[0])
-        activation_residual: Float[Array, "c 6"] = activation - activation_gt
-        mesh.cell_data["activation"] = np.asarray(activation)
-        mesh.cell_data["activation-residual"] = np.asarray(activation_residual)
+        activation_residual: Float[Array, "ca 6"] = activation - activation_gt
+        mesh.cell_data["activation"] = np.zeros((mesh.n_cells, 6))
+        mesh.cell_data["activation"][np.asarray(muscle_mask)] = np.asarray(activation)
+        mesh.cell_data["activation-residual"] = np.zeros((mesh.n_cells, 6))
+        mesh.cell_data["activation-residual"][np.asarray(muscle_mask)] = np.asarray(
+            activation_residual
+        )
         mesh.point_data["solution"] = np.asarray(
             inverse.solution[mesh.point_data["point-ids"]]
         )

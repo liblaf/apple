@@ -76,6 +76,9 @@ class Inverse:
     input: pv.UnstructuredGrid
     solution: Vector = tree.array()
     target: pv.UnstructuredGrid
+    linear_solver: lx.AbstractLinearSolver = tree.field(
+        factory=lambda: lx.NormalCG(rtol=1e-1, atol=1e-3)
+    )
 
     @property
     def n_active_cells(self) -> int:
@@ -139,9 +142,6 @@ class Inverse:
         jac: Params = eqx.filter_grad(lambda params: self.loss(u, params))(params)
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
         with grapes.timer(name="linear solve"):
-            linear_solver: lx.AbstractLinearSolver = lx.NormalCG(
-                rtol=1e-1, atol=1e-3, max_steps=1000
-            )
             solution: lx.Solution = lx.linear_solve(
                 lx.FunctionLinearOperator(
                     lambda p: self.model.hess_prod(u, p),
@@ -149,11 +149,8 @@ class Inverse:
                     [lx.symmetric_tag],
                 ),
                 -dLdu,
-                linear_solver,
-                options={
-                    "preconditioner": lx.DiagonalLinearOperator(preconditioner),
-                    "y0": preconditioner * -dLdu,
-                },
+                self.linear_solver,
+                options={"preconditioner": lx.DiagonalLinearOperator(preconditioner)},
                 throw=False,
             )
         logger.info(lx.RESULTS[solution.result])
@@ -291,9 +288,16 @@ def main(cfg: Config) -> None:
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     callback(optim.Solution({"x": q_init}))
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
+    inverse.linear_solver = lx.NormalCG(rtol=1e-1, atol=1e-3, max_steps=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
+    callback(solution)
+    ic(solution)
+
+    q_init = solution["x"]
+    inverse.linear_solver = lx.NormalCG(rtol=1e-1, atol=1e-3)
+    optimizer.minimize(x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback)
     callback(solution)
     ic(solution)
 

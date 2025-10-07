@@ -26,9 +26,9 @@ def main(cfg: Config) -> None:
     builder.add_energy(sim_wp.Phace.from_pyvista(mesh))
 
     model: sim.Model = builder.finish()
-    optimizer: optim.Minimizer = optim.MinimizerScipy(
-        method="trust-constr", tol=1e-5, options={"verbose": 3}
-    )
+    # optimizer: optim.Minimizer = optim.MinimizerScipy(
+    #     method="trust-constr", tol=1e-5, options={"verbose": 3}
+    # )
     optimizer: optim.Minimizer = optim.MinimizerPNCG(rtol=1e-5, maxiter=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=jnp.zeros((model.n_free,)),

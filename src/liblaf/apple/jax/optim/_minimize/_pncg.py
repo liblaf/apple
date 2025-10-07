@@ -76,6 +76,7 @@ class MinimizerPNCG(Minimizer):
             solution.update(
                 alpha=state.alpha,
                 beta=state.beta,
+                DeltaE_rel=state.DeltaE / DeltaE0,
                 DeltaE=state.DeltaE,
                 DeltaE0=DeltaE0,
                 hess_diag=unflatten(state.hess_diag),

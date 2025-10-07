@@ -28,9 +28,14 @@ def rest_activation(n_cells: int = 1, dtype: DTypeLike = float) -> Float[Array, 
 
 
 def transform_activation(
-    activation: Float[Array, "#c 6"], orientation: Float[Array, "#c 3 3"]
+    activation: Float[Array, "#c 6"],
+    orientation: Float[Array, "#c 3 3"],
+    *,
+    inverse: bool = False,
 ) -> Float[Array, "c 6"]:
     activation_mat: Float[Array, "c 3 3"] = make_activation(activation)
+    if inverse:
+        orientation = orientation.mT
     transformed_mat: Float[Array, "c 3 3"] = (
         orientation.mT @ activation_mat @ orientation
     )

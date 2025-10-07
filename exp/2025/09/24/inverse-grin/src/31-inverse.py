@@ -249,7 +249,7 @@ def main(cfg: Config) -> None:
         solution=jnp.zeros_like(model.points),
     )
     activation_gt: Float[Array, "ca 6"] = sim_jax.transform_activation(
-        jnp.asarray(target.cell_data["activation"]),
+        jnp.asarray(target.cell_data["activation"])[inverse.active_mask],
         inverse.muscle_orientation[inverse.active_mask],
         inverse=True,
     )

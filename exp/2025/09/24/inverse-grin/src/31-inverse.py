@@ -139,7 +139,9 @@ class Inverse:
         jac: Params = eqx.filter_grad(lambda params: self.loss(u, params))(params)
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
         with grapes.timer(name="linear solve"):
-            linear_solver: lx.AbstractLinearSolver = lx.NormalCG(rtol=1e-2, atol=1e-2)
+            linear_solver: lx.AbstractLinearSolver = lx.NormalCG(
+                rtol=1e-2, atol=1e-2, max_steps=500
+            )
             solution: lx.Solution = lx.linear_solve(
                 lx.FunctionLinearOperator(
                     lambda p: self.model.hess_prod(u, p),
@@ -171,7 +173,7 @@ class Inverse:
         loss_surface: Scalar = self.loss_surface(x)
         reg_mean: Scalar = 1e3 * self.regularize_mean(params)
         reg_shear: Scalar = 1e3 * self.regularize_shear(params)
-        reg_volume: Scalar = 1e1 * self.regularize_volume(params)
+        reg_volume: Scalar = 1e3 * self.regularize_volume(params)
         jax.debug.print("loss_surface = {}", loss_surface)
         jax.debug.print("reg_mean = {}", reg_mean)
         jax.debug.print("reg_shear = {}", reg_shear)

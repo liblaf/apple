@@ -65,9 +65,7 @@ class Minimizer(abc.ABC):
             fn: Callable | None = getattr(objective, field.name)
             if not callable(fn):
                 continue
-            timer: grapes.BaseTimer | None = grapes.unbind_getattr(
-                fn, "_self_timer", None
-            )
+            timer: grapes.BaseTimer | None = grapes.get_timer(fn, None)
             if timer is None:
                 continue
             if len(timer) == 0:

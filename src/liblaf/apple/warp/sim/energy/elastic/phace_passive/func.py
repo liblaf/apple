@@ -17,8 +17,8 @@ class Params:
 @wp.func
 @no_type_check
 def energy_density(F: mat33, params: Params) -> None:
-    R, _ = math.polar_rv(F)  # mat33
     Psi_ARAP = arap_func.energy_density(F, params)  # float
+    raise NotImplementedError
     Psi = Psi_ARAP
     return Psi
 
@@ -28,6 +28,7 @@ def energy_density(F: mat33, params: Params) -> None:
 def first_piola_kirchhoff_stress_tensor(F: mat33, params: Params) -> mat33:
     R, _ = math.polar_rv(F)  # mat33
     PK1 = params.mu * (F - R)  # mat33
+    raise NotImplementedError
     return PK1
 
 

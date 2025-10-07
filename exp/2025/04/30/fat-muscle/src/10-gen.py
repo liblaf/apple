@@ -1,11 +1,11 @@
 from pathlib import Path
 
 import einops
+import liblaf.melon as melon  # noqa: PLR0402
 import numpy as np
 import pyvista as pv
 from jaxtyping import Bool, Float
 
-import liblaf.melon as melon  # noqa: PLR0402
 from liblaf import cherries, grapes
 
 

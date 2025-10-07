@@ -1,7 +1,18 @@
 from . import dirichlet, element, energy, geometry, model, quadrature, region
 from .dirichlet import Dirichlet, DirichletBuilder
 from .element import Element, ElementTetra
-from .energy import ARAP, ARAPActive, Elastic, Energy, Koiter, PhaceActive, PhaceStatic
+from .energy import (
+    ARAP,
+    ARAPActive,
+    Elastic,
+    Energy,
+    Koiter,
+    PhaceActive,
+    PhaceStatic,
+    make_activation,
+    rest_activation,
+    transform_activation,
+)
 from .geometry import Geometry, GeometryAttributes, GeometryTetra, GeometryTriangle
 from .model import Model, ModelBuilder
 from .quadrature import QuadratureTetra, Scheme
@@ -32,7 +43,10 @@ __all__ = [
     "element",
     "energy",
     "geometry",
+    "make_activation",
     "model",
     "quadrature",
     "region",
+    "rest_activation",
+    "transform_activation",
 ]

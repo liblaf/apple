@@ -1,0 +1,5 @@
+outs:
+- md5: 956f8142e8e0474ff2cbd9ebd37b5386
+  size: 4092893
+  hash: md5
+  path: 00-raw.vtu

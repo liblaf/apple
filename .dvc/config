@@ -7,4 +7,4 @@ analytics = false
 autostage = true
 
 ['remote "ssh"']
-url = ssh://dvc.liblaf.me:56499/apple
+url = ssh://dvc.liblaf.me/apple

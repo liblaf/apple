@@ -223,6 +223,10 @@ class Inverse:
             muscle_mask = self.target.cell_data["muscle-id"] == muscle_id
             activation: Float[Array, " c 6"] = params.activation[muscle_mask]
             active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
+            orientation: Float[Array, " c 3 3"] = self.muscle_orientation[muscle_mask]
+            activation = sim_jax.transform_activation(
+                activation, orientation, inverse=True
+            )
             regularization += jnp.dot(
                 active_volume, jnp.square(jnp.prod(activation[:, :3], axis=-1) - 1.0)
             )

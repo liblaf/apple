@@ -140,7 +140,7 @@ class Inverse:
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
         with grapes.timer(name="linear solve"):
             linear_solver: lx.AbstractLinearSolver = lx.NormalCG(
-                rtol=1e-2, atol=1e-2, max_steps=500
+                rtol=1e-1, atol=float(jnp.finfo(jnp.float16).eps)
             )
             solution: lx.Solution = lx.linear_solve(
                 lx.FunctionLinearOperator(

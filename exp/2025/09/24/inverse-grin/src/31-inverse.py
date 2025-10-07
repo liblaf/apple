@@ -154,6 +154,7 @@ class Inverse:
                     "preconditioner": lx.DiagonalLinearOperator(preconditioner),
                     "y0": preconditioner * -dLdu,
                 },
+                throw=False,
             )
         logger.info(lx.RESULTS[solution.result])
         logger.info(solution.stats)

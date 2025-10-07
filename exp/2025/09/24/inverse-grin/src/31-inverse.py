@@ -31,10 +31,10 @@ def _(operator: lx.DiagonalLinearOperator) -> bool:  # noqa: ARG001
 
 
 class Config(cherries.BaseConfig):
-    input: Path = cherries.input("10-input.vtu")
-    target: Path = cherries.input("20-target.vtu")
+    input: Path = cherries.input("11-input.vtu")
+    target: Path = cherries.input("21-target.vtu")
 
-    output: Path = cherries.output("30-inverse.vtu.series")
+    output: Path = cherries.output("31-inverse.vtu.series")
 
 
 @tree.pytree

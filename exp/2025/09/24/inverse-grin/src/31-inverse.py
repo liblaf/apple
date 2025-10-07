@@ -49,7 +49,7 @@ class Forward:
         # factory=lambda: optim.MinimizerScipy(
         #     method="trust-constr", tol=1e-5, options={"verbose": 3}
         # )
-        factory=lambda: optim.MinimizerPNCG(rtol=1e-5, maxiter=500)
+        factory=lambda: optim.MinimizerPNCG(atol=1e-16, maxiter=500, rtol=1e-5)
     )
 
     def solve(self, x0: Vector | None = None) -> Vector:
@@ -140,7 +140,7 @@ class Inverse:
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
         with grapes.timer(name="linear solve"):
             linear_solver: lx.AbstractLinearSolver = lx.NormalCG(
-                rtol=1e-1, atol=float(jnp.finfo(jnp.float16).eps)
+                rtol=1e-1, atol=1e-3, max_steps=1000
             )
             solution: lx.Solution = lx.linear_solve(
                 lx.FunctionLinearOperator(

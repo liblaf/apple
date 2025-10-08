@@ -9,7 +9,7 @@ from liblaf import melon
 def main() -> None:
     target: pv.UnstructuredGrid = melon.load_unstructured_grid("data/11-input.vtu")
     solution: pv.UnstructuredGrid = melon.load_unstructured_grid(
-        "data/31-inverse.vtu/31-inverse_000111.vtu"
+        ".cherries/2025-10-08T152754/outputs/31-inverse.vtu/31-inverse_000229.vtu"
     )
     orientation: Float[Array, "c 3 3"] = jnp.asarray(
         target.cell_data["muscle-orientation"]

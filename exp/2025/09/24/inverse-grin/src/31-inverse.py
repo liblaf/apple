@@ -289,7 +289,7 @@ def main(cfg: Config) -> None:
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-8, options={})
     inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback

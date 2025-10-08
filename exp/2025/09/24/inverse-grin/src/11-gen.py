@@ -35,6 +35,8 @@ def main(cfg: Config) -> None:
         activation_ref[None], orientation
     )
     activation = activation.at[active_mask].set(activation_active)
+    ic(jnp.count_nonzero(active_mask))
+    ic(jnp.count_nonzero(mesh.point_data["is-face"]))
 
     mesh.point_data["dirichlet-mask"] = mesh.point_data["is-skull"]
     mesh.point_data["dirichlet-values"] = np.zeros((mesh.n_points, 3))

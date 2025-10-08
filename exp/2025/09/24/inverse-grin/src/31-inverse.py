@@ -121,7 +121,9 @@ class Inverse:
 
     def make_params(self, q: Float[Array, "ca 6"]) -> Params:
         activation: Float[Array, "c 6"] = sim_jax.rest_activation(self.input.n_cells)
+        # q = q.at[:, :3].set(jnp.exp(q[:, :3]))
         activation = activation.at[self.active_mask].set(q)
+        # activation = sim_jax.transform_activation(activation, self.muscle_orientation)
         return Params(activation=activation)
 
     def set_params(self, params: Params) -> None:
@@ -216,7 +218,7 @@ class Inverse:
 
     def regularize_volume(self, params: Params) -> Scalar:
         regularization: Float[Array, ""] = jnp.zeros(())
-        for muscle_id in range(2):
+        for muscle_id in range(self.n_muscles):
             muscle_mask = self.target.cell_data["muscle-id"] == muscle_id
             activation: Float[Array, " c 6"] = params.activation[muscle_mask]
             active_volume: Float[Array, " c"] = self.active_volume[muscle_mask]
@@ -270,8 +272,7 @@ def main(cfg: Config) -> None:
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(activation[0])
         activation_residual: Float[Array, "ca 6"] = activation - activation_gt
-        mesh.cell_data["activation"] = np.zeros((mesh.n_cells, 6))
-        mesh.cell_data["activation"][np.asarray(muscle_mask)] = np.asarray(activation)
+        mesh.cell_data["activation"] = np.asarray(params.activation)
         mesh.cell_data["activation-residual"] = np.zeros((mesh.n_cells, 6))
         mesh.cell_data["activation-residual"][np.asarray(muscle_mask)] = np.asarray(
             activation_residual
@@ -286,9 +287,10 @@ def main(cfg: Config) -> None:
         writer.append(mesh)
 
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
+    # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
-    inverse.linear_solver = lx.NormalCG(rtol=1e-1, atol=1e-3, max_steps=1000)
+    inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
@@ -296,8 +298,10 @@ def main(cfg: Config) -> None:
     ic(solution)
 
     q_init = solution["x"]
-    inverse.linear_solver = lx.NormalCG(rtol=1e-1, atol=1e-3)
-    optimizer.minimize(x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback)
+    inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=10000)
+    solution = optimizer.minimize(
+        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
+    )
     callback(solution)
     ic(solution)
 

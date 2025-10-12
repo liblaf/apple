@@ -1,90 +1,85 @@
 # Changelog
 
-## [0.4.0](https://github.com/liblaf/apple/compare/v0.3.0...v0.4.0) (2025-10-12)
+## [0.4.0](https://github.com/liblaf/apple/compare/v0.3.0..v0.4.0) - 2025-10-12
 
+### 💥 BREAKING CHANGES
 
-### ⚠ BREAKING CHANGES
-
-* Point data array renamed from 'point-id' to 'point-ids'
-* **jax:** add active material models and enhance optimization infrastructure
-* **sim:** Existing energy and quadrature imports have been refactored to use private modules. Update imports from `sim.energy.arap` to `sim.energy.elastic._arap` and similar changes for quadrature components.
-* **struct:** This removes the PyTree and PyTreeMutable base classes, and the associated replace and tree_at methods. Existing code using these classes will need to migrate to the new @pytree decorator pattern.
-* **sim:**
-* **sim:**
-* **state:**
-* **sim:**
-* **struct:** All classes using @struct.pytree or PyTreeMixin need to be updated to use Equinox's Module system. Field declarations now use field() instead of data/static.
+- **jax:** add active material models and enhance optimization infrastructure - ([518ee0b](https://github.com/liblaf/apple/commit/518ee0b6da54cb01803f220d6c7fabef8fcefd62))
+- **sim:** add dirichlet conditions, geometry handling, and model building - ([0d8388e](https://github.com/liblaf/apple/commit/0d8388e6b9c427689168dc263dbd08307699bb3e))
+- **sim:** improve simulation components - ([46593af](https://github.com/liblaf/apple/commit/46593aff9e80000ba7507f0a3bdf06d97a7bc68f))
+- **sim:** simplify actor API and rename DOF/Dirichlet properties - ([bc99c4a](https://github.com/liblaf/apple/commit/bc99c4a70388ee993646308c777c2245a3187f1f))
+- **sim:** restructure core components for performance - ([292835f](https://github.com/liblaf/apple/commit/292835f03449c0bd7421d8b3e4fb14ba0d3fb1ca))
+- **state:** simplify state updates and container implementations - ([f007af5](https://github.com/liblaf/apple/commit/f007af5f23fe8bfd64488f3b6d18487651c62f74))
+- **struct:** replace equinox-based PyTree with attrs-based implementation - ([d25aaba](https://github.com/liblaf/apple/commit/d25aaba52575d0c7f82f33c453b3280e5e9f1a5d))
+- **struct:** migrate to Equinox PyTree system - ([a5e4888](https://github.com/liblaf/apple/commit/a5e488899aed60472e929ce0a6bdc711708a1ccc))
+- add Phace energy model and rename point data array - ([d03be25](https://github.com/liblaf/apple/commit/d03be256552548f77abae914ae0f11c0e526e519))
 
 ### ✨ Features
 
-* Add JAX-based simulation core with math utilities and type definitions ([36d26fa](https://github.com/liblaf/apple/commit/36d26fa006f8099d8bd3dfabe8c49430856d4c40))
-* Add JAX-based simulation framework and mathematical documentation ([d63a206](https://github.com/liblaf/apple/commit/d63a206bb219b2134c138b0876b932c79ffc2b5c))
-* add Phace energy model and rename point data array ([d03be25](https://github.com/liblaf/apple/commit/d03be256552548f77abae914ae0f11c0e526e519))
-* **experiments:** add dynamic and static simulation examples ([262646e](https://github.com/liblaf/apple/commit/262646e280a8e5d6ae199d012b2b7faa4eb6cfd9))
-* Implement phace active and passive energy models ([294f454](https://github.com/liblaf/apple/commit/294f454b359c31ae6e33d456989970e2acf0db6d))
-* **inverse-simulation:** enhance inverse muscle simulation with Phace energy model ([8cf739b](https://github.com/liblaf/apple/commit/8cf739b3cb527c4ec7c48b1cd485926c817aaf08))
-* **inverse:** Add inverse physics solver with Warp and lineax integration ([cc8ebbb](https://github.com/liblaf/apple/commit/cc8ebbbe9bc5d3777f40b2f14aeae6e94d5bf772))
-* **jax/optim:** add modular minimization framework with SciPy backend ([72ae94b](https://github.com/liblaf/apple/commit/72ae94b76df2d0d08d826f2359ff17ea11744685))
-* **jax/sim/energy:** Add Koiter thin shell energy model ([e8175e3](https://github.com/liblaf/apple/commit/e8175e3f3763907356368f9cc7b23c818daaa5ca))
-* **jax:** add active material models and enhance optimization infrastructure ([518ee0b](https://github.com/liblaf/apple/commit/518ee0b6da54cb01803f220d6c7fabef8fcefd62))
-* **jax:** add PNCG optimizer and autodiff utilities ([bb5a51e](https://github.com/liblaf/apple/commit/bb5a51ead25358ef2202ce0bdc6d236ab1ea744c))
-* **phace:** add close-mouth and wind simulation examples ([eb5bfdb](https://github.com/liblaf/apple/commit/eb5bfdbe7d34ed487043e308c616d479c797a9cc))
-* **phace:** add open-mouth jaw animation example ([5dfa5e3](https://github.com/liblaf/apple/commit/5dfa5e38ff1e23b295d1023e662a0a899cdc3774))
-* **sim:** Add activation utility functions for JAX energy models ([ae26615](https://github.com/liblaf/apple/commit/ae26615d4a9fbd5d665b2aabcde8dfe5a7d96a20))
-* **sim:** add dirichlet conditions, geometry handling, and model building ([0d8388e](https://github.com/liblaf/apple/commit/0d8388e6b9c427689168dc263dbd08307699bb3e))
-* **sim:** add Hessian computation support for energy models ([cb1ea7f](https://github.com/liblaf/apple/commit/cb1ea7fedc5293b5474892b7c14a2fc1f4475d06))
-* **sim:** add inter-collision example and improvements ([231d509](https://github.com/liblaf/apple/commit/231d5099f3f5dcc1710c8f1c29dd0a938a26aac7))
-* **sim:** integrate Warp backend for simulation ([eaff9b9](https://github.com/liblaf/apple/commit/eaff9b94b92184ecd1847c0d8bcc3773d0bb6343))
-* **sim:** introduce active ARAP energy model and Dirichlet builder ([af97357](https://github.com/liblaf/apple/commit/af973573ef9f03d86c71c420c42567c08bc13d6c))
-* **simulation:** add ball-head collision example with visualization support ([9550bf2](https://github.com/liblaf/apple/commit/9550bf2c07daf9e0c1509ea515581a3a043ebc60))
-* **struct:** add mutable tree variants ([5ed48f6](https://github.com/liblaf/apple/commit/5ed48f6447be1092c76c8454297bbbab7ca1bab2))
-* **warp/sim/energy:** add active ARAP and passive PHACE energy models ([f56d137](https://github.com/liblaf/apple/commit/f56d137e589aec81e9383534e3047c5e7e9a0a8a))
-* **warp:** add matrix decomposition functions and update warp dependency ([6a5b2a9](https://github.com/liblaf/apple/commit/6a5b2a953509a269490be8fc05a12d3ce0fbd6ec))
-* **warp:** add simulation energy infrastructure and ARAP model ([24abf6a](https://github.com/liblaf/apple/commit/24abf6a060ce975cad8c4d532d81cc1a83b961b9))
-
+- **experiments:** add dynamic and static simulation examples - ([262646e](https://github.com/liblaf/apple/commit/262646e280a8e5d6ae199d012b2b7faa4eb6cfd9))
+- **inverse:** Add inverse physics solver with Warp and lineax integration - ([cc8ebbb](https://github.com/liblaf/apple/commit/cc8ebbbe9bc5d3777f40b2f14aeae6e94d5bf772))
+- **inverse-simulation:** enhance inverse muscle simulation with Phace energy model - ([8cf739b](https://github.com/liblaf/apple/commit/8cf739b3cb527c4ec7c48b1cd485926c817aaf08))
+- **jax:** add PNCG optimizer and autodiff utilities - ([bb5a51e](https://github.com/liblaf/apple/commit/bb5a51ead25358ef2202ce0bdc6d236ab1ea744c))
+- **jax/optim:** add modular minimization framework with SciPy backend - ([72ae94b](https://github.com/liblaf/apple/commit/72ae94b76df2d0d08d826f2359ff17ea11744685))
+- **jax/sim/energy:** Add Koiter thin shell energy model - ([e8175e3](https://github.com/liblaf/apple/commit/e8175e3f3763907356368f9cc7b23c818daaa5ca))
+- **phace:** add close-mouth and wind simulation examples - ([eb5bfdb](https://github.com/liblaf/apple/commit/eb5bfdbe7d34ed487043e308c616d479c797a9cc))
+- **phace:** add open-mouth jaw animation example - ([5dfa5e3](https://github.com/liblaf/apple/commit/5dfa5e38ff1e23b295d1023e662a0a899cdc3774))
+- **sim:** Add activation utility functions for JAX energy models - ([ae26615](https://github.com/liblaf/apple/commit/ae26615d4a9fbd5d665b2aabcde8dfe5a7d96a20))
+- **sim:** add Hessian computation support for energy models - ([cb1ea7f](https://github.com/liblaf/apple/commit/cb1ea7fedc5293b5474892b7c14a2fc1f4475d06))
+- **sim:** integrate Warp backend for simulation - ([eaff9b9](https://github.com/liblaf/apple/commit/eaff9b94b92184ecd1847c0d8bcc3773d0bb6343))
+- **sim:** introduce active ARAP energy model and Dirichlet builder - ([af97357](https://github.com/liblaf/apple/commit/af973573ef9f03d86c71c420c42567c08bc13d6c))
+- **sim:** add inter-collision example and improvements - ([231d509](https://github.com/liblaf/apple/commit/231d5099f3f5dcc1710c8f1c29dd0a938a26aac7))
+- **simulation:** add ball-head collision example with visualization support - ([9550bf2](https://github.com/liblaf/apple/commit/9550bf2c07daf9e0c1509ea515581a3a043ebc60))
+- **struct:** add mutable tree variants - ([5ed48f6](https://github.com/liblaf/apple/commit/5ed48f6447be1092c76c8454297bbbab7ca1bab2))
+- **warp:** add simulation energy infrastructure and ARAP model - ([24abf6a](https://github.com/liblaf/apple/commit/24abf6a060ce975cad8c4d532d81cc1a83b961b9))
+- **warp:** add matrix decomposition functions and update warp dependency - ([6a5b2a9](https://github.com/liblaf/apple/commit/6a5b2a953509a269490be8fc05a12d3ce0fbd6ec))
+- **warp/sim/energy:** add active ARAP and passive PHACE energy models - ([f56d137](https://github.com/liblaf/apple/commit/f56d137e589aec81e9383534e3047c5e7e9a0a8a))
+- Add JAX-based simulation framework and mathematical documentation - ([d63a206](https://github.com/liblaf/apple/commit/d63a206bb219b2134c138b0876b932c79ffc2b5c))
+- Add JAX-based simulation core with math utilities and type definitions - ([36d26fa](https://github.com/liblaf/apple/commit/36d26fa006f8099d8bd3dfabe8c49430856d4c40))
+- Implement phace active and passive energy models - ([294f454](https://github.com/liblaf/apple/commit/294f454b359c31ae6e33d456989970e2acf0db6d))
 
 ### 🐛 Bug Fixes
 
-* **data:** update md5 hashes and sizes for input and target VTU files ([e1b9558](https://github.com/liblaf/apple/commit/e1b9558293268340ffcc51a7fee8dea71d89fde7))
-* **deps:** update and simplify dependencies ([dcbc065](https://github.com/liblaf/apple/commit/dcbc065ed738f67d1301ba6b7e42c897bbfdc257))
-* **deps:** update dependency beartype to &gt;=0.22,&lt;0.23 ([#55](https://github.com/liblaf/apple/issues/55)) ([40e7a51](https://github.com/liblaf/apple/commit/40e7a5139ce5302d86da6eddb967d7e2523c0a94))
-* **deps:** update dependency jax to &gt;=0.7,&lt;0.8 ([#49](https://github.com/liblaf/apple/issues/49)) ([05e9451](https://github.com/liblaf/apple/commit/05e9451f9d332c01d257a733d0341323f564c02f))
-* **jax/math/rotation:** correct sign handling in SVD-based rotation computation ([76eea15](https://github.com/liblaf/apple/commit/76eea158a320b49a059c597a09c3acccf0ad219c))
-* **jax:** Correct activation transformation and add relative energy to PNCG ([0cf40cc](https://github.com/liblaf/apple/commit/0cf40cc71944111bffa5ab4a20e2586ee8444386))
-* **uv.lock:** update simplejson source URLs and wheel paths ([d5b3ce3](https://github.com/liblaf/apple/commit/d5b3ce31f877ebdd88a08688c9ba8256fb06d647))
-* **warp:** correct Hessian operations and add comprehensive tests ([11588aa](https://github.com/liblaf/apple/commit/11588aa9d36eabf535b811b02c8f0360efbc9784))
-* **warp:** properly convert numpy arrays with matrix/vector dtypes ([5586617](https://github.com/liblaf/apple/commit/55866172d56befdfe8280ea8a4e5dd30c9362639))
+- **data:** update md5 hashes and sizes for input and target VTU files - ([e1b9558](https://github.com/liblaf/apple/commit/e1b9558293268340ffcc51a7fee8dea71d89fde7))
+- **jax:** Correct activation transformation and add relative energy to PNCG - ([0cf40cc](https://github.com/liblaf/apple/commit/0cf40cc71944111bffa5ab4a20e2586ee8444386))
+- **jax/math/rotation:** correct sign handling in SVD-based rotation computation - ([76eea15](https://github.com/liblaf/apple/commit/76eea158a320b49a059c597a09c3acccf0ad219c))
+- **uv.lock:** update simplejson source URLs and wheel paths - ([d5b3ce3](https://github.com/liblaf/apple/commit/d5b3ce31f877ebdd88a08688c9ba8256fb06d647))
+- **warp:** properly convert numpy arrays with matrix/vector dtypes - ([5586617](https://github.com/liblaf/apple/commit/55866172d56befdfe8280ea8a4e5dd30c9362639))
+- **warp:** correct Hessian operations and add comprehensive tests - ([11588aa](https://github.com/liblaf/apple/commit/11588aa9d36eabf535b811b02c8f0360efbc9784))
 
+### ⬆️ Dependencies
+
+- **deps:** update dependency beartype to >=0.22,<0.23 (#55) - ([40e7a51](https://github.com/liblaf/apple/commit/40e7a5139ce5302d86da6eddb967d7e2523c0a94))
+- **deps:** update dependency jax to >=0.7,<0.8 (#49) - ([05e9451](https://github.com/liblaf/apple/commit/05e9451f9d332c01d257a733d0341323f564c02f))
+- **deps:** update and simplify dependencies - ([dcbc065](https://github.com/liblaf/apple/commit/dcbc065ed738f67d1301ba6b7e42c897bbfdc257))
 
 ### 📝 Documentation
 
-* **README:** update banner and badge links ([ac14a00](https://github.com/liblaf/apple/commit/ac14a00c495c8c32fa2b7c122f02012becd3716a))
-* **readme:** update socialify badge with transparent pattern ([0339381](https://github.com/liblaf/apple/commit/033938180ea6031aaa93b28a7089e92dd8218efd))
+- **README:** update banner and badge links - ([ac14a00](https://github.com/liblaf/apple/commit/ac14a00c495c8c32fa2b7c122f02012becd3716a))
+- **readme:** update socialify badge with transparent pattern - ([0339381](https://github.com/liblaf/apple/commit/033938180ea6031aaa93b28a7089e92dd8218efd))
 
+### ♻ Code Refactoring
 
-### ♻️ Code Refactoring
-
-* **examples:** clean up dynamics examples ([6b29fa8](https://github.com/liblaf/apple/commit/6b29fa8881f4f57cfdd31419ac1fad62577dac1e))
-* **jax:** move tree utilities to jax.tree module ([38966d1](https://github.com/liblaf/apple/commit/38966d1dc74667ea8a21b3511ce3989505ff7be5))
-* refactor code structure and remove redundant changes ([3380053](https://github.com/liblaf/apple/commit/33800534f5952a7f5eb5aa5331af5feb8b22ba20))
-* **sim:** improve simulation components ([46593af](https://github.com/liblaf/apple/commit/46593aff9e80000ba7507f0a3bdf06d97a7bc68f))
-* **sim:** restructure core components for performance ([292835f](https://github.com/liblaf/apple/commit/292835f03449c0bd7421d8b3e4fb14ba0d3fb1ca))
-* **sim:** simplify actor API and rename DOF/Dirichlet properties ([bc99c4a](https://github.com/liblaf/apple/commit/bc99c4a70388ee993646308c777c2245a3187f1f))
-* **sim:** simplify DOFs and attribute access ([e5fee29](https://github.com/liblaf/apple/commit/e5fee299a8dc1b0f364aeeb6b20dd22fc5baac7f))
-* **state:** simplify state updates and container implementations ([f007af5](https://github.com/liblaf/apple/commit/f007af5f23fe8bfd64488f3b6d18487651c62f74))
-* **struct:** migrate to Equinox PyTree system ([a5e4888](https://github.com/liblaf/apple/commit/a5e488899aed60472e929ce0a6bdc711708a1ccc))
-* **struct:** replace equinox-based PyTree with attrs-based implementation ([d25aaba](https://github.com/liblaf/apple/commit/d25aaba52575d0c7f82f33c453b3280e5e9f1a5d))
-* Update dependencies and refactor pytree registration ([d685f16](https://github.com/liblaf/apple/commit/d685f16b9f87e65f1575b1fab98282098b4754eb))
-* **warp:** improve type flexibility and add utility functions ([c9d66c6](https://github.com/liblaf/apple/commit/c9d66c621026a0556eadde03b8b45c2bec1ac12f))
-
+- **examples:** clean up dynamics examples - ([6b29fa8](https://github.com/liblaf/apple/commit/6b29fa8881f4f57cfdd31419ac1fad62577dac1e))
+- **jax:** move tree utilities to jax.tree module - ([38966d1](https://github.com/liblaf/apple/commit/38966d1dc74667ea8a21b3511ce3989505ff7be5))
+- **sim:** simplify DOFs and attribute access - ([e5fee29](https://github.com/liblaf/apple/commit/e5fee299a8dc1b0f364aeeb6b20dd22fc5baac7f))
+- **warp:** improve type flexibility and add utility functions - ([c9d66c6](https://github.com/liblaf/apple/commit/c9d66c621026a0556eadde03b8b45c2bec1ac12f))
+- Update dependencies and refactor pytree registration - ([d685f16](https://github.com/liblaf/apple/commit/d685f16b9f87e65f1575b1fab98282098b4754eb))
+- refactor code structure and remove redundant changes - ([3380053](https://github.com/liblaf/apple/commit/33800534f5952a7f5eb5aa5331af5feb8b22ba20))
 
 ### ✅ Tests
 
-* **benchmark:** Add volume aggregation benchmarks for Warp and JAX ([4631a1e](https://github.com/liblaf/apple/commit/4631a1e586a62c232df760a0bd37314500f68a55))
-* disable JIT in scipy minimizer tests and adjust tolerances ([fdc27be](https://github.com/liblaf/apple/commit/fdc27be23b633c316b4c632c6719d112a42dcda7))
-* **optim:** add tests for MinimizerScipy and refactor Objective partial method ([5eb4ac3](https://github.com/liblaf/apple/commit/5eb4ac3c79de2c79ab46f49cac343032a7b7eac1))
+- **benchmark:** Add volume aggregation benchmarks for Warp and JAX - ([4631a1e](https://github.com/liblaf/apple/commit/4631a1e586a62c232df760a0bd37314500f68a55))
+- **optim:** add tests for MinimizerScipy and refactor Objective partial method - ([5eb4ac3](https://github.com/liblaf/apple/commit/5eb4ac3c79de2c79ab46f49cac343032a7b7eac1))
+- disable JIT in scipy minimizer tests and adjust tolerances - ([fdc27be](https://github.com/liblaf/apple/commit/fdc27be23b633c316b4c632c6719d112a42dcda7))
 
-## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-11
+### ❤️ New Contributors
+
+- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
+- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@renovate[bot]](https://github.com/apps/renovate) made their first contribution in [#55](https://github.com/liblaf/apple/pull/55)
+
+## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-12
 
 ### 💥 BREAKING CHANGES
 
@@ -102,11 +97,6 @@
 ### ♻ Code Refactoring
 
 - **examples:** adjust material and optimization parameters - ([67cf83d](https://github.com/liblaf/apple/commit/67cf83d6ddf0547083535d4039c5a6d9e612ce05))
-
-### ❤️ New Contributors
-
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
 
 ## [0.2.1](https://github.com/liblaf/apple/compare/v0.2.0..v0.2.1) - 2025-07-04
 

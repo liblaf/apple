@@ -121,9 +121,9 @@ class Inverse:
 
     def make_params(self, q: Float[Array, "ca 6"]) -> Params:
         activation: Float[Array, "c 6"] = sim_jax.rest_activation(self.input.n_cells)
-        # q = q.at[:, :3].set(jnp.exp(q[:, :3]))
+        q = q.at[:, :3].set(jnp.exp(q[:, :3]))
         activation = activation.at[self.active_mask].set(q)
-        # activation = sim_jax.transform_activation(activation, self.muscle_orientation)
+        activation = sim_jax.transform_activation(activation, self.muscle_orientation)
         return Params(activation=activation)
 
     def set_params(self, params: Params) -> None:
@@ -158,6 +158,11 @@ class Inverse:
         logger.info(lx.RESULTS[solution.result])
         logger.info(solution.stats)
         p: Vector = solution.value
+        # relative error
+        rel_residual: float = jnp.linalg.norm(
+            self.model.hess_prod(u, p) + dLdu
+        ) / jnp.linalg.norm(dLdu)  # pyright: ignore[reportCallIssue]
+        logger.info("linear solve > relative residual: {}", rel_residual)
         # p: Vector = preconditioner * -dLdu
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(p)
@@ -287,9 +292,9 @@ def main(cfg: Config) -> None:
         writer.append(mesh)
 
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
-    # q_init = q_init.at[:, :3].set(jnp.log(1.0))
+    q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-8, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
     inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=1000)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
@@ -299,6 +304,17 @@ def main(cfg: Config) -> None:
 
     q_init = solution["x"]
     inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=10000)
+    solution = optimizer.minimize(
+        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
+    )
+    callback(solution)
+    ic(solution)
+
+    q_init = solution["x"]
+    optimizer = optim.MinimizerScipy(
+        jit=False, method="L-BFGS-B", tol=1e-10, options={}
+    )
+    inverse.linear_solver = lx.NormalCG(rtol=1e-3, atol=1e-5, max_steps=50000)
     solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

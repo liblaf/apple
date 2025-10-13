@@ -1,0 +1,5 @@
+# -*- mode: ini; -*-
+
+[lfs]
+locksverify = true
+url = ssh://git@forgejo.liblaf.me/liblaf/apple.git

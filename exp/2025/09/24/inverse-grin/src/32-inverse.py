@@ -49,7 +49,7 @@ class Forward:
         # factory=lambda: optim.MinimizerScipy(
         #     method="trust-constr", tol=1e-5, options={"verbose": 3}
         # )
-        factory=lambda: optim.MinimizerPNCG(atol=1e-16, maxiter=1000, rtol=1e-6)
+        factory=lambda: optim.MinimizerPNCG(atol=1e-16, maxiter=1000, rtol=1e-8)
     )
 
     def solve(self, x0: Vector | None = None) -> Vector:
@@ -355,7 +355,7 @@ def main(cfg: Config) -> None:
     q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-5, max_steps=10000)
+    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
@@ -363,7 +363,7 @@ def main(cfg: Config) -> None:
     ic(solution)
 
     q_init = solution["x"]
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-5, max_steps=10000)
+    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
     solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
@@ -374,7 +374,7 @@ def main(cfg: Config) -> None:
     optimizer = optim.MinimizerScipy(
         jit=False, method="L-BFGS-B", tol=1e-10, options={}
     )
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-5, max_steps=50000)
+    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=50000)
     solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

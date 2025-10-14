@@ -70,8 +70,8 @@ def energy_density_hess_quad(
     h4_quad = func.h4_quad(p, dhdX, lambdas, Q0, Q1, Q2)
     h5_quad = func.h5_quad(p, dhdX)
     h_quad = -type(F[0, 0])(2.0) * h4_quad + h5_quad
-    if h_quad < 0.0:
-        wp.printf("h4_quad = %f, h5_quad = %f, h_quad = %f\n", h4_quad, h5_quad, h_quad)
+    # if h_quad < 0.0:
+    #     wp.printf("h4_quad = %f, h5_quad = %f, h_quad = %f\n", h4_quad, h5_quad, h_quad)
     return type(F[0, 0])(0.5) * params.mu * h_quad
 
 

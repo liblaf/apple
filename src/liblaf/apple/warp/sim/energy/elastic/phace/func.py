@@ -144,10 +144,10 @@ def energy_density_hess_quad(
     h3_quad = _f.h3_quad(p, dhdX, g3)  # float
     h6_quad = _f.h6_quad(p, dhdX, F)  # float
     quad_vp = d2Psi_dI32 * h3_quad + dPsi_dI3 * h6_quad  # float
-    if quad_vp < 0.0:
-        wp.printf(
-            "h3_quad = %f, h6_quad = %f, quad_vp = %f\n", h3_quad, h6_quad, quad_vp
-        )
+    # if quad_vp < 0.0:
+    #     wp.printf(
+    #         "h3_quad = %f, h6_quad = %f, quad_vp = %f\n", h3_quad, h6_quad, quad_vp
+    #     )
     quad = _2 * quad_arap + quad_vp  # float
     return quad
 

@@ -182,7 +182,9 @@ class Inverse:
     def make_params(self, q: Float[Array, "ca 6"]) -> Params:
         activation: Float[Array, "c 6"] = sim_jax.rest_activation(self.input.n_cells)
         # q = q.at[:, :3].set(jnp.exp(q[:, :3]))
-        activation = activation.at[self.active_mask].set(q)
+        activation = activation.at[self.active_mask, 0].set(jnp.reciprocal(q))
+        activation = activation.at[self.active_mask, 1].set(jnp.sqrt(q))
+        activation = activation.at[self.active_mask, 2].set(jnp.sqrt(q))
         # activation = sim_jax.transform_activation(activation, self.muscle_orientation)
         return Params(activation=activation)
 
@@ -240,7 +242,7 @@ class Inverse:
                 -dLdu_free,
                 tol=1e-5,
                 atol=1e-15,
-                maxiter=ic(u_free.size),
+                maxiter=ic(10 * u_free.size),
                 M=lambda x: P_free * x,
             )
             logger.info("linear solve > info: {}", info)
@@ -395,12 +397,10 @@ def main(cfg: Config) -> None:  # noqa: PLR0915
         # result: pv.UnstructuredGrid = mesh.warp_by_vector("solution")  # pyright: ignore[reportAssignmentType]
         writer.append(mesh)
 
+    q_init: Float[Array, " ca"] = jnp.ones((inverse.n_active_cells,))
     inverse.reg_mean_weight = 0.0
     inverse.reg_shear_weight = 0.0
     inverse.reg_volume_weight = 0.0
-
-    q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
-    # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
     optimizer = optim.MinimizerScipy(
         jit=False, method="L-BFGS-B", tol=1e-15, options={}

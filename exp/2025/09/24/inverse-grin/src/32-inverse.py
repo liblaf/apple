@@ -275,9 +275,9 @@ class Inverse:
 
     def loss(self, x: Vector, params: Params) -> tuple[Scalar, InverseLossAux]:
         loss_surface: Scalar = self.loss_surface(x)
-        reg_mean: Scalar = 1e3 * self.regularize_mean(params)
-        reg_shear: Scalar = 1e3 * self.regularize_shear(params)
-        reg_volume: Scalar = 1e3 * self.regularize_volume(params)
+        reg_mean: Scalar = self.reg_mean_weight * self.regularize_mean(params)
+        reg_shear: Scalar = self.reg_shear_weight * self.regularize_shear(params)
+        reg_volume: Scalar = self.reg_volume_weight * self.regularize_volume(params)
         # jax.debug.print("loss_surface = {}", loss_surface)
         # jax.debug.print("reg_mean = {}", reg_mean)
         # jax.debug.print("reg_shear = {}", reg_shear)

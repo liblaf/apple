@@ -275,9 +275,9 @@ class Inverse:
 
     def loss(self, x: Vector, params: Params) -> tuple[Scalar, InverseLossAux]:
         loss_surface: Scalar = self.loss_surface(x)
-        reg_mean: Scalar = 1e3 * self.regularize_mean(params)
-        reg_shear: Scalar = 1e3 * self.regularize_shear(params)
-        reg_volume: Scalar = 1e3 * self.regularize_volume(params)
+        reg_mean: Scalar = self.reg_mean_weight * self.regularize_mean(params)
+        reg_shear: Scalar = self.reg_shear_weight * self.regularize_shear(params)
+        reg_volume: Scalar = self.reg_volume_weight * self.regularize_volume(params)
         # jax.debug.print("loss_surface = {}", loss_surface)
         # jax.debug.print("reg_mean = {}", reg_mean)
         # jax.debug.print("reg_shear = {}", reg_shear)
@@ -341,7 +341,7 @@ class Inverse:
         return regularization
 
 
-def main(cfg: Config) -> None:
+def main(cfg: Config) -> None:  # noqa: PLR0915
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
 
@@ -395,6 +395,10 @@ def main(cfg: Config) -> None:
         # result: pv.UnstructuredGrid = mesh.warp_by_vector("solution")  # pyright: ignore[reportAssignmentType]
         writer.append(mesh)
 
+    inverse.reg_mean_weight = 0.0
+    inverse.reg_shear_weight = 0.0
+    inverse.reg_volume_weight = 0.0
+
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
@@ -402,9 +406,6 @@ def main(cfg: Config) -> None:
         jit=False, method="L-BFGS-B", tol=1e-15, options={}
     )
     inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
-    inverse.reg_mean_weight = 0.0
-    inverse.reg_shear_weight = 0.0
-    inverse.reg_volume_weight = 0.0
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

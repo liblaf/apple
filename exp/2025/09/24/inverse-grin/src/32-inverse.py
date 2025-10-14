@@ -438,35 +438,34 @@ def main(cfg: Config) -> None:
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-6, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
     callback(solution)
     ic(solution)
 
-    # inverse.reg_mean_weight = 1e2
-    # inverse.reg_shear_weight = 1e2
-    # inverse.reg_volume_weight = 1e2
-    # q_init = solution["x"]
-    # inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
-    # solution = optimizer.minimize(
-    #     x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
-    # )
-    # callback(solution)
-    # ic(solution)
+    inverse.reg_mean_weight = 1e2
+    inverse.reg_shear_weight = 1e2
+    inverse.reg_volume_weight = 1e2
+    optimizer.tol = 1e-5
+    q_init = solution["x"]
+    solution = optimizer.minimize(
+        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
+    )
+    callback(solution)
+    ic(solution)
 
-    # inverse.reg_mean_weight = 1e1
-    # inverse.reg_shear_weight = 1e1
-    # inverse.reg_volume_weight = 1e1
-    # q_init = solution["x"]
-    # optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-15)
-    # inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=50000)
-    # solution = optimizer.minimize(
-    #     x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
-    # )
-    # callback(solution)
-    # ic(solution)
+    inverse.reg_mean_weight = 1e1
+    inverse.reg_shear_weight = 1e1
+    inverse.reg_volume_weight = 1e1
+    q_init = solution["x"]
+    optimizer.tol = 1e-6
+    solution = optimizer.minimize(
+        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
+    )
+    callback(solution)
+    ic(solution)
 
 
 if __name__ == "__main__":

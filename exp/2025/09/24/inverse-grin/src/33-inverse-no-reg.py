@@ -34,7 +34,7 @@ class Config(cherries.BaseConfig):
     input: Path = cherries.input("11-input.vtu")
     target: Path = cherries.input("21-target.vtu")
 
-    output: Path = cherries.output("32-inverse.vtu.series")
+    output: Path = cherries.output("33-inverse.vtu.series")
 
 
 @tree.pytree
@@ -240,7 +240,7 @@ class Inverse:
                 -dLdu_free,
                 tol=1e-5,
                 atol=1e-15,
-                maxiter=ic(10 * u_free.size),
+                maxiter=ic(u_free.size),
                 M=lambda x: P_free * x,
             )
             logger.info("linear solve > info: {}", info)
@@ -398,13 +398,19 @@ def main(cfg: Config) -> None:
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(1.0))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-6, options={})
+    optimizer = optim.MinimizerScipy(
+        jit=False, method="L-BFGS-B", tol=1e-15, options={}
+    )
     inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
+    inverse.reg_mean_weight = 0.0
+    inverse.reg_shear_weight = 0.0
+    inverse.reg_volume_weight = 0.0
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
     callback(solution)
     ic(solution)
+    return
 
     inverse.reg_mean_weight = 1e2
     inverse.reg_shear_weight = 1e2
@@ -421,7 +427,6 @@ def main(cfg: Config) -> None:
     inverse.reg_shear_weight = 1e1
     inverse.reg_volume_weight = 1e1
     q_init = solution["x"]
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-15)
     inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=50000)
     solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback

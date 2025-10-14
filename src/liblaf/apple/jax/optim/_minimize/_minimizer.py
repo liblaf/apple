@@ -51,7 +51,7 @@ class Minimizer(abc.ABC):
             objective = objective.jit()
         if self.timer:
             objective = objective.timer()
-        with grapes.timer(name="minimize") as timer:
+        with grapes.timer(name=str(self)) as timer:
             solution: Solution = self._minimize_impl(
                 objective=objective,
                 x0=x0,
@@ -63,7 +63,7 @@ class Minimizer(abc.ABC):
         solution["time"] = timer.elapsed()
         for field in attrs.fields(type(objective)):
             fn: Callable | None = getattr(objective, field.name)
-            if not callable(fn):
+            if fn is None:
                 continue
             timer: grapes.BaseTimer | None = grapes.get_timer(fn, None)
             if timer is None:

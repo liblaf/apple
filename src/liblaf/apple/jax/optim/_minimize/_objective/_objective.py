@@ -63,7 +63,7 @@ class Objective:
         updates: dict[str, Callable | None] = {}
         updates["fun"] = flatten(self.fun, arg_nums=(0,))
         updates["jac"] = flatten(self.jac, arg_nums=(0,))
-        if callable(self.hess):
+        if self.hess is not None:
             raise NotImplementedError
         updates["hessp"] = flatten(self.hessp, arg_nums=(0, 1))
         updates["hess_diag"] = flatten(self.hess_diag, arg_nums=(0,))
@@ -81,7 +81,7 @@ class Objective:
         updates: dict[str, Callable] = {}
         for name in FUNCTION_NAMES:
             fn: Callable | None = getattr(self, name)
-            if not callable(fn):
+            if fn is None:
                 continue
             updates[name] = eqx.filter_jit(fn)
         return attrs.evolve(self, **updates)
@@ -97,7 +97,10 @@ class Objective:
 
             @grapes.decorator
             def wrapper(
-                wrapped: Callable, _instance: None, args: tuple, kwargs: dict
+                wrapped: Callable,
+                _instance: None,
+                args: Sequence[Any],
+                kwargs: Mapping[str, Any],
             ) -> Any:
                 return wrapped(*args, *partial_args, **partial_kwargs, **kwargs)
 
@@ -105,7 +108,7 @@ class Objective:
 
         for name in FUNCTION_NAMES:
             fn: Callable | None = getattr(self, name)
-            if not callable(fn):
+            if fn is None:
                 continue
             updates[name] = partial(fn, args, kwargs)
         return attrs.evolve(self, **updates)
@@ -114,7 +117,7 @@ class Objective:
         updates: dict[str, Callable] = {}
         for name in FUNCTION_NAMES:
             fn: Callable | None = getattr(self, name)
-            if not callable(fn):
+            if fn is None:
                 continue
             updates[name] = grapes.timer(fn, name=f"{name}()")
         return attrs.evolve(self, **updates)

@@ -5,7 +5,7 @@ from jaxtyping import Array, Float
 from liblaf.apple.jax import math
 
 type Scalar = Float[Array, ""]
-type Vector = Float[Array, " N"]
+type Vector = Float[Array, " I"]
 
 
 def rosen(x: Vector) -> Scalar:
@@ -18,7 +18,7 @@ def rosen_der(x: Vector) -> Vector:
     return jax.grad(rosen)(x)
 
 
-def rosen_hess(x: Vector) -> Float[Array, "N N"]:
+def rosen_hess(x: Vector) -> Float[Array, "I I"]:
     return jax.hessian(rosen)(x)
 
 

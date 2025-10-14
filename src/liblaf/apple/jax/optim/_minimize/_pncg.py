@@ -36,7 +36,7 @@ class MinimizerPNCG(Minimizer):
         1. Xing Shen, Runyuan Cai, Mengxiao Bi, and Tangjie Lv. 2024. Preconditioned Nonlinear Conjugate Gradient Method for Real-time Interior-point Hyperelasticity. In ACM SIGGRAPH 2024 Conference Papers (SIGGRAPH '24). Association for Computing Machinery, New York, NY, USA, Article 96, 1–11. https://doi.org/10.1145/3641519.3657490
     """
 
-    atol: float = tree.field(default=0.0)
+    atol: float = tree.field(default=1e-15)
     d_hat: float = tree.field(default=jnp.inf)
     maxiter: int = tree.field(default=150)
     rtol: float = tree.field(default=5e-5)
@@ -86,7 +86,7 @@ class MinimizerPNCG(Minimizer):
                 P=unflatten(state.P),
                 x=unflatten(state.x),
             )
-            if callable(callback):
+            if callback is not None:
                 callback(solution)
             if state.DeltaE <= self.atol:
                 solution["success"] = True
@@ -108,7 +108,8 @@ class MinimizerPNCG(Minimizer):
     def compute_beta(self, g_prev: Vector, g: Vector, p: Vector, P: Vector) -> Scalar:
         y: Vector = g - g_prev
         yTp: Scalar = jnp.vdot(y, p)
-        beta: Scalar = jnp.vdot(g, P * y) / yTp - (jnp.vdot(y, P * y) / yTp) * (
+        Py: Vector = P * y
+        beta: Scalar = jnp.vdot(g, Py) / yTp - (jnp.vdot(y, Py) / yTp) * (
             jnp.vdot(p, g) / yTp
         )
         return beta

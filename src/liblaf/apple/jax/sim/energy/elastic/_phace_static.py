@@ -31,7 +31,7 @@ class PhaceStatic(Elastic):
         R: Float[Array, "c q J J"]
         R, _ = math.polar_rv(F)
         J: Float[Array, "c q"] = jnp.linalg.det(F)
-        Psi_ARAP: Float[Array, "c q"] = mu * math.frobenius_norm_square(F - R)
+        Psi_ARAP: Float[Array, "c q"] = mu * math.fro_norm_square(F - R)
         Psi_volume_preserving: Float[Array, "c q"] = lambda_ * (J - 1.0) ** 2
         Psi: Float[Array, "c q"] = 2.0 * Psi_ARAP + Psi_volume_preserving
         return Psi

@@ -21,4 +21,4 @@ class ARAP(Elastic):
         mu: Float[Array, " c #q"] = self.mu[:, jnp.newaxis]
         R: Float[Array, "c q J J"]
         R, _ = math.polar_rv(F)
-        return 0.5 * mu * math.frobenius_norm_square(F - R)
+        return 0.5 * mu * math.fro_norm_square(F - R)

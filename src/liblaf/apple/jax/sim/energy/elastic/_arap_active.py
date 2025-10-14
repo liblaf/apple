@@ -37,7 +37,7 @@ class ARAPActive(Elastic):
         mu: Float[Array, " c #q"] = self.mu[:, jnp.newaxis]
         R: Float[Array, "c q J J"]
         R, _ = math.polar_rv(F)
-        return mu * math.frobenius_norm_square(F - R @ A)
+        return mu * math.fro_norm_square(F - R @ A)
 
     def mixed_derivative_prod_activation(self, u: Vector, p: Vector) -> Vector:
         def jac(q: Float[Array, "c 6"]) -> Vector:

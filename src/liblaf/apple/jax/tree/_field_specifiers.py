@@ -38,7 +38,7 @@ def container(**kwargs: Unpack[FieldOptions]) -> Any:
 
 def field(**kwargs: Unpack[FieldOptions]) -> Any:
     if "default_factory" in kwargs:
-        kwargs["factory"] = kwargs.pop("default_factory")
+        kwargs.setdefault("factory", kwargs.pop("default_factory"))
     return attrs.field(**kwargs)  # pyright: ignore[reportCallIssue]
 
 

@@ -1,11 +1,10 @@
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any, override
 
 import attrs
 import scipy.optimize
 from jaxtyping import Array, Float, PyTree
 
-from liblaf import grapes
 from liblaf.apple.jax import tree
 
 from ._minimizer import Minimizer, Solution
@@ -15,7 +14,7 @@ from ._objective import Objective
 @tree.pytree
 class MinimizerScipy(Minimizer):
     method: str = "trust-constr"
-    tol: float | None = None
+    tol: float | None = 1e-5
     options: Mapping[str, Any] = {}
 
     @override
@@ -40,7 +39,7 @@ class MinimizerScipy(Minimizer):
         else:
             fun = objective.fun
             jac = objective.jac
-        callback = wraps_callback(callback, unflatten)
+        callback = _CallbackWrapper(callback=callback, unflatten=unflatten)
         result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
             fun=fun,
             x0=x0_flat,
@@ -59,36 +58,16 @@ class MinimizerScipy(Minimizer):
 
 
 @attrs.define
-class _ProblemWrapper:
-    args: Iterable[Any]
-    kwargs: Mapping[str, Any]
+class _CallbackWrapper:
+    callback: Callable | None
     unflatten: Callable[[Array], PyTree]
+    n_iter: int = 0
 
-    def wraps(self, fn: Callable, unflatten_args: Sequence[int] = (0,)) -> Callable:
-        @grapes.decorator
-        def wrapper(
-            wrapped: Callable, _instance: None, args: tuple, kwargs: dict
-        ) -> Array:
-            args: list = list(args)
-            for i in unflatten_args:
-                args[i] = self.unflatten(args[i])
-            result: PyTree = wrapped(*args, *self.args, **kwargs, **self.kwargs)
-            result_flat: Float[Array, " ..."]
-            result_flat, _ = tree.flatten(result)
-            return result_flat
-
-        return wrapper(fn)
-
-
-def wraps_callback(
-    callback: Callable | None, unflatten: Callable[[Array], PyTree]
-) -> Callable | None:
-    if callback is None:
-        return None
-
-    def wrapper(intermediate_result: scipy.optimize.OptimizeResult) -> Any:
+    def __call__(self, intermediate_result: scipy.optimize.OptimizeResult) -> Any:
+        if self.callback is None:
+            return None
+        self.n_iter += 1
         intermediate_result = Solution(intermediate_result)
-        intermediate_result["x"] = unflatten(intermediate_result["x"])
-        return callback(intermediate_result)
-
-    return wrapper
+        intermediate_result["n_iter"] = self.n_iter
+        intermediate_result["x"] = self.unflatten(intermediate_result["x"])
+        return self.callback(intermediate_result)

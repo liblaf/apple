@@ -13,4 +13,4 @@ def tree_dot(a: PyTree, b: PyTree) -> Float[Array, ""]:
     for a_leaf, b_leaf in zip(a_leaves, b_leaves, strict=True):
         if eqx.is_array(a_leaf):
             outputs.append(jnp.vdot(a_leaf, b_leaf))
-    return jnp.sum(jnp.array(outputs))
+    return jnp.sum(jnp.asarray(outputs))

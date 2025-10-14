@@ -2,5 +2,5 @@ import jax.numpy as jnp
 from jaxtyping import Array, Float
 
 
-def frobenius_norm_square(a: Float[Array, "*b J J"]) -> Float[Array, "*b"]:
+def fro_norm_square(a: Float[Array, "*batch I I"]) -> Float[Array, "*batch"]:
     return jnp.sum(jnp.square(a), axis=(-2, -1))

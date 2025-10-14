@@ -12,12 +12,12 @@ from ._scheme import Scheme
 
 def _default_points() -> Float[Array, "q=1 J=3"]:
     with jax.ensure_compile_time_eval():
-        return jnp.ones((1, 3)) / 4.0
+        return jnp.ones((1, 3), float) / 4.0
 
 
 def _default_weights() -> Float[Array, "q=1"]:
     with jax.ensure_compile_time_eval():
-        return jnp.ones((1,)) / 6.0
+        return jnp.ones((1,), float) / 6.0
 
 
 @tree.pytree

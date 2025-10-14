@@ -8,7 +8,6 @@ import jax.numpy as jnp
 import lineax as lx
 import numpy as np
 import pyvista as pv
-import scipy.optimize
 import warp as wp
 from jaxtyping import Array, Bool, Float
 from loguru import logger
@@ -441,9 +440,7 @@ def main(cfg: Config) -> None:
     inverse.reg_shear_weight = 0.0
     inverse.reg_volume_weight = 0.0
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(
-        jit=False, method="L-BFGS-B", tol=1e-15, options={}
-    )
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
     # inverse.linear_solver = lx.CG(rtol=1e-5, atol=1e-15, max_steps=model.n_free // 10)
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback

@@ -8,6 +8,7 @@ import jax.numpy as jnp
 import lineax as lx
 import numpy as np
 import pyvista as pv
+import scipy.optimize
 import warp as wp
 from jaxtyping import Array, Bool, Float
 from loguru import logger
@@ -181,11 +182,14 @@ class Inverse:
 
     def make_params(self, q: Float[Array, "ca 6"]) -> Params:
         activation: Float[Array, "c 6"] = sim_jax.rest_activation(self.input.n_cells)
+        # q = jnp.exp(q)
         # q = q.at[:, :3].set(jnp.exp(q[:, :3]))
-        activation = activation.at[self.active_mask, 0].set(jnp.reciprocal(q))
-        activation = activation.at[self.active_mask, 1].set(jnp.sqrt(q))
-        activation = activation.at[self.active_mask, 2].set(jnp.sqrt(q))
-        # activation = sim_jax.transform_activation(activation, self.muscle_orientation)
+        for muscle_id in range(self.n_muscles):
+            mask: Bool[Array, " c"] = self.muscle_id == muscle_id
+            activation = activation.at[mask, 0].set(jnp.reciprocal(q[muscle_id]))
+            activation = activation.at[mask, 1].set(jnp.sqrt(q[muscle_id]))
+            activation = activation.at[mask, 2].set(jnp.sqrt(q[muscle_id]))
+        activation = sim_jax.transform_activation(activation, self.muscle_orientation)
         return Params(activation=activation)
 
     def set_params(self, params: Params) -> None:
@@ -204,20 +208,35 @@ class Inverse:
         dLdu: Vector
         aux: InverseLossAux
         (L, aux), dLdu = eqx.filter_value_and_grad(self.loss, has_aux=True)(u, params)
-        cherries.log_metric("loss.total", L, step=self.step)
-        cherries.log_metric("loss.surface", aux.loss_surface, step=self.step)
-        cherries.log_metric("loss.reg.mean", aux.reg_mean, step=self.step)
-        cherries.log_metric("loss.reg.shear", aux.reg_shear, step=self.step)
-        cherries.log_metric("loss.reg.volume", aux.reg_volume, step=self.step)
-        self.step += 1
+        cherries.log_metrics(
+            {
+                "loss": {
+                    "total": L,
+                    "surface": aux.loss_surface,
+                    "reg": {
+                        "mean": aux.reg_mean,
+                        "shear": aux.reg_shear,
+                        "volume": aux.reg_volume,
+                    },
+                }
+            },
+            step=self.step,
+        )
         jac: Params
         jac, _ = eqx.filter_grad(lambda params: self.loss(u, params), has_aux=True)(
             params
         )
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
-        with grapes.timer(name="linear solve"):
-            u_free: Vector = self.model.dirichlet.get_free(u)
-            dLdu_free: Vector = self.model.dirichlet.get_free(dLdu)
+        u_free: Vector = self.model.dirichlet.get_free(u)
+        dLdu_free: Vector = self.model.dirichlet.get_free(dLdu)
+        P_free: Vector = self.model.dirichlet.get_free(preconditioner)
+
+        def relative_residual(p_free: Vector) -> float:
+            return jnp.linalg.norm(
+                self.model.hess_prod(u_free, p_free) + dLdu_free
+            ) / jnp.linalg.norm(dLdu_free)
+
+        with grapes.timer(name="CG"):
             # solution: lx.Solution = lx.linear_solve(
             #     lx.FunctionLinearOperator(
             #         lambda p_free: self.model.hess_prod(u_free, p_free),
@@ -235,32 +254,54 @@ class Inverse:
             # )
             # logger.info(lx.RESULTS[solution.result])
             # logger.info(solution.stats)
+            # p_free = solution.value
 
-            P_free: Vector = self.model.dirichlet.get_free(preconditioner)
             p_free, info = jax.scipy.sparse.linalg.cg(
                 lambda p_free: self.model.hess_prod(u_free, p_free),
                 -dLdu_free,
                 tol=1e-5,
                 atol=1e-15,
-                maxiter=ic(10 * u_free.size),
+                maxiter=ic(u_free.size // 10),
                 M=lambda x: P_free * x,
             )
-            logger.info("linear solve > info: {}", info)
+        logger.info("CG > info: {}", info)
+        rel_res: float = relative_residual(p_free)
+        logger.info("CG > relative residual: {}", rel_res)
+        if rel_res > 0.5:
+            logger.warning("CG failed to converge, switching to NormalCG")
+            with grapes.timer(name="NormalCG"):
+                solver = lx.NormalCG(
+                    rtol=1e-5, atol=1e-15, max_steps=(u_free.size // 10)
+                )
+                solution: lx.Solution = lx.linear_solve(
+                    lx.FunctionLinearOperator(
+                        lambda p_free: self.model.hess_prod(u_free, p_free),
+                        jax.ShapeDtypeStruct(u_free.shape, u_free.dtype),
+                        [lx.symmetric_tag, lx.positive_semidefinite_tag],
+                    ),
+                    -dLdu_free,
+                    solver,
+                    options={"preconditioner": lx.DiagonalLinearOperator(P_free)},
+                    throw=False,
+                )
+            p_free: Vector = solution.value
+            logger.info("NormalCG > results: {}", lx.RESULTS[solution.result])
+            rel_res: float = relative_residual(p_free)
+            logger.info("NormalCG > relative residual: {}", rel_res)
 
-            p: Vector = self.model.to_full(p_free, zero=True)
+        p: Vector = self.model.to_full(p_free, zero=True)
 
-            # solver = PNCGLinearSolver(
-            #     hess_diag=lambda: self.model.hess_diag(u),
-            #     hess_prod=lambda p: self.model.hess_prod(u, p),
-            #     hess_quad=lambda p: self.model.hess_quad(u, p),
-            #     b=-dLdu,
-            # )
-            # p: Vector = solver.solve()
+        # solver = PNCGLinearSolver(
+        #     hess_diag=lambda: self.model.hess_diag(u),
+        #     hess_prod=lambda p: self.model.hess_prod(u, p),
+        #     hess_quad=lambda p: self.model.hess_quad(u, p),
+        #     b=-dLdu,
+        # )
+        # p: Vector = solver.solve()
         # relative error
-        rel_residual: float = jnp.linalg.norm(
-            self.model.hess_prod(u_free, p_free) + dLdu_free
-        ) / jnp.linalg.norm(dLdu_free)
-        logger.info("linear solve > relative residual (free): {}", rel_residual)
+        cherries.log_metric(
+            "linear_solve/relative_residual_free", rel_res, step=self.step
+        )
         rel_residual: float = jnp.linalg.norm(
             self.model.hess_prod(u, p) + dLdu
         ) / jnp.linalg.norm(dLdu)
@@ -273,6 +314,9 @@ class Inverse:
         (jac_q,) = vjp(jac)
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(L, jac_q)
+
+        self.step += 1
+
         return L, jac_q
 
     def loss(self, x: Vector, params: Params) -> tuple[Scalar, InverseLossAux]:
@@ -343,7 +387,7 @@ class Inverse:
         return regularization
 
 
-def main(cfg: Config) -> None:  # noqa: PLR0915
+def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
 
@@ -397,7 +441,7 @@ def main(cfg: Config) -> None:  # noqa: PLR0915
         # result: pv.UnstructuredGrid = mesh.warp_by_vector("solution")  # pyright: ignore[reportAssignmentType]
         writer.append(mesh)
 
-    q_init: Float[Array, " ca"] = jnp.ones((inverse.n_active_cells,))
+    q_init: Float[Array, " ca"] = jnp.ones((inverse.n_muscles,))
     inverse.reg_mean_weight = 0.0
     inverse.reg_shear_weight = 0.0
     inverse.reg_volume_weight = 0.0
@@ -405,32 +449,12 @@ def main(cfg: Config) -> None:  # noqa: PLR0915
     optimizer = optim.MinimizerScipy(
         jit=False, method="L-BFGS-B", tol=1e-15, options={}
     )
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
+    # inverse.linear_solver = lx.CG(rtol=1e-5, atol=1e-15, max_steps=model.n_free // 10)
     solution: optim.Solution = optimizer.minimize(
-        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
-    )
-    callback(solution)
-    ic(solution)
-    return
-
-    inverse.reg_mean_weight = 1e2
-    inverse.reg_shear_weight = 1e2
-    inverse.reg_volume_weight = 1e2
-    q_init = solution["x"]
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=10000)
-    solution = optimizer.minimize(
-        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
-    )
-    callback(solution)
-    ic(solution)
-
-    inverse.reg_mean_weight = 1e1
-    inverse.reg_shear_weight = 1e1
-    inverse.reg_volume_weight = 1e1
-    q_init = solution["x"]
-    inverse.linear_solver = lx.CG(rtol=1e-3, atol=1e-30, max_steps=50000)
-    solution = optimizer.minimize(
-        x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
+        x0=q_init,
+        fun_and_jac=inverse.fun_and_jac,
+        callback=callback,
+        bounds=scipy.optimize.Bounds(lb=0.1, ub=100.0, keep_feasible=True),
     )
     callback(solution)
     ic(solution)

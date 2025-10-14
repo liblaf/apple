@@ -8,6 +8,7 @@ from liblaf.apple.jax.sim.quadrature import Scheme
 from liblaf.apple.jax.sim.region import Region
 from liblaf.apple.warp.sim.energy._energy import Energy
 from liblaf.apple.warp.sim.energy.elastic import func
+from liblaf.apple.warp.sparse import Coo2d
 from liblaf.apple.warp.typing import Struct, float_, mat43, vec3, vec4i
 
 
@@ -309,6 +310,14 @@ class Elastic(Energy):
             inputs=[u, self.cells, self.dhdX, self.dV, self.params],
             outputs=[output],
         )
+
+    @override
+    def hess(self, u: wp.array, output: Coo2d, *, start: int) -> None:
+        raise NotImplementedError
+
+    @override
+    def hess_size(self) -> int:
+        raise NotImplementedError
 
     @override
     def hess_diag(self, u: wp.array, output: wp.array) -> None:

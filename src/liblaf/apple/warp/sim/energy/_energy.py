@@ -3,6 +3,7 @@ from collections.abc import Sequence
 import warp as wp
 
 from liblaf.apple.jax import tree
+from liblaf.apple.warp.sparse import Coo2d
 
 
 @tree.pytree
@@ -13,6 +14,12 @@ class Energy(tree.IdMixin):
         raise NotImplementedError
 
     def jac(self, u: wp.array, output: wp.array) -> None:
+        raise NotImplementedError
+
+    def hess(self, u: wp.array, output: Coo2d, *, start: int) -> None:
+        raise NotImplementedError
+
+    def hess_size(self) -> int:
         raise NotImplementedError
 
     def hess_diag(self, u: wp.array, output: wp.array) -> None:

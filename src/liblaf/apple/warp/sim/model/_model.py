@@ -4,6 +4,7 @@ import warp as wp
 
 from liblaf.apple.jax import tree
 from liblaf.apple.warp.sim.energy import Energy
+from liblaf.apple.warp.sparse import Coo2d
 
 
 @tree.pytree
@@ -17,6 +18,18 @@ class Model:
     def jac(self, u: wp.array, output: wp.array) -> None:
         for energy in self.energies.values():
             energy.jac(u, output)
+
+    def hess(self, u: wp.array, output: Coo2d) -> None:
+        start: int = 0
+        for energy in self.energies.values():
+            energy.hess(u, output, start=start)
+            start += energy.hess_size()
+
+    def hess_size(self) -> int:
+        size: int = 0
+        for energy in self.energies.values():
+            size += energy.hess_size()
+        return size
 
     def hess_diag(self, u: wp.array, output: wp.array) -> None:
         for energy in self.energies.values():

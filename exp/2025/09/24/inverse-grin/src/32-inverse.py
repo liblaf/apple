@@ -193,24 +193,33 @@ class Inverse:
         with grapes.timer(name="linear solve"):
             u_free: Vector = self.model.dirichlet.get_free(u)
             dLdu_free: Vector = self.model.dirichlet.get_free(dLdu)
-            solution: lx.Solution = lx.linear_solve(
-                lx.FunctionLinearOperator(
-                    lambda p_free: self.model.hess_prod(u_free, p_free),
-                    jax.ShapeDtypeStruct(u_free.shape, u_free.dtype),
-                    [lx.symmetric_tag, lx.positive_semidefinite_tag],
-                ),
+            # solution: lx.Solution = lx.linear_solve(
+            #     lx.FunctionLinearOperator(
+            #         lambda p_free: self.model.hess_prod(u_free, p_free),
+            #         jax.ShapeDtypeStruct(u_free.shape, u_free.dtype),
+            #         [lx.symmetric_tag, lx.positive_semidefinite_tag],
+            #     ),
+            #     -dLdu_free,
+            #     self.linear_solver,
+            #     options={
+            #         "preconditioner": lx.DiagonalLinearOperator(
+            #             self.model.dirichlet.get_free(preconditioner)
+            #         )
+            #     },
+            #     throw=False,
+            # )
+            # logger.info(lx.RESULTS[solution.result])
+            # logger.info(solution.stats)
+
+            p_free, info = jax.scipy.sparse.linalg.cg(
+                lambda p_free: self.model.hess_prod(u_free, p_free),
                 -dLdu_free,
-                self.linear_solver,
-                options={
-                    "preconditioner": lx.DiagonalLinearOperator(
-                        self.model.dirichlet.get_free(preconditioner)
-                    )
-                },
-                throw=False,
+                M=lambda x: preconditioner * x,
             )
-            logger.info(lx.RESULTS[solution.result])
-            logger.info(solution.stats)
-            p: Vector = self.model.to_full(solution.value, zero=True)
+            logger.info("linear solve > info: {}", info)
+
+            p: Vector = self.model.to_full(p_free, zero=True)
+
             # solver = PNCGLinearSolver(
             #     hess_diag=lambda: self.model.hess_diag(u),
             #     hess_prod=lambda p: self.model.hess_prod(u, p),
@@ -220,10 +229,13 @@ class Inverse:
             # p: Vector = solver.solve()
         # relative error
         rel_residual: float = jnp.linalg.norm(
-            self.model.hess_prod(u_free, solution.value) + dLdu_free
-        ) / jnp.linalg.norm(dLdu_free)  # pyright: ignore[reportCallIssue]
-        logger.info("linear solve > relative residual: {}", rel_residual)
-        # p: Vector = preconditioner * -dLdu
+            self.model.hess_prod(u_free, p_free) + dLdu_free
+        ) / jnp.linalg.norm(dLdu_free)
+        logger.info("linear solve > relative residual (free): {}", rel_residual)
+        rel_residual: float = jnp.linalg.norm(
+            self.model.hess_prod(u, p) + dLdu
+        ) / jnp.linalg.norm(dLdu)
+        logger.info("linear solve > relative residual (all): {}", rel_residual)
         with grapes.config.pretty.overrides(short_arrays=False):
             ic(p)
         outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)

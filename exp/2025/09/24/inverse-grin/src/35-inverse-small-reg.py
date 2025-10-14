@@ -437,9 +437,9 @@ def main(cfg: Config) -> None:
 
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(1.0))
-    inverse.reg_mean_weight = 10.0
-    inverse.reg_shear_weight = 10.0
-    inverse.reg_volume_weight = 10.0
+    inverse.reg_mean_weight = 1e-1
+    inverse.reg_shear_weight = 1e-1
+    inverse.reg_volume_weight = 1e-1
     callback(optim.Solution({"x": q_init}))
     optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
     solution: optim.Solution = optimizer.minimize(
@@ -448,9 +448,9 @@ def main(cfg: Config) -> None:
     callback(solution)
     ic(solution)
 
-    inverse.reg_mean_weight = 1.0
-    inverse.reg_shear_weight = 1.0
-    inverse.reg_volume_weight = 1.0
+    inverse.reg_mean_weight = 1e-2
+    inverse.reg_shear_weight = 1e-2
+    inverse.reg_volume_weight = 1e-2
     optimizer.tol = 1e-5
     q_init = solution["x"]
     solution = optimizer.minimize(
@@ -459,9 +459,9 @@ def main(cfg: Config) -> None:
     callback(solution)
     ic(solution)
 
-    inverse.reg_mean_weight = 1.0
-    inverse.reg_shear_weight = 1.0
-    inverse.reg_volume_weight = 1.0
+    inverse.reg_mean_weight = 1e-3
+    inverse.reg_shear_weight = 1e-3
+    inverse.reg_volume_weight = 1e-3
     q_init = solution["x"]
     optimizer.tol = 1e-6
     solution = optimizer.minimize(

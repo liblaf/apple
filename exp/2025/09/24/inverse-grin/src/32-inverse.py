@@ -2,6 +2,7 @@ import os
 from collections.abc import Callable
 from pathlib import Path
 
+import attrs
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -118,6 +119,14 @@ class PNCGLinearSolver:
 
 
 @tree.pytree
+class InverseLossAux:
+    loss_surface: Scalar
+    reg_mean: Scalar
+    reg_shear: Scalar
+    reg_volume: Scalar
+
+
+@tree.pytree
 class Inverse:
     forward: Forward
     input: pv.UnstructuredGrid
@@ -187,8 +196,17 @@ class Inverse:
         self.solution = u
         L: Scalar
         dLdu: Vector
-        L, dLdu = jax.value_and_grad(self.loss)(u, params)
-        jac: Params = eqx.filter_grad(lambda params: self.loss(u, params))(params)
+        aux: InverseLossAux
+        (L, aux), dLdu = eqx.filter_value_and_grad(self.loss, has_aux=True)(u, params)
+        cherries.log_metric("loss.total", L)
+        cherries.log_metric("loss.surface", aux.loss_surface)
+        cherries.log_metric("loss.reg.mean", aux.reg_mean)
+        cherries.log_metric("loss.reg.shear", aux.reg_shear)
+        cherries.log_metric("loss.reg.volume", aux.reg_volume)
+        jac: Params
+        jac, _ = eqx.filter_grad(lambda params: self.loss(u, params), has_aux=True)(
+            params
+        )
         preconditioner: Vector = jnp.reciprocal(self.model.hess_diag(u))
         with grapes.timer(name="linear solve"):
             u_free: Vector = self.model.dirichlet.get_free(u)
@@ -211,10 +229,14 @@ class Inverse:
             # logger.info(lx.RESULTS[solution.result])
             # logger.info(solution.stats)
 
+            P_free: Vector = self.model.dirichlet.get_free(preconditioner)
             p_free, info = jax.scipy.sparse.linalg.cg(
                 lambda p_free: self.model.hess_prod(u_free, p_free),
                 -dLdu_free,
-                M=lambda x: preconditioner * x,
+                M=lambda x: P_free * x,
+                tol=1e-5,
+                atol=1e-15,
+                maxiter=ic(u_free.size),
             )
             logger.info("linear solve > info: {}", info)
 
@@ -246,17 +268,22 @@ class Inverse:
             ic(L, jac_q)
         return L, jac_q
 
-    def loss(self, x: Vector, params: Params) -> Scalar:
+    def loss(self, x: Vector, params: Params) -> tuple[Scalar, InverseLossAux]:
         loss_surface: Scalar = self.loss_surface(x)
         reg_mean: Scalar = 1e3 * self.regularize_mean(params)
         reg_shear: Scalar = 1e3 * self.regularize_shear(params)
         reg_volume: Scalar = 1e3 * self.regularize_volume(params)
-        jax.debug.print("loss_surface = {}", loss_surface)
-        jax.debug.print("reg_mean = {}", reg_mean)
-        jax.debug.print("reg_shear = {}", reg_shear)
-        jax.debug.print("reg_volume = {}", reg_volume)
+        # jax.debug.print("loss_surface = {}", loss_surface)
+        # jax.debug.print("reg_mean = {}", reg_mean)
+        # jax.debug.print("reg_shear = {}", reg_shear)
+        # jax.debug.print("reg_volume = {}", reg_volume)
         result: Scalar = loss_surface + reg_mean + reg_shear + reg_volume
-        return result
+        return result, InverseLossAux(
+            loss_surface=loss_surface,
+            reg_mean=reg_mean,
+            reg_shear=reg_shear,
+            reg_volume=reg_volume,
+        )
 
     def loss_surface(self, u: Vector) -> Scalar:
         face_mask: Bool[Array, " p"] = jnp.asarray(self.target.point_data["is-face"])

@@ -62,7 +62,7 @@ dynamic = ["version"]
 [dependency-groups]
 dev = [
   "icecream>=2,<3",
-  "ipykernel>=6,<7",
+  "ipykernel>=7,<8",
   "liblaf-cherries>=0.5,<0.6",
   "marimo[recommended]>=0.16,<0.17",
   "sympy>=1,<2",

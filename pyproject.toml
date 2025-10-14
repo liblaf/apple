@@ -24,14 +24,15 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "beartype>=0.22,<0.23",  # TODO: Upgrade to JAX 0.7 when <https://github.com/patrick-kidger/equinox/issues/1084> is resolved.
+  "beartype>=0.22,<0.23",
   "chex>=0.1,<0.2",
+  "cholespy>=2,<3",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
   "ipctk>=1,<2",
-  "jax[cuda12]>=0.6,<0.7",
+  "jax[cuda12]>=0.7,<0.8",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=5,<6",
@@ -62,7 +63,7 @@ dynamic = ["version"]
 [dependency-groups]
 dev = [
   "icecream>=2,<3",
-  "ipykernel>=6,<7",
+  "ipykernel>=7,<8",
   "liblaf-cherries>=0.5,<0.6",
   "marimo[recommended]>=0.16,<0.17",
   "sympy>=1,<2",

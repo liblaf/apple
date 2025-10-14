@@ -18,30 +18,35 @@ words:
   - arithmatex
   - asarray
   - bfgs
+  - bunyk
   - chex
+  - cholespy
+  - ciede
   - cuda
-  - cython
   - cytoolz
   - ddot
   - dhdr
   - direnv
   - disp
-  - dmypy
   - dofs
+  - dtypes
   - einops
   - einsum
   - felupe
   - fieldz
   - finfo
   - frobenius
+  - fxaa
   - getattr
+  - gmres
+  - gouraud
   - hessp
   - hynek
   - icosphere
   - inlinehilite
+  - inplace
   - ipctk
   - ipykernel
-  - ipynb
   - ipython
   - isdtype
   - jaxtyping
@@ -55,7 +60,6 @@ words:
   - mengxiao
   - mkdocs
   - mkdocstrings
-  - mypy
   - nans
   - nbconvert
   - nbformat
@@ -68,22 +72,17 @@ words:
   - optim
   - phace
   - piola
-  - pipenv
   - pixi
   - pncg
   - primals
   - pvsm
-  - pybuilder
   - pycache
   - pydantic
   - pydocstyle
-  - pyenv
-  - pyflow
   - pygments
   - pylint
   - pymdownx
   - pypa
-  - pypackages
   - pypi
   - pyplot
   - pyproject
@@ -91,7 +90,6 @@ words:
   - pyrightconfig
   - pytest
   - pytree
-  - pytype
   - pyvenv
   - pyvista
   - regularizations
@@ -99,9 +97,11 @@ words:
   - rosen
   - rtol
   - scipy
-  - scrapy
   - sdist
   - shen
+  - simplejson
+  - socialify
+  - ssao
   - sympy
   - tangjie
   - tombi
@@ -110,6 +110,7 @@ words:
   - unflatten
   - unshallow
   - unvec
+  - vcvs
   - vdot
   - venv
   - virtualenv

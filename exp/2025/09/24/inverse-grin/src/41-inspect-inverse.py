@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
 
@@ -9,7 +10,7 @@ from liblaf import melon
 def main() -> None:
     target: pv.UnstructuredGrid = melon.load_unstructured_grid("data/11-input.vtu")
     solution: pv.UnstructuredGrid = melon.load_unstructured_grid(
-        "data/33-inverse.vtu/33-inverse_000002.vtu"
+        "data/35-inverse.vtu/35-inverse_000062.vtu"
     )
     orientation: Float[Array, "c 3 3"] = jnp.asarray(
         target.cell_data["muscle-orientation"]
@@ -32,7 +33,8 @@ def main() -> None:
             ),
             axis=0,
         )
-        print(f"muscle {mid}: {muscle_activation_actual} {muscle_activation_desired}")
+        act = np.asarray([muscle_activation_actual, muscle_activation_desired])
+        print(f"muscle {mid}:\n{act}")
 
 
 if __name__ == "__main__":

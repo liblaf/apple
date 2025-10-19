@@ -65,7 +65,7 @@ dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
   "liblaf-cherries>=0.5,<0.6",
-  "marimo[recommended]>=0.16,<0.17",
+  "marimo[recommended]>=0.17,<0.18",
   "sympy>=1,<2",
   "viztracer>=1,<2",
 ]

@@ -264,7 +264,13 @@ class Inverse:
         if rel_res > 0.5:
             logger.warning("CG failed to converge, switching to GMRES")
             with grapes.timer(name="GMRES"):
-                solver = lx.GMRES(rtol=1e-5, atol=1e-15, max_steps=(u_free.size // 10))
+                solver = lx.GMRES(
+                    rtol=1e-5,
+                    atol=1e-15,
+                    max_steps=(u_free.size // 10),
+                    # restart=(u_free.size // 1000),
+                    # stagnation_iters=(u_free.size // 1000),
+                )
                 solution: lx.Solution = lx.linear_solve(
                     lx.FunctionLinearOperator(
                         lambda p_free: self.model.hess_prod(u_free, p_free),
@@ -277,9 +283,9 @@ class Inverse:
                     throw=False,
                 )
             p_free: Vector = solution.value
-            logger.info("NormalCG > results: {}", lx.RESULTS[solution.result])
+            logger.info("GMRES > results: {}", lx.RESULTS[solution.result])
             rel_res: float = relative_residual(p_free)
-            logger.info("NormalCG > relative residual: {}", rel_res)
+            logger.info("GMRES > relative residual: {}", rel_res)
 
         p: Vector = self.model.to_full(p_free, zero=True)
 
@@ -373,11 +379,15 @@ class Inverse:
             activation = sim_jax.transform_activation(
                 activation, orientation, inverse=True
             )
+            # residual: Float[Array, " c"] = jnp.prod(activation[:, :3], axis=-1) - 1.0
             gamma: Float[Array, " c"] = jnp.prod(activation[:, [1, 2]], axis=-1)
             gamma = jax.lax.stop_gradient(gamma)
-            regularization += jnp.dot(
-                active_volume, jnp.square(activation[:, 0] - jnp.reciprocal(gamma))
-            )
+            residual: Float[Array, " c"] = activation[:, 0] - jnp.reciprocal(gamma)
+            # residual: Float[Array, " c"] = (
+            #     jnp.cbrt(jnp.prod(activation[:, :3], axis=-1)) - 1.0
+            # )
+            # residual: Float[Array, " c"] = jnp.sum(jnp.log(activation[:, :3]), axis=-1)
+            regularization += jnp.dot(active_volume, jnp.square(residual))
         return regularization
 
 
@@ -436,9 +446,9 @@ def main(cfg: Config) -> None:
         writer.append(mesh)
 
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
-    # q_init = q_init.at[:, :3].set(jnp.log(1.0))
+    # q_init = q_init.at[:, :3].set(jnp.log(q_init[:, :3]))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

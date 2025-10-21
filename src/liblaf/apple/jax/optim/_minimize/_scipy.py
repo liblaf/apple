@@ -40,18 +40,18 @@ class MinimizerScipy(Minimizer):
             fun = objective.fun
             jac = objective.jac
         callback = _CallbackWrapper(callback=callback, unflatten=unflatten)
-        result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(
-            fun=fun,
+        result: scipy.optimize.OptimizeResult = scipy.optimize.minimize(  # pyright: ignore[reportCallIssue]
+            fun=fun,  # pyright: ignore[reportArgumentType]
             x0=x0_flat,
-            args=args,
-            method=self.method,
-            jac=jac,
+            args=args,  # pyright: ignore[reportArgumentType]
+            method=self.method,  # pyright: ignore[reportArgumentType]
+            jac=jac,  # pyright: ignore[reportArgumentType]
             hess=objective.hess,
             hessp=objective.hessp,
             bounds=bounds,
             tol=self.tol,
             callback=callback,
-            options=self.options,
+            options=self.options,  # pyright: ignore[reportArgumentType]
         )
         result["x"] = unflatten(result["x"])
         return Solution(result)

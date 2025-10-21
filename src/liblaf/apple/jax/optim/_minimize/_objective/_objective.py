@@ -4,6 +4,7 @@ from typing import Any, Self
 import attrs
 import cytoolz as toolz
 import equinox as eqx
+import wrapt
 from jaxtyping import Array, PyTree
 
 from liblaf import grapes
@@ -42,7 +43,7 @@ class Objective:
             if fn is None:
                 return None
 
-            @grapes.decorator
+            @wrapt.decorator
             def wrapper(
                 wrapped: Callable,
                 _instance: None,
@@ -95,7 +96,7 @@ class Objective:
             partial_args: Sequence[Any] = args
             partial_kwargs: Mapping[str, Any] = kwargs
 
-            @grapes.decorator
+            @wrapt.decorator
             def wrapper(
                 wrapped: Callable,
                 _instance: None,

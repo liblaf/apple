@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 authors = [
-  { name = "liblaf", email = "30631553+liblaf@users.noreply.github.com" },
+  { name = "liblaf", email = "30631553+liblaf@users.noreply.github.com" }
 ]
 keywords = []
 classifiers = [
@@ -21,34 +21,28 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Typing :: Typed",
+  "Typing :: Typed"
 ]
 dependencies = [
   "beartype>=0.22,<0.23",
-  "chex>=0.1,<0.2",
-  "cholespy>=2,<3",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
-  "ipctk>=1,<2",
-  "jax[cuda12]>=0.7,<0.8",
+  "jax[cuda12]>=0.8,<0.9",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=5,<6",
-  "liblaf-melon>=0.7,<0.8",
+  "liblaf-grapes>=6,<7",
+  "liblaf-melon>=0.8,<0.9",
   "lineax>=0.0.8,<0.0.9",
   "loguru>=0.7,<0.8",
   "matplotlib>=3,<4",
-  "networkx>=3,<4",
   "numpy>=2,<3",
   "optax>=0.2,<0.3",
   "pyvista>=0.46,<0.47",
   "rich>=14,<15",
-  "scikit-learn>=1,<2",
   "scipy>=1,<2",
-  "wadler-lindig>=0.1,<0.2",
-  "warp-lang>=1,<2",
+  "warp-lang>=1,<2"
 ]
 dynamic = ["version"]
 
@@ -64,10 +58,11 @@ dynamic = ["version"]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
-  "liblaf-cherries>=0.5,<0.6",
-  "marimo[recommended]>=0.16,<0.17",
+  "liblaf-cherries>=0.6,<0.7",
+  "marimo[recommended]>=0.17,<0.18",
+  "scipy-stubs>=1,<2",
   "sympy>=1,<2",
-  "viztracer>=1,<2",
+  "viztracer>=1,<2"
 ]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
@@ -111,7 +106,7 @@ addopts = [
   "--import-mode=importlib",
   "--showlocals",
   "--strict-config",
-  "--strict-markers",
+  "--strict-markers"
 ]
 testpaths = ["benches", "src", "tests"]
 
@@ -129,7 +124,7 @@ ignore = [
   "N806",
   "N815",
   "PLR0913",
-  "RUF002",
+  "RUF002"
 ]
 
 [tool.uv]

@@ -17,7 +17,7 @@ def _default_points() -> Float[Array, "0 J"]:
 @tree.pytree
 class ModelBuilder:
     dirichlet: DirichletBuilder = tree.field(factory=DirichletBuilder)
-    energies: list[Energy] = tree.field(factory=list)
+    energies: dict[str, Energy] = tree.field(factory=dict)
     points: Float[Array, "p J"] = tree.array(factory=_default_points)
 
     @property
@@ -28,7 +28,7 @@ class ModelBuilder:
         self.dirichlet.add(mesh)
 
     def add_energy(self, energy: Energy) -> None:
-        self.energies.append(energy)
+        self.energies[energy.id] = energy
 
     def assign_dofs[T: pv.DataSet](self, mesh: T) -> T:
         mesh.point_data["point-ids"] = np.arange(

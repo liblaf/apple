@@ -381,7 +381,7 @@ class Inverse:
         return regularization
 
 
-def main(cfg: Config) -> None:
+def main(cfg: Config) -> None:  # noqa: PLR0915
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
 

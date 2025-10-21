@@ -2729,7 +2729,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-grapes"
-version = "6.1.0"
+version = "6.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "about-time" },
@@ -2754,9 +2754,9 @@ dependencies = [
     { name = "wadler-lindig" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2e/19/f26511e62bd5950a3d48df95fee2408c055e48824fdab2d2006f33ed4acd/liblaf_grapes-6.1.0.tar.gz", hash = "sha256:7995a83966ffe7034cc73504d09b9675df4c851320dc95d34fae2a8ff4dcf840", size = 31788, upload-time = "2025-10-21T10:54:17.355Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/d6/9a2906de7761831cb21771ac6172579e137c6308218d6dc6b36b25335b59/liblaf_grapes-6.1.1.tar.gz", hash = "sha256:292b0ef3bff388fc40481224bde3e511d07f1a2fe7c6c14358c17367459ddded", size = 31857, upload-time = "2025-10-21T15:56:49.229Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/b5/e31a21723671973981974ff3f2830dd23ebffd6d67100897ef5c79689935/liblaf_grapes-6.1.0-py3-none-any.whl", hash = "sha256:10da3b35f6c5ed4e5136328ad7e0bcfe4807a73fc19400bde3dd6fc1ef7feb7d", size = 67832, upload-time = "2025-10-21T10:54:15.847Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/07/57cf0ddcf7ac1eb58373fc494728be11b11927aed402c1b458bc63ab13eb/liblaf_grapes-6.1.1-py3-none-any.whl", hash = "sha256:2862f606a842552ca039f956bcd35bee2b44f996e6ab8028dcfeed9f8a6d71d0", size = 67992, upload-time = "2025-10-21T15:56:47.464Z" },
 ]
 
 [[package]]
@@ -5519,11 +5519,11 @@ wheels = [
 
 [[package]]
 name = "sqlglot"
-version = "27.27.0"
+version = "27.28.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/eb/75/9c9a42415ff8b03b7307252f6edf70fb3555ad45dd69d5e03a9236e92bfa/sqlglot-27.27.0.tar.gz", hash = "sha256:c1ce8a3b7ce9b3c9d5a0fc26f202d7ed6a203b7398ae834c979e0c455a99d9ce", size = 5491023, upload-time = "2025-10-13T06:28:08.545Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b5/3d/bf8b4a96b934c26ec83f94048ec201d17cd95fb3c2e6930bbcfaaaad6813/sqlglot-27.28.1.tar.gz", hash = "sha256:01c03da1aa0c7773002cfb4a58bd4b0656196e0164aee1d83104b3d3cc1475f3", size = 5498876, upload-time = "2025-10-21T14:39:24.882Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/07/c6/898d67661b1109833f90a804ac242d7581003d4e5bc5392a40a4bd4bb2d9/sqlglot-27.27.0-py3-none-any.whl", hash = "sha256:7f1e91f04e9dbedf08fcd703b54cb78b548d9c25b5b1829951e65c5a2380806e", size = 523420, upload-time = "2025-10-13T06:28:04.852Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/5e/ba248f9ed18593e68c90f0ce07844ea7b6231c05913431cf38972e9f6778/sqlglot-27.28.1-py3-none-any.whl", hash = "sha256:035e8a905a52a4bdbf0d7c590d8ea98fa4d4195b509b35e20c33dd462ec17b82", size = 524314, upload-time = "2025-10-21T14:39:22.47Z" },
 ]
 
 [package.optional-dependencies]

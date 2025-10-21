@@ -384,10 +384,11 @@ class Inverse:
             # )
             gamma: Float[Array, " c"] = jnp.prod(activation[:, [1, 2]], axis=-1)
             gamma = jax.lax.stop_gradient(gamma)
+            gamma_inv: Float[Array, " c"] = jnp.nan_to_num(jnp.reciprocal(gamma))
             residual: Float[Array, " c"] = (
-                jnp.square(activation[:, 0] - jnp.reciprocal(gamma))
-                + jnp.square(activation[:, 1] - jnp.sqrt(gamma))
-                + jnp.square(activation[:, 2] - jnp.sqrt(gamma))
+                jnp.square(activation[:, 0] - gamma_inv)
+                # + jnp.square(activation[:, 1] - jnp.sqrt(gamma))
+                # + jnp.square(activation[:, 2] - jnp.sqrt(gamma))
             )
             # residual: Float[Array, " c"] = jnp.square(
             #     jnp.cbrt(jnp.prod(activation[:, :3], axis=-1)) - 1.0

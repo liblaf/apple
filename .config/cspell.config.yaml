@@ -19,8 +19,7 @@ words:
   - asarray
   - bfgs
   - bunyk
-  - chex
-  - cholespy
+  - cbrt
   - ciede
   - cuda
   - cytoolz
@@ -45,7 +44,6 @@ words:
   - icosphere
   - inlinehilite
   - inplace
-  - ipctk
   - ipykernel
   - ipython
   - isdtype
@@ -55,7 +53,6 @@ words:
   - lbfgs
   - liblaf
   - lineax
-  - mathbf
   - matmul
   - mengxiao
   - mkdocs
@@ -65,7 +62,6 @@ words:
   - nbformat
   - ndarray
   - ndindex
-  - networkx
   - numprocesses
   - numpy
   - optax
@@ -92,8 +88,6 @@ words:
   - pytree
   - pyvenv
   - pyvista
-  - regularizations
-  - roboticists
   - rosen
   - rtol
   - scipy
@@ -106,7 +100,6 @@ words:
   - tangjie
   - tombi
   - trimesh
-  - undeformed
   - unflatten
   - unshallow
   - unvec
@@ -115,6 +108,5 @@ words:
   - venv
   - virtualenv
   - vmap
-  - wadler
   - xlabel
   - ylabel

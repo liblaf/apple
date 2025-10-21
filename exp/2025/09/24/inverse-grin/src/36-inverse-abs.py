@@ -34,7 +34,7 @@ class Config(cherries.BaseConfig):
     input: Path = cherries.input("11-input.vtu")
     target: Path = cherries.input("21-target.vtu")
 
-    output: Path = cherries.output("36-inverse.vtu.series")
+    output: Path = cherries.output("36-inverse-abs.vtu.series")
 
 
 @tree.pytree
@@ -379,15 +379,21 @@ class Inverse:
             activation = sim_jax.transform_activation(
                 activation, orientation, inverse=True
             )
-            # residual: Float[Array, " c"] = jnp.prod(activation[:, :3], axis=-1) - 1.0
-            gamma: Float[Array, " c"] = jnp.prod(activation[:, [1, 2]], axis=-1)
-            gamma = jax.lax.stop_gradient(gamma)
-            residual: Float[Array, " c"] = activation[:, 0] - jnp.reciprocal(gamma)
+            residual: Float[Array, " c"] = jnp.abs(
+                jnp.prod(activation[:, :3], axis=-1) - 1.0
+            )
+            # gamma: Float[Array, " c"] = jnp.prod(activation[:, [1, 2]], axis=-1)
+            # gamma = jax.lax.stop_gradient(gamma)
             # residual: Float[Array, " c"] = (
+            #     jnp.square(activation[:, 0] - jnp.reciprocal(gamma))
+            #     + jnp.square(activation[:, 1] - jnp.sqrt(gamma))
+            #     + jnp.square(activation[:, 2] - jnp.sqrt(gamma))
+            # )
+            # residual: Float[Array, " c"] = jnp.square(
             #     jnp.cbrt(jnp.prod(activation[:, :3], axis=-1)) - 1.0
             # )
             # residual: Float[Array, " c"] = jnp.sum(jnp.log(activation[:, :3]), axis=-1)
-            regularization += jnp.dot(active_volume, jnp.square(residual))
+            regularization += jnp.dot(active_volume, residual)
         return regularization
 
 
@@ -448,7 +454,7 @@ def main(cfg: Config) -> None:
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(q_init[:, :3]))
     callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-5, options={})
+    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-4, options={})
     solution: optim.Solution = optimizer.minimize(
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )

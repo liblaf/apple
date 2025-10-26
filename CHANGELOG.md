@@ -1,36 +1,36 @@
 # Changelog
 
-## [0.4.1](https://github.com/liblaf/apple/compare/v0.4.0...v0.4.1) (2025-10-26)
-
+## [0.4.1](https://github.com/liblaf/apple/compare/v0.4.0..v0.4.1) - 2025-10-26
 
 ### ✨ Features
 
-* **inverse-grin:** add optimizer configuration and new inverse-no-reg script ([4c7d3f8](https://github.com/liblaf/apple/commit/4c7d3f8edd9310567202d4e6d999197510a0e858))
-* **warp/sim:** add sparse Hessian support and improve numerical stability ([61d8b07](https://github.com/liblaf/apple/commit/61d8b0730c6cc5235d1514f908a88157750661b8))
-
+- **inverse-grin:** add optimizer configuration and new inverse-no-reg script - ([4c7d3f8](https://github.com/liblaf/apple/commit/4c7d3f8edd9310567202d4e6d999197510a0e858))
+- **warp/sim:** add sparse Hessian support and improve numerical stability - ([61d8b07](https://github.com/liblaf/apple/commit/61d8b0730c6cc5235d1514f908a88157750661b8))
 
 ### 🐛 Bug Fixes
 
-* **inverse-grin:** update regularization weights in loss calculation ([4684ce4](https://github.com/liblaf/apple/commit/4684ce4da7049bb811244e74e151cf8cb145832f))
-
+- **inverse-grin:** update regularization weights in loss calculation - ([4684ce4](https://github.com/liblaf/apple/commit/4684ce4da7049bb811244e74e151cf8cb145832f))
 
 ### 📝 Documentation
 
-* Update documentation links ([90bfed0](https://github.com/liblaf/apple/commit/90bfed02d757d9497acefedbb9e2be53c1b11c0f))
+- Update documentation links - ([90bfed0](https://github.com/liblaf/apple/commit/90bfed02d757d9497acefedbb9e2be53c1b11c0f))
 
+### ♻ Code Refactoring
 
-### ♻️ Code Refactoring
+- **core:** Improve internal structure and update dependencies - ([d7c6b94](https://github.com/liblaf/apple/commit/d7c6b94e616f411b8e86cd3300b22bdd8cebf3e9))
+- **exp:** Improve inverse simulation inspection script - ([75afcff](https://github.com/liblaf/apple/commit/75afcff97dd3a3661d7516e9f2795f077481f9f3))
+- **exp/inverse:** Simplify activation parameter to a single scalar stretch - ([5ea6f55](https://github.com/liblaf/apple/commit/5ea6f55d494ca41fd96d21e3a56138f1428ab0bf))
+- **jax:** Enhance robustness and consistency of optim and math modules - ([dd241d8](https://github.com/liblaf/apple/commit/dd241d8229b98091485b77014899dc4c857daaf8))
 
-* **core:** Improve internal structure and update dependencies ([d7c6b94](https://github.com/liblaf/apple/commit/d7c6b94e616f411b8e86cd3300b22bdd8cebf3e9))
-* **exp/inverse:** Simplify activation parameter to a single scalar stretch ([5ea6f55](https://github.com/liblaf/apple/commit/5ea6f55d494ca41fd96d21e3a56138f1428ab0bf))
-* **exp:** Improve inverse simulation inspection script ([75afcff](https://github.com/liblaf/apple/commit/75afcff97dd3a3661d7516e9f2795f077481f9f3))
-* **jax:** Enhance robustness and consistency of optim and math modules ([dd241d8](https://github.com/liblaf/apple/commit/dd241d8229b98091485b77014899dc4c857daaf8))
+### 👷 Build System
 
+- **deps:** Upgrade JAX to 0.7 and add cholespy - ([35acd6d](https://github.com/liblaf/apple/commit/35acd6d63289c0da210899fcdf1e0fe4cae53f9d))
+- **repo:** Configure Git LFS for large file tracking - ([fbfb958](https://github.com/liblaf/apple/commit/fbfb958c459aa49d00a8b778758d5836cd4aa130))
 
-### 🛠 Builds
+### ❤️ New Contributors
 
-* **deps:** Upgrade JAX to 0.7 and add cholespy ([35acd6d](https://github.com/liblaf/apple/commit/35acd6d63289c0da210899fcdf1e0fe4cae53f9d))
-* **repo:** Configure Git LFS for large file tracking ([fbfb958](https://github.com/liblaf/apple/commit/fbfb958c459aa49d00a8b778758d5836cd4aa130))
+- [@liblaf[bot]](https://github.com/apps/liblaf) made their first contribution
+- [@liblaf](https://github.com/liblaf) made their first contribution
 
 ## [0.4.0](https://github.com/liblaf/apple/compare/v0.3.0..v0.4.0) - 2025-10-12
 
@@ -104,12 +104,6 @@
 - **benchmark:** Add volume aggregation benchmarks for Warp and JAX - ([4631a1e](https://github.com/liblaf/apple/commit/4631a1e586a62c232df760a0bd37314500f68a55))
 - **optim:** add tests for MinimizerScipy and refactor Objective partial method - ([5eb4ac3](https://github.com/liblaf/apple/commit/5eb4ac3c79de2c79ab46f49cac343032a7b7eac1))
 - disable JIT in scipy minimizer tests and adjust tolerances - ([fdc27be](https://github.com/liblaf/apple/commit/fdc27be23b633c316b4c632c6719d112a42dcda7))
-
-### ❤️ New Contributors
-
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@renovate[bot]](https://github.com/apps/renovate) made their first contribution in [#55](https://github.com/liblaf/apple/pull/55)
 
 ## [0.3.0](https://github.com/liblaf/apple/compare/v0.2.1..v0.3.0) - 2025-07-12
 
@@ -293,4 +287,4 @@
 
 - [@release-please[bot]](https://github.com/apps/release-please) made their first contribution in [#1](https://github.com/liblaf/apple/pull/1)
 - [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf-bot[bot]](https://github.com/apps/liblaf-bot) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf) made their first contribution

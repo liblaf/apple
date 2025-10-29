@@ -32,9 +32,9 @@ def mesh(request: pytest.FixtureRequest) -> pv.UnstructuredGrid:
 def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> None:
     @wp.kernel
     def kernel(
-        points: wp.array(dtype=wpt.vec3f),
+        points: wp.array(dtype=wpt.vec3d),
         cells: wp.array(dtype=wpt.vec4i),
-        output: wp.array(dtype=wpt.float32),
+        output: wp.array(dtype=wpt.float64),
     ) -> None:
         tid = wp.tid()
         cell = cells[tid]
@@ -46,19 +46,19 @@ def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> N
         p1 = points[v1]
         p2 = points[v2]
         p3 = points[v3]
-        volume = (
-            wp.abs(wp.determinant(wp.matrix_from_cols(p0 - p3, p1 - p3, p2 - p3))) / 6.0
-        )
-        output[v0] += volume / 4.0
-        output[v1] += volume / 4.0
-        output[v2] += volume / 4.0
-        output[v3] += volume / 4.0
+        volume = wp.abs(
+            wp.determinant(wp.matrix_from_cols(p0 - p3, p1 - p3, p2 - p3))
+        ) / type(p0[0])(6.0)
+        output[v0] += volume / type(volume)(4.0)
+        output[v1] += volume / type(volume)(4.0)
+        output[v2] += volume / type(volume)(4.0)
+        output[v3] += volume / type(volume)(4.0)
 
     @warp.jax_experimental.ffi.jax_callable
     def callable_(
-        points: wp.array(dtype=wpt.vec3f),
+        points: wp.array(dtype=wpt.vec3d),
         cells: wp.array(dtype=wpt.vec4i),
-        output: wp.array(dtype=wpt.float32),
+        output: wp.array(dtype=wpt.float64),
     ) -> None:
         output.zero_()
         wp.launch(kernel, dim=cells.shape, inputs=[points, cells], outputs=[output])
@@ -73,7 +73,7 @@ def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> N
         output: Array = fun(points, cells)
         return jax.block_until_ready(output)
 
-    points: Array = jnp.asarray(mesh.points, dtype=jnp.float32)
+    points: Array = jnp.asarray(mesh.points, dtype=jnp.float64)
     cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # pyright: ignore[reportArgumentType]
     points = jax.block_until_ready(points)
     cells = jax.block_until_ready(cells)
@@ -88,21 +88,21 @@ def test_segment_sum(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> 
     @warp.jax_experimental.ffi.jax_kernel
     @wp.kernel
     def kernel(
-        points: wp.array(dtype=wpt.matrix((4, 3), wpt.float32)),
-        output: wp.array(dtype=wpt.vec4f),
+        points: wp.array(dtype=wpt.matrix((4, 3), wpt.float64)),
+        output: wp.array(dtype=wpt.vec4d),
     ) -> None:
         tid = wp.tid()
         p0 = points[tid][0]
         p1 = points[tid][1]
         p2 = points[tid][2]
         p3 = points[tid][3]
-        volume = (
-            wp.abs(wp.determinant(wp.matrix_from_cols(p0 - p3, p1 - p3, p2 - p3))) / 6.0
-        )
-        output[tid][0] = volume / 4.0
-        output[tid][1] = volume / 4.0
-        output[tid][2] = volume / 4.0
-        output[tid][3] = volume / 4.0
+        volume = wp.abs(
+            wp.determinant(wp.matrix_from_cols(p0 - p3, p1 - p3, p2 - p3))
+        ) / type(p0[0])(6.0)
+        output[tid][0] = volume / type(volume)(4.0)
+        output[tid][1] = volume / type(volume)(4.0)
+        output[tid][2] = volume / type(volume)(4.0)
+        output[tid][3] = volume / type(volume)(4.0)
 
     @eqx.filter_jit
     def fun(points: Array, cells: Array) -> Array:
@@ -121,7 +121,7 @@ def test_segment_sum(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> 
         output: Array = fun(points, cells)
         return jax.block_until_ready(output)
 
-    points: Array = jnp.asarray(mesh.points, dtype=jnp.float32)
+    points: Array = jnp.asarray(mesh.points, dtype=jnp.float64)
     cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # pyright: ignore[reportArgumentType]
     points = jax.block_until_ready(points)
     cells = jax.block_until_ready(cells)

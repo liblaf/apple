@@ -1,3 +1,5 @@
+import sys
+import types
 from collections.abc import Sequence
 from typing import Any
 
@@ -6,8 +8,6 @@ import numpy as np
 import warp as wp
 import warp.types as wpt
 from jaxtyping import Array
-
-from liblaf import grapes
 
 
 @attrs.define
@@ -30,7 +30,7 @@ def to_warp(
     *,
     requires_grad: bool = False,
 ) -> wp.array:
-    match grapes.array_kind(a):
+    match _array_module(a):
         case "numpy":
             assert isinstance(a, np.ndarray)
             if isinstance(dtype, MatrixLike):
@@ -53,3 +53,17 @@ def to_warp(
             return wp.from_numpy(
                 np.asarray(a), dtype=dtype, shape=shape, requires_grad=requires_grad
             )
+
+
+def _array_module(a: Any) -> str | None:
+    for module_name, type_name in [
+        ("numpy", "ndarray"),
+        ("jax", "Array"),
+    ]:
+        module: types.ModuleType | None = sys.modules.get(module_name)
+        if module is None:
+            continue
+        cls: type = getattr(module, type_name)
+        if isinstance(a, cls):
+            return module_name
+    return None

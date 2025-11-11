@@ -1,9 +1,9 @@
 from typing import override
 
 import warp as wp
+from liblaf.peach import tree
 
 import liblaf.apple.warp.utils as wp_utils
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.region._region import Region
 from liblaf.apple.warp.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.warp.typing import Struct, float_, vec6
@@ -11,22 +11,16 @@ from liblaf.apple.warp.typing import Struct, float_, vec6
 from . import func
 
 
-@tree.pytree
+@tree.define
 class Phace(Elastic):
-    energy_density_func: wp.Function = tree.field(default=func.energy_density)
-    first_piola_kirchhoff_stress_func: wp.Function = tree.field(
-        default=func.first_piola_kirchhoff_stress_tensor
-    )
-    energy_density_hess_diag_func: wp.Function = tree.field(
-        default=func.energy_density_hess_diag
-    )
-    energy_density_hess_prod_func: wp.Function = tree.field(
-        default=func.energy_density_hess_prod
-    )
-    energy_density_hess_quad_func: wp.Function = tree.field(
-        default=func.energy_density_hess_quad
-    )
-    get_cell_params: wp.Function = tree.field(default=func.get_cell_params)
+    energy_density_func: wp.Function = func.energy_density  # pyright: ignore[reportAssignmentType]
+    first_piola_kirchhoff_stress_func: wp.Function = (
+        func.first_piola_kirchhoff_stress_tensor
+    )  # pyright: ignore[reportAssignmentType]
+    energy_density_hess_diag_func: wp.Function = func.energy_density_hess_diag  # pyright: ignore[reportAssignmentType]
+    energy_density_hess_prod_func: wp.Function = func.energy_density_hess_prod  # pyright: ignore[reportAssignmentType]
+    energy_density_hess_quad_func: wp.Function = func.energy_density_hess_quad  # pyright: ignore[reportAssignmentType]
+    get_cell_params: wp.Function = func.get_cell_params  # pyright: ignore[reportAssignmentType]
 
     @override
     def make_params(self, region: Region) -> Struct:

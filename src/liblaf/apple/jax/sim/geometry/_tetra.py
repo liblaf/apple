@@ -2,15 +2,16 @@ from typing import Self, override
 
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 from liblaf.apple.jax.sim.element import ElementTetra
 from liblaf.apple.jax.typing import float_, int_
 
 from ._geometry import Geometry
 
 
-@tree.pytree
+@tree.define
 class GeometryTetra(Geometry):
     @override
     @classmethod

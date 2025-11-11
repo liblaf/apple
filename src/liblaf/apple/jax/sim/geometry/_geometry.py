@@ -2,15 +2,16 @@ from typing import Self
 
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 from liblaf.apple.jax.sim.element import Element
 from liblaf.apple.jax.typing import int_
 
 from ._attributes import GeometryAttributes, as_array_dict
 
 
-@tree.pytree
+@tree.define
 class Geometry:
     points: Float[Array, "p J"] = tree.array()
     cells: Integer[Array, "c a"] = tree.array(default=None)
@@ -55,4 +56,5 @@ class Geometry:
     def copy_attributes(self, other: Self | pv.DataObject) -> None:
         self.point_data.update(as_array_dict(other.point_data))
         self.cell_data.update(as_array_dict(other.cell_data))
-        # self.field_data.update(as_array_dict(other.field_data))  # pyright: ignore[reportArgumentType]
+        # TODO: handle non-array field data properly
+        # self.field_data.update(as_array_dict(other.field_data))

@@ -1,12 +1,12 @@
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float, Integer
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.quadrature import Scheme
 
 
-@tree.pytree
+@tree.define
 class Element:
     """Base-class for a finite element which provides methods for plotting.
 

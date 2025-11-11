@@ -10,6 +10,7 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float
+from liblaf.peach import optim, tree
 from loguru import logger
 
 import liblaf.apple.jax.sim as sim_jax
@@ -17,7 +18,6 @@ import liblaf.apple.warp.sim as sim_wp
 import liblaf.apple.warp.utils as wp_utils
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
-from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax.typing import Scalar, Vector
 from liblaf.apple.warp.typing import vec6
 
@@ -37,47 +37,48 @@ class Config(cherries.BaseConfig):
     output: Path = cherries.temporary("20-inverse.vtu.series")
 
 
-@tree.pytree
+@tree.define
 class Params:
     activation: Float[Array, "c 6"] = tree.array()
 
 
-@tree.pytree
+@tree.define
 class Forward:
     model: sim.Model
-    optimizer: optim.Minimizer = tree.field(
+    optimizer: optim.Optimizer = tree.field(
         # factory=lambda: optim.MinimizerScipy(
         #     method="trust-constr", tol=1e-5, options={"verbose": 3}
         # )
-        factory=lambda: optim.MinimizerPNCG(atol=1e-16, maxiter=1000, rtol=1e-8)
+        factory=lambda: optim.PNCG(atol=1e-16, max_steps=1000, rtol=1e-8)
     )
 
     def solve(self, x0: Vector | None = None) -> Vector:
         if x0 is None:
             x0 = jnp.zeros((self.model.n_free,))
-        solution: optim.Solution = self.optimizer.minimize(
-            x0=x0,
-            fun=sim.fun,
-            jac=sim.jac,
-            hessp=sim.hess_prod,
-            hess_diag=sim.hess_diag,
-            hess_quad=sim.hess_quad,
-            fun_and_jac=sim.fun_and_jac,
-            jac_and_hess_diag=sim.jac_and_hess_diag,
-            args=(self.model,),
+        solution: optim.OptimizeSolution = self.optimizer.minimize(
+            objective=optim.Objective(
+                fun=sim.fun,
+                grad=sim.jac,
+                hess_prod=sim.hess_prod,
+                hess_diag=sim.hess_diag,
+                hess_quad=sim.hess_quad,
+                value_and_grad=sim.fun_and_jac,
+                grad_and_hess_diag=sim.jac_and_hess_diag,
+            ).partial(self.model),
+            params=x0,
         )
         logger.info(solution)
-        return self.model.to_full(solution["x"])
+        return self.model.to_full(solution.params)
 
 
-@tree.pytree
+@tree.define
 class PNCGLinearSolver:
     hess_diag: Callable[[], Vector]
     hess_prod: Callable[[Vector], Vector]
     hess_quad: Callable[[Vector], Scalar]
     b: Vector
-    optimizer: optim.Minimizer = tree.field(
-        factory=lambda: optim.MinimizerPNCG(maxiter=10000, rtol=1e-5)
+    optimizer: optim.Optimizer = tree.field(
+        factory=lambda: optim.PNCG(max_steps=10000, rtol=1e-5)
     )
 
     def fun(self, x: Vector) -> Scalar:
@@ -90,12 +91,12 @@ class PNCGLinearSolver:
         return self.jac(x), self.hess_diag()
 
     def solve(self) -> Vector:
-        def callback(intermediate_result: optim.Solution) -> None:
-            n_iter: int = intermediate_result["n_iter"]
+        def callback(state: optim.PNCGState, stats: optim.PNCGStats) -> None:
+            n_iter: int = stats.n_steps
             if n_iter % 50 != 0:
                 return
-            x: Vector = intermediate_result["x"]
-            logger.info(intermediate_result)
+            x: Vector = state.params
+            logger.info(state)
             residual = self.hess_prod(x) - self.b
             rel_residual: float = jnp.linalg.norm(residual) / jnp.linalg.norm(self.b)
             logger.info(
@@ -106,18 +107,20 @@ class PNCGLinearSolver:
             logger.info("linear solve callback > fun: {}", self.fun(x))
 
         solution = self.optimizer.minimize(
-            x0=jnp.zeros_like(self.b),
-            fun=self.fun,
-            jac=self.jac,
-            hess_diag=lambda _u: self.hess_diag(),
-            hess_quad=lambda _u, p: self.hess_quad(p),
-            jac_and_hess_diag=self.jac_and_hess_diag,
+            objective=optim.Objective(
+                fun=self.fun,
+                grad=self.jac,
+                hess_diag=lambda _u: self.hess_diag(),
+                hess_quad=lambda _u, p: self.hess_quad(p),
+                grad_and_hess_diag=self.jac_and_hess_diag,
+            ),
+            params=jnp.zeros_like(self.b),
             callback=callback,
         )
-        return solution["x"]
+        return solution.params
 
 
-@tree.pytree
+@tree.define
 class InverseLossAux:
     loss_surface: Scalar
     reg_act: Scalar
@@ -127,7 +130,7 @@ class InverseLossAux:
     reg_volume: Scalar
 
 
-@tree.pytree
+@tree.define
 class Inverse:
     forward: Forward
     # input: pv.UnstructuredGrid
@@ -247,7 +250,7 @@ class Inverse:
                 self.model.hess_prod(u_free, p_free) + dLdu_free
             ) / jnp.linalg.norm(dLdu_free)
 
-        with grapes.timer(name="CG"):
+        with grapes.timer(label="CG"):
             # solution: lx.Solution = lx.linear_solve(
             #     lx.FunctionLinearOperator(
             #         lambda p_free: self.model.hess_prod(u_free, p_free),
@@ -280,7 +283,7 @@ class Inverse:
         logger.info("CG > relative residual: {}", rel_res)
         if rel_res > 0.5:
             logger.warning("CG failed to converge, switching to GMRES")
-            with grapes.timer(name="GMRES"):
+            with grapes.timer(label="GMRES"):
                 solver = lx.GMRES(
                     rtol=1e-5,
                     atol=1e-15,
@@ -519,7 +522,7 @@ def main(cfg: Config) -> None:
 
     writer = melon.SeriesWriter(cfg.output)
 
-    def callback(intermediate_result: optim.Solution) -> None:
+    def callback(intermediate_result: optim.OptimizeSolution) -> None:
         logger.info(intermediate_result)
         q: Array = intermediate_result["x"]
         params: Params = inverse.make_params(q)
@@ -548,9 +551,12 @@ def main(cfg: Config) -> None:
 
     q_init: Float[Array, "ca 6"] = sim_jax.rest_activation(inverse.n_active_cells)
     # q_init = q_init.at[:, :3].set(jnp.log(q_init[:, :3]))
-    callback(optim.Solution({"x": q_init}))
-    optimizer = optim.MinimizerScipy(jit=False, method="L-BFGS-B", tol=1e-6, options={})
-    solution: optim.Solution = optimizer.minimize(
+    callback(optim.OptimizeSolution({"x": q_init}))
+    optimizer = optim.ScipyOptimizer(jit=False, method="L-BFGS-B", tol=1e-6, options={})
+    solution: optim.OptimizeSolution = optimizer.minimize(
+        objective=optim.Objective(
+            value_and_grad=inverse.fun_and_jac
+        )
         x0=q_init, fun_and_jac=inverse.fun_and_jac, callback=callback
     )
     callback(solution)

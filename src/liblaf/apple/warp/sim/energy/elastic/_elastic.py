@@ -2,8 +2,8 @@ from typing import Any, Self, no_type_check, override
 
 import pyvista as pv
 import warp as wp
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.quadrature import Scheme
 from liblaf.apple.jax.sim.region import Region
 from liblaf.apple.warp.sim.energy._energy import Energy
@@ -12,7 +12,7 @@ from liblaf.apple.warp.sparse import Coo2d
 from liblaf.apple.warp.typing import Struct, float_, mat43, vec3, vec4i
 
 
-@tree.pytree
+@tree.define
 class Elastic(Energy):
     cells: wp.array = tree.field(default=None)
     dhdX: wp.array = tree.field(default=None)

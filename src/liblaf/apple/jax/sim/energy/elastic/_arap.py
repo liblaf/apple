@@ -3,13 +3,14 @@ from typing import Self
 import jax.numpy as jnp
 from jax import Array
 from jaxtyping import Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 from liblaf.apple.jax.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.jax.sim.region import Region
 
 
-@tree.pytree
+@tree.define
 class ARAP(Elastic):
     mu: Float[Array, " c"]
 

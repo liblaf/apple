@@ -3,13 +3,15 @@ from collections.abc import Sequence
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
+from liblaf.apple.jax.tree import IdMixin
 from liblaf.apple.jax.typing import Scalar, Updates, UpdatesIndex, Vector
 
 
-@tree.pytree
-class Energy(tree.IdMixin):
+@tree.define
+class Energy(IdMixin):
     requires_grad: Sequence[str] = tree.field(default=(), kw_only=True)
 
     def fun(self, u: Vector) -> Scalar:

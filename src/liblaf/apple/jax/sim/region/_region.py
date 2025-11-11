@@ -4,15 +4,15 @@ import einops
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
+from liblaf.peach import tree
 from loguru import logger
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.element import Element
 from liblaf.apple.jax.sim.geometry import Geometry, GeometryAttributes
 from liblaf.apple.jax.sim.quadrature import Scheme
 
 
-@tree.pytree
+@tree.define
 class Region:
     geometry: Geometry = tree.field()
     quadrature: Scheme = tree.field()

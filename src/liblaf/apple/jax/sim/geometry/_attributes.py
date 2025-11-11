@@ -2,14 +2,15 @@ from collections.abc import Iterator, Mapping, MutableMapping
 
 import pyvista as pv
 from jaxtyping import Array, ArrayLike
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 
 
-@tree.pytree
+@tree.define
 class GeometryAttributes(MutableMapping[str, Array]):
     association: pv.FieldAssociation = tree.field()
-    data: dict[str, Array] = tree.field(factory=dict)
+    data: dict[str, Array] = tree.container(factory=dict)
 
     def __getitem__(self, key: str, /) -> Array:
         return self.data[key]

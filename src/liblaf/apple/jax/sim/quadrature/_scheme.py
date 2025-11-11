@@ -3,11 +3,12 @@ from typing import Self
 import felupe.quadrature
 import jax
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 
 
-@tree.pytree
+@tree.define
 class Scheme:
     points: Float[Array, "q J"] = tree.array()
     weights: Float[Array, " q"] = tree.array()

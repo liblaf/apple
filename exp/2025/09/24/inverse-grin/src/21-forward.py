@@ -3,11 +3,11 @@ from pathlib import Path
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
+from liblaf.peach import optim
 from loguru import logger
 
 from liblaf import cherries, melon
 from liblaf.apple import sim
-from liblaf.apple.jax import optim
 from liblaf.apple.jax.typing import Vector
 from liblaf.apple.warp import sim as sim_wp
 
@@ -29,20 +29,21 @@ def main(cfg: Config) -> None:
     # optimizer: optim.Minimizer = optim.MinimizerScipy(
     #     method="trust-constr", tol=1e-5, options={"verbose": 3}
     # )
-    optimizer: optim.Minimizer = optim.MinimizerPNCG(rtol=1e-10, maxiter=1000)
-    solution: optim.Solution = optimizer.minimize(
-        x0=jnp.zeros((model.n_free,)),
-        fun=sim.fun,
-        jac=sim.jac,
-        hessp=sim.hess_prod,
-        hess_diag=sim.hess_diag,
-        hess_quad=sim.hess_quad,
-        fun_and_jac=sim.fun_and_jac,
-        jac_and_hess_diag=sim.jac_and_hess_diag,
-        args=(model,),
+    optimizer: optim.Optimizer = optim.PNCG(rtol=1e-10, max_steps=1000)
+    solution: optim.OptimizeSolution = optimizer.minimize(
+        objective=optim.Objective(
+            fun=model.fun,
+            grad=model.jac,
+            hess_diag=model.hess_diag,
+            hess_prod=model.hess_prod,
+            hess_quad=model.hess_quad,
+            value_and_grad=model.fun_and_jac,
+            grad_and_hess_diag=model.jac_and_hess_diag,
+        ),
+        params=jnp.zeros((model.n_free,)),
     )
     logger.info(solution)
-    u: Vector = model.to_full(solution["x"])
+    u: Vector = model.to_full(solution.params)
     mesh.point_data["solution"] = np.asarray(u[mesh.point_data["point-ids"]])
     # mesh.warp_by_vector("solution", inplace=True)
     melon.save(cfg.output, mesh)

@@ -4,8 +4,7 @@ import felupe.quadrature
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-
-from liblaf.apple.jax import tree
+from liblaf.peach import tree
 
 from ._scheme import Scheme
 
@@ -20,7 +19,7 @@ def _default_weights() -> Float[Array, "q=1"]:
         return jnp.ones((1,), float) / 6.0
 
 
-@tree.pytree
+@tree.define
 class QuadratureTetra(Scheme):
     points: Float[Array, "q=1 J=3"] = tree.array(factory=_default_points)
     weights: Float[Array, "q=1"] = tree.array(factory=_default_weights)

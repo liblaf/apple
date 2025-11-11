@@ -2,8 +2,8 @@ from typing import Self, override
 
 import pyvista as pv
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.energy._energy import Energy
 from liblaf.apple.jax.sim.geometry import Geometry
 from liblaf.apple.jax.sim.quadrature import Scheme
@@ -11,7 +11,7 @@ from liblaf.apple.jax.sim.region import Region
 from liblaf.apple.jax.typing import Scalar, Vector
 
 
-@tree.pytree
+@tree.define
 class Elastic(Energy):
     region: Region
 

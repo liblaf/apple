@@ -1,13 +1,13 @@
 from collections.abc import Mapping
 
 import warp as wp
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.warp.sim.energy import Energy
 from liblaf.apple.warp.sparse import Coo2d
 
 
-@tree.pytree
+@tree.define
 class Model:
     energies: Mapping[str, Energy] = tree.field(factory=dict)
 

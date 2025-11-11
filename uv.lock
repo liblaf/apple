@@ -934,7 +934,7 @@ wheels = [
 
 [[package]]
 name = "cyclopts"
-version = "4.2.2"
+version = "4.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -942,9 +942,9 @@ dependencies = [
     { name = "rich" },
     { name = "rich-rst" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/34/ab/67bd1b010aaa09c6b627a535cbb0c6453920c290df83cbdccb0b097227d9/cyclopts-4.2.2.tar.gz", hash = "sha256:d5eb7d5ab688f8e86bc6fc7b8ab85951b2fe34aebcf1a48c4c9a6b43c14cb78b", size = 148736, upload-time = "2025-11-10T15:29:46.195Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/2a/c06f1346079dbeddf5307bc7f4a190f26d2692d7420042d2fef21b9513e4/cyclopts-4.2.3.tar.gz", hash = "sha256:5949d5d0fc8f269547bdc507985d4d973cf6794ab781bf0600d5994eda29a471", size = 148688, upload-time = "2025-11-11T20:00:19.731Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/cc/53c8350d8ca53ada627f071c252e806b97c949e03b054af7d15e62309a83/cyclopts-4.2.2-py3-none-any.whl", hash = "sha256:2e001158ccb275723a4d820c65d114caa078073e61298f2a7c6112a8d3ba90c6", size = 184362, upload-time = "2025-11-10T15:29:44.984Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/24/8b13ebd2b1f26da4e3830a19bd05b56400b538c0aeb7050db9d3dd853303/cyclopts-4.2.3-py3-none-any.whl", hash = "sha256:4c2bc17af50e1a958f758cdc541f0a28b0eccf3f718e26be85b712c54ac0ef0b", size = 184319, upload-time = "2025-11-11T20:00:18.393Z" },
 ]
 
 [[package]]
@@ -2628,7 +2628,7 @@ requires-dist = [
     { name = "lazy-loader", specifier = ">=0.4,<0.5" },
     { name = "liblaf-grapes", specifier = ">=8,<9" },
     { name = "liblaf-melon", specifier = ">=0.8,<0.9" },
-    { name = "liblaf-peach", specifier = ">=0.3.0,<0.4.0" },
+    { name = "liblaf-peach", specifier = ">=0.4,<0.5" },
     { name = "lineax", specifier = ">=0.0.8,<0.0.9" },
     { name = "loguru", specifier = ">=0.7,<0.8" },
     { name = "matplotlib", specifier = ">=3,<4" },
@@ -2783,7 +2783,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-peach"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2798,9 +2798,9 @@ dependencies = [
     { name = "scipy" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f6/6d/eef1d1227c34b912a780135313dce5876ec9e3182787cb44934a1a3478c4/liblaf_peach-0.3.0.tar.gz", hash = "sha256:d97cd33ec271272263295f1892a174117fb3527e616bca9d0b0c3d1f217b1826", size = 15472, upload-time = "2025-11-11T12:18:45.882Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/5e/317e594d022cfbace0a90f2d012a6562bcbe78bd7af2eeeb791a07cf4320/liblaf_peach-0.4.0.tar.gz", hash = "sha256:e006519cd73eeedbee5cff7db5fbbd9ab6d349380608483db98ef6a367ddd0e7", size = 15296, upload-time = "2025-11-11T20:03:17.591Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ff/fe/af244ddb6ca66a1f350e36ab273a8b8609356b7974da31ba9819e5c38d0a/liblaf_peach-0.3.0-py3-none-any.whl", hash = "sha256:05f87aa2ee64186c93a3ffc0aa66e59fc469d9594701f5f6d1743c713417d27a", size = 31971, upload-time = "2025-11-11T12:18:44.594Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/cc/7eb23f7165498bef59211fbcbeab5cc3b20e060b37e88996535662da2214/liblaf_peach-0.4.0-py3-none-any.whl", hash = "sha256:f961de8454c00d610f47e75013eab67f4d99f9b2462c422d4eba7e812b7e6b35", size = 31752, upload-time = "2025-11-11T20:03:16.064Z" },
 ]
 
 [[package]]

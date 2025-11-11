@@ -1,22 +1,25 @@
+from __future__ import annotations
+
 import attrs
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, ArrayLike, Bool, DTypeLike, Float, Integer
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 
 from ._dirichlet import Dirichlet
 
 
-def _default_mask(self: "DirichletBuilder") -> Bool[Array, "p J"]:
+def _default_mask(self: DirichletBuilder) -> Bool[Array, "p J"]:
     return jnp.empty((0, self.dim), dtype=bool)
 
 
-def _default_values(self: "DirichletBuilder") -> Float[Array, "p J"]:
+def _default_values(self: DirichletBuilder) -> Float[Array, "p J"]:
     return jnp.empty((0, self.dim), dtype=float)
 
 
-@tree.pytree
+@tree.define
 class DirichletBuilder:
     dim: int = tree.field(default=3)
     mask: Bool[Array, "p J"] = tree.field(
@@ -47,7 +50,7 @@ class DirichletBuilder:
         (index_free,) = jnp.nonzero(~mask_flat)
         return Dirichlet(
             index=index,
-            index_free=index_free,
+            free_index=index_free,
             n_dofs=self.mask.size,
             values=self.values.flatten()[index],
         )

@@ -6,10 +6,10 @@ import jax.numpy as jnp
 import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 from warp.jax_experimental import ffi
 
 import liblaf.apple.warp.utils as wp_utils
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.dirichlet import Dirichlet
 from liblaf.apple.jax.sim.model import Model as ModelJax
 from liblaf.apple.jax.typing import Scalar, Vector
@@ -21,7 +21,7 @@ def _default_points() -> Float[Array, "0 J"]:
     return jnp.empty((0, 3))
 
 
-@tree.pytree
+@tree.define
 class Model:
     points: Float[Array, "p J"] = tree.array(factory=_default_points)
     dirichlet: Dirichlet = tree.field(factory=Dirichlet)

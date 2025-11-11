@@ -3,12 +3,14 @@ from typing import override
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 
 from liblaf.apple.jax.sim.quadrature import QuadratureTetra
 
 from ._element import Element
 
 
+@tree.define
 class ElementTetra(Element):
     @property
     @override

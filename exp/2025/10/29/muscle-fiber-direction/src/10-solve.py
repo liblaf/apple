@@ -3,14 +3,15 @@ import numpy as np
 import pyvista as pv
 from jax import Array
 from jaxtyping import Integer
+from liblaf.peach import optim
+from liblaf.peach import tree_utils as tree
 
 from liblaf import grapes, melon
-from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.jax.typing import Scalar, Vector
 
 
-@tree.pytree
+@tree.define
 class Poisson(sim_jax.Energy):
     region: sim_jax.Region
     neumann: Vector = tree.array()
@@ -70,7 +71,7 @@ def load_input() -> pv.UnstructuredGrid:
 
     mesh_surface: pv.PolyData = mesh.extract_surface()
     mesh_surface.compute_normals(auto_orient_normals=True, inplace=True)
-    mesh_surface = melon.tri.transfer_cell_data_to_point(
+    mesh_surface = melon.transfer_tri_cell_to_point_category(
         surface,
         mesh_surface,
         data=["in_mask", "out_mask"],
@@ -120,8 +121,8 @@ def load_input() -> pv.UnstructuredGrid:
     # mesh.point_data["in_mask"][mesh_surface.point_data["point-id"][in_point_idx]] = True
     mesh.point_data["in_mask"][in_point_idx] = True
 
-    melon.save("surface.vtp", mesh_surface)
-    melon.save("surface.obj", mesh_surface)
+    melon.save("data/surface.vtp", mesh_surface)
+    melon.save("data/surface.obj", mesh_surface)
     mesh.point_data["out_mask"] = np.zeros((mesh.n_points,), dtype=bool)
     mesh.point_data["out_mask"][out_surface.point_data["point-id"]] = True
     # mesh.cell_data["in_mask"] = np.zeros((mesh.n_cells,), dtype=bool)
@@ -177,28 +178,30 @@ def main() -> None:
     )
     builder.add_energy(energy)
     model: sim_jax.Model = builder.finish()
-    optimizer = optim.MinimizerScipy()
+    optimizer = optim.ScipyOptimizer()
     x0 = jnp.zeros((n_free,))
     ic(model.fun(x0))
     ic(model.jac(x0))
     ic(model.fun_and_jac(x0))
     ic(model.hess_prod(x0, x0))
-    solution: optim.Solution = optimizer.minimize(
-        x0=jnp.zeros((n_free,)),
-        fun=model.fun,
-        jac=model.jac,
-        fun_and_jac=model.fun_and_jac,
-        hessp=model.hess_prod,
+    solution: optim.OptimizeSolution = optimizer.minimize(
+        objective=optim.Objective(
+            fun=model.fun,
+            grad=model.jac,
+            hess_prod=model.hess_prod,
+            value_and_grad=model.fun_and_jac,
+        ),
+        params=jnp.zeros((n_free,)),
     )
     ic(solution)
-    u = solution["x"]
+    u = solution.params
     u_full = jnp.zeros((n_dofs,))
     u_full = u_full.at[dirichlet_indices].set(dirichlet_values)
     u_full = u_full.at[free_indices].set(u)
     mesh.point_data["solution"] = np.asarray(u_full)
     grad = region.gradient(u_full)
     mesh.cell_data["gradient"] = np.asarray(grad)
-    melon.save("solution.vtu", mesh)
+    melon.save("data/solution.vtu", mesh)
 
 
 if __name__ == "__main__":

@@ -3,13 +3,13 @@ from collections.abc import Mapping
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim.energy import Energy
 from liblaf.apple.jax.typing import Scalar, UpdatesData, UpdatesIndex, Vector
 
 
-@tree.pytree
+@tree.define
 class Model:
     energies: Mapping[str, Energy] = tree.field(factory=dict)
 

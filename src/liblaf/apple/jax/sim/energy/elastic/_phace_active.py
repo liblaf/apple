@@ -6,8 +6,9 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 from jaxtyping import Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
+from liblaf.apple.jax import math
 from liblaf.apple.jax.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.jax.sim.region import Region
 from liblaf.apple.jax.typing import UpdatesData, UpdatesIndex, Vector
@@ -15,7 +16,7 @@ from liblaf.apple.jax.typing import UpdatesData, UpdatesIndex, Vector
 from . import utils
 
 
-@tree.pytree
+@tree.define
 class PhaceActive(Elastic):
     activation: Float[Array, "c J J"] = tree.array()
     lambda_: Float[Array, " c"] = tree.array()

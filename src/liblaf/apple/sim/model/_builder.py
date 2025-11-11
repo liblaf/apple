@@ -2,8 +2,8 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
 from liblaf.apple.jax.sim import DirichletBuilder
 from liblaf.apple.jax.sim import Energy as EnergyJax
 from liblaf.apple.jax.sim import Model as ModelJax
@@ -13,7 +13,7 @@ from liblaf.apple.warp.sim import Model as ModelWarp
 from ._model import Model, _default_points
 
 
-@tree.pytree
+@tree.define
 class ModelBuilder:
     dirichlet: DirichletBuilder = tree.field(factory=DirichletBuilder)
     energies_jax: dict[str, EnergyJax] = tree.field(factory=dict)

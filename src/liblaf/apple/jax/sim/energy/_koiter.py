@@ -3,14 +3,16 @@ from typing import Self
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
+from liblaf.peach import tree
 
-from liblaf.apple.jax import math, tree
-from liblaf.apple.jax.sim.energy._energy import Energy
+from liblaf.apple.jax import math
 from liblaf.apple.jax.sim.geometry import Geometry
 from liblaf.apple.jax.typing import Scalar, Vector
 
+from ._energy import Energy
 
-@tree.pytree
+
+@tree.define
 class Koiter(Energy):
     alpha: Float[Array, " c"] = tree.array()
     """Lamé's first parameter."""

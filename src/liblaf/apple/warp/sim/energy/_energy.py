@@ -1,13 +1,14 @@
 from collections.abc import Sequence
 
 import warp as wp
+from liblaf.peach import tree
 
-from liblaf.apple.jax import tree
+from liblaf.apple.jax.tree import IdMixin
 from liblaf.apple.warp.sparse import Coo2d
 
 
-@tree.pytree
-class Energy(tree.IdMixin):
+@tree.define
+class Energy(IdMixin):
     requires_grad: Sequence[str] = tree.field(default=(), kw_only=True)
 
     def fun(self, u: wp.array, output: wp.array) -> None:

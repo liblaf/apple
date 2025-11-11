@@ -379,5 +379,4 @@ class Elastic(Energy):
         outputs: dict[str, wp.array] = {
             name: getattr(self.params, name).grad for name in self.requires_grad
         }
-        ic(outputs["activation"].numpy())
         return outputs

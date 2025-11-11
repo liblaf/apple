@@ -39,7 +39,7 @@ def main(cfg: Config) -> None:
     ic(jnp.count_nonzero(mesh.point_data["is-face"]))
 
     mesh.point_data["dirichlet-mask"] = mesh.point_data["is-skull"]
-    mesh.point_data["dirichlet-values"] = np.zeros((mesh.n_points, 3))
+    mesh.point_data["dirichlet-value"] = np.zeros((mesh.n_points, 3))
     mesh.cell_data["activation"] = np.asarray(activation)
     mesh.cell_data["active-fraction"] = mesh.cell_data["muscle-fraction"]
     mesh.cell_data["lambda"] = np.full((mesh.n_cells,), 3.0)

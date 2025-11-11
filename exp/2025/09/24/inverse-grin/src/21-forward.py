@@ -44,7 +44,7 @@ def main(cfg: Config) -> None:
     )
     logger.info(solution)
     u: Vector = model.to_full(solution.params)
-    mesh.point_data["solution"] = np.asarray(u[mesh.point_data["point-ids"]])
+    mesh.point_data["solution"] = np.asarray(u[mesh.point_data["dof-id"]])
     # mesh.warp_by_vector("solution", inplace=True)
     melon.save(cfg.output, mesh)
 

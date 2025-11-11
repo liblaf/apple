@@ -30,17 +30,17 @@ class DirichletBuilder:
     )
 
     def add(self, mesh: pv.DataSet) -> None:
-        point_ids: Integer[Array, " p"] = math.asarray(
-            mesh.point_data["point-ids"], dtype=int
+        dof_id: Integer[Array, " p"] = math.asarray(
+            mesh.point_data["dof-id"], dtype=int
         )
         dirichlet_mask: Bool[Array, "p J"] = _broadcast_to(
             mesh.point_data["dirichlet-mask"], dtype=bool, shape=mesh.points.shape
         )
-        dirichlet_values: Float[Array, "p J"] = _broadcast_to(
-            mesh.point_data["dirichlet-values"], dtype=float, shape=mesh.points.shape
+        dirichlet_value: Float[Array, "p J"] = _broadcast_to(
+            mesh.point_data["dirichlet-value"], dtype=float, shape=mesh.points.shape
         )
-        self.mask = self.mask.at[point_ids].set(dirichlet_mask)
-        self.values = self.values.at[point_ids].set(dirichlet_values)
+        self.mask = self.mask.at[dof_id].set(dirichlet_mask)
+        self.values = self.values.at[dof_id].set(dirichlet_value)
 
     def finish(self) -> Dirichlet:
         mask_flat: Bool[Array, " N"] = self.mask.flatten()

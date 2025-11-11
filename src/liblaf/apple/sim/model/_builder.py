@@ -36,7 +36,7 @@ class ModelBuilder:
             raise NotImplementedError
 
     def assign_dofs[T: pv.DataSet](self, mesh: T) -> T:
-        mesh.point_data["point-ids"] = np.arange(
+        mesh.point_data["dof-id"] = np.arange(
             self.n_points, self.n_points + mesh.n_points
         )
         self.points = jnp.concat([self.points, mesh.points])

@@ -5,7 +5,6 @@ from jax import Array
 from jaxtyping import Integer
 
 from liblaf import grapes, melon
-from liblaf.apple import sim
 from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.jax.typing import Scalar, Vector

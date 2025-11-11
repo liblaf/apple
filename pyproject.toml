@@ -29,11 +29,12 @@ dependencies = [
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",
   "felupe>=9,<10",
-  "jax[cuda12]>=0.8,<0.9",
+  "jax>=0.8,<0.9",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=6,<7",
+  "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.8,<0.9",
+  "liblaf-peach>=0.3.0,<0.4.0",
   "lineax>=0.0.8,<0.0.9",
   "loguru>=0.7,<0.8",
   "matplotlib>=3,<4",
@@ -58,6 +59,7 @@ dynamic = ["version"]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
+  "jax[cuda12]",
   "liblaf-cherries>=0.6,<0.7",
   "marimo[recommended]>=0.17,<0.18",
   "scipy-stubs>=1,<2",
@@ -66,7 +68,7 @@ dev = [
 ]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
-test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=8,<9"]
+test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=9,<10"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -99,7 +101,7 @@ exclude = ["**/.*", "**/__pycache__", "**/marimo", "**/node_modules"]
 extends = ".config/linters/pyrightconfig.json"
 reportInvalidTypeForm = "none"
 
-[tool.pytest.ini_options]
+[tool.pytest]
 addopts = [
   "--doctest-modules",
   "--hypothesis-show-statistics",
@@ -108,6 +110,7 @@ addopts = [
   "--strict-config",
   "--strict-markers"
 ]
+strict = true
 testpaths = ["benches", "src", "tests"]
 
 [tool.ruff]

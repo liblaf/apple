@@ -9,6 +9,7 @@ from liblaf.peach import optim, tree
 
 from liblaf import cherries, melon
 from liblaf.apple import sim
+from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.warp import sim as sim_wp
 from liblaf.apple.warp import utils as wp_utils
 from liblaf.apple.warp.typing import vec6
@@ -75,11 +76,15 @@ def main(cfg: Config) -> None:
     forward = Forward(model=model)
 
     with melon.SeriesWriter(cfg.output) as writer:
-        for t in jnp.linspace(0.0, 1.0, num=10):
+        for t in jnp.linspace(0.0, 1.0, num=30):
             act: Float[Array, "c 6"] = (1.0 - t) * start_act + t * end_act
             wp.copy(energy.params.activation, wp_utils.to_warp(act, vec6))
             u: Float[Array, "p 3"] = forward.solve(act)
             mesh.point_data["displacement"] = np.asarray(u)
+            mesh.cell_data["activation"] = np.asarray(act)
+            mesh.cell_data["activation-mag"] = np.asarray(
+                act - sim_jax.rest_activation(mesh.n_cells)
+            )
             writer.append(mesh)
 
 

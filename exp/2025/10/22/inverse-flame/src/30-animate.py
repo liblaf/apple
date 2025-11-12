@@ -33,7 +33,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> sim.Model:
 class Forward:
     model: sim.Model
     optimizer: optim.Optimizer = tree.field(
-        factory=lambda: optim.PNCG(rtol=1e-10, max_steps=500)
+        factory=lambda: optim.PNCG(rtol=1e-5, max_steps=500)
     )
 
     @property

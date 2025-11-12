@@ -208,7 +208,7 @@ def inverse(
     params: Params = Params(activation=sim_jax.rest_activation(active_index.shape[0]))
     optimizer = optim.ScipyOptimizer(method="L-BFGS-B", tol=1e-3, timer=True)
 
-    writer = melon.SeriesWriter("tmp/20-inverse.vtu.series")
+    writer = melon.SeriesWriter(f"tmp/20-inverse-{idx}.vtu.series")
 
     def callback(state: optim.ScipyState, stats: optim.ScipyStats) -> None:
         ic(state, stats)

@@ -116,4 +116,4 @@ def main(cfg: Config) -> None:
 
 
 if __name__ == "__main__":
-    cherries.run(lambda: main(Config()), profile="playground")
+    cherries.main(lambda: main(Config()), profile="playground")

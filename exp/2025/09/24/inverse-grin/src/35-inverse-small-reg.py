@@ -472,4 +472,4 @@ def main(cfg: Config) -> None:  # noqa: PLR0915
 
 
 if __name__ == "__main__":
-    cherries.run(main)
+    cherries.main(main)

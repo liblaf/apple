@@ -33,8 +33,8 @@ dependencies = [
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=8,<9",
-  "liblaf-melon>=0.8,<0.9",
-  "liblaf-peach>=0.4,<0.5",
+  "liblaf-melon>=0.9,<0.10",
+  "liblaf-peach>=0.6,<0.7",
   "lineax>=0.0.8,<0.0.9",
   "loguru>=0.7,<0.8",
   "matplotlib>=3,<4",
@@ -60,7 +60,7 @@ dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
   "jax[cuda12]",
-  "liblaf-cherries>=0.6,<0.7",
+  "liblaf-cherries>=0.7,<0.8",
   "marimo[recommended]>=0.17,<0.18",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",
@@ -106,10 +106,9 @@ addopts = [
   "--doctest-modules",
   "--hypothesis-show-statistics",
   "--import-mode=importlib",
-  "--showlocals",
-  "--strict-config",
-  "--strict-markers"
+  "--showlocals"
 ]
+consider_namespace_packages = true
 strict = true
 testpaths = ["benches", "src", "tests"]
 

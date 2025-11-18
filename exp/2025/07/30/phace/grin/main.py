@@ -122,4 +122,4 @@ def main(cfg: Config) -> None:
 
 
 if __name__ == "__main__":
-    cherries.run(main, profile="playground")
+    cherries.main(main, profile="playground")

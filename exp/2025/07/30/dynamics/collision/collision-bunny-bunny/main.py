@@ -111,4 +111,4 @@ def gen_scene(cfg: Config, soft: sim.Actor, rigid: sim.Actor) -> sim.SceneBuilde
 
 
 if __name__ == "__main__":
-    cherries.run(main, profile="playground")
+    cherries.main(main, profile="playground")

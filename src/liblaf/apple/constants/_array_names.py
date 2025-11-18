@@ -1,0 +1,5 @@
+ACTIVATIONS = "Activations"
+DIRICHLET_MASK = "DirichletMask"
+DIRICHLET_VALUES = "DirichletValues"
+DOF_IDS = "DofIds"
+MUSCLE_FRACTIONS = "MuscleFractions"

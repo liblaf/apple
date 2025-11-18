@@ -4,7 +4,8 @@ import warp as wp
 from liblaf.peach import tree
 
 import liblaf.apple.warp.utils as wp_utils
-from liblaf.apple.jax.sim.region._region import Region
+from liblaf import grapes
+from liblaf.apple.jax.sim.region import Region
 from liblaf.apple.warp.sim.energy.elastic._elastic import Elastic
 from liblaf.apple.warp.typing import Struct, float_, vec6
 
@@ -25,24 +26,24 @@ class Phace(Elastic):
     @override
     def make_params(self, region: Region) -> Struct:
         params = func.Params()
-        params.activation = wp_utils.to_warp(
-            region.cell_data["activation"],
+        params.activations = wp_utils.to_warp(
+            grapes.getitem(region.cell_data, "Activations"),
             dtype=vec6,
-            requires_grad="activation" in self.requires_grad,
+            requires_grad=grapes.contains(self.requires_grad, "activations"),
         )
-        params.active_fraction = wp_utils.to_warp(
-            region.cell_data["active-fraction"],
+        params.muscle_fractions = wp_utils.to_warp(
+            grapes.getitem(region.cell_data, "MuscleFractions"),
             dtype=float_,
-            requires_grad="active-fraction" in self.requires_grad,
+            requires_grad=grapes.contains(self.requires_grad, "muscle_fractions"),
         )
         params.lambda_ = wp_utils.to_warp(
-            region.cell_data["lambda"],
+            grapes.getitem(region.cell_data, "lambda"),
             dtype=float_,
-            requires_grad="lambda" in self.requires_grad,
+            requires_grad=grapes.contains(self.requires_grad, "lambda"),
         )
         params.mu = wp_utils.to_warp(
-            region.cell_data["mu"],
+            grapes.getitem(region.cell_data, "mu"),
             dtype=float_,
-            requires_grad="mu" in self.requires_grad,
+            requires_grad=grapes.contains(self.requires_grad, "mu"),
         )
         return params

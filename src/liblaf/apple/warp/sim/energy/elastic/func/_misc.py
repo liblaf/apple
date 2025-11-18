@@ -39,7 +39,7 @@ def make_activation_mat33(activation: Any):
     Returns:
         mat33: ...
     """
-    return wp.matrix_from_rows(
+    return wp.identity(3, type(activation[0])) + wp.matrix_from_rows(
         wp.vector(activation[0], activation[3], activation[4]),
         wp.vector(activation[3], activation[1], activation[5]),
         wp.vector(activation[4], activation[5], activation[2]),

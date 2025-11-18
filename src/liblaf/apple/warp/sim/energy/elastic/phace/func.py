@@ -12,15 +12,15 @@ from liblaf.apple.warp.typing import float_, mat33, mat43, vec6
 @wp.struct
 class ParamsElem:
     activation: vec6
-    active_fraction: float_
+    muscle_fraction: float_
     lambda_: float_
     mu: float_
 
 
 @wp.struct
 class Params:
-    activation: wp.array(dtype=vec6)
-    active_fraction: wp.array(dtype=float_)
+    activations: wp.array(dtype=vec6)
+    muscle_fractions: wp.array(dtype=float_)
     lambda_: wp.array(dtype=float_)
     mu: wp.array(dtype=float_)
 
@@ -36,8 +36,8 @@ def energy_density(F: mat33, params: ParamsElem):  # -> float:
     )  # float
     Psi_ARAP_passive = arap.energy_density(F, arap.ParamsElem(mu=params.mu))  # float
     Psi_ARAP = (
-        params.active_fraction * Psi_ARAP_active
-        + (_1 - params.active_fraction) * Psi_ARAP_passive
+        params.muscle_fraction * Psi_ARAP_active
+        + (_1 - params.muscle_fraction) * Psi_ARAP_passive
     )  # float
     Psi_VP = params.lambda_ * math.square(J - _1)  # float
     Psi = _2 * Psi_ARAP + Psi_VP  # float
@@ -58,8 +58,8 @@ def first_piola_kirchhoff_stress_tensor(F: mat33, params: ParamsElem):  # -> mat
         F, arap.ParamsElem(mu=params.mu)
     )  # mat33
     PK1_ARAP = (
-        params.active_fraction * PK1_ARAP_active
-        + (_1 - params.active_fraction) * PK1_ARAP_passive
+        params.muscle_fraction * PK1_ARAP_active
+        + (_1 - params.muscle_fraction) * PK1_ARAP_passive
     )  # mat33
     PK1_VP = _2 * params.lambda_ * (J - _1) * g3  # mat33
     PK1 = _2 * PK1_ARAP + PK1_VP  # mat33
@@ -80,8 +80,8 @@ def energy_density_hess_diag(F: mat33, dhdX: mat43, params: ParamsElem):  # -> m
         F, dhdX, arap.ParamsElem(mu=params.mu)
     )  # mat43
     diag_arap = (
-        params.active_fraction * diag_arap_active
-        + (_1 - params.active_fraction) * diag_arap_passive
+        params.muscle_fraction * diag_arap_active
+        + (_1 - params.muscle_fraction) * diag_arap_passive
     )  # mat43
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
@@ -108,8 +108,8 @@ def energy_density_hess_prod(
         F, p, dhdX, arap.ParamsElem(mu=params.mu)
     )  # mat43
     prod_arap = (
-        params.active_fraction * prod_arap_active
-        + (_1 - params.active_fraction) * prod_arap_passive
+        params.muscle_fraction * prod_arap_active
+        + (_1 - params.muscle_fraction) * prod_arap_passive
     )  # mat43
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
@@ -136,8 +136,8 @@ def energy_density_hess_quad(
         F, p, dhdX, arap.ParamsElem(mu=params.mu)
     )
     quad_arap = (
-        params.active_fraction * quad_arap_active
-        + (_1 - params.active_fraction) * quad_arap_passive
+        params.muscle_fraction * quad_arap_active
+        + (_1 - params.muscle_fraction) * quad_arap_passive
     )
     d2Psi_dI32 = _2 * params.lambda_  # float
     dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
@@ -156,8 +156,8 @@ def energy_density_hess_quad(
 @no_type_check
 def get_cell_params(params: Params, cid: int) -> ParamsElem:
     cell_params = ParamsElem(
-        activation=params.activation[cid],
-        active_fraction=params.active_fraction[cid],
+        activation=params.activations[cid],
+        muscle_fraction=params.muscle_fractions[cid],
         lambda_=params.lambda_[cid],
         mu=params.mu[cid],
     )

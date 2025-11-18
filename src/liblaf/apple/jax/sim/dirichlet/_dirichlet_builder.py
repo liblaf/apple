@@ -6,6 +6,8 @@ import pyvista as pv
 from jaxtyping import Array, ArrayLike, Bool, DTypeLike, Float, Integer
 from liblaf.peach import tree
 
+from liblaf import grapes
+from liblaf.apple.constants import DIRICHLET_MASK, DIRICHLET_VALUES, DOF_IDS
 from liblaf.apple.jax import math
 
 from ._dirichlet import Dirichlet
@@ -31,13 +33,17 @@ class DirichletBuilder:
 
     def add(self, mesh: pv.DataSet) -> None:
         dof_id: Integer[Array, " p"] = math.asarray(
-            mesh.point_data["dof-id"], dtype=int
+            grapes.getitem(mesh.point_data, DOF_IDS), dtype=int
         )
         dirichlet_mask: Bool[Array, "p J"] = _broadcast_to(
-            mesh.point_data["dirichlet-mask"], dtype=bool, shape=mesh.points.shape
+            grapes.getitem(mesh.point_data, DIRICHLET_MASK),
+            dtype=bool,
+            shape=mesh.points.shape,
         )
         dirichlet_value: Float[Array, "p J"] = _broadcast_to(
-            mesh.point_data["dirichlet-value"], dtype=float, shape=mesh.points.shape
+            grapes.getitem(mesh.point_data, DIRICHLET_VALUES),
+            dtype=float,
+            shape=mesh.points.shape,
         )
         self.mask = self.mask.at[dof_id].set(dirichlet_mask)
         self.values = self.values.at[dof_id].set(dirichlet_value)

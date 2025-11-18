@@ -60,11 +60,13 @@ class Inverse:
     muscle_id_to_volume: dict[int, Float[Array, " m"]]
     muscle_idx: Integer[Array, " a"]
     n_cells: int
+    neighbors: Integer[Array, "N 2"]
     target: Float[Array, "face 3"]
     optimizer: Optimizer = tree.field(factory=lambda: PNCG(rtol=1e-5, max_steps=500))
     step: int = tree.array(default=1)
     u: Float[Array, "p 3"] = tree.array(default=None)
 
+    weight_smooth: float = 1e-2
     weight_sparse: float = 1e-2
 
     @property
@@ -175,8 +177,17 @@ class Inverse:
             reg += jnp.vdot(vol_i, mag)
         return reg
 
+    def reg_smooth(self, act: Float[Array, "c 6"]) -> Float[Array, ""]:
+        diffs: Float[Array, "N 6"] = (
+            act[self.neighbors[:, 0]] - act[self.neighbors[:, 1]]
+        )
+        mags: Float[Array, "N 2"] = jnp.sum(jnp.square(diffs), axis=-1)
+        return jnp.mean(mags)
 
-def prepare(mesh: pv.UnstructuredGrid) -> sim.Model:
+
+def prepare(
+    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid, idx: str
+) -> Inverse:
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
@@ -185,7 +196,46 @@ def prepare(mesh: pv.UnstructuredGrid) -> sim.Model:
     )
     builder.add_energy(energy)
     model: sim.Model = builder.finish()
-    return model
+
+    mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
+    muscle_fractions: Float[Array, " c"] = jnp.asarray(
+        mesh.cell_data["MuscleFractions"]
+    )
+    muscle_idx: Integer[Array, " a"] = jnp.flatnonzero(muscle_fractions > 1e-3)
+    face_idx: Integer[Array, " f"] = jnp.flatnonzero(mesh.point_data["IsFace"])
+    muscle_id_to_idx: dict[int, Integer[Array, " m"]] = {}
+    muscle_id_to_volume: dict[int, Float[Array, " m"]] = {}
+    for i in range(np.max(mesh.cell_data["MuscleIds"]) + 1):
+        mask: Bool[Array, " c"] = (muscle_fractions > 1e-3) & (
+            mesh.cell_data["MuscleIds"] == i
+        )
+        indices: Integer[Array, " m"] = jnp.flatnonzero(mask)
+        volume: Float[Array, " m"] = jnp.asarray(mesh.cell_data["Volume"][indices])
+        volume *= jnp.asarray(muscle_fractions[indices])
+        muscle_id_to_idx[i] = indices
+        muscle_id_to_volume[i] = volume
+
+    neighbors_set: set[tuple[int, int]] = set()
+    for i in muscle_idx:
+        cell_neighbors: list[int] = mesh.cell_neighbors(i, "faces")
+        cell_neighbors = [n for n in cell_neighbors if muscle_fractions[n] > 1e-3]
+        for n in cell_neighbors:
+            if (i, n) in neighbors_set or (n, i) in neighbors_set:
+                continue
+            neighbors_set.add((i, n))
+    neighbors: Integer[Array, "N 2"] = jnp.asarray(neighbors_set)
+
+    inverse = Inverse(
+        face_idx=face_idx,
+        model=model,
+        muscle_id_to_idx=muscle_id_to_idx,
+        muscle_id_to_volume=muscle_id_to_volume,
+        muscle_idx=muscle_idx,
+        n_cells=mesh.n_cells,
+        neighbors=neighbors,
+        target=jnp.asarray(target.point_data[f"Expression{idx}"])[face_idx],
+    )
+    return inverse
 
 
 def inverse(

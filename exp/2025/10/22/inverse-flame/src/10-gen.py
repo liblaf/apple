@@ -5,7 +5,6 @@ import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Bool, Float
 
-import liblaf.apple.jax.sim as sim_jax
 from liblaf import cherries, melon
 
 
@@ -20,15 +19,16 @@ def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.raw)
     ic(mesh)
 
-    fraction: Float[Array, " c"] = jnp.asarray(mesh.cell_data["muscle-fraction"])
-    active_mask: Bool[Array, " c"] = fraction > 1e-3
+    fractions: Float[Array, " c"] = jnp.asarray(mesh.cell_data["MuscleFractions"])
+    active_mask: Bool[Array, " c"] = fractions > 1e-3
     ic(jnp.count_nonzero(active_mask))
-    ic(jnp.count_nonzero(mesh.point_data["is-face"]))
+    ic(jnp.count_nonzero(mesh.point_data["IsFace"]))
 
-    mesh.point_data["dirichlet-mask"] = mesh.point_data["is-skull"]
-    mesh.point_data["dirichlet-value"] = np.zeros((mesh.n_points, 3))
-    mesh.cell_data["activation"] = np.asarray(sim_jax.rest_activation(mesh.n_cells))
-    mesh.cell_data["active-fraction"] = mesh.cell_data["muscle-fraction"]
+    mesh.point_data["DirichletMask"] = (
+        mesh.point_data["IsCranium"] | mesh.point_data["IsMandible"]
+    )
+    mesh.point_data["DirichletValues"] = np.zeros((mesh.n_points, 3))
+    mesh.cell_data["Activations"] = np.zeros((mesh.n_cells, 6))
     mesh.cell_data["lambda"] = np.full((mesh.n_cells,), 3.0)
     mesh.cell_data["mu"] = np.full((mesh.n_cells,), 1.0)
 

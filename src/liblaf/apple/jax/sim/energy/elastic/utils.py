@@ -15,15 +15,12 @@ def make_activation(activation: Float[Array, "c 6"]) -> Float[Array, "c 3 3"]:
     A = A.at[:, 1, 0].set(activation[:, 3])
     A = A.at[:, 2, 0].set(activation[:, 4])
     A = A.at[:, 2, 1].set(activation[:, 5])
-    # A += jnp.identity(3, activation.dtype)
+    A += jnp.identity(3, activation.dtype)
     return A
 
 
 def rest_activation(n_cells: int = 1, dtype: DTypeLike = float) -> Float[Array, "c 6"]:
     activation: Float[Array, "c 6"] = jnp.zeros((n_cells, 6), dtype)
-    activation = activation.at[:, 0].set(1.0)
-    activation = activation.at[:, 1].set(1.0)
-    activation = activation.at[:, 2].set(1.0)
     return activation
 
 
@@ -47,4 +44,5 @@ def transform_activation(
     transformed = transformed.at[:, 3].set(transformed_mat[:, 0, 1])
     transformed = transformed.at[:, 4].set(transformed_mat[:, 0, 2])
     transformed = transformed.at[:, 5].set(transformed_mat[:, 1, 2])
+    transformed = transformed.at[:, :3].subtract(1.0)
     return transformed

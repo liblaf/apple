@@ -24,6 +24,8 @@ def main(cfg: Config) -> None:
     ic(jnp.count_nonzero(active_mask))
     ic(jnp.count_nonzero(mesh.point_data["IsFace"]))
 
+    mesh.point_data["IsCranium"] &= mesh.points[:, 1] > 28.0
+    mesh.point_data["IsMandible"] &= mesh.points[:, 1] < 24.0
     mesh.point_data["DirichletMask"] = (
         mesh.point_data["IsCranium"] | mesh.point_data["IsMandible"]
     )

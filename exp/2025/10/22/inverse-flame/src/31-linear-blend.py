@@ -15,19 +15,19 @@ class Config(cherries.BaseConfig):
 
 
 def main(cfg: Config) -> None:
-    start_idx: str = "00"
-    end_idx: str = "01"
+    start_idx: str = "000"
+    end_idx: str = "001"
 
     tetmesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     surface: pv.PolyData = tetmesh.extract_surface()  # pyright: ignore[reportAssignmentType]
-    surface = surface.extract_points(surface.point_data["is-face"]).extract_surface()
-    start_disp: Float[np.ndarray, "p 3"] = surface.point_data[f"expression-{start_idx}"]
-    end_disp: Float[np.ndarray, "p 3"] = surface.point_data[f"expression-{end_idx}"]
+    surface = surface.extract_points(surface.point_data["IsFace"]).extract_surface()
+    start_disp: Float[np.ndarray, "p 3"] = surface.point_data[f"Expression{start_idx}"]
+    end_disp: Float[np.ndarray, "p 3"] = surface.point_data[f"Expression{end_idx}"]
 
     with melon.SeriesWriter(cfg.output) as writer:
         for t in jnp.linspace(0.0, 1.0, num=30):
             disp: Float[np.ndarray, "p 3"] = (1.0 - t) * start_disp + t * end_disp
-            surface.point_data["displacement"] = np.asarray(disp)
+            surface.point_data["Displacement"] = np.asarray(disp)
             writer.append(surface)
 
 

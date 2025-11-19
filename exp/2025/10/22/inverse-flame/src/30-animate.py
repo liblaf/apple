@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import jax.numpy as jnp
@@ -7,18 +8,19 @@ import warp as wp
 from jaxtyping import Array, Float
 from liblaf.peach import optim, tree
 
-from liblaf import cherries, melon
+from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
-from liblaf.apple.jax import sim as sim_jax
 from liblaf.apple.warp import sim as sim_wp
 from liblaf.apple.warp import utils as wp_utils
 from liblaf.apple.warp.typing import vec6
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 class Config(cherries.BaseConfig):
-    input: Path = cherries.input("20-inverse.vtu")
+    input: Path = cherries.input("20-inverse-smooth.vtu")
 
-    output: Path = cherries.output("30-animation.vtu.series")
+    output: Path = cherries.output("30-animation-smooth.vtu.series")
 
 
 def build_model(mesh: pv.UnstructuredGrid) -> sim.Model:
@@ -42,7 +44,7 @@ class Forward:
         return self.model.model_warp.energies["elastic"]  # pyright: ignore[reportReturnType]
 
     def solve(self, act: Float[Array, "c 6"]) -> Float[Array, "p 3"]:
-        wp.copy(self.energy.params.activation, wp_utils.to_warp(act, vec6))
+        wp.copy(self.energy.params.activations, wp_utils.to_warp(act, vec6))
         objective = optim.Objective(
             fun=self.model.fun,
             grad=self.model.jac,
@@ -56,35 +58,33 @@ class Forward:
         solution: optim.OptimizeSolution = self.optimizer.minimize(
             objective=objective, params=params
         )
+        logger.info("Forward time: %g sec", solution.stats.time)
         assert solution.success
         u_free: Float[Array, " free"] = solution.params
         return self.model.to_full(u_free)
 
 
 def main(cfg: Config) -> None:
-    start_idx: str = "00"
-    end_idx: str = "01"
+    start_idx: str = "000"
+    end_idx: str = "001"
 
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     model: sim.Model = build_model(mesh)
     energy: sim_wp.Phace = model.model_warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
     start_act: Float[Array, "c 6"] = jnp.asarray(
-        mesh.cell_data[f"activation-{start_idx}"]
+        mesh.cell_data[f"Activations{start_idx}"]
     )
-    end_act: Float[Array, "c 6"] = jnp.asarray(mesh.cell_data[f"activation-{end_idx}"])
+    end_act: Float[Array, "c 6"] = jnp.asarray(mesh.cell_data[f"Activations{end_idx}"])
 
     forward = Forward(model=model)
 
     with melon.SeriesWriter(cfg.output) as writer:
-        for t in jnp.linspace(0.0, 1.0, num=30):
+        for t in grapes.track(jnp.linspace(0.0, 1.0, num=30)):
             act: Float[Array, "c 6"] = (1.0 - t) * start_act + t * end_act
-            wp.copy(energy.params.activation, wp_utils.to_warp(act, vec6))
+            wp.copy(energy.params.activations, wp_utils.to_warp(act, vec6))
             u: Float[Array, "p 3"] = forward.solve(act)
-            mesh.point_data["displacement"] = np.asarray(u)
-            mesh.cell_data["activation"] = np.asarray(act)
-            mesh.cell_data["activation-mag"] = np.asarray(
-                act - sim_jax.rest_activation(mesh.n_cells)
-            )
+            mesh.point_data["Displacement"] = np.asarray(u)
+            mesh.cell_data["Activations"] = np.asarray(act)
             writer.append(mesh)
 
 

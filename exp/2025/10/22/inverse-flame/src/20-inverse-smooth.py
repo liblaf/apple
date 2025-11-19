@@ -26,7 +26,7 @@ from liblaf.peach.optim import (
     ScipyOptimizer,
 )
 
-from liblaf import cherries, melon
+from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.warp import sim as sim_wp
 from liblaf.apple.warp import utils as wp_utils
@@ -39,7 +39,7 @@ class Config(cherries.BaseConfig):
     input: Path = cherries.input("10-input.vtu")
     target: Path = cherries.input("10-target.vtu")
 
-    output: Path = cherries.output("20-inverse.vtu")
+    output: Path = cherries.output("20-inverse-smooth.vtu")
 
 
 @tree.define
@@ -61,12 +61,12 @@ class Inverse:
     muscle_idx: Integer[Array, " a"]
     n_cells: int
     neighbors: Integer[Array, "N 2"]
-    target: Float[Array, "face 3"]
+    target: Float[Array, "face 3"] = tree.array(default=None)
     optimizer: Optimizer = tree.field(factory=lambda: PNCG(rtol=1e-5, max_steps=500))
     step: int = tree.array(default=1)
     u: Float[Array, "p 3"] = tree.array(default=None)
 
-    weight_smooth: float = 1e-2
+    weight_smooth: float = 1e1
     weight_sparse: float = 1e-2
 
     @property
@@ -161,8 +161,14 @@ class Inverse:
     ) -> tuple[Float[Array, ""], dict[str, Float[Array, ""]]]:
         loss_recon: Float[Array, ""] = self.loss_recon(u)
         reg_sparse: Float[Array, ""] = self.weight_sparse * self.reg_sparse(act)
-        loss: Float[Array, ""] = loss_recon + reg_sparse
-        return loss, {"total": loss, "recon": loss_recon, "sparse": reg_sparse}
+        reg_smooth: Float[Array, ""] = self.weight_smooth * self.reg_smooth(act)
+        loss: Float[Array, ""] = loss_recon + reg_sparse + reg_smooth
+        return loss, {
+            "total": loss,
+            "recon": loss_recon,
+            "sparse": reg_sparse,
+            "smooth": reg_smooth,
+        }
 
     def loss_recon(self, u: Float[Array, "p 3"]) -> Float[Array, ""]:
         residual: Float[Array, "f 3"] = u[self.face_idx] - self.target
@@ -185,9 +191,7 @@ class Inverse:
         return jnp.mean(mags)
 
 
-def prepare(
-    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid, idx: str
-) -> Inverse:
+def prepare(mesh: pv.UnstructuredGrid) -> Inverse:
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
@@ -205,7 +209,9 @@ def prepare(
     face_idx: Integer[Array, " f"] = jnp.flatnonzero(mesh.point_data["IsFace"])
     muscle_id_to_idx: dict[int, Integer[Array, " m"]] = {}
     muscle_id_to_volume: dict[int, Float[Array, " m"]] = {}
-    for i in range(np.max(mesh.cell_data["MuscleIds"]) + 1):
+    for i in grapes.track(
+        range(np.max(mesh.cell_data["MuscleIds"]) + 1), description="Muscle Indices"
+    ):
         mask: Bool[Array, " c"] = (muscle_fractions > 1e-3) & (
             mesh.cell_data["MuscleIds"] == i
         )
@@ -216,14 +222,21 @@ def prepare(
         muscle_id_to_volume[i] = volume
 
     neighbors_set: set[tuple[int, int]] = set()
-    for i in muscle_idx:
-        cell_neighbors: list[int] = mesh.cell_neighbors(i, "faces")
-        cell_neighbors = [n for n in cell_neighbors if muscle_fractions[n] > 1e-3]
-        for n in cell_neighbors:
-            if (i, n) in neighbors_set or (n, i) in neighbors_set:
-                continue
-            neighbors_set.add((i, n))
-    neighbors: Integer[Array, "N 2"] = jnp.asarray(neighbors_set)
+    for indices in grapes.track(
+        muscle_id_to_idx.values(), description="Cell Neighbors"
+    ):
+        for i in indices.tolist():
+            cell_neighbors: Integer[Array, " N"] = jnp.asarray(
+                mesh.cell_neighbors(i, "faces")
+            )
+            cell_neighbors: Integer[Array, " N"] = jnp.intersect1d(
+                jnp.asarray(cell_neighbors), indices
+            )  # pyright: ignore[reportAssignmentType]
+            for n in cell_neighbors.tolist():
+                if (i, n) in neighbors_set or (n, i) in neighbors_set:
+                    continue
+                neighbors_set.add((i, n))
+    neighbors: Integer[Array, "N 2"] = jnp.asarray(list(neighbors_set))
 
     inverse = Inverse(
         face_idx=face_idx,
@@ -233,58 +246,32 @@ def prepare(
         muscle_idx=muscle_idx,
         n_cells=mesh.n_cells,
         neighbors=neighbors,
-        target=jnp.asarray(target.point_data[f"Expression{idx}"])[face_idx],
     )
     return inverse
 
 
-def inverse(
-    model: sim.Model,
-    mesh: pv.UnstructuredGrid,
-    target: pv.UnstructuredGrid,
-    idx: str = "000",
+def calc_inverse(
+    target: pv.UnstructuredGrid, inverse: Inverse, idx: str = "000"
 ) -> pv.UnstructuredGrid:
-    mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
-    muscle_fractions: Float[Array, " c"] = jnp.asarray(
-        mesh.cell_data["MuscleFractions"]
-    )
-    muscle_idx: Integer[Array, " a"] = jnp.flatnonzero(muscle_fractions > 1e-3)
-    face_idx: Integer[Array, " f"] = jnp.flatnonzero(mesh.point_data["IsFace"])
-    muscle_id_to_idx: dict[int, Integer[Array, " m"]] = {}
-    muscle_id_to_volume: dict[int, Float[Array, " m"]] = {}
-    for i in range(np.max(mesh.cell_data["MuscleIds"]) + 1):
-        mask: Bool[Array, " c"] = (muscle_fractions > 1e-3) & (
-            mesh.cell_data["MuscleIds"] == i
-        )
-        indices: Integer[Array, " m"] = jnp.flatnonzero(mask)
-        volume: Float[Array, " m"] = jnp.asarray(mesh.cell_data["Volume"][indices])
-        volume *= jnp.asarray(muscle_fractions[indices])
-        muscle_id_to_idx[i] = indices
-        muscle_id_to_volume[i] = volume
-    inverse = Inverse(
-        muscle_id_to_idx=muscle_id_to_idx,
-        muscle_id_to_volume=muscle_id_to_volume,
-        muscle_idx=muscle_idx,
-        face_idx=face_idx,
-        model=model,
-        n_cells=mesh.n_cells,
-        target=jnp.asarray(target.point_data[f"Expression{idx}"])[face_idx],
-    )
-    params: Params = Params(activation=jnp.zeros((muscle_idx.shape[0], 6)))
+    inverse.target = jnp.asarray(target.point_data[f"Expression{idx}"])[
+        inverse.face_idx
+    ]
+    params: Params = Params(activation=jnp.zeros((inverse.muscle_idx.shape[0], 6)))
     optimizer = ScipyOptimizer(method="L-BFGS-B", tol=1e-3, timer=True)
 
-    with melon.SeriesWriter(cherries.temp(f"20-inverse-{idx}.vtu.series")) as writer:
+    with melon.SeriesWriter(
+        cherries.temp(f"20-inverse-smooth-{idx}.vtu.series")
+    ) as writer:
 
-        def callback(state: ScipyOptimizer.State, stats: ScipyOptimizer.Stats) -> None:
-            ic(state, stats)
+        def callback(state: ScipyOptimizer.State, _stats: ScipyOptimizer.Stats) -> None:
             activation: Float[Array, "c 6"] = inverse.make_activations(state.params)
-            mesh.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
-            mesh.point_data[f"Residual{idx}"] = np.zeros((mesh.n_points, 3))
-            mesh.point_data[f"Residual{idx}"][np.asarray(inverse.face_idx)] = (
+            target.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
+            target.point_data[f"Residual{idx}"] = np.zeros((target.n_points, 3))
+            target.point_data[f"Residual{idx}"][np.asarray(inverse.face_idx)] = (
                 np.asarray(inverse.u[inverse.face_idx] - inverse.target)
             )
-            mesh.cell_data[f"Activations{idx}"] = np.asarray(activation)
-            writer.append(mesh)
+            target.cell_data[f"Activations{idx}"] = np.asarray(activation)
+            writer.append(target)
 
         solution: OptimizeSolution[ScipyOptimizer.State, ScipyOptimizer.Stats] = (
             optimizer.minimize(
@@ -295,19 +282,19 @@ def inverse(
         )
     ic(solution)
     params: Params = solution.params
-    activations: Float[Array, "c 6"] = jnp.zeros((mesh.n_cells, 6))
-    activations = activations.at[muscle_idx].set(params.activation)
-    mesh.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
-    mesh.cell_data[f"Activations{idx}"] = np.asarray(activations)
-    return mesh
+    activations: Float[Array, "c 6"] = jnp.zeros((target.n_cells, 6))
+    activations = activations.at[inverse.muscle_idx].set(params.activation)
+    target.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
+    target.cell_data[f"Activations{idx}"] = np.asarray(activations)
+    return target
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    model = prepare(mesh)
-    mesh = inverse(model, mesh, target, idx="000")
-    mesh = inverse(model, mesh, target, idx="001")
+    inverse: Inverse = prepare(mesh)
+    mesh = calc_inverse(target, inverse, idx="000")
+    mesh = calc_inverse(target, inverse, idx="001")
     melon.save(cfg.output, mesh)
 
 

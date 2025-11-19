@@ -31,6 +31,7 @@ words:
   - direnv
   - dofs
   - dtypes
+  - eigh
   - einops
   - einsum
   - felupe
@@ -52,6 +53,7 @@ words:
   - isface
   - jaxtyping
   - koiter
+  - labii
   - lamé's
   - liblaf
   - lineax
@@ -68,6 +70,8 @@ words:
   - numpy
   - optax
   - optim
+  - orbicularis
+  - oris
   - phace
   - piola
   - pncg
@@ -96,6 +100,7 @@ words:
   - simplejson
   - socialify
   - ssao
+  - superioris
   - sympy
   - synchronizable
   - tombi

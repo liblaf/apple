@@ -225,8 +225,7 @@ def inverse(
 
     with melon.SeriesWriter(cherries.temp(f"20-inverse-{idx}.vtu.series")) as writer:
 
-        def callback(state: ScipyOptimizer.State, stats: ScipyOptimizer.Stats) -> None:
-            ic(state, stats)
+        def callback(state: ScipyOptimizer.State, _stats: ScipyOptimizer.Stats) -> None:
             activation: Float[Array, "c 6"] = inverse.make_activations(state.params)
             mesh.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
             mesh.point_data[f"Residual{idx}"] = np.zeros((mesh.n_points, 3))

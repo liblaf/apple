@@ -61,7 +61,7 @@ dev = [
   "ipykernel>=7,<8",
   "jax[cuda12]",
   "liblaf-cherries>=0.7,<0.8",
-  "marimo[recommended]>=0.17,<0.18",
+  "marimo[recommended]>=0.18,<0.19",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",
   "viztracer>=1,<2"

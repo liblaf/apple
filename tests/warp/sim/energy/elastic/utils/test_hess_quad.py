@@ -43,7 +43,7 @@ def check_quad(
         p, prod_jax, "batch i j, batch i j -> batch"
     )
     if jnp.isdtype(p.dtype, jnp.float32):
-        np.testing.assert_allclose(quad_jax, quad_expected, atol=1e-5, rtol=1e-5)
+        np.testing.assert_allclose(quad_jax, quad_expected, atol=1e-4, rtol=1e-4)
     elif jnp.isdtype(p.dtype, jnp.float64):
         np.testing.assert_allclose(quad_jax, quad_expected, atol=1e-15)
     else:

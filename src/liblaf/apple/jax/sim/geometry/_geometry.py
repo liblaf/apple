@@ -5,7 +5,7 @@ import pyvista as pv
 from jaxtyping import Array, Float, Integer
 from liblaf.peach import tree
 
-from liblaf.apple.constants import DOF_IDS
+from liblaf.apple.constants import DOF_ID
 from liblaf.apple.jax.sim.element import Element
 from liblaf.apple.jax.typing import int_
 
@@ -47,12 +47,12 @@ class Geometry:
         return self.cells.shape[0]
 
     @property
-    def dof_ids(self) -> Integer[Array, " p"]:
-        return jnp.asarray(self.point_data[DOF_IDS], int_)
+    def dof_id(self) -> Integer[Array, " p"]:
+        return jnp.asarray(self.point_data[DOF_ID], int_)
 
     @property
     def cells_global(self) -> Integer[Array, "c a"]:
-        return self.dof_ids[self.cells]
+        return self.dof_id[self.cells]
 
     def copy_attributes(self, other: Self | pv.DataObject) -> None:
         self.point_data.update(as_array_dict(other.point_data))

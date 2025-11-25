@@ -7,7 +7,7 @@ from jaxtyping import Array, ArrayLike, Bool, DTypeLike, Float, Integer
 from liblaf.peach import tree
 
 from liblaf import grapes
-from liblaf.apple.constants import DIRICHLET_MASK, DIRICHLET_VALUES, DOF_IDS
+from liblaf.apple.constants import DIRICHLET_MASK, DIRICHLET_VALUE, DOF_ID
 from liblaf.apple.jax import math
 
 from ._dirichlet import Dirichlet
@@ -33,7 +33,7 @@ class DirichletBuilder:
 
     def add(self, mesh: pv.DataSet) -> None:
         dof_id: Integer[Array, " p"] = math.asarray(
-            grapes.getitem(mesh.point_data, DOF_IDS), dtype=int
+            grapes.getitem(mesh.point_data, DOF_ID), dtype=int
         )
         dirichlet_mask: Bool[Array, "p J"] = _broadcast_to(
             grapes.getitem(mesh.point_data, DIRICHLET_MASK),
@@ -41,7 +41,7 @@ class DirichletBuilder:
             shape=mesh.points.shape,
         )
         dirichlet_value: Float[Array, "p J"] = _broadcast_to(
-            grapes.getitem(mesh.point_data, DIRICHLET_VALUES),
+            grapes.getitem(mesh.point_data, DIRICHLET_VALUE),
             dtype=float,
             shape=mesh.points.shape,
         )

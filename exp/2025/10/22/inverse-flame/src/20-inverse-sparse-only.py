@@ -11,13 +11,7 @@ import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach import tree
-from liblaf.peach.linalg import (
-    JaxCG,
-    JaxCompositeSolver,
-    JaxGMRES,
-    LinearSolution,
-    LinearSystem,
-)
+from liblaf.peach.linalg import JaxCG, JaxCompositeSolver, JaxGMRES, LinearSystem
 from liblaf.peach.optim import (
     PNCG,
     Objective,
@@ -26,7 +20,7 @@ from liblaf.peach.optim import (
     ScipyOptimizer,
 )
 
-from liblaf import cherries, melon
+from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.warp import sim as sim_wp
 from liblaf.apple.warp import utils as wp_utils
@@ -39,7 +33,7 @@ class Config(cherries.BaseConfig):
     input: Path = cherries.input("10-input.vtu")
     target: Path = cherries.input("10-target.vtu")
 
-    output: Path = cherries.output("20-inverse.vtu")
+    output: Path = cherries.output("20-inverse-sparse-only.vtu")
 
 
 @tree.define
@@ -60,12 +54,13 @@ class Inverse:
     muscle_id_to_volume: dict[int, Float[Array, " m"]]
     muscle_idx: Integer[Array, " a"]
     n_cells: int
-    target: Float[Array, "face 3"]
-    optimizer: Optimizer = tree.field(factory=lambda: PNCG(rtol=1e-5, max_steps=500))
+    target: Float[Array, "face 3"] = tree.array(default=None)
+    optimizer: Optimizer = tree.field(factory=lambda: PNCG(rtol=1e-5, max_steps=1000))
     step: int = tree.array(default=1)
     u: Float[Array, "p 3"] = tree.array(default=None)
 
-    weight_sparse: float = 1e-2
+    # weight_smooth: float = 1e1
+    weight_sparse: float = 0.0
 
     @property
     def energy(self) -> sim_wp.Phace:
@@ -74,7 +69,7 @@ class Inverse:
     def value_and_grad(self, params: Params) -> tuple[Float[Array, ""], Params]:
         act: Float[Array, "c 6"]
         act_vjp: Callable[[Float[Array, "c 6"]], Params]
-        act, act_vjp = jax.vjp(self.make_activations, params)
+        act, act_vjp = jax.vjp(self.make_activation, params)
         self.set_activation(act)
         u: Float[Array, "p 3"] = self.forward()
         self.u = u
@@ -83,19 +78,17 @@ class Inverse:
         self.step += 1
         p: Float[Array, "p 3"] = self.adjoint(u, dLdu)
         outputs: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u, p)
-        act_grad: Float[Array, "c 6"] = dLdq + outputs[self.energy.id]["activations"]
+        act_grad: Float[Array, "c 6"] = dLdq + outputs[self.energy.id]["activation"]
         grad: Params = act_vjp(act_grad)
         return loss, grad
 
-    def make_activations(self, params: Params) -> Float[Array, "c 6"]:
-        activations: Float[Array, "c 6"] = jnp.zeros((self.n_cells, 6))
-        activations = activations.at[self.muscle_idx].set(params.activation)
-        return activations
+    def make_activation(self, params: Params) -> Float[Array, "c 6"]:
+        activation: Float[Array, "c 6"] = jnp.zeros((self.n_cells, 6))
+        activation = activation.at[self.muscle_idx].set(params.activation)
+        return activation
 
-    def set_activation(self, activations: Float[Array, "c 6"]) -> None:
-        wp.copy(
-            self.energy.params.activations, wp_utils.to_warp(activations, dtype=vec6)
-        )
+    def set_activation(self, activation: Float[Array, "c 6"]) -> None:
+        wp.copy(self.energy.params.activation, wp_utils.to_warp(activation, dtype=vec6))
 
     def forward(self) -> Float[Array, "p 3"]:
         objective = Objective(
@@ -108,12 +101,17 @@ class Inverse:
             grad_and_hess_diag=self.model.jac_and_hess_diag,
         )
         u_free: Float[Array, " free"] = jnp.zeros((self.model.n_free,))
-        solution: OptimizeSolution[PNCG.State, PNCG.Stats] = self.optimizer.minimize(
+        solution: PNCG.Solution = self.optimizer.minimize(
             objective=objective, params=u_free
         )
         u_free = solution.params
-        logger.info("Forward time: %g", solution.stats.time)
-        assert solution.success
+        logger.info(
+            "Forward time: %g sec, steps: %d, success: %s",
+            solution.stats.time,
+            solution.stats.n_steps,
+            solution.success,
+        )
+        # assert solution.success
         u_full: Float[Array, "p 3"] = self.model.to_full(u_free)
         return u_full
 
@@ -135,11 +133,13 @@ class Inverse:
             b=-self.model.dirichlet.get_free(dLdu),
             preconditioner=lambda p_free: preconditioner * p_free,
         )
-        solution: LinearSolution[JaxCompositeSolver.State, JaxCompositeSolver.Stats] = (
-            solver.solve(system, jnp.zeros((self.model.n_free,)))
+        solution: JaxCompositeSolver.Solution = solver.solve(
+            system, jnp.zeros((self.model.n_free,))
         )
-        logger.info("Adjoint time: %g", solution.stats.time)
-        assert solution.success
+        logger.info(
+            "Adjoint time: %g sec, success: %s", solution.stats.time, solution.success
+        )
+        # assert solution.success
         return self.model.to_full(solution.params, zero=True)
 
     @eqx.filter_jit
@@ -164,76 +164,84 @@ class Inverse:
 
     def loss_recon(self, u: Float[Array, "p 3"]) -> Float[Array, ""]:
         residual: Float[Array, "f 3"] = u[self.face_idx] - self.target
-        return 0.5 * jnp.sum(jnp.square(residual))
+        return 0.5 * jnp.sum(jnp.square(residual)) / residual.shape[0]
 
     def reg_sparse(self, act: Float[Array, "c 6"]) -> Float[Array, ""]:
         reg: Float[Array, ""] = jnp.zeros(())
+        total_volume: Float[Array, ""] = jnp.zeros(())
         for i, indices in self.muscle_id_to_idx.items():
             act_i: Float[Array, " m 6"] = act[indices]
             vol_i: Float[Array, " m"] = self.muscle_id_to_volume[i]
             mag: Float[Array, " m"] = jnp.sum(jnp.square(act_i), axis=-1)
             reg += jnp.vdot(vol_i, mag)
+            total_volume += jnp.sum(vol_i)
+        reg /= total_volume
         return reg
 
 
-def prepare(mesh: pv.UnstructuredGrid) -> sim.Model:
+def prepare(mesh: pv.UnstructuredGrid) -> Inverse:
     builder = sim.ModelBuilder()
     mesh = builder.assign_dofs(mesh)
     builder.add_dirichlet(mesh)
     energy: sim_wp.Phace = sim_wp.Phace.from_pyvista(
-        mesh, id="elastic", requires_grad=("activations",)
+        mesh, id="elastic", requires_grad=("activation",)
     )
     builder.add_energy(energy)
     model: sim.Model = builder.finish()
-    return model
 
-
-def inverse(
-    model: sim.Model,
-    mesh: pv.UnstructuredGrid,
-    target: pv.UnstructuredGrid,
-    idx: str = "000",
-) -> pv.UnstructuredGrid:
+    MUSCLE_FRACTION_THRESHOLD: float = 1e-2
     mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
-    muscle_fractions: Float[Array, " c"] = jnp.asarray(
-        mesh.cell_data["MuscleFractions"]
-    )
-    muscle_idx: Integer[Array, " a"] = jnp.flatnonzero(muscle_fractions > 1e-3)
     face_idx: Integer[Array, " f"] = jnp.flatnonzero(mesh.point_data["IsFace"])
+    muscle_fraction: Float[Array, " c"] = jnp.asarray(mesh.cell_data["MuscleFraction"])
+    muscle_id: Integer[Array, " c"] = jnp.asarray(mesh.cell_data["MuscleId"])
+    muscle_idx: Integer[Array, " a"] = jnp.flatnonzero(
+        muscle_fraction > MUSCLE_FRACTION_THRESHOLD
+    )
+    volume: Float[Array, " c"] = jnp.asarray(mesh.cell_data["Volume"])
     muscle_id_to_idx: dict[int, Integer[Array, " m"]] = {}
     muscle_id_to_volume: dict[int, Float[Array, " m"]] = {}
-    for i in range(np.max(mesh.cell_data["MuscleIds"]) + 1):
-        mask: Bool[Array, " c"] = (muscle_fractions > 1e-3) & (
-            mesh.cell_data["MuscleIds"] == i
+    for i in grapes.track(range(jnp.max(muscle_id) + 1), description="Muscle Indices"):
+        mask: Bool[Array, " c"] = (muscle_fraction > MUSCLE_FRACTION_THRESHOLD) & (
+            muscle_id == i
         )
         indices: Integer[Array, " m"] = jnp.flatnonzero(mask)
-        volume: Float[Array, " m"] = jnp.asarray(mesh.cell_data["Volume"][indices])
-        volume *= jnp.asarray(muscle_fractions[indices])
+        volume_i: Float[Array, " m"] = volume[indices] * muscle_fraction[indices]
         muscle_id_to_idx[i] = indices
-        muscle_id_to_volume[i] = volume
+        muscle_id_to_volume[i] = volume_i
+
     inverse = Inverse(
+        face_idx=face_idx,
+        model=model,
         muscle_id_to_idx=muscle_id_to_idx,
         muscle_id_to_volume=muscle_id_to_volume,
         muscle_idx=muscle_idx,
-        face_idx=face_idx,
-        model=model,
         n_cells=mesh.n_cells,
-        target=jnp.asarray(target.point_data[f"Expression{idx}"])[face_idx],
     )
-    params: Params = Params(activation=jnp.zeros((muscle_idx.shape[0], 6)))
-    optimizer = ScipyOptimizer(method="L-BFGS-B", tol=1e-3, timer=True)
+    return inverse
 
-    with melon.SeriesWriter(cherries.temp(f"20-inverse-{idx}.vtu.series")) as writer:
+
+def calc_inverse(
+    target: pv.UnstructuredGrid, inverse: Inverse, idx: str = "000"
+) -> pv.UnstructuredGrid:
+    inverse.target = jnp.asarray(target.point_data[f"Expression{idx}"])[
+        inverse.face_idx
+    ]
+    params: Params = Params(activation=jnp.zeros((inverse.muscle_idx.shape[0], 6)))
+    optimizer = ScipyOptimizer(method="L-BFGS-B", tol=1e-8, timer=True)
+
+    with melon.SeriesWriter(
+        cherries.temp(f"20-inverse-sparse-only-{idx}.vtu.series")
+    ) as writer:
 
         def callback(state: ScipyOptimizer.State, _stats: ScipyOptimizer.Stats) -> None:
-            activation: Float[Array, "c 6"] = inverse.make_activations(state.params)
-            mesh.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
-            mesh.point_data[f"Residual{idx}"] = np.zeros((mesh.n_points, 3))
-            mesh.point_data[f"Residual{idx}"][np.asarray(inverse.face_idx)] = (
+            activation: Float[Array, "c 6"] = inverse.make_activation(state.params)
+            target.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
+            target.point_data[f"Residual{idx}"] = np.zeros((target.n_points, 3))
+            target.point_data[f"Residual{idx}"][np.asarray(inverse.face_idx)] = (
                 np.asarray(inverse.u[inverse.face_idx] - inverse.target)
             )
-            mesh.cell_data[f"Activations{idx}"] = np.asarray(activation)
-            writer.append(mesh)
+            target.cell_data[f"Activation{idx}"] = np.asarray(activation)
+            writer.append(target)
 
         solution: OptimizeSolution[ScipyOptimizer.State, ScipyOptimizer.Stats] = (
             optimizer.minimize(
@@ -244,19 +252,19 @@ def inverse(
         )
     ic(solution)
     params: Params = solution.params
-    activations: Float[Array, "c 6"] = jnp.zeros((mesh.n_cells, 6))
-    activations = activations.at[muscle_idx].set(params.activation)
-    mesh.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
-    mesh.cell_data[f"Activations{idx}"] = np.asarray(activations)
-    return mesh
+    activation: Float[Array, "c 6"] = jnp.zeros((target.n_cells, 6))
+    activation = activation.at[inverse.muscle_idx].set(params.activation)
+    target.point_data[f"Displacement{idx}"] = np.asarray(inverse.u)
+    target.cell_data[f"Activation{idx}"] = np.asarray(activation)
+    return target
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    model = prepare(mesh)
-    mesh = inverse(model, mesh, target, idx="000")
-    mesh = inverse(model, mesh, target, idx="001")
+    inverse: Inverse = prepare(mesh)
+    mesh = calc_inverse(target, inverse, idx="000")
+    mesh = calc_inverse(target, inverse, idx="001")
     melon.save(cfg.output, mesh)
 
 

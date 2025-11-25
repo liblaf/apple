@@ -17,17 +17,17 @@ def hess_diag(
     kwargs: Mapping[str, Any] = {},
 ) -> PyTree:
     x_flat: Vector
-    unflatten: tree.Unflatten[PyTree]
-    x_flat, unflatten = tree.flatten(x)
+    flat_def: tree.FlatDef[PyTree]
+    x_flat, flat_def = tree.flatten(x)
 
     def compute(v_flat: Vector) -> Vector:
-        v: PyTree = unflatten(v_flat)
+        v: PyTree = flat_def.unflatten(v_flat)
         Hv: PyTree = hess_prod(func, x, v, args, kwargs)
         return jnp.vdot(v, Hv)
 
     vs: Float[Array, "I I"] = jnp.identity(x_flat.size)
     diag_flat: Vector = jax.vmap(compute)(vs)
-    diag: PyTree = unflatten(diag_flat)
+    diag: PyTree = flat_def.unflatten(diag_flat)
     return diag
 
 
@@ -39,15 +39,15 @@ def hess_prod(
     kwargs: Mapping[str, Any] = {},
 ) -> PyTree:
     x_flat: Vector
-    unflatten: tree.Unflatten[PyTree]
-    x_flat, unflatten = tree.flatten(x)
+    flat_def: tree.FlatDef[PyTree]
+    x_flat, flat_def = tree.flatten(x)
     p_flat: Vector
     p_flat, _ = tree.flatten(p)
 
     def fun(x: Vector) -> Scalar:
-        return func(unflatten(x), *args, **kwargs)
+        return func(flat_def.unflatten(x), *args, **kwargs)
 
     prod_flat: Vector
     _, prod_flat = jax.jvp(jax.grad(fun), (x_flat,), (p_flat,))
-    prod: PyTree = unflatten(prod_flat)
+    prod: PyTree = flat_def.unflatten(prod_flat)
     return prod

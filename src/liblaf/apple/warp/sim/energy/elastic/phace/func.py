@@ -19,8 +19,8 @@ class ParamsElem:
 
 @wp.struct
 class Params:
-    activations: wp.array(dtype=vec6)
-    muscle_fractions: wp.array(dtype=float_)
+    activation: wp.array(dtype=vec6)
+    muscle_fraction: wp.array(dtype=float_)
     lambda_: wp.array(dtype=float_)
     mu: wp.array(dtype=float_)
 
@@ -156,8 +156,8 @@ def energy_density_hess_quad(
 @no_type_check
 def get_cell_params(params: Params, cid: int) -> ParamsElem:
     cell_params = ParamsElem(
-        activation=params.activations[cid],
-        muscle_fraction=params.muscle_fractions[cid],
+        activation=params.activation[cid],
+        muscle_fraction=params.muscle_fraction[cid],
         lambda_=params.lambda_[cid],
         mu=params.mu[cid],
     )

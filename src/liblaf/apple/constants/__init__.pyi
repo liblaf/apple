@@ -1,15 +1,15 @@
 from ._array_names import (
-    ACTIVATIONS,
+    ACTIVATION,
     DIRICHLET_MASK,
-    DIRICHLET_VALUES,
-    DOF_IDS,
-    MUSCLE_FRACTIONS,
+    DIRICHLET_VALUE,
+    DOF_ID,
+    MUSCLE_FRACTION,
 )
 
 __all__ = [
-    "ACTIVATIONS",
+    "ACTIVATION",
     "DIRICHLET_MASK",
-    "DIRICHLET_VALUES",
-    "DOF_IDS",
-    "MUSCLE_FRACTIONS",
+    "DIRICHLET_VALUE",
+    "DOF_ID",
+    "MUSCLE_FRACTION",
 ]

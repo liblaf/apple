@@ -34,7 +34,7 @@ dependencies = [
   "lazy-loader>=0.4,<0.5",
   "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.9,<0.10",
-  "liblaf-peach>=0.6,<0.7",
+  "liblaf-peach>=0.7,<0.8",
   "lineax>=0.0.8,<0.0.9",
   "loguru>=0.7,<0.8",
   "matplotlib>=3,<4",
@@ -61,7 +61,7 @@ dev = [
   "ipykernel>=7,<8",
   "jax[cuda12]",
   "liblaf-cherries>=0.7,<0.8",
-  "marimo[recommended]>=0.17,<0.18",
+  "marimo[recommended]>=0.18,<0.19",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",
   "viztracer>=1,<2"
@@ -97,7 +97,20 @@ packages = ["src/liblaf"]
 source = "vcs"
 
 [tool.pyright]
-exclude = ["**/.*", "**/__pycache__", "**/marimo", "**/node_modules"]
+exclude = [
+  "**/.*",
+  "**/__pycache__",
+  "**/exp/2024",
+  "**/exp/2025/04",
+  "**/exp/2025/05",
+  "**/exp/2025/06",
+  "**/exp/2025/07",
+  "**/exp/2025/08",
+  "**/exp/2025/09",
+  "**/exp/2025/10/29",
+  "**/marimo",
+  "**/node_modules"
+]
 extends = ".config/linters/pyrightconfig.json"
 reportInvalidTypeForm = "none"
 

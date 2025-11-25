@@ -26,15 +26,15 @@ class Phace(Elastic):
     @override
     def make_params(self, region: Region) -> Struct:
         params = func.Params()
-        params.activations = wp_utils.to_warp(
-            grapes.getitem(region.cell_data, "Activations"),
+        params.activation = wp_utils.to_warp(
+            grapes.getitem(region.cell_data, "Activation"),
             dtype=vec6,
-            requires_grad=grapes.contains(self.requires_grad, "activations"),
+            requires_grad=grapes.contains(self.requires_grad, "activation"),
         )
-        params.muscle_fractions = wp_utils.to_warp(
-            grapes.getitem(region.cell_data, "MuscleFractions"),
+        params.muscle_fraction = wp_utils.to_warp(
+            grapes.getitem(region.cell_data, "MuscleFraction"),
             dtype=float_,
-            requires_grad=grapes.contains(self.requires_grad, "muscle_fractions"),
+            requires_grad=grapes.contains(self.requires_grad, "muscle_fraction"),
         )
         params.lambda_ = wp_utils.to_warp(
             grapes.getitem(region.cell_data, "lambda"),

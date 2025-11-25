@@ -4,7 +4,7 @@ import pyvista as pv
 from jaxtyping import Array, Float
 from liblaf.peach import tree
 
-from liblaf.apple.constants import DOF_IDS
+from liblaf.apple.constants import DOF_ID
 from liblaf.apple.jax.sim.dirichlet import DirichletBuilder
 from liblaf.apple.jax.sim.energy import Energy
 
@@ -32,7 +32,7 @@ class ModelBuilder:
         self.energies[energy.id] = energy
 
     def assign_dofs[T: pv.DataSet](self, mesh: T) -> T:
-        mesh.point_data[DOF_IDS] = np.arange(
+        mesh.point_data[DOF_ID] = np.arange(
             self.n_points, self.n_points + mesh.n_points
         )
         self.points = jnp.concat([self.points, mesh.points])

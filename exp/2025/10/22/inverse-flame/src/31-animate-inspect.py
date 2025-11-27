@@ -19,23 +19,21 @@ class Config(cherries.BaseConfig):
 
 def main(cfg: Config) -> None:
     reader = melon.SeriesReader(
-        cherries.input("30-animation.vtu.series"),
+        cherries.input("30-animation-point-to-plane.vtu.series"),
         loader=melon.load_unstructured_grid,
     )
     with melon.SeriesWriter(cherries.output("31-muscles.vtu.series")) as writer:
         for mesh in reader:
-            muscle_names: list[str] = mesh.field_data["MuscleNames"].tolist()
+            muscle_names: list[str] = mesh.field_data["MuscleName"].tolist()
             mask: Bool[Array, " c"] = jnp.zeros((mesh.n_cells,), dtype=bool)
             for name in cfg.muscle_names:
                 idx = muscle_names.index(name)
-                mask |= mesh.cell_data["MuscleIds"] == idx
-            mask &= mesh.cell_data["MuscleFractions"] > 1e-3
+                mask |= mesh.cell_data["MuscleId"] == idx
+            mask &= mesh.cell_data["MuscleFraction"] > 1e-2
             mesh = mesh.extract_cells(mask)  # pyright: ignore[reportArgumentType]  # noqa: PLW2901
-            activations: Float[Array, "c 6"] = jnp.asarray(
-                mesh.cell_data["Activations"]
-            )
+            activations: Float[Array, "c 6"] = jnp.asarray(mesh.cell_data["Activation"])
             muscle_mask: Bool[Array, " c"] = jnp.asarray(
-                mesh.cell_data["MuscleFractions"] > 1e-3
+                mesh.cell_data["MuscleFraction"] > 1e-2
             )
             activations: Float[Array, "m 6"] = activations[muscle_mask]
             activations: Float[Array, "m 3 3"] = sim_jax.make_activation(activations)
@@ -66,7 +64,7 @@ def main(cfg: Config) -> None:
             mesh.cell_data["ActivationMagnitude"] = np.asarray(
                 jnp.zeros((mesh.n_cells,))
                 .at[muscle_mask]
-                .set(jnp.linalg.norm(mesh.cell_data["Activations"], axis=-1))
+                .set(jnp.linalg.norm(mesh.cell_data["Activation"], axis=-1))
             )
 
             writer.append(mesh)

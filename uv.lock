@@ -1205,11 +1205,14 @@ wheels = [
 
 [[package]]
 name = "docstring-inheritance"
-version = "2.2.2"
+version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/16/f4/988a96d45e7db09e1c43dbb8ab0ef0e093e82869fb38e30d41647571a024/docstring_inheritance-2.2.2.tar.gz", hash = "sha256:224eeaee1aeea6503341f9d39eea075d50760f9f2ad9c73dbe8ae61af785d3c0", size = 28341, upload-time = "2025-06-19T08:34:23.571Z" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/44/e0/517e63eeca8302ad1432e3f57da9a081e044ae9916c8e0d3bc1c15ac222f/docstring_inheritance-2.3.0.tar.gz", hash = "sha256:c08c0cd92070c5c551eb9b0a1fbb7f16c7a0bef8bc14980bb38dcf2d5510497d", size = 30743, upload-time = "2025-11-29T12:14:48.091Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/c4/a098fe2006371014eddf84244751352c6160c2dc7d2d033aee732f4b2065/docstring_inheritance-2.2.2-py3-none-any.whl", hash = "sha256:090d7a6e098bbea8914839391d56cc38e32d37d471d99a3397ef9d94fa84b5e9", size = 24201, upload-time = "2024-11-30T19:55:33.477Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/e6/0a9dfc16c3bb08e4db4ad18b48f1a8139666b0453280bce23c92d26d9208/docstring_inheritance-2.3.0-py3-none-any.whl", hash = "sha256:c89519e9deb0877d79a4540effc89a7d59335e2cbcd340ba107d50b76d1bf22e", size = 25322, upload-time = "2025-11-29T12:14:49.27Z" },
 ]
 
 [[package]]
@@ -2794,7 +2797,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-melon"
-version = "0.9.2"
+version = "0.9.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2820,9 +2823,9 @@ dependencies = [
     { name = "trimesh", extra = ["easy"] },
     { name = "warp-lang" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/dd/36d3fe93b7eb99201408fea1aeeb053fdb1375a16150c7b0083f599fb436/liblaf_melon-0.9.2.tar.gz", hash = "sha256:cdafb1a2a43150f7203a33c526e4fc22f74621f82cb8a5efad50c9d23c318662", size = 27936, upload-time = "2025-11-25T13:02:48.315Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/8f/91f2097b89c2c018bcd36a7fc276657f1c7fa67cc53b6f259964a5e10def/liblaf_melon-0.9.3.tar.gz", hash = "sha256:08b78e14fbb37960bb702faf0b67ce0d16ba28af1aee722c359b78b7e3dc4835", size = 28234, upload-time = "2025-11-29T13:46:57.913Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/3b/5ce0bf8a9b5eba2cc14f548d0404aa6f42c33d2f3997dda1b847e8c649dd/liblaf_melon-0.9.2-py3-none-any.whl", hash = "sha256:8703538eb1313313166e4c054679477dfd969025d60d087a0ca8cc18ff2b9b72", size = 66255, upload-time = "2025-11-25T13:02:46.692Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/77/dfea8449c14431c3f7cfb717ba3d2570ece97871edcfcd41c8e4897ddda3/liblaf_melon-0.9.3-py3-none-any.whl", hash = "sha256:e4f58387fdd8d81c56ed9db186c68013697ae28a8b8f990b4863d7e0ec03a112", size = 66946, upload-time = "2025-11-29T13:46:56.25Z" },
 ]
 
 [[package]]

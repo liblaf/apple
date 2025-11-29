@@ -6,11 +6,11 @@ import jax.numpy as jnp
 import jax.test_util
 import warp as wp
 from jaxtyping import Array, Float
+from liblaf.apple.warp.sim.energy.elastic import func
 
 from liblaf.apple.jax import testing
 from liblaf.apple.warp import math
 from liblaf.apple.warp import utils as wp_utils
-from liblaf.apple.warp.sim.energy.elastic import func
 
 
 class IdentityFunction(Protocol):

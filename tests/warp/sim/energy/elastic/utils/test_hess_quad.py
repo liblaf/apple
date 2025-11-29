@@ -8,9 +8,9 @@ import jax.numpy as jnp
 import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
+from liblaf.apple.warp.sim.energy.elastic import func
 
 import liblaf.apple.warp.utils as wp_utils
-from liblaf.apple.warp.sim.energy.elastic import func
 
 
 def random_matrices(

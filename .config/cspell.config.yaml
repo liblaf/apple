@@ -23,10 +23,13 @@ words:
   - bfgs
   - bunyk
   - cbrt
+  - cholespy
   - ciede
   - cuda
   - cytoolz
   - ddot
+  - defjvp
+  - defvjp
   - dhdr
   - direnv
   - dofs
@@ -58,6 +61,7 @@ words:
   - liblaf
   - lineax
   - matmul
+  - matvec
   - mkdocs
   - mkdocstrings
   - nans
@@ -111,6 +115,7 @@ words:
   - uuidgen
   - vcvs
   - vdot
+  - vecdot
   - venv
   - virtualenv
   - vmap

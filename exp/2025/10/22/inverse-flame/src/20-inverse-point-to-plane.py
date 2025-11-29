@@ -10,15 +10,15 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
+from liblaf.apple.warp.typing import vec6
 from liblaf.peach import tree
-from liblaf.peach.linalg import JaxCG, JaxCompositeSolver, JaxGMRES, LinearSystem
+from liblaf.peach.linalg import JaxCG, JaxCompositeSolver, LinearSystem
 from liblaf.peach.optim import PNCG, Objective, ScipyOptimizer
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.warp import sim as sim_wp
 from liblaf.apple.warp import utils as wp_utils
-from liblaf.apple.warp.typing import vec6
 
 logger: logging.Logger = logging.getLogger(__name__)
 tree.register_fieldz(melon.NearestPointOnSurfaceResult)

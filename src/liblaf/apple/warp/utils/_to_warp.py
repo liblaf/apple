@@ -1,69 +1,41 @@
-import sys
-import types
-from collections.abc import Sequence
+import functools
 from typing import Any
 
-import attrs
+import jax
 import numpy as np
 import warp as wp
-import warp.types as wpt
-from jaxtyping import Array
 
 
-@attrs.define
-class MatrixLike:
-    shape: tuple[int, int]
-
-    def __init__(self, rows: int, cols: int) -> None:
-        self.__attrs_init__(shape=(rows, cols))  # pyright: ignore[reportAttributeAccessIssue]
-
-
-@attrs.define
-class VectorLike:
-    length: int
-
-
-def to_warp(
-    a: Any,
-    dtype: Any | None = None,
-    shape: Sequence[int] | None = None,
-    *,
-    requires_grad: bool = False,
-) -> wp.array:
-    match _array_module(a):
-        case "numpy":
-            assert isinstance(a, np.ndarray)
-            if isinstance(dtype, MatrixLike):
-                dtype = wpt.matrix(dtype.shape, wp.dtype_from_numpy(a.dtype))
-            elif isinstance(dtype, VectorLike):
-                dtype = wpt.vector(dtype.length, wp.dtype_from_numpy(a.dtype))
-            return wp.from_numpy(
-                a, dtype=dtype, shape=shape, requires_grad=requires_grad
-            )
-        case "jax":
-            assert isinstance(a, Array)
-            if isinstance(dtype, MatrixLike):
-                dtype = wpt.matrix(dtype.shape, wp.dtype_from_jax(a.dtype))
-            elif isinstance(dtype, VectorLike):
-                dtype = wpt.vector(dtype.length, wp.dtype_from_jax(a.dtype))
-            a_wp: wp.array = wp.from_jax(a, dtype=dtype)
-            a_wp.requires_grad = requires_grad
-            return a_wp
-        case _:
-            return wp.from_numpy(
-                np.asarray(a), dtype=dtype, shape=shape, requires_grad=requires_grad
-            )
+@functools.singledispatch
+def to_warp(arr: Any, dtype: Any = None) -> wp.array:
+    arr: np.ndarray = np.asarray(arr)
+    if dtype is None:
+        return wp.from_numpy(arr)
+    if isinstance(dtype, int):
+        return wp.from_numpy(
+            arr, dtype=wp.types.vector(dtype, wp.dtype_from_numpy(arr.dtype))
+        )
+    if isinstance(dtype, tuple):
+        return wp.from_numpy(
+            arr, dtype=wp.types.matrix(dtype, wp.dtype_from_numpy(arr.dtype))
+        )
+    return wp.from_jax(
+        arr.astype(wp.dtype_to_numpy(wp.types.type_scalar_type(dtype))), dtype
+    )
 
 
-def _array_module(a: Any) -> str | None:
-    for module_name, type_name in [
-        ("numpy", "ndarray"),
-        ("jax", "Array"),
-    ]:
-        module: types.ModuleType | None = sys.modules.get(module_name)
-        if module is None:
-            continue
-        cls: type = getattr(module, type_name)
-        if isinstance(a, cls):
-            return module_name
-    return None
+@to_warp.register(jax.Array)
+def jax_to_warp(arr: jax.Array, dtype: Any = None) -> wp.array:
+    if dtype is None:
+        return wp.from_jax(arr)
+    if isinstance(dtype, int):
+        return wp.from_jax(
+            arr, dtype=wp.types.vector(dtype, wp.dtype_from_jax(arr.dtype))
+        )
+    if isinstance(dtype, tuple):
+        return wp.from_jax(
+            arr, dtype=wp.types.matrix(dtype, wp.dtype_from_jax(arr.dtype))
+        )
+    return wp.from_jax(
+        arr.astype(wp.dtype_to_jax(wp.types.type_scalar_type(dtype))), dtype
+    )

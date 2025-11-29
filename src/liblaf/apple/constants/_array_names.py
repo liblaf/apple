@@ -1,5 +1,10 @@
-ACTIVATION = "Activation"
 DIRICHLET_MASK = "DirichletMask"
 DIRICHLET_VALUE = "DirichletValue"
-DOF_ID = "DofId"
+POINT_ID = "PointId"
+
+ACTIVATION = "Activation"
+LAMBDA = "lambda"
+MASS = "Mass"
+MU = "mu"
 MUSCLE_FRACTION = "MuscleFraction"
+STIFFNESS = "Stiffness"

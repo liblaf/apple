@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1](https://github.com/liblaf/apple/releases/tag/v0.6.1) - 2025-11-29
+
+### 🐛 Bug Fixes
+
+- **jax/energies:** Correct mass-spring energy and gradient calculation - [1a0b663](https://github.com/liblaf/apple/commit/1a0b663fd0c76afb0f2c8dabfedc0135d1783773) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
 ## [0.6.0](https://github.com/liblaf/apple/releases/tag/v0.6.0) - 2025-11-29
 
 ### 💥 BREAKING CHANGES
@@ -20,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.5.0](https://github.com/liblaf/apple/releases/tag/v0.5.0) - 2025-11-20
 

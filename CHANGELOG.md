@@ -7,7 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0](https://github.com/liblaf/apple/releases/tag/v0.5.0) - 2025-11-19
+## [0.6.0](https://github.com/liblaf/apple/releases/tag/v0.6.0) - 2025-11-29
+
+### 💥 BREAKING CHANGES
+
+- redesign physics simulation architecture with JAX/Warp integration - [84e0b67](https://github.com/liblaf/apple/commit/84e0b67804f039323f747998b21b9b8ed90efe11) by [@liblaf](https://github.com/liblaf)
+
+### ✨ Features
+
+- **jax:** Add MassSpringPrestrain energy model - [93466a6](https://github.com/liblaf/apple/commit/93466a630b29018889105af01371f4fb15cb4381) by [@liblaf](https://github.com/liblaf)
+- redesign physics simulation architecture with JAX/Warp integration - [84e0b67](https://github.com/liblaf/apple/commit/84e0b67804f039323f747998b21b9b8ed90efe11) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.5.0](https://github.com/liblaf/apple/releases/tag/v0.5.0) - 2025-11-20
 
 ### 💥 BREAKING CHANGES
 
@@ -44,8 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
-- [@liblaf[bot]](https://github.com/apps/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.4.0](https://github.com/liblaf/apple/releases/tag/v0.4.0) - 2025-10-12
 

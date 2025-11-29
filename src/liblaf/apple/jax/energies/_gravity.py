@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, override
 
 import jax.numpy as jnp
 import pyvista as pv
@@ -8,8 +8,10 @@ from liblaf.peach import tree
 from liblaf.apple.constants import MASS, POINT_ID
 from liblaf.apple.jax.model import JaxEnergy
 
-type Vector = Float[Array, "points dim"]
+type Index = Integer[Array, " points"]
 type Scalar = Float[Array, ""]
+type Updates = tuple[Vector, Index]
+type Vector = Float[Array, "points dim"]
 
 
 @tree.define
@@ -30,6 +32,11 @@ class Gravity(JaxEnergy):
             mass=jnp.asarray(obj.point_data[MASS]),
         )
 
+    @override
     def fun(self, u: Vector) -> Scalar:
-        u: Float[Array, "points dim"] = u[self.indices]
+        u = u[self.indices]
         return -jnp.vdot(self.mass, jnp.vecdot(u, self.gravity, axis=-1))
+
+    @override
+    def hess_diag(self, u: Vector) -> Updates:
+        return jnp.zeros_like(u[self.indices]), self.indices

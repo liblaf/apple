@@ -3,10 +3,12 @@ from ._array_names import (
     DIRICHLET_MASK,
     DIRICHLET_VALUE,
     LAMBDA,
+    LENGTH,
     MASS,
     MU,
     MUSCLE_FRACTION,
     POINT_ID,
+    PRESTRAIN,
     STIFFNESS,
 )
 
@@ -15,9 +17,11 @@ __all__ = [
     "DIRICHLET_MASK",
     "DIRICHLET_VALUE",
     "LAMBDA",
+    "LENGTH",
     "MASS",
     "MU",
     "MUSCLE_FRACTION",
     "POINT_ID",
+    "PRESTRAIN",
     "STIFFNESS",
 ]

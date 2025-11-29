@@ -210,30 +210,30 @@ class Inverse:
             ]
         )
 
-        @jax.custom_jvp
+        # @jax.custom_jvp
         def matvec(p_free: Float[Array, " free"]) -> Float[Array, " free"]:
             return self.model.hess_prod(u_free, p_free)
 
-        @matvec.defjvp
-        def matvec_jvp(
-            primals: tuple[Float[Array, " free"]],
-            tangents: tuple[Float[Array, " free"]],
-        ) -> tuple[Float[Array, " free"], Float[Array, " free"]]:
-            p_free: Float[Array, " free"]
-            (p_free,) = primals
-            tangent: Float[Array, " free"]
-            (tangent,) = tangents
-            res: Float[Array, " free"] = matvec(p_free)
-            res = jax.lax.stop_gradient(res)
-            return res, jax.lax.stop_gradient(matvec(tangent))
+        # @matvec.defjvp
+        # def matvec_jvp(
+        #     primals: tuple[Float[Array, " free"]],
+        #     tangents: tuple[Float[Array, " free"]],
+        # ) -> tuple[Float[Array, " free"], Float[Array, " free"]]:
+        #     p_free: Float[Array, " free"]
+        #     (p_free,) = primals
+        #     tangent: Float[Array, " free"]
+        #     (tangent,) = tangents
+        #     res: Float[Array, " free"] = matvec(p_free)
+        #     res = jax.lax.stop_gradient(res)
+        #     return res, jax.lax.stop_gradient(matvec(tangent))
 
-        def matvec_fwd(
-            p_free: Float[Array, " free"], y: Float[Array, " free"]
-        ) -> tuple[Float[Array, " free"], None]:
-            return matvec(p_free), None
+        # def matvec_fwd(
+        #     p_free: Float[Array, " free"], y: Float[Array, " free"]
+        # ) -> tuple[Float[Array, " free"], None]:
+        #     return matvec(p_free), None
 
-        def matvec_bwd(res: None, g: Float[Array, " free"]) -> Float[Array, " free"]:
-            return self.model.hess_quad(u_free, g)
+        # def matvec_bwd(res: None, g: Float[Array, " free"]) -> Float[Array, " free"]:
+        #     return self.model.hess_quad(u_free, g)
 
         # matvec.defvjp(matvec_fwd, matvec_bwd)
 

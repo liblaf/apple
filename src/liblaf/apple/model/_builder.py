@@ -53,7 +53,7 @@ class ModelBuilder:
 
     def finalize(self) -> Model:
         dirichlet: Dirichlet = self.dirichlet.finalize()
-        u_full: Full = jnp.zeros((self.dirichlet.n_points,))
+        u_full: Full = jnp.zeros((self.dirichlet.n_points, self.dirichlet.dim))
         u_full = dirichlet.set_dirichlet(u_full)
         return Model(
             dirichlet=dirichlet,

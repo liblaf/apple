@@ -8,6 +8,7 @@ from .jax import (
     JaxModel,
     JaxModelBuilder,
     MassSpring,
+    MassSpringPrestrain,
 )
 from .model import Forward, Model, ModelBuilder
 from .warp import ARAP, Hyperelastic, WarpEnergy, WarpModel, WarpModelBuilder
@@ -23,6 +24,7 @@ __all__ = [
     "JaxModel",
     "JaxModelBuilder",
     "MassSpring",
+    "MassSpringPrestrain",
     "Model",
     "ModelBuilder",
     "WarpEnergy",

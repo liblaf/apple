@@ -24,7 +24,7 @@ from liblaf.peach.optim import (
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.warp import sim as sim_wp
-from liblaf.apple.warp import utils as wp_utils
+from liblaf.apple.warp import utils as wpu
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ class Inverse:
         return activation
 
     def set_activation(self, activation: Float[Array, "c 6"]) -> None:
-        wp.copy(self.energy.params.activation, wp_utils.to_warp(activation, dtype=vec6))
+        wp.copy(self.energy.params.activation, wpu.to_warp(activation, dtype=vec6))
 
     def forward(self) -> Float[Array, "p 3"]:
         objective = Objective(

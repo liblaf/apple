@@ -56,7 +56,9 @@ class ARAP(Hyperelastic):
     @no_type_check
     def first_piola_kirchhoff_stress_func(F: mat33, params: ParamsElem) -> mat33:
         R, _ = math.polar_rv(F)
-        PK1 = params.mu * (F - R)
+        g1 = func.g1(R)  # mat33
+        g2 = func.g2(F)  # mat33
+        PK1 = F.dtype(0.5) * params.mu * (g2 - F.dtype(2.0) * g1)
         return PK1
 
     @override
@@ -64,12 +66,10 @@ class ARAP(Hyperelastic):
     @wp.func
     @no_type_check
     def energy_density_hess_diag_func(
-        F: mat33, dhdX: mat43, params: ParamsElem
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        h4_diag = func.h4_diag(dhdX, lambdas, Q0, Q1, Q2)  # mat43
+        h4_diag = func.h4_diag(dhdX, U, s, V, clamp=clamp)  # mat43
         h5_diag = func.h5_diag(dhdX)  # mat43
         h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
         return F.dtype(0.5) * params.mu * h_diag  # mat43
@@ -79,12 +79,10 @@ class ARAP(Hyperelastic):
     @wp.func
     @no_type_check
     def energy_density_hess_prod_func(
-        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        h4_prod = func.h4_prod(p, dhdX, lambdas, Q0, Q1, Q2)  # mat43
+        h4_prod = func.h4_prod(p, dhdX, U, s, V, clamp=clamp)  # mat43
         h5_prod = func.h5_prod(p, dhdX)  # mat43
         h_prod = -F.dtype(2.0) * h4_prod + h5_prod  # mat43
         return F.dtype(0.5) * params.mu * h_prod  # mat43
@@ -94,12 +92,10 @@ class ARAP(Hyperelastic):
     @wp.func
     @no_type_check
     def energy_density_hess_quad_func(
-        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        h4_quad = func.h4_quad(p, dhdX, lambdas, Q0, Q1, Q2)
-        h5_quad = func.h5_quad(p, dhdX)
+        h4_quad = func.h4_quad(p, dhdX, U, s, V, clamp=clamp)  # float
+        h5_quad = func.h5_quad(p, dhdX)  # float
         h_quad = -F.dtype(2.0) * h4_quad + h5_quad
         return F.dtype(0.5) * params.mu * h_quad

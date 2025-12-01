@@ -13,7 +13,7 @@ from liblaf.peach.optim import PNCG, Objective
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.warp import sim as sim_wp
-from liblaf.apple.warp import utils as wp_utils
+from liblaf.apple.warp import utils as wpu
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Forward:
         return self.model.model_warp.energies["elastic"]  # pyright: ignore[reportReturnType]
 
     def solve(self, act: Float[Array, "c 6"]) -> Float[Array, "p 3"]:
-        wp.copy(self.energy.params.activation, wp_utils.to_warp(act, vec6))
+        wp.copy(self.energy.params.activation, wpu.to_warp(act, vec6))
         objective = Objective(
             fun=self.model.fun,
             grad=self.model.jac,
@@ -85,7 +85,7 @@ def main(cfg: Config) -> None:
     with melon.SeriesWriter(cfg.output) as writer:
         for t in grapes.track(jnp.linspace(0.0, 1.0, num=30)):
             act: Float[Array, "c 6"] = (1.0 - t) * start_act + t * end_act
-            wp.copy(energy.params.activation, wp_utils.to_warp(act, vec6))
+            wp.copy(energy.params.activation, wpu.to_warp(act, vec6))
             u: Float[Array, "p 3"] = forward.solve(act)
             mesh.point_data["Displacement"] = np.asarray(u)
             mesh.cell_data["Activation"] = np.asarray(act)

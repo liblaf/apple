@@ -4,6 +4,7 @@ import warp as wp
 
 from liblaf.apple.warp import math
 
+from . import _misc
 from ._deformation import deformation_gradient_vjp
 
 mat43 = Any
@@ -34,8 +35,12 @@ def h3_diag(dhdX: mat43, g3: mat33) -> mat43:
 
 @wp.func
 @no_type_check
-def h4_diag(dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33) -> mat43:
+def h4_diag(
+    dhdX: mat43, U: mat33, sigma: vec3, V: mat33, *, clamp: bool = True
+) -> mat43:
     """$diag(h_4)$."""
+    lambdas = _misc.lambdas(sigma, clamp=clamp)  # vec3
+    Q0, Q1, Q2 = _misc.Qs(U, V)  # mat33, mat33, mat33
     W0 = deformation_gradient_vjp(dhdX, Q0)  # mat43
     W1 = deformation_gradient_vjp(dhdX, Q1)  # mat43
     W2 = deformation_gradient_vjp(dhdX, Q2)  # mat43

@@ -4,6 +4,7 @@ import warp as wp
 
 from liblaf.apple.warp import math
 
+from . import _misc
 from ._deformation import deformation_gradient_jvp
 
 mat33 = Any
@@ -36,10 +37,12 @@ def h3_quad(p: mat43, dhdX: mat43, g3: mat33) -> scalar:
 @wp.func
 @no_type_check
 def h4_quad(
-    p: mat43, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33
+    p: mat43, dhdX: mat43, U: mat33, sigma: vec3, V: mat33, *, clamp: bool = True
 ) -> scalar:
     """$p^T h_4 p$."""
     dFdx_p = deformation_gradient_jvp(dhdX, p)  # mat33
+    lambdas = _misc.lambdas(sigma, clamp=clamp)  # vec3
+    Q0, Q1, Q2 = _misc.Qs(U, V)
     return (
         lambdas[0] * math.square(wp.ddot(Q0, dFdx_p))
         + lambdas[1] * math.square(wp.ddot(Q1, dFdx_p))

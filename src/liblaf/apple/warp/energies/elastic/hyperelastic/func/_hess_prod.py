@@ -2,6 +2,7 @@ from typing import Any, no_type_check
 
 import warp as wp
 
+from . import _misc
 from ._deformation import deformation_gradient_jvp, deformation_gradient_vjp
 
 mat33 = Any
@@ -36,9 +37,11 @@ def h3_prod(p: mat43, dhdX: mat43, g3: mat33) -> mat43:
 @wp.func
 @no_type_check
 def h4_prod(
-    p: mat43, dhdX: mat43, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33
+    p: mat43, dhdX: mat43, U: mat33, sigma: vec3, V: mat33, *, clamp: bool = True
 ) -> mat43:
     """$h_4 p$."""
+    lambdas = _misc.lambdas(sigma, clamp=clamp)  # vec3
+    Q0, Q1, Q2 = _misc.Qs(U, V)
     dFdxT_q0 = deformation_gradient_vjp(dhdX, Q0)  # mat33
     dFdxT_q1 = deformation_gradient_vjp(dhdX, Q1)  # mat33
     dFdxT_q2 = deformation_gradient_vjp(dhdX, Q2)  # mat33
@@ -54,7 +57,7 @@ def h4_prod(
 def h5_prod(p: mat43, dhdX: mat43) -> mat43:
     """$h_5 p$."""
     dFdx_p = deformation_gradient_jvp(dhdX, p)  # mat33
-    return type(dhdX[0, 0])(2.0) * deformation_gradient_vjp(dhdX, dFdx_p)
+    return p.dtype(2.0) * deformation_gradient_vjp(dhdX, dFdx_p)
 
 
 @wp.func

@@ -39,19 +39,21 @@ class Hyperelastic(WarpEnergy):
 
     clamp_hess_diag: bool = True
     clamp_hess_quad: bool = True
+    clamp_lambda: bool = True
 
     @classmethod
-    def from_pyvista(cls, obj: pv.DataObject) -> Self:
+    def from_pyvista(cls, obj: pv.DataObject, **kwargs) -> Self:
         region = Region.from_pyvista(obj, grad=True)
-        return cls.from_region(region)
+        return cls.from_region(region, **kwargs)
 
     @classmethod
-    def from_region(cls, region: Region) -> Self:
+    def from_region(cls, region: Region, **kwargs) -> Self:
         self: Self = cls(
             cells=utils.to_warp(region.cells, _t.vec4i),
             dhdX=utils.to_warp(region.dhdX, _t.mat43),
             dV=utils.to_warp(region.dV, _t.float_),
             params=cls.make_params(region),
+            **kwargs,
         )
         return self
 
@@ -109,6 +111,21 @@ class Hyperelastic(WarpEnergy):
         )
 
     @override
+    def mixed_derivative_prod(self, u: wp.array, p: wp.array) -> dict[str, wp.array]:
+        if not self.requires_grad:
+            return {}
+        for name in self.requires_grad:
+            getattr(self.params, name).grad.zero_()
+        output: wp.array = wp.zeros_like(u)
+        with wp.Tape() as tape:
+            self.grad(u, output)
+        tape.backward(grads={output: p})
+        outputs: dict[str, wp.array] = {
+            name: getattr(self.params, name).grad for name in self.requires_grad
+        }
+        return outputs
+
+    @override
     def value_and_grad(self, u: Vector, value: Scalar, grad: Vector) -> None:
         wp.launch(
             self.value_and_grad_kernel,
@@ -145,9 +162,9 @@ class Hyperelastic(WarpEnergy):
             u2 = u[vid[2]]  # vec3
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
-            u = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
+            F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
-            output[0] += dV[cid, qid] * self.energy_density_func(u, cell_params)
+            output[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
 
         return kernel  # pyright: ignore[reportReturnType]
 
@@ -160,7 +177,7 @@ class Hyperelastic(WarpEnergy):
             cells: wp.array(dtype=vec4i),
             dhdX: wp.array2d(dtype=mat43),
             dV: wp.array2d(dtype=scalar),
-            params: Any,
+            params: self.Params,
             output: wp.array(dtype=vec3),
         ) -> None:
             cid, qid = wp.tid()
@@ -203,7 +220,7 @@ class Hyperelastic(WarpEnergy):
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
             hess_diag = dV[cid, qid] * self.energy_density_hess_diag_func(
-                F, dhdX[cid, qid], cell_params
+                F, dhdX[cid, qid], cell_params, clamp=wp.static(self.clamp_lambda)
             )  # mat43
             if wp.static(self.clamp_hess_diag):
                 zero_vec3 = wp.vector(length=3, dtype=hess_diag.dtype)
@@ -246,7 +263,11 @@ class Hyperelastic(WarpEnergy):
             p_cell = wp.matrix_from_rows(p0, p1, p2, p3)  # mat43
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
             hess_prod = dV[cid, qid] * self.energy_density_hess_prod_func(
-                F, p_cell, dhdX[cid, qid], cell_params
+                F,
+                p_cell,
+                dhdX[cid, qid],
+                cell_params,
+                clamp=wp.static(self.clamp_lambda),
             )  # mat43
             for i in range(4):
                 output[vid[i]] += hess_prod[i]
@@ -281,7 +302,11 @@ class Hyperelastic(WarpEnergy):
             p_cell = wp.matrix_from_rows(p0, p1, p2, p3)  # mat43
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
             hess_quad = dV[cid, qid] * self.energy_density_hess_quad_func(
-                F, p_cell, dhdX[cid, qid], cell_params
+                F,
+                p_cell,
+                dhdX[cid, qid],
+                cell_params,
+                clamp=wp.static(self.clamp_lambda),
             )
             if wp.static(self.clamp_hess_quad):
                 zero_scalar = hess_quad.dtype(0.0)
@@ -300,8 +325,8 @@ class Hyperelastic(WarpEnergy):
             dhdX: wp.array2d(dtype=mat43),
             dV: wp.array2d(dtype=scalar),
             params: self.Params,
-            fun: wp.array(dtype=scalar),
-            jac: wp.array(dtype=vec3),
+            value: wp.array(dtype=scalar),
+            grad: wp.array(dtype=vec3),
         ) -> None:
             cid, qid = wp.tid()
             vid = cells[cid]  # vec4i
@@ -312,13 +337,13 @@ class Hyperelastic(WarpEnergy):
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
-            fun[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
+            value[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
             PK1 = self.first_piola_kirchhoff_stress_func(F, cell_params)  # mat33
             jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
             )  # mat43
             for i in range(4):
-                jac[vid[i]] += jac_cell[i]
+                grad[vid[i]] += jac_cell[i]
 
         return kernel  # pyright: ignore[reportReturnType]
 
@@ -332,7 +357,7 @@ class Hyperelastic(WarpEnergy):
             dhdX: wp.array2d(dtype=mat43),
             dV: wp.array2d(dtype=scalar),
             params: self.Params,
-            jac: wp.array(dtype=vec3),
+            grad: wp.array(dtype=vec3),
             hess_diag: wp.array(dtype=vec3),
         ) -> None:
             cid, qid = wp.tid()
@@ -349,7 +374,7 @@ class Hyperelastic(WarpEnergy):
                 dhdX[cid, qid], PK1
             )  # mat43
             hess_diag_cell = dV[cid, qid] * self.energy_density_hess_diag_func(
-                F, dhdX[cid, qid], cell_params
+                F, dhdX[cid, qid], cell_params, clamp=wp.static(self.clamp_lambda)
             )  # mat43
             if wp.static(self.clamp_hess_diag):
                 zero_vec3 = wp.vector(length=3, dtype=hess_diag_cell.dtype)
@@ -360,7 +385,7 @@ class Hyperelastic(WarpEnergy):
                     wp.max(hess_diag_cell[3], zero_vec3),
                 )
             for i in range(4):
-                jac[vid[i]] += jac_cell[i]
+                grad[vid[i]] += jac_cell[i]
                 hess_diag[vid[i]] += hess_diag_cell[i]
 
         return kernel  # pyright: ignore[reportReturnType]
@@ -392,7 +417,7 @@ class Hyperelastic(WarpEnergy):
     @wp.func
     @no_type_check
     def energy_density_hess_diag_func(
-        F: mat33, dhdX: mat43, params: ParamsElem
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         raise NotImplementedError
 
@@ -400,7 +425,7 @@ class Hyperelastic(WarpEnergy):
     @wp.func
     @no_type_check
     def energy_density_hess_prod_func(
-        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         raise NotImplementedError
 
@@ -408,6 +433,6 @@ class Hyperelastic(WarpEnergy):
     @wp.func
     @no_type_check
     def energy_density_hess_quad_func(
-        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem
+        F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
         raise NotImplementedError

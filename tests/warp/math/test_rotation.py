@@ -2,7 +2,7 @@ import hypothesis
 import jax.numpy as jnp
 import numpy as np
 import warp as wp
-from jaxtyping import Array, ArrayLike, Float
+from jaxtyping import Array, Float
 
 from liblaf.apple.jax import testing
 from liblaf.apple.warp import math
@@ -10,8 +10,8 @@ from liblaf.apple.warp import math
 ATOL: float = 1e-7
 
 
-@hypothesis.given(testing.random_mat33(max_dims=1))
-def test_svd_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
+@hypothesis.given(testing.matrices((3, 3)))
+def test_svd_rv(F: Float[Array, "batch 3 3"]) -> None:
     F: Float[Array, "batch 3 3"] = jnp.asarray(F)
     F_wp: wp.array = wp.from_jax(F, wp.mat33d)
     U_wp, s_wp, V_wp = wp.map(math.svd_rv, F_wp)  # pyright: ignore[reportAssignmentType, reportGeneralTypeIssues]
@@ -30,8 +30,8 @@ def test_svd_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
     np.testing.assert_allclose(U @ S @ V.mT, F, atol=ATOL)
 
 
-@hypothesis.given(testing.random_mat33(max_dims=1))
-def test_polar_rv(F: Float[ArrayLike, "batch 3 3"]) -> None:
+@hypothesis.given(testing.matrices((3, 3)))
+def test_polar_rv(F: Float[Array, "batch 3 3"]) -> None:
     F: Float[Array, "batch 3 3"] = jnp.asarray(F)
     F_wp: wp.array = wp.from_jax(F, wp.mat33d)
     R_wp: wp.array

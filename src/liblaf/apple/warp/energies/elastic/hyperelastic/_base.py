@@ -1,5 +1,6 @@
 import functools
-from typing import Any, Self, no_type_check, override
+from collections.abc import Sequence
+from typing import Any, Self, no_type_check, overload, override
 
 import pyvista as pv
 import warp as wp
@@ -41,21 +42,53 @@ class Hyperelastic(WarpEnergy):
     clamp_hess_quad: bool = True
     clamp_lambda: bool = True
 
+    @overload
+    @classmethod
+    def from_pyvista(  # pyright: ignore[reportInconsistentOverload]
+        cls,
+        obj: pv.DataObject,
+        *,
+        clamp_hess_diag: bool = True,
+        clamp_hess_quad: bool = True,
+        clamp_lambda: bool = True,
+        requires_grad: Sequence[str] = (),
+        **kwargs,
+    ) -> Self: ...
     @classmethod
     def from_pyvista(cls, obj: pv.DataObject, **kwargs) -> Self:
         region = Region.from_pyvista(obj, grad=True)
         return cls.from_region(region, **kwargs)
 
+    @overload
     @classmethod
-    def from_region(cls, region: Region, **kwargs) -> Self:
+    def from_region(  # pyright: ignore[reportInconsistentOverload]
+        cls,
+        region: Region,
+        *,
+        clamp_hess_diag: bool = True,
+        clamp_hess_quad: bool = True,
+        clamp_lambda: bool = True,
+        requires_grad: Sequence[str] = (),
+        **kwargs,
+    ) -> Self: ...
+    @classmethod
+    def from_region(
+        cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
+    ) -> Self:
         self: Self = cls(
             cells=utils.to_warp(region.cells, _t.vec4i),
             dhdX=utils.to_warp(region.dhdX, _t.mat43),
             dV=utils.to_warp(region.dV, _t.float_),
-            params=cls.make_params(region),
+            params=cls.make_params(region, requires_grad),
+            requires_grad=requires_grad,
             **kwargs,
         )
         return self
+
+    @classmethod
+    @no_type_check
+    def make_params(cls, region: Region, requires_grad: Sequence[str] = ()) -> Params:  # noqa: ARG003
+        return cls.Params()
 
     @property
     def n_cells(self) -> int:
@@ -389,11 +422,6 @@ class Hyperelastic(WarpEnergy):
                 hess_diag[vid[i]] += hess_diag_cell[i]
 
         return kernel  # pyright: ignore[reportReturnType]
-
-    @classmethod
-    @no_type_check
-    def make_params(cls, region: Region) -> Params:  # noqa: ARG003
-        return cls.Params()
 
     @staticmethod
     @wp.func

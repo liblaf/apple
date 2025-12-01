@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import Self
 
 import warp as wp
@@ -12,7 +13,7 @@ type Scalar = Float[wp.array, ""]
 
 @tree.define
 class WarpEnergy(IdMixin):
-    requires_grad: frozenset[str] = tree.field(default=frozenset(), kw_only=True)
+    requires_grad: Sequence[str] = tree.field(default=(), kw_only=True)
 
     def update(self, u: Vector) -> Self:  # noqa: ARG002
         return self

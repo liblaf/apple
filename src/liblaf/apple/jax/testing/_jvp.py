@@ -25,15 +25,15 @@ def check_grad(
 def check_jvp(
     fun: Callable[[Array], Array],
     jvp: Callable[[Array, Array], Array],
-    primals: Array,
+    primal: Array,
     *,
     atol: float = 0.0,
     fraction: float = 0.0,
     rtol: float = 1e-7,
 ) -> None:
-    tangent: Array = _rand_like(primals)
-    actual: Array = jvp(primals, tangent)
-    expected: Array = numeric_jvp(fun, primals, tangent)
+    tangent: Array = _rand_like(primal)
+    actual: Array = jvp(primal, tangent)
+    expected: Array = numeric_jvp(fun, primal, tangent)
     assert_fraction_close(actual, expected, fraction=fraction, atol=atol, rtol=rtol)
 
 

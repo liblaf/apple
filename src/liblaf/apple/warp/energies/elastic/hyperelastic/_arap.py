@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any, no_type_check, override
 
 import warp as wp
@@ -29,9 +30,11 @@ class ARAP(Hyperelastic):
     @override
     @classmethod
     @no_type_check
-    def make_params(cls, region: Region) -> Params:
+    def make_params(cls, region: Region, requires_grad: Iterable[str] = ()) -> Params:
         params = cls.Params()
-        params.mu = utils.to_warp(region.cell_data[MU], _t.float_)
+        params.mu = utils.to_warp(
+            region.cell_data[MU], _t.float_, requires_grad="mu" in requires_grad
+        )
         return params
 
     @override

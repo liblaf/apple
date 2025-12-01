@@ -6,8 +6,10 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 import pyvista as pv
+import warp as wp
 from jaxtyping import Array, ArrayLike, Float, Key
 
+import liblaf.apple.warp.utils as wpu
 from liblaf.apple import Model, ModelBuilder
 from liblaf.apple.constants import MU
 from liblaf.apple.jax import testing
@@ -31,7 +33,12 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
     builder.assign_global_ids(mesh)
 
     elastic = ARAP.from_pyvista(
-        mesh, clamp_hess_diag=False, clamp_hess_quad=False, clamp_lambda=False
+        mesh,
+        clamp_hess_diag=False,
+        clamp_hess_quad=False,
+        clamp_lambda=False,
+        id="elastic",
+        requires_grad=[MU],
     )
     builder.add_energy(elastic)
 
@@ -75,6 +82,31 @@ def test_arap_hess_quad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> N
     actual: Scalar = model.hess_quad(u, p)
     expected: Scalar = jnp.vdot(p, model.hess_prod(u, p))
     np.testing.assert_allclose(actual, expected, rtol=1e-4)
+
+
+@hypothesis.given(seed=testing.seed())
+def test_arap_mixed_derivative_prod(
+    seed: int, model: Model, mesh: pv.UnstructuredGrid
+) -> None:
+    u: Full = _rand_u(seed, mesh)
+    p: Full = _rand_u(seed + 1, mesh)
+
+    def f(q: Array) -> Scalar:
+        energy: ARAP = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
+        wp.copy(energy.params.mu, wpu.to_warp(q))
+        return jnp.vdot(p, model.grad(u))
+
+    def f_jvp(q: Array, dq: Array) -> Scalar:
+        energy: ARAP = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
+        wp.copy(energy.params.mu, wpu.to_warp(q))
+        grads: dict[str, dict[str, Array]] = model.mixed_derivative_prod(u, p)
+        return jnp.vdot(grads["elastic"][MU], dq)
+
+    key: Key = jax.random.key(seed)
+    mu: Float[Array, " cells"] = jax.random.uniform(
+        key, (mesh.n_cells,), minval=1e-6, maxval=1.0
+    )
+    testing.check_jvp(f, f_jvp, mu)
 
 
 @hypothesis.given(seed=testing.seed())

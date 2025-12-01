@@ -1,6 +1,6 @@
 import functools
 from collections.abc import Callable
-from typing import Any
+from typing import Any, overload
 
 import attrs
 import jax
@@ -18,24 +18,29 @@ class Adapter:
     dtype_to: Callable[[Any], Any]
 
 
-def to_warp(
-    arr: Array, dtype: int | tuple[int, int] | WarpDType | None = None
-) -> wp.array:
+@overload
+def to_warp(  # pyright: ignore[reportInconsistentOverload]
+    arr: Array,
+    dtype: int | tuple[int, int] | WarpDType | None = None,
+    *,
+    requires_grad: bool = ...,
+) -> wp.array: ...
+def to_warp(arr: Array, dtype: Any = None, **kwargs) -> wp.array:
     adapter: Adapter = _registry(arr)
     if dtype is None:
-        return adapter.array_from(arr)
+        return adapter.array_from(arr, **kwargs)
     if isinstance(dtype, int):
         length: int = dtype
         return adapter.array_from(
-            arr, dtype=wp.types.vector(length, adapter.dtype_from(arr.dtype))
+            arr, dtype=wp.types.vector(length, adapter.dtype_from(arr.dtype)), **kwargs
         )
     if isinstance(dtype, tuple):
         shape: tuple[int, int] = dtype
         return adapter.array_from(
-            arr, dtype=wp.types.matrix(shape, adapter.dtype_from(arr.dtype))
+            arr, dtype=wp.types.matrix(shape, adapter.dtype_from(arr.dtype)), **kwargs
         )
     return adapter.array_from(
-        arr.astype(adapter.dtype_to(_type_scalar_type(dtype))), dtype
+        arr.astype(adapter.dtype_to(_type_scalar_type(dtype))), dtype, **kwargs
     )
 
 

@@ -10,7 +10,7 @@ from .jax import (
     MassSpring,
     MassSpringPrestrain,
 )
-from .model import Forward, Model, ModelBuilder
+from .model import Forward, Inverse, Model, ModelBuilder
 from .warp import (
     Arap,
     ArapMuscle,
@@ -29,6 +29,7 @@ __all__ = [
     "Forward",
     "Gravity",
     "Hyperelastic",
+    "Inverse",
     "JaxEnergy",
     "JaxModel",
     "JaxModelBuilder",

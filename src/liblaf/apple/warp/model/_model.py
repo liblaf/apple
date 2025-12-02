@@ -1,11 +1,15 @@
+from collections.abc import Mapping
+
 import warp as wp
-from jaxtyping import Float
+from jaxtyping import Array, Float
 from liblaf.peach import tree
 
 from ._energy import WarpEnergy
 
-type Vector = Float[wp.array, " N"]
+type EnergyParams = Mapping[str, Array]
+type ModelParams = Mapping[str, EnergyParams]
 type Scalar = Float[wp.array, ""]
+type Vector = Float[wp.array, " N"]
 
 
 @tree.define
@@ -15,6 +19,10 @@ class WarpModel:
     def update(self, u: Vector) -> None:
         for energy in self.energies.values():
             energy.update(u)
+
+    def update_params(self, params: ModelParams) -> None:
+        for name, energy_params in params.items():
+            self.energies[name].update_params(energy_params)
 
     def fun(self, u: Vector, output: Scalar) -> None:
         for energy in self.energies.values():

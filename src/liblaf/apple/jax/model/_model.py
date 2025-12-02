@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 import equinox as eqx
 import jax.numpy as jnp
 from jaxtyping import Array, Float, Integer
@@ -6,6 +8,7 @@ from liblaf.peach import tree
 from ._energy import JaxEnergy
 
 type Index = Integer[Array, " N"]
+type ModelParams = Mapping[str, Mapping[str, Array]]
 type Scalar = Float[Array, ""]
 type Updates = tuple[Vector, Index]
 type Vector = Float[Array, " N"]
@@ -18,6 +21,10 @@ class JaxModel:
     def update(self, x: Vector) -> None:
         for energy in self.energies.values():
             energy.update(x)
+
+    def update_params(self, params: ModelParams) -> None:
+        for name, energy_params in params.items():
+            self.energies[name].update_params(energy_params)
 
     @eqx.filter_jit
     def fun(self, x: Vector) -> Scalar:
@@ -64,9 +71,7 @@ class JaxModel:
         return output
 
     @eqx.filter_jit
-    def mixed_derivative_prod(
-        self, x: Vector, p: Vector
-    ) -> dict[str, dict[str, Array]]:
+    def mixed_derivative_prod(self, x: Vector, p: Vector) -> ModelParams:
         return {
             name: energy.mixed_derivative_prod(x, p)
             for name, energy in self.energies.items()

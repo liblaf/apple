@@ -1,4 +1,4 @@
-from typing import Self
+from collections.abc import Mapping
 
 import equinox as eqx
 import jax
@@ -8,6 +8,7 @@ from liblaf.peach import tree
 
 from liblaf.apple.utils import IdMixin
 
+type EnergyParams = Mapping[str, Array]
 type Index = Integer[Array, " points"]
 type Scalar = Float[Array, ""]
 type Updates = tuple[Vector, Index]
@@ -19,8 +20,12 @@ class JaxEnergy(IdMixin):
     requires_grad: frozenset[str] = tree.field(default=frozenset(), kw_only=True)
 
     @eqx.filter_jit
-    def update(self, u: Vector) -> Self:  # noqa: ARG002
-        return self
+    def update(self, u: Vector) -> None:
+        pass
+
+    def update_params(self, params: Mapping[str, Array]) -> None:
+        for name, value in params.items():
+            setattr(self, name, value)
 
     def fun(self, u: Vector) -> Scalar:
         raise NotImplementedError
@@ -58,8 +63,9 @@ class JaxEnergy(IdMixin):
         return self.grad(u), self.hess_diag(u)
 
     @eqx.filter_jit
-    def mixed_derivative_prod(self, u: Vector, p: Vector) -> dict[str, Array]:
-        outputs: dict[str, Array] = {}
-        for name in self.requires_grad:
-            outputs[name] = getattr(self, f"mixed_derivative_prod_{name}")(u, p)
+    def mixed_derivative_prod(self, u: Vector, p: Vector) -> EnergyParams:
+        outputs: EnergyParams = {
+            name: getattr(self, f"mixed_derivative_prod_{name}")(u, p)
+            for name in self.requires_grad
+        }
         return outputs

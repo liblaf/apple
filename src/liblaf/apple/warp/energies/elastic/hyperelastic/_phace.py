@@ -2,6 +2,7 @@ from collections.abc import Mapping
 from typing import Any, no_type_check, override
 
 import warp as wp
+from liblaf.peach import tree
 
 import liblaf.apple.warp.types as wpt
 from liblaf.apple.constants import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION
@@ -18,6 +19,7 @@ mat43 = Any
 scalar = Any
 
 
+@tree.define
 class Phace(Hyperelastic):
     @override
     @wp.struct

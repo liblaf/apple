@@ -1,27 +1,24 @@
 import abc
 import logging
 import operator
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
 from liblaf.peach import tree
-from liblaf.peach.linalg import (
-    JaxCompositeSolver,
-    LinearSolver,
-    LinearSystem,
-)
+from liblaf.peach.linalg import JaxCompositeSolver, LinearSolver, LinearSystem
 from liblaf.peach.optim import Optimizer
 
 from ._forward import Forward
 from ._model import Model
 
+type EnergyParams = Mapping[str, Array]
 type Free = Float[Array, " free"]
 type Full = Float[Array, "points dim"]
+type ModelParams = Mapping[str, EnergyParams]
 type Scalar = Float[Array, ""]
-type ModelParams = dict[str, dict[str, Array]]
 
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -30,13 +27,14 @@ logger: logging.Logger = logging.getLogger(__name__)
 @tree.define
 class Inverse(abc.ABC):
     @tree.define
-    class Aux: ...
+    class Aux:
+        pass
 
     @tree.define
-    class Params: ...
+    class Params:
+        pass
 
     forward: Forward
-    params: Params
     adjoint_solver: LinearSolver = tree.field(factory=JaxCompositeSolver)
 
     @property
@@ -45,7 +43,7 @@ class Inverse(abc.ABC):
 
     def fun(self, params: Params) -> tuple[Scalar, Aux]:
         model_params: ModelParams = self.make_params(params)
-        self.set_model_params(model_params)
+        self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
         ic(solution)
         return self.loss(model_params, self.model.u_full)
@@ -54,13 +52,13 @@ class Inverse(abc.ABC):
         model_params: ModelParams
         model_params_vjp: Callable[[ModelParams], Inverse.Params]
         model_params, model_params_vjp = jax.vjp(self.make_params, params)
-        self.set_model_params(model_params)
+        self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
         ic(solution)
         u_full: Full = self.model.u_full
         loss, dLdq, dLdu, _aux = self.loss_and_grad(model_params, u_full)
         p: Full = self.adjoint(u_full, dLdu)
-        prod: dict[str, dict[str, Array]] = self.model.mixed_derivative_prod(u_full, p)
+        prod: ModelParams = self.model.mixed_derivative_prod(u_full, p)
         model_params_grad: ModelParams = jax.tree.map(operator.add, dLdq, prod)
         grad: Inverse.Params = model_params_vjp(model_params_grad)
         return loss, grad
@@ -98,8 +96,4 @@ class Inverse(abc.ABC):
 
     @abc.abstractmethod
     def make_params(self, params: Params) -> ModelParams:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_model_params(self, params: ModelParams) -> None:
         raise NotImplementedError

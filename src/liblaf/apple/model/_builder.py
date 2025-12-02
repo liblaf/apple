@@ -11,8 +11,7 @@ from liblaf.apple.jax.model import (
     JaxEnergy,
     JaxModelBuilder,
 )
-from liblaf.apple.warp.model import WarpModelBuilder
-from liblaf.apple.warp.model._energy import WarpEnergy
+from liblaf.apple.warp.model import WarpEnergy, WarpModelAdapter, WarpModelBuilder
 
 from ._model import Model
 
@@ -59,5 +58,5 @@ class ModelBuilder:
             dirichlet=dirichlet,
             u_full=u_full,
             jax=self.jax.finalize(),
-            warp=self.warp.finalize(),
+            warp=WarpModelAdapter(self.warp.finalize()),
         )

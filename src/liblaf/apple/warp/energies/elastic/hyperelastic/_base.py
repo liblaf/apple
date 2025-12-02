@@ -4,18 +4,20 @@ from typing import Any, Self, no_type_check, overload, override
 
 import pyvista as pv
 import warp as wp
-from jaxtyping import Float, Integer
+from jaxtyping import Array, Float, Integer
 from liblaf.peach import tree
 
+import liblaf.apple.warp.types as wpt
+import liblaf.apple.warp.utils as wpu
 from liblaf.apple.jax.fem import Region
-from liblaf.apple.warp import types as wpt
-from liblaf.apple.warp import utils
 from liblaf.apple.warp.model import WarpEnergy
 
 from . import func
 
 type Vector = Float[wp.array, "points dim"]
 type Scalar = Float[wp.array, "1"]
+type EnergyParams = Mapping[str, Array]
+
 mat33 = Any
 mat43 = Any
 scalar = Any
@@ -76,9 +78,9 @@ class Hyperelastic(WarpEnergy):
         cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
     ) -> Self:
         self: Self = cls(
-            cells=utils.to_warp(region.cells, wpt.vec4i),
-            dhdX=utils.to_warp(region.dhdX, wpt.mat43),
-            dV=utils.to_warp(region.dV, wpt.float_),
+            cells=wpu.to_warp(region.cells, wpt.vec4i),
+            dhdX=wpu.to_warp(region.dhdX, wpt.mat43),
+            dV=wpu.to_warp(region.dV, wpt.float_),
             params=cls.make_params(region, requires_grad),
             requires_grad=requires_grad,
             **kwargs,
@@ -98,6 +100,12 @@ class Hyperelastic(WarpEnergy):
     @property
     def n_quadrature_points(self) -> int:
         return self.dV.shape[1]
+
+    @override
+    def update_params(self, params: EnergyParams) -> None:
+        for name, value in params.items():
+            param: wp.array = getattr(self.params, name)
+            wp.copy(param, wpu.to_warp(value, param.dtype))
 
     @override
     def fun(self, u: Vector, output: Scalar) -> None:

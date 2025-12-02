@@ -1,14 +1,18 @@
+from collections.abc import Container, Mapping
+
 import jax.numpy as jnp
-import warp as wp
+import tlz
 from jaxtyping import Array, ArrayLike, Float
 from liblaf.peach import tree
 
 from liblaf.apple.jax import Dirichlet, JaxModel
-from liblaf.apple.warp import WarpModel
+from liblaf.apple.warp import WarpModelAdapter
 
+type EnergyParams = Mapping[str, Array]
 type Free = Float[Array, " free"]
-type Full = Float[Array, "points dim"]
 type FreeOrFull = Free | Full
+type Full = Float[Array, "points dim"]
+type ModelParams = Mapping[str, EnergyParams]
 type Scalar = Float[Array, ""]
 
 
@@ -17,7 +21,7 @@ class Model:
     dirichlet: Dirichlet
     u_full: Full
     jax: JaxModel
-    warp: WarpModel
+    warp: WarpModelAdapter
 
     @property
     def dim(self) -> int:
@@ -66,36 +70,39 @@ class Model:
             return
         self.u_full = u_full
         self.jax.update(u_full)
-        self.warp.update(self._to_warp(u_full))
+        self.warp.update(u_full)
+
+    def update_params(self, params: ModelParams) -> None:
+        def pick(allowlist: Container[str], d: ModelParams) -> ModelParams:
+            return tlz.keyfilter(lambda name: name in allowlist, d)
+
+        params_jax: ModelParams = pick(self.jax.energies, params)
+        params_warp: ModelParams = pick(self.warp.energies, params)
+        self.jax.update_params(params_jax)
+        self.warp.update_params(params_warp)
 
     def fun(self, u: FreeOrFull) -> Scalar:
         u_full: Full = self.to_full(u)
         self.update(u_full)
         output_jax: Scalar = self.jax.fun(u_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        output_wp: wp.array = wp.zeros((1,), dtype=wp.dtype_from_jax(u_full.dtype))
-        self.warp.fun(u_wp, output_wp)
-        output: Scalar = output_jax + wp.to_jax(output_wp)[0]
+        output_wp: Scalar = self.warp.fun(u_full)
+        output: Scalar = output_jax + output_wp
         return output
 
     def grad(self, u: FreeOrFull) -> FreeOrFull:
         u_full: Full = self.to_full(u)
         self.update(u_full)
         output_jax: Full = self.jax.grad(u_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        output_wp: wp.array = wp.zeros_like(u_wp)
-        self.warp.grad(u_wp, output_wp)
-        output: Full = output_jax + wp.to_jax(output_wp)
+        output_wp: Full = self.warp.grad(u_full)
+        output: Full = output_jax + output_wp
         return self.to_shape_like(output, u)
 
     def hess_diag(self, u: FreeOrFull) -> FreeOrFull:
         u_full: Full = self.to_full(u)
         self.update(u_full)
         output_jax: Full = self.jax.hess_diag(u_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        output_wp: wp.array = wp.zeros_like(u_wp)
-        self.warp.hess_diag(u_wp, output_wp)
-        output: Full = output_jax + wp.to_jax(output_wp)
+        output_wp: Full = self.warp.hess_diag(u_full)
+        output: Full = output_jax + output_wp
         return self.to_shape_like(output, u)
 
     def hess_prod(self, u: FreeOrFull, p: FreeOrFull) -> FreeOrFull:
@@ -103,11 +110,8 @@ class Model:
         self.update(u_full)
         p_full: Full = self.to_full(p, 0.0)
         output_jax: Full = self.jax.hess_prod(u_full, p_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        p_wp: wp.array = self._to_warp(p_full)
-        output_wp: wp.array = wp.zeros_like(u_wp)
-        self.warp.hess_prod(u_wp, p_wp, output_wp)
-        output: Full = output_jax + wp.to_jax(output_wp)
+        output_wp: Full = self.warp.hess_prod(u_full, p_full)
+        output: Full = output_jax + output_wp
         return self.to_shape_like(output, u)
 
     def hess_quad(self, u: FreeOrFull, p: FreeOrFull) -> Scalar:
@@ -115,30 +119,17 @@ class Model:
         self.update(u_full)
         p_full: Full = self.to_full(p, 0.0)
         output_jax: Scalar = self.jax.hess_quad(u_full, p_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        p_wp: wp.array = self._to_warp(p_full)
-        output_wp: wp.array = wp.zeros((1,), dtype=wp.dtype_from_jax(u_full.dtype))
-        self.warp.hess_quad(u_wp, p_wp, output_wp)
-        output: Scalar = output_jax + wp.to_jax(output_wp)[0]
+        output_wp: Scalar = self.warp.hess_quad(u_full, p_full)
+        output: Scalar = output_jax + output_wp
         return output
 
-    def mixed_derivative_prod(
-        self, u: FreeOrFull, p: FreeOrFull
-    ) -> dict[str, dict[str, Array]]:
+    def mixed_derivative_prod(self, u: FreeOrFull, p: FreeOrFull) -> ModelParams:
         u_full: Full = self.to_full(u)
         self.update(u_full)
         p_full: Full = self.to_full(p, 0.0)
-        outputs_jax: dict[str, dict[str, Array]] = self.jax.mixed_derivative_prod(
-            u_full, p_full
-        )
-        u_wp: wp.array = self._to_warp(u_full)
-        p_wp: wp.array = self._to_warp(p_full)
-        outputs_wp: dict[str, dict[str, wp.array]] = self.warp.mixed_derivative_prod(
-            u_wp, p_wp
-        )
-        outputs: dict[str, dict[str, Array]] = outputs_jax
-        for name, output_wp in outputs_wp.items():
-            outputs[name] = {key: wp.to_jax(value) for key, value in output_wp.items()}
+        outputs_jax: ModelParams = self.jax.mixed_derivative_prod(u_full, p_full)
+        outputs_wp: ModelParams = self.warp.mixed_derivative_prod(u_full, p_full)
+        outputs: ModelParams = tlz.merge(outputs_jax, outputs_wp)
         return outputs
 
     def value_and_grad(self, u: FreeOrFull) -> tuple[Scalar, FreeOrFull]:
@@ -147,12 +138,11 @@ class Model:
         value_jax: Scalar
         grad_jax: Full
         value_jax, grad_jax = self.jax.value_and_grad(u_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        value_wp: wp.array = wp.zeros((1,), dtype=wp.dtype_from_jax(u_full.dtype))
-        grad_wp: wp.array = wp.zeros_like(u_wp)
-        self.warp.value_and_grad(u_wp, value_wp, grad_wp)
-        value: Scalar = value_jax + wp.to_jax(value_wp)[0]
-        grad: Full = grad_jax + wp.to_jax(grad_wp)
+        value_wp: Scalar
+        grad_wp: Full
+        value_wp, grad_wp = self.warp.value_and_grad(u_full)
+        value: Scalar = value_jax + value_wp
+        grad: Full = grad_jax + grad_wp
         return value, self.to_shape_like(grad, u)
 
     def grad_and_hess_diag(self, u: FreeOrFull) -> tuple[FreeOrFull, FreeOrFull]:
@@ -161,16 +151,9 @@ class Model:
         grad_jax: Full
         hess_diag_jax: Full
         grad_jax, hess_diag_jax = self.jax.grad_and_hess_diag(u_full)
-        u_wp: wp.array = self._to_warp(u_full)
-        grad_wp: wp.array = wp.zeros_like(u_wp)
-        hess_diag_wp: wp.array = wp.zeros_like(u_wp)
-        self.warp.grad_and_hess_diag(u_wp, grad_wp, hess_diag_wp)
-        grad: Full = grad_jax + wp.to_jax(grad_wp)
-        hess_diag: Full = hess_diag_jax + wp.to_jax(hess_diag_wp)
+        grad_wp: Full
+        hess_diag_wp: Full
+        grad_wp, hess_diag_wp = self.warp.grad_and_hess_diag(u_full)
+        grad: Full = grad_jax + grad_wp
+        hess_diag: Full = hess_diag_jax + hess_diag_wp
         return self.to_shape_like(grad, u), self.to_shape_like(hess_diag, u)
-
-    def _to_warp(self, u_full: Full) -> wp.array:
-        _, dim = u_full.shape
-        return wp.from_jax(
-            u_full, wp.types.vector(dim, wp.dtype_from_jax(u_full.dtype))
-        )

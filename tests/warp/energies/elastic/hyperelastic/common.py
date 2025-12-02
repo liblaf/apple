@@ -82,7 +82,7 @@ def check_mixed_derivative_prod(
     mu: Float[Array, " ..."] = jax.random.uniform(
         key, param_shape, minval=minval, maxval=maxval
     )
-    testing.check_jvp(f, f_jvp, mu, rtol=1e-3)
+    testing.check_jvp(f, f_jvp, mu, atol=1e-17, rtol=1e-3)
 
 
 def check_value_and_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:

@@ -5535,7 +5535,7 @@ wheels = [
 
 [[package]]
 name = "scmrepo"
-version = "3.5.8"
+version = "3.5.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp-retry" },
@@ -5549,9 +5549,9 @@ dependencies = [
     { name = "pygtrie" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/e9/16538891e936c59434e9775cd213a248a040f6af2b8ac32506711c7b57a4/scmrepo-3.5.8.tar.gz", hash = "sha256:9970c6b5f8404ce3f7cced0cacf906a99509b3d2dad0c14bb391c0bc04006179", size = 97567, upload-time = "2025-12-02T07:45:57.658Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/08/03/e0f2aab330b946750bf3281251fc695064a42a7a8326ab5c8a4efec0d0a2/scmrepo-3.5.9.tar.gz", hash = "sha256:8683299fb903325e45ecee1df944ede6f02535cf36ef6dea3302a0b4405d9c98", size = 97478, upload-time = "2025-12-02T15:11:10.992Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/4f/8b7dba1749356cc36591776c0e840cf6dcf1a1840c6d5a07c0ddb732b3c0/scmrepo-3.5.8-py3-none-any.whl", hash = "sha256:24bef62d90f19a9ff2be70407805ca970b86363f1710c0ba169470225ae81aab", size = 74337, upload-time = "2025-12-02T07:45:55.423Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/1e/ba8ffdf3028ca9545b15ad47362e5722ac06fb802817aab2b58082a6fffa/scmrepo-3.5.9-py3-none-any.whl", hash = "sha256:e7d4c86c904ceefb3e67c4eda0d348e4c7b7c78979b342f33fd8e28b813742e9", size = 74280, upload-time = "2025-12-02T15:11:09.783Z" },
 ]
 
 [[package]]

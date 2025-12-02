@@ -9,13 +9,13 @@ import lineax as lx
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
-from liblaf.apple.jax.typing import Scalar, Vector
 from loguru import logger
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax import sim as sim_jax
+from liblaf.apple.jax.typing import Scalar, Vector
 
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.25"
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003

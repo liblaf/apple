@@ -3,12 +3,12 @@ from pathlib import Path
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-from liblaf.apple.jax.typing import Vector
 from loguru import logger
 
 from liblaf import cherries, melon
 from liblaf.apple import sim
 from liblaf.apple.jax import optim
+from liblaf.apple.jax.typing import Vector
 from liblaf.apple.warp import sim as sim_wp
 
 

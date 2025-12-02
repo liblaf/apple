@@ -3,7 +3,11 @@
 
 site_name: "Apple"
 site_url:
-  !ENV [READTHEDOCS_CANONICAL_URL, SITE_URL, "https://liblaf.github.io/apple/"]
+  !ENV [
+    READTHEDOCS_CANONICAL_URL,
+    SITE_URL,
+    "https://liblaf.github.io/apple/",
+  ]
 site_author: "liblaf"
 repo_name: "liblaf/apple"
 repo_url: "https://github.com/liblaf/apple"

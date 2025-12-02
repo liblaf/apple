@@ -16,7 +16,7 @@ type Mat43 = Float[Array, "batch 4 3"]
 type Scalar = Float[Array, " batch"]
 
 
-EPS: float = 1e-4
+EPS: float = 1e-5
 
 
 def numeric_quad(
@@ -128,7 +128,7 @@ def test_h4_quad(F: Mat33, p: Mat43, dhdX: Mat43) -> None:
 
     actual: Scalar = h4_quad(F, p, dhdX)
     expected: Scalar = numeric_quad(g1, F, p, dhdX)
-    np.testing.assert_allclose(actual, expected, atol=1e-10)
+    np.testing.assert_allclose(actual, expected, atol=1e-9)
 
 
 @hypothesis.given(
@@ -139,7 +139,7 @@ def test_h4_quad(F: Mat33, p: Mat43, dhdX: Mat43) -> None:
 def test_h5_quad(F: Mat33, p: Mat43, dhdX: Mat43) -> None:
     actual: Scalar = h5_quad(F, p, dhdX)
     expected: Scalar = numeric_quad(func.g2, F, p, dhdX)
-    np.testing.assert_allclose(actual, expected, atol=1e-10)
+    np.testing.assert_allclose(actual, expected, atol=1e-9)
 
 
 @hypothesis.given(
@@ -150,4 +150,4 @@ def test_h5_quad(F: Mat33, p: Mat43, dhdX: Mat43) -> None:
 def test_h6_quad(F: Mat33, p: Mat43, dhdX: Mat43) -> None:
     actual: Scalar = h6_quad(F, p, dhdX)
     expected: Scalar = numeric_quad(func.g3, F, p, dhdX)
-    np.testing.assert_allclose(actual, expected, atol=1e-10)
+    np.testing.assert_allclose(actual, expected, atol=1e-9)

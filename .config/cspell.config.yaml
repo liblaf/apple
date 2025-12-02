@@ -40,7 +40,6 @@ words:
   - felupe
   - fieldz
   - finfo
-  - frobenius
   - fxaa
   - getattr
   - gmres
@@ -57,7 +56,6 @@ words:
   - jaxtyping
   - koiter
   - labii
-  - lamé's
   - liblaf
   - lineax
   - matmul
@@ -97,7 +95,8 @@ words:
   - pytree
   - pyvenv
   - pyvista
-  - rosen
+  - rmatvec
+  - rpreconditioner
   - rtol
   - scipy
   - sdist
@@ -108,8 +107,8 @@ words:
   - sympy
   - synchronizable
   - tombi
+  - toolz
   - trimesh
-  - unflatten
   - unshallow
   - unvec
   - uuidgen
@@ -118,7 +117,6 @@ words:
   - vecdot
   - venv
   - virtualenv
-  - vmap
   - xlabel
   - ylabel
   - zygomaticus

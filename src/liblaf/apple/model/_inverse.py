@@ -8,7 +8,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
 from liblaf.peach import tree
-from liblaf.peach.linalg import JaxCompositeSolver, LinearSolver, LinearSystem
+from liblaf.peach.linalg import CompositeSolver, LinearSolver, LinearSystem
 from liblaf.peach.optim import Optimizer
 
 from ._forward import Forward
@@ -35,7 +35,7 @@ class Inverse(abc.ABC):
         pass
 
     forward: Forward
-    adjoint_solver: LinearSolver = tree.field(factory=JaxCompositeSolver)
+    adjoint_solver: LinearSolver = tree.field(factory=CompositeSolver, kw_only=True)
 
     @property
     def model(self) -> Model:
@@ -45,8 +45,9 @@ class Inverse(abc.ABC):
         model_params: ModelParams = self.make_params(params)
         self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
-        ic(solution)
-        return self.loss(model_params, self.model.u_full)
+        if not solution.success:
+            logger.warning("Forward fail: %r", solution)
+        return self.loss(self.model.u_full, model_params)
 
     def value_and_grad(self, params: Params) -> tuple[Scalar, Params]:
         model_params: ModelParams
@@ -54,9 +55,10 @@ class Inverse(abc.ABC):
         model_params, model_params_vjp = jax.vjp(self.make_params, params)
         self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
-        ic(solution)
+        if not solution.success:
+            logger.warning("Forward fail: %r", solution)
         u_full: Full = self.model.u_full
-        loss, dLdq, dLdu, _aux = self.loss_and_grad(model_params, u_full)
+        loss, dLdu, dLdq, _aux = self.loss_and_grad(u_full, model_params)
         p: Full = self.adjoint(u_full, dLdu)
         prod: ModelParams = self.model.mixed_derivative_prod(u_full, p)
         model_params_grad: ModelParams = jax.tree.map(operator.add, dLdq, prod)
@@ -66,33 +68,43 @@ class Inverse(abc.ABC):
     def adjoint(self, u: Full, dLdu: Full) -> Full:
         u_free: Free = self.model.to_free(u)
         preconditioner: Free = jnp.reciprocal(self.model.hess_diag(u_free))
+
+        def matvec(p_free: Free) -> Free:
+            return self.model.hess_prod(u_free, p_free)
+
+        def preconditioner_fn(p_free: Free) -> Free:
+            return preconditioner * p_free
+
         system = LinearSystem(
-            lambda p_free: self.model.hess_prod(u_free, p_free),
+            matvec=matvec,
             b=-self.model.to_free(dLdu),
-            preconditioner=lambda p_free: preconditioner * p_free,
+            rmatvec=matvec,
+            preconditioner=preconditioner_fn,
+            rpreconditioner=preconditioner_fn,
         )
         solution: LinearSolver.Solution = self.adjoint_solver.solve(
             system, jnp.zeros_like(u_free)
         )
-        ic(solution)
+        if not solution.success:
+            logger.warning("Adjoint fail: %r", solution)
         return self.model.to_full(solution.params, 0.0)
 
     @abc.abstractmethod
-    def loss(self, params: ModelParams, u: Full) -> tuple[Scalar, Aux]:
+    def loss(self, u: Full, params: ModelParams) -> tuple[Scalar, Aux]:
         raise NotImplementedError
 
     @eqx.filter_jit
     def loss_and_grad(
-        self, params: ModelParams, u: Full
-    ) -> tuple[Scalar, ModelParams, Full, Aux]:
+        self, u: Full, params: ModelParams
+    ) -> tuple[Scalar, Full, ModelParams, Aux]:
         loss: Scalar
         aux: Inverse.Aux
         dLdu: Full
         dLdq: ModelParams
-        (loss, aux), (dLdq, dLdu) = jax.value_and_grad(
+        (loss, aux), (dLdu, dLdq) = jax.value_and_grad(
             self.loss, argnums=(0, 1), has_aux=True
-        )(params, u)
-        return loss, dLdq, dLdu, aux
+        )(u, params)
+        return loss, dLdu, dLdq, aux
 
     @abc.abstractmethod
     def make_params(self, params: Params) -> ModelParams:

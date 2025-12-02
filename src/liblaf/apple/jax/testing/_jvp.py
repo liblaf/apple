@@ -16,6 +16,7 @@ def check_grad(
     fraction: float = 0.0,
     rtol: float = 1e-7,
 ) -> None:
+    __tracebackhide__ = True
     tangent: Array = _rand_like(x)
     actual: Array = jnp.vdot(grad(x), tangent)
     expected: Array = numeric_jvp(fun, x, tangent)
@@ -31,6 +32,7 @@ def check_jvp(
     fraction: float = 0.0,
     rtol: float = 1e-7,
 ) -> None:
+    __tracebackhide__ = True
     tangent: Array = _rand_like(primal)
     actual: Array = jvp(primal, tangent)
     expected: Array = numeric_jvp(fun, primal, tangent)

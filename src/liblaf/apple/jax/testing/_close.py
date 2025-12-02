@@ -10,6 +10,7 @@ def assert_fraction_close(
     fraction: float = 0.01,
     rtol: float = 1e-7,
 ) -> None:
+    __tracebackhide__ = True
     actual: np.ndarray = np.asarray(actual)
     expected: np.ndarray = np.asarray(expected)
     diff: np.ndarray = np.abs(actual - expected)

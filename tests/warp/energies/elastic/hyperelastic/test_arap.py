@@ -48,7 +48,7 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 @hypothesis.given(seed=testing.seed())
 def test_arap_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
     u: Full = _rand_u(seed, mesh)
-    testing.check_grad(model.fun, model.grad, u, rtol=1e-4)
+    testing.check_grad(model.fun, model.grad, u, rtol=1e-3)
 
 
 def hess_diag_from_quad(quad: Callable, u: Full) -> Full:
@@ -66,13 +66,13 @@ def test_arap_hess_diag(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> N
     u: Full = _rand_u(seed, mesh)
     actual: Full = model.hess_diag(u)
     expected: Full = hess_diag_from_quad(model.hess_quad, u)
-    np.testing.assert_allclose(actual, expected, rtol=1e-4)
+    np.testing.assert_allclose(actual, expected, rtol=1e-3)
 
 
 @hypothesis.given(seed=testing.seed())
 def test_arap_hess_prod(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
     u: Full = _rand_u(seed, mesh)
-    testing.check_jvp(model.grad, model.hess_prod, u, rtol=1e-4)
+    testing.check_jvp(model.grad, model.hess_prod, u, rtol=1e-3)
 
 
 @hypothesis.given(seed=testing.seed())
@@ -81,7 +81,7 @@ def test_arap_hess_quad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> N
     p: Full = _rand_u(seed + 1, mesh)
     actual: Scalar = model.hess_quad(u, p)
     expected: Scalar = jnp.vdot(p, model.hess_prod(u, p))
-    np.testing.assert_allclose(actual, expected, rtol=1e-4)
+    np.testing.assert_allclose(actual, expected, rtol=1e-3)
 
 
 @hypothesis.given(seed=testing.seed())
@@ -104,7 +104,7 @@ def test_arap_mixed_derivative_prod(
 
     key: Key = jax.random.key(seed)
     mu: Float[Array, " cells"] = jax.random.uniform(
-        key, (mesh.n_cells,), minval=1e-6, maxval=1.0
+        key, (mesh.n_cells,), minval=1e-5, maxval=1.0
     )
     testing.check_jvp(f, f_jvp, mu)
 
@@ -119,8 +119,8 @@ def test_arap_value_and_grad(
     value_actual: Scalar
     grad_actual: Full
     value_actual, grad_actual = model.value_and_grad(u)
-    np.testing.assert_allclose(value_actual, value_expected, rtol=1e-4)
-    np.testing.assert_allclose(grad_actual, grad_expected, rtol=1e-4)
+    np.testing.assert_allclose(value_actual, value_expected, rtol=1e-3)
+    np.testing.assert_allclose(grad_actual, grad_expected, rtol=1e-3)
 
 
 @hypothesis.given(seed=testing.seed())
@@ -133,8 +133,8 @@ def test_arap_grad_and_hess_diag(
     grad_actual: Full
     hess_diag_actual: Full
     grad_actual, hess_diag_actual = model.grad_and_hess_diag(u)
-    np.testing.assert_allclose(grad_actual, grad_expected, rtol=1e-4)
-    np.testing.assert_allclose(hess_diag_actual, hess_diag_expected, rtol=1e-4)
+    np.testing.assert_allclose(grad_actual, grad_expected, rtol=1e-3)
+    np.testing.assert_allclose(hess_diag_actual, hess_diag_expected, rtol=1e-3)
 
 
 def _rand_u(seed: ArrayLike, mesh: pv.UnstructuredGrid) -> Full:

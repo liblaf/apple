@@ -32,9 +32,12 @@ class ARAP(Hyperelastic):
     @no_type_check
     def make_params(cls, region: Region, requires_grad: Iterable[str] = ()) -> Params:
         params = cls.Params()
-        params.mu = utils.to_warp(
-            region.cell_data[MU], _t.float_, requires_grad="mu" in requires_grad
-        )
+        fields: dict[str, wp.array] = {}
+        fields["mu"] = utils.to_warp(region.cell_data[MU], _t.float_)
+        for name in requires_grad:
+            fields[name].requires_grad = True
+        for key, value in fields.items():
+            setattr(params, key, value)
         return params
 
     @override
@@ -61,7 +64,7 @@ class ARAP(Hyperelastic):
         R, _ = math.polar_rv(F)
         g1 = func.g1(R)  # mat33
         g2 = func.g2(F)  # mat33
-        PK1 = F.dtype(0.5) * params.mu * (g2 - F.dtype(2.0) * g1)
+        PK1 = F.dtype(0.5) * params.mu * (g2 - F.dtype(2.0) * g1)  # mat33
         return PK1
 
     @override

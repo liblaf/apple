@@ -117,7 +117,7 @@ reportInvalidTypeForm = "none"
 [tool.pytest]
 addopts = [
   "--doctest-modules",
-  "--hypothesis-show-statistics",
+  "--hypothesis-explain",
   "--import-mode=importlib",
   "--showlocals"
 ]

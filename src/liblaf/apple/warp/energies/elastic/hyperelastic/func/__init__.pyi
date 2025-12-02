@@ -9,13 +9,14 @@ from ._hess_diag import h1_diag, h2_diag, h3_diag, h4_diag, h5_diag, h6_diag
 from ._hess_prod import h1_prod, h2_prod, h3_prod, h4_prod, h5_prod, h6_prod
 from ._hess_quad import h1_quad, h2_quad, h3_quad, h4_quad, h5_quad, h6_quad
 from ._identities import I1, I2, I3
-from ._misc import Qs, lambdas
+from ._misc import Qs, dRdF_vjp, lambdas, make_activation_mat33
 
 __all__ = [
     "I1",
     "I2",
     "I3",
     "Qs",
+    "dRdF_vjp",
     "deformation_gradient",
     "deformation_gradient_jvp",
     "deformation_gradient_vjp",
@@ -42,4 +43,5 @@ __all__ = [
     "h6_prod",
     "h6_quad",
     "lambdas",
+    "make_activation_mat33",
 ]

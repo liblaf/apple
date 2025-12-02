@@ -4,9 +4,9 @@ import pytest
 import pyvista as pv
 
 from liblaf.apple import Model, ModelBuilder
-from liblaf.apple.constants import MU
+from liblaf.apple.constants import ACTIVATION, MU
 from liblaf.apple.jax import testing
-from liblaf.apple.warp.energies.elastic.hyperelastic import Arap
+from liblaf.apple.warp.energies.elastic.hyperelastic import ArapMuscle
 
 from . import common
 
@@ -15,6 +15,7 @@ from . import common
 def mesh() -> pv.UnstructuredGrid:
     mesh: pv.UnstructuredGrid = pv.examples.cells.Tetrahedron()  # pyright: ignore[reportAssignmentType]
     rng: np.random.Generator = np.random.default_rng()
+    mesh.cell_data[ACTIVATION] = rng.uniform(-1.0, 1.0, (mesh.n_cells, 6))
     mesh.cell_data[MU] = rng.uniform(0.0, 1.0, (mesh.n_cells,))
     return mesh
 
@@ -25,13 +26,13 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 
     builder.assign_global_ids(mesh)
 
-    elastic = Arap.from_pyvista(
+    elastic = ArapMuscle.from_pyvista(
         mesh,
         clamp_hess_diag=False,
         clamp_hess_quad=False,
         clamp_lambda=False,
         id="elastic",
-        requires_grad=["mu"],
+        requires_grad=["activation", "mu"],
     )
     # register kernels to avoid recompilation
     _ = elastic.fun_kernel
@@ -46,27 +47,52 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+def test_arap_muscle_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
     common.check_grad(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_hess_diag(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+def test_arap_muscle_hess_diag(
+    seed: int, model: Model, mesh: pv.UnstructuredGrid
+) -> None:
     common.check_hess_diag(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_hess_prod(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+def test_arap_muscle_hess_prod(
+    seed: int, model: Model, mesh: pv.UnstructuredGrid
+) -> None:
+    # Hessians of ArapMuscle are approximate
+    # We set activations to zero to pass `hess_prod` tests
+    energy: ArapMuscle = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
+    energy.params.activation.zero_()
     common.check_hess_prod(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_hess_quad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+def test_arap_muscle_hess_quad(
+    seed: int, model: Model, mesh: pv.UnstructuredGrid
+) -> None:
     common.check_hess_quad(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_mixed_derivative_prod(
+def test_arap_muscle_mixed_derivative_prod_activation(
+    seed: int, model: Model, mesh: pv.UnstructuredGrid
+) -> None:
+    common.check_mixed_derivative_prod(
+        seed,
+        model,
+        mesh,
+        param_name="activation",
+        param_shape=(mesh.n_cells, 6),
+        minval=-1.0,
+        maxval=1.0,
+    )
+
+
+@hypothesis.given(seed=testing.seed())
+def test_arap_muscle_mixed_derivative_prod_mu(
     seed: int, model: Model, mesh: pv.UnstructuredGrid
 ) -> None:
     common.check_mixed_derivative_prod(
@@ -81,14 +107,14 @@ def test_arap_mixed_derivative_prod(
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_value_and_grad(
+def test_arap_muscle_value_and_grad(
     seed: int, model: Model, mesh: pv.UnstructuredGrid
 ) -> None:
     common.check_value_and_grad(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
-def test_arap_grad_and_hess_diag(
+def test_arap_muscle_grad_and_hess_diag(
     seed: int, model: Model, mesh: pv.UnstructuredGrid
 ) -> None:
     common.check_grad_and_hess_diag(seed, model, mesh)

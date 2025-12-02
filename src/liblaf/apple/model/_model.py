@@ -35,6 +35,14 @@ class Model:
     def n_points(self) -> int:
         return self.dirichlet.n_points
 
+    @property
+    def u_free(self) -> Free:
+        return self.to_free(self.u_full)
+
+    @u_free.setter
+    def u_free(self, value: Free) -> None:
+        self.u_full = self.to_full(value)
+
     def to_free(self, u: FreeOrFull) -> Free:
         if u.size == self.n_free:
             return u.reshape((self.n_free,))

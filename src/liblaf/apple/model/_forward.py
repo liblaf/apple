@@ -22,9 +22,8 @@ class Forward:
             value_and_grad=self.model.value_and_grad,
             grad_and_hess_diag=self.model.grad_and_hess_diag,
         )
-        u_free: Free = self.model.to_free(self.model.u_full)
         solution: Optimizer.Solution = self.optimizer.minimize(
-            objective, u_free, callback=callback
+            objective, self.model.u_free, callback=callback
         )
-        self.model.update(solution.params)
+        self.model.u_free = solution.params
         return solution

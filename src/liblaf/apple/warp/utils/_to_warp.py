@@ -20,12 +20,12 @@ class Adapter:
 
 @overload
 def to_warp(  # pyright: ignore[reportInconsistentOverload]
-    arr: Array,
+    arr: np.ndarray | Array,
     dtype: int | tuple[int, int] | WarpDType | None = None,
     *,
     requires_grad: bool = ...,
 ) -> wp.array: ...
-def to_warp(arr: Array, dtype: Any = None, **kwargs) -> wp.array:
+def to_warp(arr: np.ndarray | Array, dtype: Any = None, **kwargs) -> wp.array:
     adapter: Adapter = _registry(arr)
     if dtype is None:
         return adapter.array_from(arr, **kwargs)

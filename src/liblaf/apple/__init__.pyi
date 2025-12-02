@@ -1,5 +1,5 @@
 from . import jax, model, utils, warp
-from ._version import __version__, __version_tuple__, version, version_tuple
+from ._version import __version__, __version_tuple__
 from .jax import (
     Dirichlet,
     DirichletBuilder,
@@ -11,10 +11,19 @@ from .jax import (
     MassSpringPrestrain,
 )
 from .model import Forward, Model, ModelBuilder
-from .warp import ARAP, Hyperelastic, WarpEnergy, WarpModel, WarpModelBuilder
+from .warp import (
+    Arap,
+    ArapMuscle,
+    Hyperelastic,
+    Phace,
+    WarpEnergy,
+    WarpModel,
+    WarpModelBuilder,
+)
 
 __all__ = [
-    "ARAP",
+    "Arap",
+    "ArapMuscle",
     "Dirichlet",
     "DirichletBuilder",
     "Forward",
@@ -27,6 +36,7 @@ __all__ = [
     "MassSpringPrestrain",
     "Model",
     "ModelBuilder",
+    "Phace",
     "WarpEnergy",
     "WarpModel",
     "WarpModelBuilder",
@@ -35,7 +45,5 @@ __all__ = [
     "jax",
     "model",
     "utils",
-    "version",
-    "version_tuple",
     "warp",
 ]

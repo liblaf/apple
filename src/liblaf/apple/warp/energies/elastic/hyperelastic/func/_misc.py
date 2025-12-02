@@ -8,6 +8,15 @@ mat33 = Any
 
 
 @wp.func
+def dRdF_vjp(M: mat33, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33) -> mat33:
+    return (
+        lambdas[0] * wp.ddot(M, Q0) * Q0
+        + lambdas[1] * wp.ddot(M, Q1) * Q1
+        + lambdas[2] * wp.ddot(M, Q2) * Q2
+    )
+
+
+@wp.func
 @no_type_check
 def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
     _2 = sigma.dtype(2.0)

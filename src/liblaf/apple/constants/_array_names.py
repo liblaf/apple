@@ -1,12 +1,10 @@
 # PyVista / VTK
 LENGTH = "Length"
 
-
 # common
-DIRICHLET_MASK = "DirichletMask"
+DIRICHLET_MASK = "IsDirichlet"
 DIRICHLET_VALUE = "DirichletValue"
 POINT_ID = "PointId"
-
 
 # material properties
 ACTIVATION = "Activation"

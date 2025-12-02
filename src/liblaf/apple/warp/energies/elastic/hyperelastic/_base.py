@@ -1,5 +1,5 @@
 import functools
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any, Self, no_type_check, overload, override
 
 import pyvista as pv
@@ -8,7 +8,7 @@ from jaxtyping import Float, Integer
 from liblaf.peach import tree
 
 from liblaf.apple.jax.fem import Region
-from liblaf.apple.warp import types as _t
+from liblaf.apple.warp import types as wpt
 from liblaf.apple.warp import utils
 from liblaf.apple.warp.model import WarpEnergy
 
@@ -76,9 +76,9 @@ class Hyperelastic(WarpEnergy):
         cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
     ) -> Self:
         self: Self = cls(
-            cells=utils.to_warp(region.cells, _t.vec4i),
-            dhdX=utils.to_warp(region.dhdX, _t.mat43),
-            dV=utils.to_warp(region.dV, _t.float_),
+            cells=utils.to_warp(region.cells, wpt.vec4i),
+            dhdX=utils.to_warp(region.dhdX, wpt.mat43),
+            dV=utils.to_warp(region.dV, wpt.float_),
             params=cls.make_params(region, requires_grad),
             requires_grad=requires_grad,
             **kwargs,
@@ -87,8 +87,9 @@ class Hyperelastic(WarpEnergy):
 
     @classmethod
     @no_type_check
-    def make_params(cls, region: Region, requires_grad: Sequence[str] = ()) -> Params:  # noqa: ARG003
-        return cls.Params()
+    def make_params(cls, region: Region, requires_grad: Sequence[str] = ()) -> Params:
+        fields: Mapping[str, wp.array] = cls._params_fields_from_region(region)
+        return cls._params_from_fields(fields, requires_grad)
 
     @property
     def n_cells(self) -> int:
@@ -222,7 +223,9 @@ class Hyperelastic(WarpEnergy):
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
-            PK1 = self.first_piola_kirchhoff_stress_func(F, cell_params)  # mat33
+            PK1 = self.first_piola_kirchhoff_stress_func(
+                F, cell_params, clamp=wp.static(self.clamp_lambda)
+            )  # mat33
             grad = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
             )  # mat43
@@ -371,7 +374,9 @@ class Hyperelastic(WarpEnergy):
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
             value[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
-            PK1 = self.first_piola_kirchhoff_stress_func(F, cell_params)  # mat33
+            PK1 = self.first_piola_kirchhoff_stress_func(
+                F, cell_params, clamp=wp.static(self.clamp_lambda)
+            )  # mat33
             jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
             )  # mat43
@@ -402,7 +407,9 @@ class Hyperelastic(WarpEnergy):
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
-            PK1 = self.first_piola_kirchhoff_stress_func(F, cell_params)  # mat33
+            PK1 = self.first_piola_kirchhoff_stress_func(
+                F, cell_params, clamp=wp.static(self.clamp_lambda)
+            )  # mat33
             jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
             )  # mat43
@@ -424,43 +431,61 @@ class Hyperelastic(WarpEnergy):
         return kernel  # pyright: ignore[reportReturnType]
 
     @staticmethod
-    @wp.func
     @no_type_check
+    @wp.func
     def get_cell_params(params: Params, cid: int) -> ParamsElem:
         raise NotImplementedError
 
     @staticmethod
-    @wp.func
     @no_type_check
+    @wp.func
     def energy_density_func(F: mat33, params: ParamsElem) -> scalar:
         raise NotImplementedError
 
     @staticmethod
-    @wp.func
     @no_type_check
-    def first_piola_kirchhoff_stress_func(F: mat33, params: ParamsElem) -> mat33:
+    @wp.func
+    def first_piola_kirchhoff_stress_func(
+        F: mat33, params: ParamsElem, *, clamp: bool = True
+    ) -> mat33:
         raise NotImplementedError
 
     @staticmethod
-    @wp.func
     @no_type_check
+    @wp.func
     def energy_density_hess_diag_func(
         F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         raise NotImplementedError
 
     @staticmethod
-    @wp.func
     @no_type_check
+    @wp.func
     def energy_density_hess_prod_func(
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> mat33:
         raise NotImplementedError
 
     @staticmethod
-    @wp.func
     @no_type_check
+    @wp.func
     def energy_density_hess_quad_func(
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
         raise NotImplementedError
+
+    @classmethod
+    def _params_fields_from_region(cls, region: Region) -> Mapping[str, wp.array]:  # noqa: ARG003
+        return {}
+
+    @classmethod
+    @no_type_check
+    def _params_from_fields(
+        cls, fields: Mapping[str, wp.array], requires_grad: Sequence[str]
+    ) -> Params:
+        for name in requires_grad:
+            fields[name].requires_grad = True
+        params = cls.Params()
+        for key, value in fields.items():
+            setattr(params, key, value)
+        return params

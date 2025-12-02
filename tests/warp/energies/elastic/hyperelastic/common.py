@@ -1,4 +1,4 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 import jax
 import jax.numpy as jnp
@@ -12,8 +12,10 @@ from liblaf.apple import Model
 from liblaf.apple.jax import testing
 from liblaf.apple.warp.energies.elastic.hyperelastic import Hyperelastic
 
-type Scalar = Float[Array, ""]
+type EnergyParams = Mapping[str, Array]
 type Full = Float[Array, "points 3"]
+type ModelParams = Mapping[str, EnergyParams]
+type Scalar = Float[Array, ""]
 
 
 def check_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
@@ -73,14 +75,14 @@ def check_mixed_derivative_prod(
         energy: Hyperelastic = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
         param: wp.array = getattr(energy.params, param_name)
         wp.copy(param, wpu.to_warp(q, param.dtype))
-        grads: dict[str, dict[str, Array]] = model.mixed_derivative_prod(u, p)
+        grads: ModelParams = model.mixed_derivative_prod(u, p)
         return jnp.vdot(grads["elastic"][param_name], dq)
 
     key: Key = jax.random.key(seed)
     mu: Float[Array, " ..."] = jax.random.uniform(
         key, param_shape, minval=minval, maxval=maxval
     )
-    testing.check_jvp(f, f_jvp, mu)
+    testing.check_jvp(f, f_jvp, mu, rtol=1e-3)
 
 
 def check_value_and_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:

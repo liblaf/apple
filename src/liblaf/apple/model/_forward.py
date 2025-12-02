@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 from jaxtyping import Array, Float
 from liblaf.peach import tree
 from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer
@@ -5,12 +7,21 @@ from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer
 from ._model import Model
 
 type Free = Float[Array, " free"]
+type EnergyParams = Mapping[str, Array]
+type ModelParams = Mapping[str, EnergyParams]
 
 
 @tree.define
 class Forward:
     model: Model
     optimizer: Optimizer = tree.field(factory=PNCG)
+
+    @property
+    def u_full(self) -> Float[Array, "points dim"]:
+        return self.model.u_full
+
+    def update_params(self, params: ModelParams) -> None:
+        self.model.update_params(params)
 
     def step(self, callback: Callback | None = None) -> Optimizer.Solution:
         objective = Objective(

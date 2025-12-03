@@ -231,8 +231,9 @@ class Hyperelastic(WarpEnergy):
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
-                F, cell_params, clamp=wp.static(self.clamp_lambda)
+                F, cell_params, clamp=False
             )  # mat33
             grad = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
@@ -382,8 +383,9 @@ class Hyperelastic(WarpEnergy):
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
             value[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
+            # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
-                F, cell_params, clamp=wp.static(self.clamp_lambda)
+                F, cell_params, clamp=False
             )  # mat33
             jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
@@ -415,8 +417,9 @@ class Hyperelastic(WarpEnergy):
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
             cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
-                F, cell_params, clamp=wp.static(self.clamp_lambda)
+                F, cell_params, clamp=False
             )  # mat33
             jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
@@ -454,7 +457,7 @@ class Hyperelastic(WarpEnergy):
     @no_type_check
     @wp.func
     def first_piola_kirchhoff_stress_func(
-        F: mat33, params: ParamsElem, *, clamp: bool = True
+        F: mat33, params: ParamsElem, *, clamp: bool = False
     ) -> mat33:
         raise NotImplementedError
 

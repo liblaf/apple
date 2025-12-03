@@ -76,7 +76,7 @@ class Phace(Hyperelastic):
     @no_type_check
     @wp.func
     def first_piola_kirchhoff_stress_func(
-        F: mat33, params: ParamsElem, *, clamp: bool = True
+        F: mat33, params: ParamsElem, *, clamp: bool = False
     ) -> mat33:
         _1 = F.dtype(1.0)
         _2 = F.dtype(2.0)

@@ -50,7 +50,7 @@ class Arap(Hyperelastic):
     @no_type_check
     @wp.func
     def first_piola_kirchhoff_stress_func(
-        F: mat33, params: ParamsElem, *, clamp: bool = True
+        F: mat33, params: ParamsElem, *, clamp: bool = False
     ) -> mat33:
         R, _ = math.polar_rv(F)
         g1 = func.g1(R)  # mat33

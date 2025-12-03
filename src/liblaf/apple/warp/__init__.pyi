@@ -1,9 +1,10 @@
 from . import energies, math, model, types
-from .energies import Arap, ArapMuscle, Hyperelastic, Phace
+from .energies import Arap, ArapActive, ArapMuscle, Hyperelastic, Phace
 from .model import WarpEnergy, WarpModel, WarpModelAdapter, WarpModelBuilder
 
 __all__ = [
     "Arap",
+    "ArapActive",
     "ArapMuscle",
     "Hyperelastic",
     "Phace",

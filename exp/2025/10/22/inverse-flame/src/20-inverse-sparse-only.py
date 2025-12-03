@@ -11,7 +11,7 @@ import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach import tree
-from liblaf.peach.linalg import JaxCG, JaxCompositeSolver, JaxGMRES, LinearSystem
+from liblaf.peach.linalg import JaxCG, JaxGMRES, LinearSystem
 from liblaf.peach.optim import (
     PNCG,
     Objective,
@@ -21,10 +21,9 @@ from liblaf.peach.optim import (
 )
 
 from liblaf import cherries, grapes, melon
-from liblaf.apple import sim
-from liblaf.apple.warp import sim as sim_wp
-from liblaf.apple.warp import utils as wpu
-from liblaf.apple.warp.typing import vec6
+from liblaf.apple import Inverse, Model, ModelBuilder
+from liblaf.apple.constants._array_names import MUSCLE_FRACTION
+from liblaf.apple.warp import Phace
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -47,9 +46,9 @@ class Aux(TypedDict):
 
 
 @tree.define
-class Inverse:
+class InverseActivation(Inverse):
     face_idx: Integer[Array, " f"]
-    model: sim.Model
+    model: Model
     muscle_id_to_idx: dict[int, Integer[Array, " m"]]
     muscle_id_to_volume: dict[int, Float[Array, " m"]]
     muscle_idx: Integer[Array, " a"]
@@ -179,20 +178,20 @@ class Inverse:
         return reg
 
 
-def prepare(mesh: pv.UnstructuredGrid) -> Inverse:
-    builder = sim.ModelBuilder()
-    mesh = builder.assign_dofs(mesh)
+def prepare(mesh: pv.UnstructuredGrid) -> InverseActivation:
+    builder = ModelBuilder()
+    mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
-    energy: sim_wp.Phace = sim_wp.Phace.from_pyvista(
+    energy: Phace = Phace.from_pyvista(
         mesh, id="elastic", requires_grad=("activation",)
     )
     builder.add_energy(energy)
-    model: sim.Model = builder.finish()
+    model: Model = builder.finalize()
 
     MUSCLE_FRACTION_THRESHOLD: float = 1e-2
     mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
     face_idx: Integer[Array, " f"] = jnp.flatnonzero(mesh.point_data["IsFace"])
-    muscle_fraction: Float[Array, " c"] = jnp.asarray(mesh.cell_data["MuscleFraction"])
+    muscle_fraction: Float[Array, " c"] = jnp.asarray(mesh.cell_data[MUSCLE_FRACTION])
     muscle_id: Integer[Array, " c"] = jnp.asarray(mesh.cell_data["MuscleId"])
     muscle_idx: Integer[Array, " a"] = jnp.flatnonzero(
         muscle_fraction > MUSCLE_FRACTION_THRESHOLD
@@ -209,7 +208,7 @@ def prepare(mesh: pv.UnstructuredGrid) -> Inverse:
         muscle_id_to_idx[i] = indices
         muscle_id_to_volume[i] = volume_i
 
-    inverse = Inverse(
+    inverse = InverseActivation(
         face_idx=face_idx,
         model=model,
         muscle_id_to_idx=muscle_id_to_idx,
@@ -221,7 +220,7 @@ def prepare(mesh: pv.UnstructuredGrid) -> Inverse:
 
 
 def calc_inverse(
-    target: pv.UnstructuredGrid, inverse: Inverse, idx: str = "000"
+    target: pv.UnstructuredGrid, inverse: InverseActivation, idx: str = "000"
 ) -> pv.UnstructuredGrid:
     inverse.target = jnp.asarray(target.point_data[f"Expression{idx}"])[
         inverse.face_idx
@@ -262,7 +261,7 @@ def calc_inverse(
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    inverse: Inverse = prepare(mesh)
+    inverse: InverseActivation = prepare(mesh)
     mesh = calc_inverse(target, inverse, idx="000")
     mesh = calc_inverse(target, inverse, idx="001")
     melon.save(cfg.output, mesh)

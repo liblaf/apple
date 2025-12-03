@@ -11,8 +11,9 @@ from liblaf.peach import tree
 from liblaf.peach.linalg import CompositeSolver, LinearSolver, LinearSystem
 from liblaf.peach.optim import Callback, Objective, Optimizer, ScipyOptimizer
 
-from ._forward import Forward
-from ._model import Model
+from liblaf.apple.model import Forward, Model
+
+from ._types import Aux, Params
 
 type EnergyParams = Mapping[str, Array]
 type Free = Float[Array, " free"]
@@ -25,19 +26,13 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 @tree.define
-class Inverse(abc.ABC):
-    @tree.define
-    class Aux:
-        pass
-
-    @tree.define
-    class Params:
-        pass
+class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
+    from ._types import Aux, Params
 
     forward: Forward
     adjoint_solver: LinearSolver = tree.field(factory=CompositeSolver, kw_only=True)
     optimizer: Optimizer = tree.field(
-        factory=lambda: ScipyOptimizer(method="L-BFGS-B"), kw_only=True
+        factory=lambda: ScipyOptimizer(method="L-BFGS-B", tol=1e-5), kw_only=True
     )
 
     @property
@@ -66,26 +61,26 @@ class Inverse(abc.ABC):
         )
         if not solution.success:
             logger.warning("Adjoint fail: %r", solution)
+        logger.info("Adjoint time: %g sec", solution.stats.time)
         return self.model.to_full(solution.params, 0.0)
 
-    def fun(self, params: Params) -> tuple[Scalar, Aux]:
+    def fun(self, params: ParamsT) -> tuple[Scalar, AuxT]:
         model_params: ModelParams = self.make_params(params)
         self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
-        if not solution.success:
-            logger.warning("Forward fail: %r", solution)
+        logger.info("Forward time: %g sec", solution.stats.time)
         return self.loss(self.model.u_full, model_params)
 
     @abc.abstractmethod
-    def loss(self, u: Full, params: ModelParams) -> tuple[Scalar, Aux]:
+    def loss(self, u: Full, params: ModelParams) -> tuple[Scalar, AuxT]:
         raise NotImplementedError
 
     @eqx.filter_jit
     def loss_and_grad(
         self, u: Full, params: ModelParams
-    ) -> tuple[Scalar, Full, ModelParams, Aux]:
+    ) -> tuple[Scalar, Full, ModelParams, AuxT]:
         loss: Scalar
-        aux: Inverse.Aux
+        aux: AuxT
         dLdu: Full
         dLdq: ModelParams
         (loss, aux), (dLdu, dLdq) = jax.value_and_grad(
@@ -94,11 +89,11 @@ class Inverse(abc.ABC):
         return loss, dLdu, dLdq, aux
 
     @abc.abstractmethod
-    def make_params(self, params: Params) -> ModelParams:
+    def make_params(self, params: ParamsT) -> ModelParams:
         raise NotImplementedError
 
     def solve(
-        self, params: Params, callback: Callback | None = None
+        self, params: ParamsT, callback: Callback | None = None
     ) -> Optimizer.Solution:
         objective = Objective(value_and_grad=self.value_and_grad)
         optimizer_solution: Optimizer.Solution = self.optimizer.minimize(
@@ -108,18 +103,17 @@ class Inverse(abc.ABC):
             logger.warning("Inverse fail: %r", optimizer_solution)
         return optimizer_solution
 
-    def value_and_grad(self, params: Params) -> tuple[Scalar, Params]:
+    def value_and_grad(self, params: ParamsT) -> tuple[Scalar, ParamsT]:
         model_params: ModelParams
-        model_params_vjp: Callable[[ModelParams], Inverse.Params]
+        model_params_vjp: Callable[[ModelParams], ParamsT]
         model_params, model_params_vjp = jax.vjp(self.make_params, params)
         self.model.update_params(model_params)
         solution: Optimizer.Solution = self.forward.step()
-        if not solution.success:
-            logger.warning("Forward fail: %r", solution)
+        logger.info("Forward time: %g sec", solution.stats.time)
         u_full: Full = self.model.u_full
         loss, dLdu, dLdq, _aux = self.loss_and_grad(u_full, model_params)
         p: Full = self.adjoint(u_full, dLdu)
         prod: ModelParams = self.model.mixed_derivative_prod(u_full, p)
         model_params_grad: ModelParams = jax.tree.map(operator.add, dLdq, prod)
-        grad: Inverse.Params = model_params_vjp(model_params_grad)
+        grad: ParamsT = model_params_vjp(model_params_grad)
         return loss, grad

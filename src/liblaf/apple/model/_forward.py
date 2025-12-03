@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Mapping
 
 from jaxtyping import Array, Float
@@ -5,6 +6,8 @@ from liblaf.peach import tree
 from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer
 
 from ._model import Model
+
+logger = logging.getLogger(__name__)
 
 type Free = Float[Array, " free"]
 type EnergyParams = Mapping[str, Array]
@@ -14,7 +17,7 @@ type ModelParams = Mapping[str, EnergyParams]
 @tree.define
 class Forward:
     model: Model
-    optimizer: Optimizer = tree.field(factory=PNCG)
+    optimizer: Optimizer = tree.field(factory=lambda: PNCG(max_steps=1000))
 
     @property
     def u_full(self) -> Float[Array, "points dim"]:
@@ -36,5 +39,7 @@ class Forward:
         solution: Optimizer.Solution = self.optimizer.minimize(
             objective, self.model.u_free, callback=callback
         )
+        if not solution.success:
+            logger.warning("Forward fail: %r", solution)
         self.model.u_free = solution.params
         return solution

@@ -55,15 +55,16 @@ class ArapMuscle(Arap):
     @no_type_check
     @wp.func
     def first_piola_kirchhoff_stress_func(
-        F: mat33, params: ParamsElem, *, clamp: bool = True
+        F: mat33, params: ParamsElem, *, clamp: bool = False
     ) -> mat33:
         A = func.make_activation_mat33(params.activation)  # mat33
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
         R = U @ wp.transpose(V)  # mat33
-        lambdas = func.lambdas(s, clamp=clamp)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        M = F - R @ A  # mat33
-        PK1 = params.mu * (M - func.dRdF_vjp(M @ A, lambdas, Q0, Q1, Q2))  # mat33
+        # lambdas = func.lambdas(s, clamp=clamp)  # vec3
+        # Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
+        # M = F - R @ A  # mat33
+        # PK1 = params.mu * (M - func.dRdF_vjp(M @ A, lambdas, Q0, Q1, Q2))  # mat33
+        PK1 = params.mu * (F - R @ A)
         return PK1
 
     @override

@@ -20,15 +20,14 @@ def dRdF_vjp(M: mat33, lambdas: vec3, Q0: mat33, Q1: mat33, Q2: mat33) -> mat33:
 @no_type_check
 def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
     _2 = sigma.dtype(2.0)
-    lambda0 = _2 / (sigma[0] + sigma[1])
-    lambda1 = _2 / (sigma[1] + sigma[2])
-    lambda2 = _2 / (sigma[2] + sigma[0])
     if clamp:
-        _0 = sigma.dtype(0.0)
-        _1 = sigma.dtype(1.0)
-        lambda0 = wp.clamp(lambda0, _0, _1)
-        lambda1 = wp.clamp(lambda1, _0, _1)
-        lambda2 = wp.clamp(lambda2, _0, _1)
+        lambda0 = _2 / wp.max(sigma[0] + sigma[1], _2)
+        lambda1 = _2 / wp.max(sigma[1] + sigma[2], _2)
+        lambda2 = _2 / wp.max(sigma[2] + sigma[0], _2)
+    else:
+        lambda0 = _2 / (sigma[0] + sigma[1])
+        lambda1 = _2 / (sigma[1] + sigma[2])
+        lambda2 = _2 / (sigma[2] + sigma[0])
     return wp.vector(lambda0, lambda1, lambda2)
 
 

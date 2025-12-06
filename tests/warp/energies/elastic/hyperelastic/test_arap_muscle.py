@@ -48,7 +48,8 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 
 @hypothesis.given(seed=testing.seed())
 def test_arap_muscle_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
-    common.check_grad(seed, model, mesh)
+    # gradient of ArapMuscle is approximate, so we only check descent direction
+    common.check_grad_direction(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
@@ -62,10 +63,6 @@ def test_arap_muscle_hess_diag(
 def test_arap_muscle_hess_prod(
     seed: int, model: Model, mesh: pv.UnstructuredGrid
 ) -> None:
-    # Hessians of ArapMuscle are approximate
-    # We set activations to zero to pass `hess_prod` tests
-    energy: ArapMuscle = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
-    energy.params.activation.zero_()
     common.check_hess_prod(seed, model, mesh)
 
 

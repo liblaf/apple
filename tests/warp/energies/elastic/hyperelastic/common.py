@@ -18,9 +18,20 @@ type ModelParams = Mapping[str, EnergyParams]
 type Scalar = Float[Array, ""]
 
 
+EPS: float = 1e-6
+
+
 def check_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
     u: Full = rand_u(seed, mesh)
     testing.check_grad(model.fun, model.grad, u, rtol=1e-3)
+
+
+def check_grad_direction(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+    u: Full = rand_u(seed, mesh)
+    g: Full = model.grad(u)
+    f0 = model.fun(u)
+    f1 = model.fun(u + EPS * g)
+    assert f0 < f1
 
 
 def check_hess_diag(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:

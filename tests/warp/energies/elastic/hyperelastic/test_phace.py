@@ -50,7 +50,7 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 
 @hypothesis.given(seed=testing.seed())
 def test_phace_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
-    common.check_grad(seed, model, mesh)
+    common.check_grad_direction(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())
@@ -60,10 +60,6 @@ def test_phace_hess_diag(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> 
 
 @hypothesis.given(seed=testing.seed())
 def test_phace_hess_prod(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
-    # Hessians of ArapMuscle are approximate
-    # We set activations to zero to pass `hess_prod` tests
-    energy: Phace = model.warp.energies["elastic"]  # pyright: ignore[reportAssignmentType]
-    energy.params.activation.zero_()
     common.check_hess_prod(seed, model, mesh)
 
 

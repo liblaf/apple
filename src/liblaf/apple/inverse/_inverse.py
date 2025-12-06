@@ -103,7 +103,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
             logger.warning("Inverse fail: %r", optimizer_solution)
         return optimizer_solution
 
-    def value_and_grad(self, params: ParamsT) -> tuple[Scalar, ParamsT]:
+    def value_and_grad(self, params: ParamsT) -> tuple[Scalar, ParamsT, AuxT]:
         model_params: ModelParams
         model_params_vjp: Callable[[ModelParams], ParamsT]
         model_params, model_params_vjp = jax.vjp(self.make_params, params)
@@ -111,9 +111,13 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         solution: Optimizer.Solution = self.forward.step()
         logger.info("Forward time: %g sec", solution.stats.time)
         u_full: Full = self.model.u_full
-        loss, dLdu, dLdq, _aux = self.loss_and_grad(u_full, model_params)
+        loss: Scalar
+        dLdu: Full
+        dLdq: ModelParams
+        aux: AuxT
+        loss, dLdu, dLdq, aux = self.loss_and_grad(u_full, model_params)
         p: Full = self.adjoint(u_full, dLdu)
         prod: ModelParams = self.model.mixed_derivative_prod(u_full, p)
         model_params_grad: ModelParams = jax.tree.map(operator.add, dLdq, prod)
         grad: ParamsT = model_params_vjp(model_params_grad)
-        return loss, grad
+        return loss, grad, aux

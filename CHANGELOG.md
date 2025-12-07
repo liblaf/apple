@@ -7,6 +7,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-06
+
+### 💥 BREAKING CHANGES
+
+- **(model/inverse)** The argument order for `loss(u_full, params)` and `loss_and_grad(u_full, params)` methods within the `Inverse` class has been swapped. Any subclasses overriding these methods will need to update their signatures to reflect `(u: Full, params: ModelParams)`. - [920dbb0](https://github.com/liblaf/apple/commit/920dbb0e604fca72bde3a0ef413c5cd79edef07b) by [@liblaf](https://github.com/liblaf)
+
+### ✨ Features
+
+- **apple:** implement inverse simulation framework and ARAP active model - [1f0e475](https://github.com/liblaf/apple/commit/1f0e47519fdeb81723a7bee20d0f7877b521198d) by [@liblaf](https://github.com/liblaf)
+- **inverse:** Return aux from value_and_grad method - [d625b25](https://github.com/liblaf/apple/commit/d625b2522ecbed037c988e1330409822a1c3ecb7) by [@liblaf](https://github.com/liblaf)
+- **model, inverse:** Implement inverse problem solving for activation - [c48d725](https://github.com/liblaf/apple/commit/c48d725cc57d49be7b9ce78267d4a03d34847818) by [@liblaf](https://github.com/liblaf)
+- **warp:** implement ARAP energy with improved Hessian computation - [5013ddc](https://github.com/liblaf/apple/commit/5013ddc0ff3b1275dca2c69f4990258471f12a79) by [@liblaf](https://github.com/liblaf)
+- **warp:** Enable differentiation of Warp energy parameters - [fedd68c](https://github.com/liblaf/apple/commit/fedd68c400dbe921940606e45cbde85ec1297556) by [@liblaf](https://github.com/liblaf)
+- **warp:** implement ARAP muscle and PHACE hyperelastic models - [e1f0d43](https://github.com/liblaf/apple/commit/e1f0d43f7ab5bf4807614ccd549bd7149156ddfb) by [@liblaf](https://github.com/liblaf)
+
+### 🐛 Bug Fixes
+
+- **warp/energies:** Improve robustness of hyperelastic Hessian calculations - [9ea10f5](https://github.com/liblaf/apple/commit/9ea10f5a00a591e49ed05507290589940339e827) by [@liblaf](https://github.com/liblaf)
+
+### ♻ Code Refactoring
+
+- **model:** Integrate WarpModelAdapter and streamline parameter updates - [82cafb2](https://github.com/liblaf/apple/commit/82cafb2a3507f570522a98e2f5d33ec487de5fcc) by [@liblaf](https://github.com/liblaf)
+- **model/inverse:** Refactor Inverse solver and argument order - [920dbb0](https://github.com/liblaf/apple/commit/920dbb0e604fca72bde3a0ef413c5cd79edef07b) by [@liblaf](https://github.com/liblaf)
+- **test, warp:** Improve test diagnostics and ARAP parameter handling - [7c7c07f](https://github.com/liblaf/apple/commit/7c7c07f9a36054eae367cdabee51d736e721fa30) by [@liblaf](https://github.com/liblaf)
+- reorganize import statements in experimental and test modules - [0f2640a](https://github.com/liblaf/apple/commit/0f2640aa21befb1796123dc3c5e2a9bd4935a404) by [@liblaf](https://github.com/liblaf)
+
+### ✅ Tests
+
+- **warp/energies/hyperelastic:** Refine mixed derivative product test helper - [322135f](https://github.com/liblaf/apple/commit/322135f127aa60f19402a41024ce4fbe29766b7f) by [@liblaf](https://github.com/liblaf)
+- **warp/hyperelastic/hess_quad:** Refine numeric differentiation precision - [075632c](https://github.com/liblaf/apple/commit/075632c43499258410f78c7559cb21340cab1d6b) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
 ## [0.6.1](https://github.com/liblaf/apple/releases/tag/v0.6.1) - 2025-11-29
 
 ### 🐛 Bug Fixes
@@ -15,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.6.0](https://github.com/liblaf/apple/releases/tag/v0.6.0) - 2025-11-29
 

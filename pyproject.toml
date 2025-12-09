@@ -55,11 +55,14 @@ dynamic = ["version"]
 "Release Notes" = "https://github.com/liblaf/apple/releases"
 "Source Code" = "https://github.com/liblaf/apple"
 
+[project.optional-dependencies]
+cuda12 = ["jax[cuda12]>=0.8,<0.9", "liblaf-peach[cuda12]>=0.7,<0.8"]
+cuda13 = ["jax[cuda13]>=0.8,<0.9", "liblaf-peach[cuda13]>=0.7,<0.8"]
+
 [dependency-groups]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
-  "jax[cuda12]",
   "liblaf-cherries>=0.7,<0.8",
   "marimo[recommended]>=0.18,<0.19",
   "scipy-stubs>=1,<2",

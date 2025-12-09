@@ -1,14 +1,24 @@
+from __future__ import annotations
+
 import abc
 import logging
 import operator
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 
+import attrs
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float
 from liblaf.peach import tree
-from liblaf.peach.linalg import CompositeSolver, LinearSolver, LinearSystem
+from liblaf.peach.constraints import Constraint
+from liblaf.peach.linalg import (
+    CompositeSolver,
+    CupyCG,
+    CupyMinRes,
+    LinearSolver,
+    LinearSystem,
+)
 from liblaf.peach.optim import Callback, Objective, Optimizer, ScipyOptimizer
 
 from liblaf.apple.model import Forward, Model
@@ -25,12 +35,23 @@ type Scalar = Float[Array, ""]
 logger: logging.Logger = logging.getLogger(__name__)
 
 
+def _default_adjoint_solver(self: Inverse) -> LinearSolver:
+    return CompositeSolver(
+        [
+            CupyCG(max_steps=self.model.n_free // 50),
+            CupyMinRes(max_steps=self.model.n_free // 50),
+        ]
+    )
+
+
 @tree.define
 class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     from ._types import Aux, Params
 
     forward: Forward
-    adjoint_solver: LinearSolver = tree.field(factory=CompositeSolver, kw_only=True)
+    adjoint_solver: LinearSolver = tree.field(
+        default=attrs.Factory(_default_adjoint_solver, takes_self=True), kw_only=True
+    )
     optimizer: Optimizer = tree.field(
         factory=lambda: ScipyOptimizer(method="L-BFGS-B", tol=1e-5), kw_only=True
     )
@@ -61,6 +82,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         )
         if not solution.success:
             logger.warning("Adjoint fail: %r", solution)
+        # ic(solution)
         logger.info("Adjoint time: %g sec", solution.stats.time)
         return self.model.to_full(solution.params, 0.0)
 
@@ -93,11 +115,15 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         raise NotImplementedError
 
     def solve(
-        self, params: ParamsT, callback: Callback | None = None
+        self,
+        params: ParamsT,
+        *,
+        constraints: Iterable[Constraint] = (),
+        callback: Callback | None = None,
     ) -> Optimizer.Solution:
         objective = Objective(value_and_grad=self.value_and_grad)
         optimizer_solution: Optimizer.Solution = self.optimizer.minimize(
-            objective, params, callback=callback
+            objective, params, constraints=constraints, callback=callback
         )
         if not optimizer_solution.success:
             logger.warning("Inverse fail: %r", optimizer_solution)

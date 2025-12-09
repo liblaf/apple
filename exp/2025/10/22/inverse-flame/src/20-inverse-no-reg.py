@@ -8,6 +8,7 @@ import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
 from liblaf.peach import tree
+from liblaf.peach.constraints import BoundConstraint
 from liblaf.peach.optim import ScipyOptimizer
 
 from liblaf import cherries, melon
@@ -107,6 +108,7 @@ def prepare(mesh: pv.UnstructuredGrid) -> tuple[pv.UnstructuredGrid, InverseActi
         muscle_volume=muscle_volume,
         n_cells=mesh.n_cells,
         target=target,
+        optimizer=ScipyOptimizer(method="L-BFGS-B", tol=1e-5, options={"maxls": 2}),
     )
     return mesh, inverse
 
@@ -121,6 +123,14 @@ def calc_inverse(
         inverse.face_idx
     ]
     params = InverseActivation.Params(activation=jnp.zeros((inverse.n_muscle_cells, 6)))
+    bounds = BoundConstraint(
+        InverseActivation.Params(
+            activation=jnp.full((inverse.n_muscle_cells, 6), -20.0)
+        ),
+        InverseActivation.Params(
+            activation=jnp.full((inverse.n_muscle_cells, 6), 20.0)
+        ),
+    )
 
     with melon.SeriesWriter(
         cherries.temp(f"20-inverse-no-reg-{idx}.vtu.series")
@@ -136,26 +146,26 @@ def calc_inverse(
             mesh.point_data[f"Residual{idx}"][inverse.face_idx] = (  # pyright: ignore[reportArgumentType]
                 inverse.model.u_full[inverse.face_idx] - inverse.target
             )
-            mesh.cell_data[f"Activations{idx}"] = params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
+            mesh.cell_data[f"Activation{idx}"] = params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
             writer.append(mesh)
 
         solution: ScipyOptimizer.Solution = inverse.solve(
-            params=params, callback=callback
+            params=params, constraints=[bounds], callback=callback
         )
 
     ic(solution)
     model_params: ModelParams = inverse.make_params(solution.params)
     point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
     mesh.point_data[f"Solution{idx}"] = inverse.model.u_full[point_id]  # pyright: ignore[reportArgumentType]
-    mesh.cell_data[f"Activations{idx}"] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
+    mesh.cell_data[f"Activation{idx}"] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
     return mesh
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    target.point_data["Expression000"] *= 0.8
-    target.point_data["Expression001"] *= 0.8
+    # target.point_data["Expression000"] *= 0.8
+    # target.point_data["Expression001"] *= 0.8
     inverse: InverseActivation
     mesh, inverse = prepare(mesh)
     mesh = calc_inverse(mesh, target, inverse, idx="000")

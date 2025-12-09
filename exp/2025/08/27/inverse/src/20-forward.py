@@ -4,13 +4,13 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-from liblaf.apple.jax.typing import Vector
 from loguru import logger
 
 from liblaf import cherries, melon
 from liblaf.apple import sim
 from liblaf.apple.jax import optim
 from liblaf.apple.jax import sim as sim_jax
+from liblaf.apple.jax.typing import Vector
 
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 

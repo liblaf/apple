@@ -7,7 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-06
+## [0.7.1](https://github.com/liblaf/apple/releases/tag/v0.7.1) - 2025-12-10
+
+### ✨ Features
+
+- **inverse:** enhance inverse solver with constraint support and improved adjoint solver - [892dbfd](https://github.com/liblaf/apple/commit/892dbfd616dd801f1d642ffb1620f55b86942530) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-07
 
 ### 💥 BREAKING CHANGES
 
@@ -40,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.6.1](https://github.com/liblaf/apple/releases/tag/v0.6.1) - 2025-11-29
 

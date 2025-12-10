@@ -14,13 +14,14 @@ from liblaf.peach import tree
 from liblaf.peach.constraints import Constraint
 from liblaf.peach.linalg import (
     CompositeSolver,
-    CupyCG,
-    CupyMinRes,
+    JaxCG,
     LinearSolver,
     LinearSystem,
+    ScipyMinRes,
 )
 from liblaf.peach.optim import Callback, Objective, Optimizer, ScipyOptimizer
 
+from liblaf import peach
 from liblaf.apple.model import Forward, Model
 
 from ._types import Aux, Params
@@ -36,11 +37,16 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 def _default_adjoint_solver(self: Inverse) -> LinearSolver:
+    cg_max_steps: int = max(1000, 5 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
+    minres_max_steps: int = max(1000, 10 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
+    if peach.cuda.is_available():
+        from liblaf.peach.linalg import CupyMinRes
+
+        return CompositeSolver(
+            [JaxCG(max_steps=cg_max_steps), CupyMinRes(max_steps=minres_max_steps)]
+        )
     return CompositeSolver(
-        [
-            CupyCG(max_steps=self.model.n_free // 50),
-            CupyMinRes(max_steps=self.model.n_free // 50),
-        ]
+        [JaxCG(max_steps=cg_max_steps), ScipyMinRes(max_steps=minres_max_steps)]
     )
 
 
@@ -56,11 +62,20 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         factory=lambda: ScipyOptimizer(method="L-BFGS-B", tol=1e-5), kw_only=True
     )
 
+    last_forward_success: bool = tree.array(default=False, kw_only=True)
+
     @property
     def model(self) -> Model:
         return self.forward.model
 
     def adjoint(self, u: Full, dLdu: Full) -> Full:
+        solution: LinearSolver.Solution = self.adjoint_inner(u, dLdu)
+        if not solution.success:
+            logger.warning("Adjoint fail: %r", solution)
+        logger.info("Adjoint time: %g sec", solution.stats.time)
+        return self.model.to_full(solution.params, 0.0)
+
+    def adjoint_inner(self, u: Full, dLdu: Full) -> LinearSolver.Solution:
         u_free: Free = self.model.to_free(u)
         preconditioner: Free = jnp.reciprocal(self.model.hess_diag(u_free))
 
@@ -77,21 +92,23 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
             preconditioner=preconditioner_fn,
             rpreconditioner=preconditioner_fn,
         )
+        self.model.frozen = True  # make jax.jit happy
         solution: LinearSolver.Solution = self.adjoint_solver.solve(
             system, jnp.zeros_like(u_free)
         )
-        if not solution.success:
-            logger.warning("Adjoint fail: %r", solution)
-        # ic(solution)
-        logger.info("Adjoint time: %g sec", solution.stats.time)
-        return self.model.to_full(solution.params, 0.0)
+        self.model.frozen = False
+        return solution
 
     def fun(self, params: ParamsT) -> tuple[Scalar, AuxT]:
         model_params: ModelParams = self.make_params(params)
-        self.model.update_params(model_params)
-        solution: Optimizer.Solution = self.forward.step()
-        logger.info("Forward time: %g sec", solution.stats.time)
-        return self.loss(self.model.u_full, model_params)
+        u_full: Full = self._forward(model_params)
+        return self.loss(u_full, model_params)
+
+    def grad(self, params: ParamsT) -> tuple[ParamsT, AuxT]:
+        aux: AuxT
+        grad: ParamsT
+        _loss, grad, aux = self.value_and_grad(params)
+        return grad, aux
 
     @abc.abstractmethod
     def loss(self, u: Full, params: ModelParams) -> tuple[Scalar, AuxT]:
@@ -121,7 +138,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         constraints: Iterable[Constraint] = (),
         callback: Callback | None = None,
     ) -> Optimizer.Solution:
-        objective = Objective(value_and_grad=self.value_and_grad)
+        objective = Objective(grad=self.grad, value_and_grad=self.value_and_grad)
         optimizer_solution: Optimizer.Solution = self.optimizer.minimize(
             objective, params, constraints=constraints, callback=callback
         )
@@ -131,12 +148,9 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
 
     def value_and_grad(self, params: ParamsT) -> tuple[Scalar, ParamsT, AuxT]:
         model_params: ModelParams
-        model_params_vjp: Callable[[ModelParams], ParamsT]
+        model_params_vjp: Callable[[ModelParams], tuple[ParamsT]]
         model_params, model_params_vjp = jax.vjp(self.make_params, params)
-        self.model.update_params(model_params)
-        solution: Optimizer.Solution = self.forward.step()
-        logger.info("Forward time: %g sec", solution.stats.time)
-        u_full: Full = self.model.u_full
+        u_full: Full = self._forward(model_params)
         loss: Scalar
         dLdu: Full
         dLdq: ModelParams
@@ -145,5 +159,18 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         p: Full = self.adjoint(u_full, dLdu)
         prod: ModelParams = self.model.mixed_derivative_prod(u_full, p)
         model_params_grad: ModelParams = jax.tree.map(operator.add, dLdq, prod)
-        grad: ParamsT = model_params_vjp(model_params_grad)
+        grad: ParamsT
+        (grad,) = model_params_vjp(model_params_grad)
         return loss, grad, aux
+
+    def _forward(self, model_params: ModelParams) -> Full:
+        self.model.update_params(model_params)
+        if not self.last_forward_success:
+            self.model.u_free = jnp.zeros((self.model.n_free,))
+        solution: Optimizer.Solution = self.forward.step()
+        # if self.last_forward_success and not solution.success:
+        #     self.model.u_free = jnp.zeros((self.model.n_free,))
+        #     solution = self.forward.step()
+        self.last_forward_success = solution.success
+        logger.info("Forward time: %g sec", solution.stats.time)
+        return self.model.u_full

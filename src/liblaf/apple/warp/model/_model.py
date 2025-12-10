@@ -14,6 +14,7 @@ type Vector = Float[wp.array, " N"]
 
 @tree.define
 class WarpModel:
+    dim: int = tree.field(default=3, kw_only=True)
     energies: dict[str, WarpEnergy] = tree.field(factory=dict)
 
     def update(self, u: Vector) -> None:

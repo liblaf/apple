@@ -1,9 +1,13 @@
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 
 import tlz
 import warp as wp
+import warp.jax_experimental
+import warp.jax_experimental.ffi
 from jaxtyping import Array, Float
 from liblaf.peach import tree
+
+import liblaf.apple.warp.types as wpt
 
 from ._energy import WarpEnergy
 from ._model import WarpModel
@@ -17,6 +21,10 @@ type ModelParams = Mapping[str, EnergyParams]
 @tree.define
 class WarpModelAdapter:
     wrapped: WarpModel
+
+    @property
+    def dim(self) -> int:
+        return self.wrapped.dim
 
     @property
     def energies(self) -> Mapping[str, WarpEnergy]:
@@ -48,11 +56,9 @@ class WarpModelAdapter:
         return wp.to_jax(output_wp)
 
     def hess_prod(self, u: Vector, p: Vector) -> Vector:
-        u_wp: wp.array = _to_warp(u)
-        p_wp: wp.array = _to_warp(p)
-        output_wp: wp.array = wp.zeros_like(u_wp)
-        self.wrapped.hess_prod(u_wp, p_wp, output_wp)
-        return wp.to_jax(output_wp)
+        output: Vector
+        (output,) = self._hess_prod_callable(u, p, output_dims=u.shape)
+        return output
 
     def hess_quad(self, u: Vector, p: Vector) -> Scalar:
         u_wp: wp.array = _to_warp(u)
@@ -91,6 +97,19 @@ class WarpModelAdapter:
         grad: Vector = wp.to_jax(grad_wp)
         hess_diag: Vector = wp.to_jax(hess_diag_wp)
         return grad, hess_diag
+
+    @property
+    def _hess_prod_callable(self) -> Callable:
+        @warp.jax_experimental.jax_callable
+        def hess_prod_callable(
+            u: wp.array(dtype=wp.types.vector(self.dim, wpt.float_)),
+            p: wp.array(dtype=wp.types.vector(self.dim, wpt.float_)),
+            output: wp.array(dtype=wp.types.vector(self.dim, wpt.float_)),
+        ) -> None:
+            output.zero_()
+            self.wrapped.hess_prod(u, p, output)
+
+        return hess_prod_callable
 
 
 def _to_warp(u: Vector) -> wp.array:

@@ -4,6 +4,7 @@ import pyvista as pv
 from jaxtyping import Array, Float
 from liblaf.peach import tree
 
+from liblaf import melon
 from liblaf.apple.constants import POINT_ID
 from liblaf.apple.jax.model import (
     Dirichlet,
@@ -20,13 +21,15 @@ type Full = Float[Array, " full"]
 
 @tree.define
 class ModelBuilder:
+    edges_length_sum: float = tree.field(default=0.0)
+    n_edges: int = tree.field(default=0)
     dirichlet: DirichletBuilder = tree.field(factory=DirichletBuilder)
     jax: JaxModelBuilder = tree.field(factory=JaxModelBuilder)
     warp: WarpModelBuilder = tree.field(factory=WarpModelBuilder)
 
     def __init__(self, dim: int = 3) -> None:
         dirichlet: DirichletBuilder = DirichletBuilder(dim=dim)
-        self.__attrs_init__(dirichlet=dirichlet)  # pyright: ignore[reportAttributeAccessIssue]
+        self.__attrs_init__(dirichlet=dirichlet, warp=WarpModelBuilder(dim=dim))  # pyright: ignore[reportAttributeAccessIssue]
 
     @property
     def n_points(self) -> int:
@@ -44,6 +47,9 @@ class ModelBuilder:
             raise TypeError(energy)
 
     def assign_global_ids[T: pv.DataSet](self, obj: T) -> T:
+        edges_length: Float[np.ndarray, " edges"] = melon.compute_edges_length(obj)
+        self.edges_length_sum += np.sum(edges_length)
+        self.n_edges += edges_length.size
         start: int = self.n_points
         stop: int = start + obj.n_points
         self.dirichlet.resize(stop)
@@ -59,4 +65,5 @@ class ModelBuilder:
             u_full=u_full,
             jax=self.jax.finalize(),
             warp=WarpModelAdapter(self.warp.finalize()),
+            edges_length_mean=self.edges_length_sum / max(1, self.n_edges),  # pyright: ignore[reportArgumentType]
         )

@@ -38,4 +38,6 @@ junit.xml
 # [hatch-vcs](https://github.com/ofek/hatch-vcs)
 _version.py
 
-tmp/
+# [Cherries](https://github.com/liblaf/cherries)
+.cherries/
+temp/

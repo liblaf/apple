@@ -14,6 +14,7 @@ ignorePaths:
   - cspell.*
   - go.sum
 ignoreRandomStrings: true
+maxFileSize: 500KB
 useGitignore: true
 words:
   - arap
@@ -21,11 +22,10 @@ words:
   - arithmatex
   - asarray
   - bfgs
-  - bunyk
   - cbrt
   - cholespy
-  - ciede
   - cuda
+  - cupy
   - cytoolz
   - ddot
   - defjvp
@@ -40,19 +40,15 @@ words:
   - felupe
   - fieldz
   - finfo
-  - fxaa
   - getattr
   - gmres
-  - gouraud
   - hessp
   - hynek
   - icosphere
   - inlinehilite
-  - inplace
   - ipykernel
   - ipython
   - isdtype
-  - isface
   - jaxtyping
   - koiter
   - labii
@@ -60,6 +56,7 @@ words:
   - lineax
   - matmul
   - matvec
+  - maxls
   - mkdocs
   - mkdocstrings
   - nans
@@ -77,7 +74,6 @@ words:
   - phace
   - piola
   - pncg
-  - pointid
   - primals
   - pvsm
   - pycache
@@ -93,7 +89,6 @@ words:
   - pyrightconfig
   - pytest
   - pytree
-  - pyvenv
   - pyvista
   - rmatvec
   - rpreconditioner
@@ -102,17 +97,14 @@ words:
   - sdist
   - simplejson
   - socialify
-  - ssao
   - superioris
   - sympy
-  - synchronizable
   - tombi
   - toolz
   - trimesh
   - unshallow
   - unvec
   - uuidgen
-  - vcvs
   - vdot
   - vecdot
   - venv

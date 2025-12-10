@@ -22,6 +22,8 @@ class Model:
     u_full: Full
     jax: JaxModel
     warp: WarpModelAdapter
+    edges_length_mean: Scalar = tree.array(default=jnp.zeros(()))
+    frozen: bool = tree.field(default=False)
 
     @property
     def dim(self) -> int:
@@ -66,6 +68,8 @@ class Model:
 
     def update(self, u: FreeOrFull) -> None:
         u_full: Full = self.to_full(u)
+        if self.frozen:
+            return
         if jnp.array_equiv(u_full, self.u_full):
             return
         self.u_full = u_full

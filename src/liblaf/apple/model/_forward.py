@@ -4,6 +4,7 @@ import logging
 from collections.abc import Mapping
 
 import attrs
+import jax.numpy as jnp
 from jaxtyping import Array, Float
 from liblaf.peach import tree
 from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer
@@ -12,13 +13,20 @@ from ._model import Model
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-type Free = Float[Array, " free"]
 type EnergyParams = Mapping[str, Array]
+type Free = Float[Array, " free"]
 type ModelParams = Mapping[str, EnergyParams]
+type Scalar = Float[Array, ""]
 
 
 def _default_optimizer(self: Forward) -> Optimizer:
-    return PNCG(max_steps=self.model.n_free // 50)
+    max_steps: int = max(1000, 20 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
+    d_hat: Scalar = (
+        0.5 * self.model.edges_length_mean
+        if self.model.edges_length_mean > 0
+        else jnp.asarray(jnp.inf)
+    )
+    return PNCG(max_steps=max_steps, d_hat=d_hat)
 
 
 @tree.define

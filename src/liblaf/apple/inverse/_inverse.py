@@ -9,7 +9,7 @@ import attrs
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Float
+from jaxtyping import Array, Bool, Float
 from liblaf.peach import tree
 from liblaf.peach.constraints import Constraint
 from liblaf.peach.linalg import (
@@ -36,33 +36,46 @@ type Scalar = Float[Array, ""]
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-def _default_adjoint_solver(self: Inverse) -> LinearSolver:
-    cg_max_steps: int = max(1000, 5 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
-    minres_max_steps: int = max(1000, 10 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
-    if peach.cuda.is_available():
-        from liblaf.peach.linalg import CupyMinRes
-
-        return CompositeSolver(
-            [JaxCG(max_steps=cg_max_steps), CupyMinRes(max_steps=minres_max_steps)]
-        )
-    return CompositeSolver(
-        [JaxCG(max_steps=cg_max_steps), ScipyMinRes(max_steps=minres_max_steps)]
-    )
-
-
 @tree.define
 class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     from ._types import Aux, Params
 
+    def default_adjoint_solver(self, *, rtol: float = 1e-3) -> LinearSolver:
+        cg_max_steps: int = max(1000, int(jnp.ceil(5 * jnp.sqrt(self.model.n_free))))
+        minres_max_steps: int = max(
+            1000, int(jnp.ceil(10 * jnp.sqrt(self.model.n_free)))
+        )
+        if peach.cuda.is_available():
+            from liblaf.peach.linalg import CupyMinRes
+
+            return CompositeSolver(
+                [
+                    JaxCG(max_steps=cg_max_steps, rtol=rtol),
+                    CupyMinRes(max_steps=minres_max_steps, rtol=rtol),
+                ]
+            )
+        return CompositeSolver(
+            [
+                JaxCG(max_steps=cg_max_steps, rtol=rtol),
+                ScipyMinRes(max_steps=minres_max_steps, rtol=rtol),
+            ]
+        )
+
     forward: Forward
     adjoint_solver: LinearSolver = tree.field(
-        default=attrs.Factory(_default_adjoint_solver, takes_self=True), kw_only=True
+        default=attrs.Factory(default_adjoint_solver, takes_self=True), kw_only=True
     )
     optimizer: Optimizer = tree.field(
         factory=lambda: ScipyOptimizer(method="L-BFGS-B", tol=1e-5), kw_only=True
     )
 
-    last_forward_success: bool = tree.array(default=False, kw_only=True)
+    adjoint_vector: Free = tree.array(default=None, init=False, kw_only=True)
+    last_adjoint_success: Bool[Array, ""] = tree.array(
+        default=False, init=False, kw_only=True
+    )
+    last_forward_success: Bool[Array, ""] = tree.array(
+        default=False, init=False, kw_only=True
+    )
 
     @property
     def model(self) -> Model:
@@ -72,7 +85,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         solution: LinearSolver.Solution = self.adjoint_inner(u, dLdu)
         if not solution.success:
             logger.warning("Adjoint fail: %r", solution)
-        logger.info("Adjoint time: %g sec", solution.stats.time)
+        logger.info("Adjoint Statistics: %r", solution.stats)
         return self.model.to_full(solution.params, 0.0)
 
     def adjoint_inner(self, u: Full, dLdu: Full) -> LinearSolver.Solution:
@@ -92,11 +105,16 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
             preconditioner=preconditioner_fn,
             rpreconditioner=preconditioner_fn,
         )
-        self.model.frozen = True  # make jax.jit happy
-        solution: LinearSolver.Solution = self.adjoint_solver.solve(
-            system, jnp.zeros_like(u_free)
+        params: Free = (
+            self.adjoint_vector if self.last_adjoint_success else jnp.zeros_like(u_free)
         )
+        self.model.frozen = True  # make jax.jit happy
+        solution: LinearSolver.Solution = self.adjoint_solver.solve(system, params)
         self.model.frozen = False
+        self.adjoint_vector = solution.params
+        self.last_adjoint_success = jnp.asarray(
+            solution.success, self.last_adjoint_success.dtype
+        )
         return solution
 
     def fun(self, params: ParamsT) -> tuple[Scalar, AuxT]:
@@ -171,6 +189,8 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         # if self.last_forward_success and not solution.success:
         #     self.model.u_free = jnp.zeros((self.model.n_free,))
         #     solution = self.forward.step()
-        self.last_forward_success = solution.success
-        logger.info("Forward time: %g sec", solution.stats.time)
+        self.last_forward_success = jnp.asarray(
+            solution.success, self.last_forward_success.dtype
+        )
+        logger.info("Forward Statistics: %r", solution.stats)
         return self.model.u_full

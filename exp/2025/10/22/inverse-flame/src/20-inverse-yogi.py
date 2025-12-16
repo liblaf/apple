@@ -191,7 +191,7 @@ def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
         muscle_id_to_cell_neighbors=muscle_id_to_cell_neighbors,
         n_cells=mesh.n_cells,
         target=target,
-        optimizer=Optax(optax.sgd(10.0)),
+        optimizer=Optax(optax.yogi(1.0)),
     )
     return inverse
 
@@ -204,44 +204,25 @@ def main(cfg: Config) -> None:
     params: PhaceInverse.Params = PhaceInverse.Params(
         activation=jnp.zeros((inverse.n_active_cells, 6))
     )
-    n_steps: int = 0
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-sgd{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-yogi{SUFFIX}.vtu.series")
     ) as writer:
 
         def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
-            nonlocal n_steps
+            cherries.set_step(stats.n_steps)
             ic(stats)
             model_params: ModelParams = inverse.make_params(state.params)
             point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
             mesh.point_data["Solution"] = inverse.forward.u_full[point_id]  # pyright: ignore[reportArgumentType]
-            face_point_to_point: Float[Array, "face 3"] = (
+            mesh.point_data["PointToPoint"] = np.zeros((mesh.n_points, 3))
+            mesh.point_data["PointToPoint"][inverse.face_point_id] = (  # pyright: ignore[reportArgumentType]
                 inverse.forward.u_full[inverse.face_point_id] - inverse.target
             )
-            mesh.point_data["PointToPoint"] = np.zeros((mesh.n_points, 3))
-            mesh.point_data["PointToPoint"][inverse.face_point_id] = face_point_to_point  # pyright: ignore[reportArgumentType]
-            point_to_point_max: Scalar = jnp.max(
-                jnp.linalg.norm(face_point_to_point, axis=-1)
-            )
-            cherries.log_metric("point_to_point_max", point_to_point_max.item())
+            ic(jnp.max(jnp.linalg.norm(mesh.point_data["PointToPoint"], axis=-1)))
             mesh.cell_data[ACTIVATION] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
             writer.append(mesh)
-            cherries.set_step(n_steps)
-            n_steps += 1
 
-        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
-        inverse.optimizer = Optax(
-            optax.sgd(10.0), max_steps=200, rtol=1e-3, patience=20
-        )
-        inverse.weights.smooth = jnp.asarray(1.0)
-        solution: Optimizer.Solution = inverse.solve(params, callback=callback)
-        ic(solution)
-        params = solution.params
-
-        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
-        inverse.optimizer = Optax(optax.sgd(1.0), max_steps=1000, rtol=0.0, patience=20)
-        inverse.weights.smooth = jnp.asarray(0.1)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
 

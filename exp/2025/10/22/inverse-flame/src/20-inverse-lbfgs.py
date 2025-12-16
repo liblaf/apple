@@ -1,15 +1,17 @@
+import functools
 from collections.abc import Mapping
 from pathlib import Path
 from typing import override
 
+import attrs
 import jax.numpy as jnp
 import numpy as np
-import optax
 import pyvista as pv
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach import tree
-from liblaf.peach.optim import Optax, Optimizer
+from liblaf.peach.linalg import LinearSolver
+from liblaf.peach.optim import Optimizer, ScipyOptimizer
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
@@ -58,6 +60,13 @@ class PhaceInverse(Inverse):
     n_cells: int
     target: Float[Array, "face 3"]
     weights: Weights = tree.field(factory=Weights)
+    adjoint_solver: LinearSolver = tree.field(
+        default=attrs.Factory(
+            functools.partial(Inverse.default_adjoint_solver, rtol=1e-5),
+            takes_self=True,
+        ),
+        kw_only=True,
+    )
 
     @property
     def n_active_cells(self) -> int:
@@ -191,7 +200,7 @@ def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
         muscle_id_to_cell_neighbors=muscle_id_to_cell_neighbors,
         n_cells=mesh.n_cells,
         target=target,
-        optimizer=Optax(optax.sgd(10.0)),
+        optimizer=ScipyOptimizer(method="L-BFGS-B", tol=1e-5),
     )
     return inverse
 
@@ -204,10 +213,10 @@ def main(cfg: Config) -> None:
     params: PhaceInverse.Params = PhaceInverse.Params(
         activation=jnp.zeros((inverse.n_active_cells, 6))
     )
-    n_steps: int = 0
 
+    n_steps: int = 0
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-sgd{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-lbfgs{SUFFIX}.vtu.series")
     ) as writer:
 
         def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
@@ -230,18 +239,11 @@ def main(cfg: Config) -> None:
             cherries.set_step(n_steps)
             n_steps += 1
 
-        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
-        inverse.optimizer = Optax(
-            optax.sgd(10.0), max_steps=200, rtol=1e-3, patience=20
-        )
-        inverse.weights.smooth = jnp.asarray(1.0)
+        inverse.optimizer = ScipyOptimizer(method="L-BFGS-B", tol=1e-5)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params
-
-        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
-        inverse.optimizer = Optax(optax.sgd(1.0), max_steps=1000, rtol=0.0, patience=20)
-        inverse.weights.smooth = jnp.asarray(0.1)
+        inverse.optimizer = ScipyOptimizer(method="L-BFGS-B", tol=1e-5)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
 

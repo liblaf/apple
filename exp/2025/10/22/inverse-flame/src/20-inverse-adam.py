@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Mapping
 from pathlib import Path
 from typing import override
@@ -7,229 +6,247 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 import pyvista as pv
-from jaxtyping import Array, Float, Integer
+from environs import env
+from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach import tree
-from liblaf.peach.constraints import BoundConstraint
-from liblaf.peach.linalg import CompositeSolver
-from liblaf.peach.optim import Optax, ScipyOptimizer
+from liblaf.peach.optim import Optax, Optimizer
 
-from liblaf import cherries, melon
+from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
-from liblaf.apple.constants import MUSCLE_FRACTION, POINT_ID
+from liblaf.apple.constants import ACTIVATION, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.warp import Phace
 
+type Vector = Float[Array, " N"]
 type EnergyParams = Mapping[str, Array]
-type Full = Float[Array, "points dim"]
 type ModelParams = Mapping[str, EnergyParams]
+type Full = Float[Array, "points dim"]
 type Scalar = Float[Array, ""]
 
-
-logger: logging.Logger = logging.getLogger(__name__)
+SUFFIX: str = env.str("SUFFIX", default="-68k-coarse")
 
 
 class Config(cherries.BaseConfig):
-    input: Path = cherries.input("10-input.vtu")
-    target: Path = cherries.input("10-target.vtu")
-
-    output: Path = cherries.output("20-inverse-adam.vtu")
+    input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
+    expression: str = "Expression000"
 
 
 @tree.define
-class InverseActivation(Inverse):
-    @tree.define
-    class Params(Inverse.Params):
-        activation: Float[Array, "cells 6"]
-
+class PhaceInverse(Inverse):
+    @override
     @tree.define
     class Aux(Inverse.Aux):
         point_to_point: Scalar
+        smooth: Scalar
         sparse: Scalar
 
-    face_idx: Integer[Array, " face"]
-    muscle_cell_idx: Integer[Array, " muscle_cells"]
-    muscle_volume: Float[Array, " muscle_cells"]
-    n_cells: int
-    target: Float[Array, "face dim"]
+    @override
+    @tree.define
+    class Params(Inverse.Params):
+        activation: Float[Array, " active"]
 
-    step: Integer[Array, ""] = tree.array(default=jnp.asarray(0), kw_only=True)
+    @tree.define
+    class Weights:
+        point_to_point: Scalar = tree.array(default=jnp.asarray(1.0))
+        smooth: Scalar = tree.array(default=jnp.asarray(1.0))
+        sparse: Scalar = tree.array(default=jnp.asarray(1e-6))
+
+    active_cell_id: Integer[Array, " active"]
+    active_volume: Float[Array, " cells"]
+    face_point_area: Float[Array, " face"]
+    face_point_id: Integer[Array, " face"]
+    muscle_id_to_cell_neighbors: dict[int, Integer[Array, "2 N"]]
+    n_cells: int
+    target: Float[Array, "face 3"]
+    weights: Weights = tree.field(factory=Weights)
 
     @property
-    def n_muscle_cells(self) -> int:
-        return self.muscle_cell_idx.size
+    def n_active_cells(self) -> int:
+        return self.active_cell_id.shape[0]
 
     @override
-    def adjoint(self, u: Full, dLdu: Full) -> Full:
-        solution: CompositeSolver.Solution = self.adjoint_inner(u, dLdu)
-        if not solution.success:
-            logger.warning("Adjoint fail: %r", solution)
-        ic(solution.stats)
-        cherries.log_metrics(
-            {
-                "CG_success": int(len(solution.state.state) == 1),
-                "Adjoint_success": int(solution.success),
-            },
-            step=self.step.item(),
-        )
-        logger.info("Adjoint time: %g sec", solution.stats.time)
-        # ic(cupy.linalg.norm(cupy.from_dlpack(dLdu)))
-        # ic(jnp.linalg.norm(dLdu))
-        # ic(jnp.linalg.norm(solution.params))
-        # residual = self.model.hess_prod(
-        #     self.model.to_free(u), solution.params
-        # ) + self.model.to_free(dLdu)
-        # ic(jnp.linalg.norm(residual))
-        # relative_residual = jnp.linalg.norm(residual) / jnp.linalg.norm(
-        #     self.model.to_free(dLdu)
-        # )
-        # ic(relative_residual)
-        return self.model.to_full(solution.params, 0.0)
-
-    @override
-    def loss(self, u: Array, params: ModelParams) -> tuple[Scalar, Aux]:
-        point_to_point: Scalar = jnp.sum(jnp.square(u[self.face_idx] - self.target))
-        sparse: Scalar = 1e-3 * self.reg_sparse(params)
-        return point_to_point + sparse, self.Aux(
-            point_to_point=point_to_point, sparse=sparse
+    def loss(self, u: Full, params: ModelParams) -> tuple[Scalar, Aux]:
+        point_to_point: Scalar = self.weights.point_to_point * self.point_to_point(u)
+        sparse: Scalar = self.weights.sparse * self.sparse(params)
+        smooth: Scalar = self.weights.smooth * self.smooth(params)
+        total: Scalar = point_to_point + smooth + sparse
+        return total, self.Aux(
+            point_to_point=point_to_point, smooth=smooth, sparse=sparse
         )
 
     @override
     def make_params(self, params: Params) -> ModelParams:
         activation: Float[Array, "cells 6"] = jnp.zeros((self.n_cells, 6))
-        activation = activation.at[self.muscle_cell_idx].set(params.activation)
+        activation = activation.at[self.active_cell_id].set(params.activation)
         return {"elastic": {"activation": activation}}
 
     @override
     def value_and_grad(self, params: Params) -> tuple[Scalar, Params, Aux]:
-        grad: InverseActivation.Params
-        aux: InverseActivation.Aux
-        loss, grad, aux = super().value_and_grad(params)
-        grad_norm: Scalar = jnp.linalg.norm(grad.activation, ord=jnp.inf)
-        ic(loss, grad_norm, aux)
+        value: Scalar
+        grad: PhaceInverse.Params
+        aux: PhaceInverse.Aux
+        value, grad, aux = super().value_and_grad(params)
         cherries.log_metrics(
             {
-                "loss": loss.item(),
-                "grad_norm": grad_norm.item(),
+                "loss": value.item(),
                 "point_to_point": aux.point_to_point.item(),
+                "smooth": aux.smooth.item(),
                 "sparse": aux.sparse.item(),
-            },
-            step=self.step.item(),
+            }
         )
-        # params = self.Params(activation=params.activation - 1.0 * grad.activation)
-        # loss_descent, _aux = self.fun(params)
-        # ic(loss, loss_descent, loss_descent < loss)
-        return loss, grad, aux
+        return value, grad, aux
 
-    def reg_sparse(self, params: ModelParams) -> Scalar:
+    def point_to_point(self, u: Full) -> Scalar:
+        diff: Float[Array, "face 3"] = u[self.face_point_id] - self.target
+        diff *= 10.0  # centimeter to millimeter
+        return jnp.average(
+            jnp.sum(jnp.square(diff), axis=-1), weights=self.face_point_area
+        )
+
+    def smooth(self, params: ModelParams) -> Scalar:
         activation: Float[Array, "cells 6"] = params["elastic"]["activation"]
-        muscle_activation: Float[Array, "muscle_cells 6"] = activation[
-            self.muscle_cell_idx
-        ]
-        return jnp.dot(
-            self.muscle_volume, jnp.sum(jnp.square(muscle_activation), axis=-1)
+        losses: list[Scalar] = []
+        muscle_volume: list[Scalar] = []
+        for cell_neighbors in self.muscle_id_to_cell_neighbors.values():
+            diff: Float[Array, "N 6"] = (
+                activation[cell_neighbors[:, 0]] - activation[cell_neighbors[:, 1]]
+            )
+            weights: Float[Array, " N"] = (
+                self.active_volume[cell_neighbors[:, 0]]
+                + self.active_volume[cell_neighbors[:, 1]]
+            )
+            loss: Scalar
+            volume: Scalar
+            loss, volume = jnp.average(
+                jnp.sum(jnp.square(diff), axis=-1), weights=weights, returned=True
+            )
+            losses.append(loss)
+            muscle_volume.append(volume)
+        return jnp.average(jnp.stack(losses), weights=jnp.stack(muscle_volume))
+
+    def sparse(self, params: ModelParams) -> Scalar:
+        activation: Float[Array, "cells 6"] = params["elastic"]["activation"]
+        return jnp.average(
+            jnp.sum(jnp.square(activation[self.active_cell_id]), axis=-1),
+            weights=self.active_volume[self.active_cell_id],
         )
 
 
-def prepare(mesh: pv.UnstructuredGrid) -> tuple[pv.UnstructuredGrid, InverseActivation]:
-    mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
+def get_muscle_id_to_cell_neighbors(
+    mesh: pv.UnstructuredGrid,
+) -> dict[int, Integer[Array, "N 2"]]:
+    unique_muscle_id: Integer[Array, " muscles"] = jnp.unique(
+        mesh.cell_data["MuscleId"][mesh.cell_data[MUSCLE_FRACTION] > 1e-3]
+    )
+    muscle_id_to_cell_neighbors: dict[int, Integer[Array, "N 2"]] = {}
+    for muscle_id in unique_muscle_id.tolist():
+        if muscle_id < 0:
+            continue
+        muscle_id_to_cell_neighbors[muscle_id] = jnp.asarray(
+            mesh.field_data[f"Muscle{muscle_id}CellNeighbors"]
+        )
+    return muscle_id_to_cell_neighbors
+
+
+def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
-
     elastic: Phace = Phace.from_pyvista(
-        mesh, id="elastic", requires_grad=["activation"]
+        mesh, requires_grad=["activation"], id="elastic"
     )
     builder.add_energy(elastic)
     model: Model = builder.finalize()
+    forward = Forward(model=model)
 
-    forward: Forward = Forward(model=model)
-
-    face_idx: Integer[Array, " face"] = jnp.flatnonzero(mesh.point_data["IsFace"])
-    muscle_cell_idx: Integer[Array, " muscle_cells"] = jnp.flatnonzero(
-        mesh.cell_data[MUSCLE_FRACTION] >= 1e-2
+    mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
+    surface: pv.PolyData = mesh.extract_surface()  # pyright: ignore[reportAssignmentType]
+    surface = melon.tri.compute_point_area(surface)
+    mesh = melon.transfer_tri_point_to_tet(
+        surface, mesh, data=["Area"], point_id=POINT_ID
     )
-    target: Float[Array, "face dim"] = jnp.asarray(
-        mesh.point_data["Expression000"][face_idx]
+    muscle_fraction: Float[Array, " cells"] = jnp.asarray(
+        mesh.cell_data[MUSCLE_FRACTION]
     )
-    muscle_volume: Float[Array, " muscle_cells"] = jnp.asarray(
-        mesh.cell_data[MUSCLE_FRACTION][muscle_cell_idx]
-    ) * jnp.asarray(mesh.cell_data["Volume"][muscle_cell_idx])
-
-    inverse = InverseActivation(
+    is_face: Bool[Array, " points"] = jnp.asarray(mesh.point_data["IsFace"])
+    active_cell_id: Integer[Array, " active"] = jnp.flatnonzero(muscle_fraction > 1e-3)
+    active_volume: Float[Array, " cells"] = jnp.asarray(
+        muscle_fraction * mesh.cell_data["Volume"]
+    )
+    face_point_area: Float[Array, " face"] = jnp.asarray(
+        mesh.point_data["Area"][is_face]
+    )
+    face_point_id: Integer[Array, " face"] = jnp.asarray(
+        mesh.point_data[POINT_ID][is_face]
+    )
+    muscle_id_to_cell_neighbors: dict[int, Integer[Array, "N 2"]] = (
+        get_muscle_id_to_cell_neighbors(mesh)
+    )
+    target: Float[Array, " face 3"] = jnp.asarray(mesh.point_data[expression][is_face])
+    inverse = PhaceInverse(
         forward=forward,
-        face_idx=face_idx,
-        muscle_cell_idx=muscle_cell_idx,
-        muscle_volume=muscle_volume,
+        active_cell_id=active_cell_id,
+        active_volume=active_volume,
+        face_point_area=face_point_area,
+        face_point_id=face_point_id,
+        muscle_id_to_cell_neighbors=muscle_id_to_cell_neighbors,
         n_cells=mesh.n_cells,
         target=target,
-        optimizer=Optax(optax.adam(0.1), max_steps=10000, gtol=jnp.asarray(1e-5)),
+        optimizer=Optax(optax.adam(0.1)),
     )
-    return mesh, inverse
-
-
-def calc_inverse(
-    mesh: pv.UnstructuredGrid,
-    target: pv.UnstructuredGrid,
-    inverse: InverseActivation,
-    idx: str = "000",
-) -> pv.UnstructuredGrid:
-    inverse.target = jnp.asarray(target.point_data[f"Expression{idx}"])[
-        inverse.face_idx
-    ]
-    params = InverseActivation.Params(activation=jnp.zeros((inverse.n_muscle_cells, 6)))
-    bounds = BoundConstraint(
-        InverseActivation.Params(
-            activation=jnp.full((inverse.n_muscle_cells, 6), -20.0)
-        ),
-        InverseActivation.Params(
-            activation=jnp.full((inverse.n_muscle_cells, 6), 20.0)
-        ),
-    )
-
-    with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adam-{idx}.vtu.series")
-    ) as writer:
-
-        def callback(state: Optax.State, stats: Optax.Stats) -> None:
-            ic(state, stats)
-            ic(jnp.linalg.norm(state.updates_flat, ord=jnp.inf))
-            inverse.step = jnp.asarray(stats.n_steps)
-            # inverse.step = stats.n_steps
-            # inverse.fun_history.clear()
-            # inverse.grad_norm_history.clear()
-            # inverse.params_history.clear()
-            # cherries.log_metrics({idx: {"loss": state.fun}}, step=stats.n_steps)
-            params: ModelParams = inverse.make_params(state.params)
-            point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
-            mesh.point_data[f"Solution{idx}"] = inverse.model.u_full[point_id]  # pyright: ignore[reportArgumentType]
-            mesh.point_data[f"Residual{idx}"] = np.zeros((mesh.n_points, 3))
-            mesh.point_data[f"Residual{idx}"][inverse.face_idx] = (  # pyright: ignore[reportArgumentType]
-                inverse.model.u_full[inverse.face_idx] - inverse.target
-            )
-            mesh.cell_data[f"Activation{idx}"] = params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
-            writer.append(mesh)
-
-        solution: ScipyOptimizer.Solution = inverse.solve(
-            params=params, constraints=[bounds], callback=callback
-        )
-
-    ic(solution)
-    model_params: ModelParams = inverse.make_params(solution.params)
-    point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
-    mesh.point_data[f"Solution{idx}"] = inverse.model.u_full[point_id]  # pyright: ignore[reportArgumentType]
-    mesh.cell_data[f"Activation{idx}"] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
-    return mesh
+    return inverse
 
 
 def main(cfg: Config) -> None:
+    grapes.config.pretty.short_arrays_threshold.set(10)
+
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
-    target: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    # target.point_data["Expression000"] *= 0.8
-    # target.point_data["Expression001"] *= 0.8
-    inverse: InverseActivation
-    mesh, inverse = prepare(mesh)
-    mesh = calc_inverse(mesh, target, inverse, idx="000")
-    mesh = calc_inverse(mesh, target, inverse, idx="001")
-    melon.save(cfg.output, mesh)
+    inverse: PhaceInverse = prepare(mesh, cfg.expression)
+    params: PhaceInverse.Params = PhaceInverse.Params(
+        activation=jnp.zeros((inverse.n_active_cells, 6))
+    )
+    n_steps: int = 0
+
+    with melon.SeriesWriter(
+        cherries.temp(f"20-inverse-adam{SUFFIX}.vtu.series")
+    ) as writer:
+
+        def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
+            nonlocal n_steps
+            ic(stats)
+            model_params: ModelParams = inverse.make_params(state.params)
+            point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
+            mesh.point_data["Solution"] = inverse.forward.u_full[point_id]  # pyright: ignore[reportArgumentType]
+            face_point_to_point: Float[Array, "face 3"] = (
+                inverse.forward.u_full[inverse.face_point_id] - inverse.target
+            )
+            mesh.point_data["PointToPoint"] = np.zeros((mesh.n_points, 3))
+            mesh.point_data["PointToPoint"][inverse.face_point_id] = face_point_to_point  # pyright: ignore[reportArgumentType]
+            point_to_point_max: Scalar = jnp.max(
+                jnp.linalg.norm(face_point_to_point, axis=-1)
+            )
+            cherries.log_metric("point_to_point_max", point_to_point_max.item())
+            mesh.cell_data[ACTIVATION] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
+            writer.append(mesh)
+            cherries.set_step(n_steps)
+            n_steps += 1
+
+        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
+        inverse.optimizer = Optax(
+            optax.adam(0.1), max_steps=200, rtol=1e-3, patience=20
+        )
+        inverse.weights.smooth = jnp.asarray(1.0)
+        solution: Optimizer.Solution = inverse.solve(params, callback=callback)
+        ic(solution)
+        params = solution.params
+
+        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
+        inverse.optimizer = Optax(
+            optax.adam(0.01), max_steps=1000, rtol=0.0, patience=20
+        )
+        inverse.weights.smooth = jnp.asarray(0.1)
+        solution: Optimizer.Solution = inverse.solve(params, callback=callback)
+        ic(solution)
+        params = solution.params
 
 
 if __name__ == "__main__":

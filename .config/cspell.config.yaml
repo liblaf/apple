@@ -7,12 +7,12 @@ cache:
 caseSensitive: false
 enableGlobDot: true
 ignorePaths:
-  - .cspell.*
   - .git/
-  - "*-lock.*"
   - "*.lock"
+  - "*.vtm"
+  - "*.vtp"
+  - "*.vtu"
   - cspell.*
-  - go.sum
 ignoreRandomStrings: true
 maxFileSize: 500KB
 useGitignore: true
@@ -32,6 +32,7 @@ words:
   - defvjp
   - dhdr
   - direnv
+  - dlpack
   - dofs
   - dtypes
   - eigh
@@ -42,6 +43,7 @@ words:
   - finfo
   - getattr
   - gmres
+  - gtol
   - hessp
   - hynek
   - icosphere
@@ -52,11 +54,11 @@ words:
   - jaxtyping
   - koiter
   - labii
+  - lbfgs
   - liblaf
   - lineax
   - matmul
   - matvec
-  - maxls
   - mkdocs
   - mkdocstrings
   - nans

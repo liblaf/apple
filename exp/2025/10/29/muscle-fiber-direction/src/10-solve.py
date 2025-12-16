@@ -3,12 +3,12 @@ import numpy as np
 import pyvista as pv
 from jax import Array
 from jaxtyping import Integer
-from liblaf.apple.jax.typing import Scalar, Vector
 from liblaf.peach import optim
 from liblaf.peach import tree_utils as tree
 
 from liblaf import grapes, melon
 from liblaf.apple.jax import sim as sim_jax
+from liblaf.apple.jax.typing import Scalar, Vector
 
 
 @tree.define

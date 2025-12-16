@@ -22,7 +22,8 @@ type ModelParams = Mapping[str, EnergyParams]
 type Full = Float[Array, "points dim"]
 type Scalar = Float[Array, ""]
 
-SUFFIX: str = env.str("SUFFIX", default="-68k-coarse")
+
+SUFFIX: str = env.str("SUFFIX", default="-123k")
 
 
 class Config(cherries.BaseConfig):
@@ -105,23 +106,19 @@ class PhaceInverse(Inverse):
     def smooth(self, params: ModelParams) -> Scalar:
         activation: Float[Array, "cells 6"] = params["elastic"]["activation"]
         losses: list[Scalar] = []
-        muscle_volume: list[Scalar] = []
+        normalizations: list[Scalar] = []
         for cell_neighbors in self.muscle_id_to_cell_neighbors.values():
             diff: Float[Array, "N 6"] = (
                 activation[cell_neighbors[:, 0]] - activation[cell_neighbors[:, 1]]
             )
-            weights: Float[Array, " N"] = (
-                self.active_volume[cell_neighbors[:, 0]]
-                + self.active_volume[cell_neighbors[:, 1]]
-            )
             loss: Scalar
-            volume: Scalar
-            loss, volume = jnp.average(
-                jnp.sum(jnp.square(diff), axis=-1), weights=weights, returned=True
+            normalization: Scalar
+            loss, normalization = jnp.average(
+                jnp.sum(jnp.square(diff), axis=-1), returned=True
             )
             losses.append(loss)
-            muscle_volume.append(volume)
-        return jnp.average(jnp.stack(losses), weights=jnp.stack(muscle_volume))
+            normalizations.append(normalization)
+        return jnp.average(jnp.stack(losses), weights=jnp.stack(normalizations))
 
     def sparse(self, params: ModelParams) -> Scalar:
         activation: Float[Array, "cells 6"] = params["elastic"]["activation"]
@@ -224,6 +221,7 @@ def main(cfg: Config) -> None:
             point_to_point_max: Scalar = jnp.max(
                 jnp.linalg.norm(face_point_to_point, axis=-1)
             )
+            point_to_point_max *= 10.0  # centimeter to millimeter
             cherries.log_metric("point_to_point_max", point_to_point_max.item())
             mesh.cell_data[ACTIVATION] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
             writer.append(mesh)
@@ -232,7 +230,7 @@ def main(cfg: Config) -> None:
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
         inverse.optimizer = Optax(
-            optax.adam(0.1), max_steps=200, rtol=1e-3, patience=20
+            optax.adam(0.1), max_steps=1000, rtol=1e-3, patience=100
         )
         inverse.weights.smooth = jnp.asarray(1.0)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
@@ -241,9 +239,9 @@ def main(cfg: Config) -> None:
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
         inverse.optimizer = Optax(
-            optax.adam(0.01), max_steps=1000, rtol=0.0, patience=20
+            optax.adam(0.05), max_steps=1000, rtol=0.0, patience=100
         )
-        inverse.weights.smooth = jnp.asarray(0.1)
+        inverse.weights.smooth = jnp.asarray(1e-3)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params

@@ -26,7 +26,7 @@ def _default_optimizer(self: Forward) -> Optimizer:
         if self.model.edges_length_mean > 0
         else jnp.asarray(jnp.inf)
     )
-    return PNCG(max_steps=max_steps, d_hat=d_hat)
+    return PNCG(max_steps=max_steps, line_search=PNCG.default_line_search(d_hat=d_hat))
 
 
 @tree.define

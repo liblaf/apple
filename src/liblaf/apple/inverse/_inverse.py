@@ -45,6 +45,12 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         minres_max_steps: int = max(
             1000, int(jnp.ceil(10 * jnp.sqrt(self.model.n_free)))
         )
+        # return CompositeSolver(
+        #     [
+        #         JaxCG(max_steps=cg_max_steps, rtol=rtol),
+        #         JaxBiCGStab(max_steps=minres_max_steps, rtol=rtol),
+        #     ]
+        # )
         if peach.cuda.is_available():
             from liblaf.peach.linalg import CupyMinRes
 
@@ -92,8 +98,19 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         u_free: Free = self.model.to_free(u)
         preconditioner: Free = jnp.reciprocal(self.model.hess_diag(u_free))
 
+        @jax.custom_jvp
         def matvec(p_free: Free) -> Free:
             return self.model.hess_prod(u_free, p_free)
+
+        @matvec.defjvp
+        def matvec_jvp(
+            primals: tuple[Free,], tangents: tuple[Free,]
+        ) -> tuple[Free, Free]:
+            (p_free,) = primals
+            (dp_free,) = tangents
+            Hp: Free = matvec(p_free)
+            dHp: Free = matvec(dp_free)
+            return Hp, dHp
 
         def preconditioner_fn(p_free: Free) -> Free:
             return preconditioner * p_free
@@ -182,15 +199,16 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         return loss, grad, aux
 
     def _forward(self, model_params: ModelParams) -> Full:
+        solution: Optimizer.Solution = self._forward_inner(model_params)
+        logger.info("Forward Statistics: %r", solution.stats)
+        return self.model.u_full
+
+    def _forward_inner(self, model_params: ModelParams) -> Optimizer.Solution:
         self.model.update_params(model_params)
         if not self.last_forward_success:
             self.model.u_free = jnp.zeros((self.model.n_free,))
         solution: Optimizer.Solution = self.forward.step()
-        # if self.last_forward_success and not solution.success:
-        #     self.model.u_free = jnp.zeros((self.model.n_free,))
-        #     solution = self.forward.step()
         self.last_forward_success = jnp.asarray(
             solution.success, self.last_forward_success.dtype
         )
-        logger.info("Forward Statistics: %r", solution.stats)
-        return self.model.u_full
+        return solution

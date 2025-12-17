@@ -26,11 +26,14 @@ type Scalar = Float[Array, ""]
 
 
 logger: logging.Logger = logging.getLogger(__name__)
-SUFFIX: str = env.str("SUFFIX", default="-123k")
+SUFFIX: str = env.str("SUFFIX", default="-515k")
 
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
+    initial: Path = cherries.temp(
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000094.vtu"
+    )
     expression: str = "Expression000"
 
 
@@ -232,14 +235,21 @@ def main(cfg: Config) -> None:
     grapes.config.pretty.short_arrays_threshold.set(10)
 
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
+    initial: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.initial)
+    mesh = melon.transfer_tet_cell(initial, mesh, data=[ACTIVATION])
+
     inverse: PhaceInverse = prepare(mesh, cfg.expression)
+    activation: Float[np.ndarray, "cells 6"] = np.zeros_like(mesh.cell_data[ACTIVATION])
+    activation[inverse.active_cell_id] = mesh.cell_data[ACTIVATION][  # pyright: ignore[reportArgumentType]
+        inverse.active_cell_id
+    ]
     params: PhaceInverse.Params = PhaceInverse.Params(
-        activation=jnp.zeros((inverse.n_active_cells, 6))
+        activation=mesh.cell_data[ACTIVATION][inverse.active_cell_id]
     )
     n_steps: int = 0
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adam{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-adam-fine{SUFFIX}.vtu.series")
     ) as writer:
 
         def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
@@ -263,14 +273,14 @@ def main(cfg: Config) -> None:
             cherries.set_step(n_steps)
             n_steps += 1
 
-        inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
-        inverse.optimizer = Optax(
-            optax.adam(0.1), max_steps=1000, rtol=0.0, patience=20
-        )
-        inverse.weights.smooth = jnp.asarray(1.0)
-        solution: Optimizer.Solution = inverse.solve(params, callback=callback)
-        ic(solution)
-        params = solution.params
+        # inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-3)
+        # inverse.optimizer = Optax(
+        #     optax.adam(0.1), max_steps=1000, rtol=1e-3, patience=20
+        # )
+        # inverse.weights.smooth = jnp.asarray(1.0)
+        # solution: Optimizer.Solution = inverse.solve(params, callback=callback)
+        # ic(solution)
+        # params = solution.params
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
         inverse.optimizer = Optax(

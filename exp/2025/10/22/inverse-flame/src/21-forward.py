@@ -92,10 +92,10 @@ class PNCG(OrigPNCG):
             p = -P * g
         else:
             grad_norm = jnp.linalg.norm(state.grad_flat)
-            state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
             state.stagnation_count = jnp.where(
                 grad_norm < state.grad_norm_min, 0, state.stagnation_count + 1
             )
+            state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
             if state.stagnation_count > 20:
                 logger.warning(
                     "Stagnation detected: gradient norm has not decreased for 20 steps."

@@ -85,8 +85,8 @@ class PNCG(OrigPNCG):
         H_diag: Vector
         g, H_diag = objective.grad_and_hess_diag(state.params_flat)
         H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
-        if state.hess_diag_flat is not None:
-            H_diag = state.hess_diag_flat
+        # if state.hess_diag_flat is not None:
+        #     H_diag = state.hess_diag_flat
         P: Vector = jnp.reciprocal(H_diag)
         ic(jnp.min(P), jnp.max(P), jnp.mean(P))
         # P = jnp.ones_like(P)  # No preconditioning
@@ -175,7 +175,7 @@ def main(cfg: Config) -> None:
     forward = Forward(
         model=model,
         optimizer=PNCG(
-            max_steps=1000,
+            max_steps=10000,
             timer=True,
             rtol=1e-8,
             line_search=PNCG.default_line_search(d_hat=1, line_search_steps=0),

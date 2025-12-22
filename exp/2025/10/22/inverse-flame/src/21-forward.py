@@ -174,11 +174,11 @@ def main(cfg: Config) -> None:
     model: Model = build_model(mesh)
     forward = Forward(
         model=model,
-        optimizer=PNCG(
-            max_steps=10000,
+        optimizer=OrigPNCG(
+            max_steps=1000,
             timer=True,
             rtol=1e-8,
-            line_search=PNCG.default_line_search(d_hat=1, line_search_steps=0),
+            # line_search=PNCG.default_line_search(d_hat=1, line_search_steps=0),
         ),
     )
 
@@ -197,10 +197,10 @@ def main(cfg: Config) -> None:
                 "delta_x_max_norm": jnp.linalg.norm(
                     state.alpha * state.search_direction_flat, ord=jnp.inf
                 ),
-                "path_efficiency": state.path_efficiency,
-                "total_path_length": state.total_path_length,
-                "net_displacement": state.net_displacement,
-                "stagnation_count": state.stagnation_count,
+                # "path_efficiency": state.path_efficiency,
+                # "total_path_length": state.total_path_length,
+                # "net_displacement": state.net_displacement,
+                # "stagnation_count": state.stagnation_count,
             },
             step=stats.n_steps,
         )

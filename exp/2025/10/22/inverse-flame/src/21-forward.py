@@ -36,7 +36,7 @@ def main(cfg: Config) -> None:
     def callback(state: PNCG.State, stats: PNCG.Stats) -> None:
         cherries.log_metrics(
             {
-                "relative_decrease": stats.relative_decrease.item(),
+                "relative_decrease": stats.relative_decrease,
                 "grad_norm": jnp.linalg.norm(state.grad_flat),
                 "grad_max_norm": jnp.linalg.norm(state.grad_flat, ord=jnp.inf),
                 "alpha": state.alpha,

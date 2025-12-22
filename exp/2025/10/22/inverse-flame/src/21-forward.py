@@ -178,6 +178,7 @@ def main(cfg: Config) -> None:
             max_steps=1000,
             timer=True,
             rtol=1e-8,
+            max_delta=0.25 * model.edges_length_mean,
             # line_search=PNCG.default_line_search(d_hat=1, line_search_steps=0),
         ),
     )

@@ -1,6 +1,8 @@
+import collections
 import logging
 from collections.abc import Iterable
 from pathlib import Path
+from typing import override
 
 import equinox as eqx
 import jax.numpy as jnp
@@ -42,6 +44,15 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
 
 @tree.define
 class PNCG(OrigPNCG):
+    @tree.define
+    class State(OrigPNCG.State):
+        delta_x_history: collections.deque[Vector] = tree.field(
+            factory=lambda: collections.deque(maxlen=20)
+        )
+        total_path_length: Scalar = tree.array(default=0.0)
+        net_displacement: Scalar = tree.array(default=0.0)
+        path_efficiency: Scalar = tree.array(default=0.0)
+
     @eqx.filter_jit
     def _compute_beta(self, g_prev: Vector, g: Vector, p: Vector, P: Vector) -> Scalar:
         y: Vector = g - g_prev
@@ -54,6 +65,30 @@ class PNCG(OrigPNCG):
         beta = jnp.where(self.clamp_beta, jnp.maximum(beta, 0.0), beta)
         beta = jnp.where(beta > 2.0, 0.0, beta)
         return beta
+
+    @override
+    def step(
+        self,
+        objective: Objective,
+        state: State,
+        *,
+        constraints: Iterable[Constraint] = (),
+    ) -> State:
+        state = super().step(objective, state, constraints=constraints)  # pyright: ignore[reportAssignmentType]
+        delta_x: Vector = state.alpha * state.search_direction_flat
+        state.delta_x_history.append(delta_x)
+        # if len(state.delta_x_history) == 20:
+        total_path_len: Scalar = jnp.sum(
+            jnp.stack([jnp.linalg.norm(dx) for dx in state.delta_x_history])
+        )
+        net_disp: Scalar = jnp.linalg.norm(
+            jnp.sum(jnp.stack(state.delta_x_history), axis=0)
+        )
+        path_efficiency: Scalar = net_disp / total_path_len
+        state.path_efficiency = path_efficiency
+        state.total_path_length = total_path_len
+        state.net_displacement = net_disp
+        return state
 
     def postprocess(
         self,
@@ -102,6 +137,9 @@ def main(cfg: Config) -> None:
                 "delta_x_max_norm": jnp.linalg.norm(
                     state.alpha * state.search_direction_flat, ord=jnp.inf
                 ),
+                "path_efficiency": state.path_efficiency,
+                "total_path_length": state.total_path_length,
+                "net_displacement": state.net_displacement,
             },
             step=stats.n_steps,
         )

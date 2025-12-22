@@ -32,7 +32,7 @@ SUFFIX: str = env.str("SUFFIX", default="-515k")
 class Config(cherries.BaseConfig):
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
     initial: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000094.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000149.vtu"
     )
     expression: str = "Expression000"
 
@@ -284,7 +284,7 @@ def main(cfg: Config) -> None:
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
         inverse.optimizer = Optax(
-            optax.adam(0.05), max_steps=1000, rtol=0.0, patience=100
+            optax.adam(0.02), max_steps=1000, rtol=0.0, patience=100
         )
         inverse.weights.smooth = jnp.asarray(1e-3)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)

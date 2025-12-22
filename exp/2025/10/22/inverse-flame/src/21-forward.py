@@ -87,7 +87,7 @@ class PNCG(OrigPNCG):
         H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
         P: Vector = jnp.reciprocal(H_diag)
         ic(jnp.min(P), jnp.max(P), jnp.mean(P))
-        # P = jnp.ones_like(P)  # No preconditioning
+        P = jnp.ones_like(P)  # No preconditioning
         beta: Scalar
         p: Vector
         if state.search_direction_flat is None:

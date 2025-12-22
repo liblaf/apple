@@ -29,7 +29,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000087.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000075.vtu"
     )
 
 

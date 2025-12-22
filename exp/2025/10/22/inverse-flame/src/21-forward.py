@@ -47,7 +47,7 @@ class PNCG(OrigPNCG):
     @tree.define
     class State(OrigPNCG.State):
         delta_x_history: collections.deque[Vector] = tree.field(
-            factory=lambda: collections.deque(maxlen=20)
+            factory=lambda: collections.deque(maxlen=50)
         )
         total_path_length: Scalar = tree.array(default=0.0)
         net_displacement: Scalar = tree.array(default=0.0)

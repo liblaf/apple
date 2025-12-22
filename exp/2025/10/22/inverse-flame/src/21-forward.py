@@ -35,7 +35,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
-    builder.add_energy(Phace.from_pyvista(mesh, id="elastic"))
+    builder.add_energy(Phace.from_pyvista(mesh, id="elastic", clamp_lambda=False))
     model: Model = builder.finalize()
     return model
 

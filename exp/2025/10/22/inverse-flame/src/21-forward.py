@@ -78,7 +78,14 @@ class PNCG(OrigPNCG):
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     model: Model = build_model(mesh)
-    forward = Forward(model=model, optimizer=PNCG(max_steps=1000, timer=True))
+    forward = Forward(
+        model=model,
+        optimizer=PNCG(
+            max_steps=1000,
+            timer=True,
+            line_search=PNCG.default_line_search(d_hat=1e-3, line_search_steps=0),
+        ),
+    )
 
     def callback(state: PNCG.State, stats: PNCG.Stats) -> None:
         cherries.log_metrics(

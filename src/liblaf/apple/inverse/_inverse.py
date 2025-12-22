@@ -198,16 +198,22 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         (grad,) = model_params_vjp(model_params_grad)
         return loss, grad, aux
 
-    def _forward(self, model_params: ModelParams) -> Full:
-        solution: Optimizer.Solution = self._forward_inner(model_params)
+    def _forward(
+        self, model_params: ModelParams, *, callback: Callback | None = None
+    ) -> Full:
+        solution: Optimizer.Solution = self._forward_inner(
+            model_params, callback=callback
+        )
         logger.info("Forward Statistics: %r", solution.stats)
         return self.model.u_full
 
-    def _forward_inner(self, model_params: ModelParams) -> Optimizer.Solution:
+    def _forward_inner(
+        self, model_params: ModelParams, *, callback: Callback | None = None
+    ) -> Optimizer.Solution:
         self.model.update_params(model_params)
         if not self.last_forward_success:
             self.model.u_free = jnp.zeros((self.model.n_free,))
-        solution: Optimizer.Solution = self.forward.step()
+        solution: Optimizer.Solution = self.forward.step(callback=callback)
         self.last_forward_success = jnp.asarray(
             solution.success, self.last_forward_success.dtype
         )

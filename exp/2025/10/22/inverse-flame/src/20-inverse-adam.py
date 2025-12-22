@@ -12,6 +12,7 @@ from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach import tree
 from liblaf.peach.linalg import CompositeSolver
 from liblaf.peach.optim import PNCG, Optax, Optimizer
+from liblaf.peach.optim.abc import Callback
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
@@ -149,8 +150,14 @@ class PhaceInverse(Inverse):
         )
 
     @override
-    def _forward(self, model_params: ModelParams) -> Full:
-        solution: PNCG.Solution = self._forward_inner(model_params)
+    def _forward(
+        self, model_params: ModelParams, *, callback: Callback | None = None
+    ) -> Full:
+        # def callback(state: PNCG.State, stats: PNCG.Stats) -> None:
+        #     ic(stats.n_steps, jnp.linalg.norm(state.grad_flat, ord=jnp.inf))
+        #     ic(stats.n_steps, jnp.linalg.norm(state.grad_flat))
+
+        solution: PNCG.Solution = self._forward_inner(model_params, callback=callback)
         logger.info("Forward Statistics: %r", solution.stats)
         cherries.log_metrics(
             {

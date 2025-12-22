@@ -106,6 +106,9 @@ class PNCG(OrigPNCG):
                     "Stagnation detected: gradient norm has not decreased for 20 steps."
                 )
                 beta = jnp.zeros(())
+                H_diag = objective.hess_diag(state.params_flat)
+                H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
+                P = jnp.reciprocal(H_diag)
                 # P = jnp.ones_like(P)  # Reset preconditioner
             else:
                 beta = self._compute_beta(

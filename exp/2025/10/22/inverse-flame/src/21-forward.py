@@ -1,14 +1,26 @@
 import logging
+from collections.abc import Iterable
 from pathlib import Path
 
+import equinox as eqx
 import jax.numpy as jnp
 import pyvista as pv
-from liblaf.peach.optim import PNCG
+from jaxtyping import Array, Float
+from liblaf.peach import tree
+from liblaf.peach.constraints import Constraint
+from liblaf.peach.optim import PNCG as OrigPNCG
+from liblaf.peach.optim.abc._types import OptimizeSolution, Result
+from liblaf.peach.optim.objective import Objective
+from liblaf.peach.optim.pncg._state import PNCGState
+from liblaf.peach.optim.pncg._stats import PNCGStats
 
-from liblaf import cherries, melon
+from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Model, ModelBuilder
 from liblaf.apple.constants import POINT_ID
 from liblaf.apple.warp import Phace
+
+type Scalar = Float[Array, ""]
+type Vector = Float[Array, " N"]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -28,10 +40,45 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     return model
 
 
+@tree.define
+class PNCG(OrigPNCG):
+    @eqx.filter_jit
+    def _compute_beta(self, g_prev: Vector, g: Vector, p: Vector, P: Vector) -> Scalar:
+        y: Vector = g - g_prev
+        yTp: Scalar = jnp.vdot(y, p)
+        Py: Scalar = P * y
+        beta: Scalar = jnp.vdot(g, Py) / yTp - (jnp.vdot(y, Py) / yTp) * (
+            jnp.vdot(p, g) / yTp
+        )
+        beta = jnp.nan_to_num(beta, nan=0.0)
+        beta = jnp.where(self.clamp_beta, jnp.maximum(beta, 0.0), beta)
+        beta = jnp.where(beta > 2.0, 0.0, beta)
+        return beta
+
+    def postprocess(
+        self,
+        objective: Objective,
+        state: PNCGState,
+        stats: PNCGStats,
+        result: Result,
+        *,
+        constraints: Iterable[Constraint] = (),
+    ) -> OptimizeSolution[PNCGState, PNCGStats]:
+        solution = super().postprocess(
+            objective, state, stats, result, constraints=constraints
+        )
+        if self.timer:
+            for name in ["fun", "grad_and_hess_diag", "hess_quad"]:
+                timer = grapes.get_timer(getattr(objective, name, None), None)
+                if timer is not None:
+                    timer.finish()
+        return solution
+
+
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     model: Model = build_model(mesh)
-    forward = Forward(model=model)
+    forward = Forward(model=model, optimizer=PNCG(max_steps=1000, timer=True))
 
     def callback(state: PNCG.State, stats: PNCG.Stats) -> None:
         cherries.log_metrics(

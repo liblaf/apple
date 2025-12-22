@@ -89,7 +89,7 @@ class PNCG(OrigPNCG):
             H_diag = state.hess_diag_flat
         P: Vector = jnp.reciprocal(H_diag)
         ic(jnp.min(P), jnp.max(P), jnp.mean(P))
-        # P = jnp.ones_like(P)  # No preconditioning
+        P = jnp.ones_like(P)  # No preconditioning
         beta: Scalar
         p: Vector
         if state.search_direction_flat is None:
@@ -106,10 +106,10 @@ class PNCG(OrigPNCG):
                     "Stagnation detected: gradient norm has not decreased for 20 steps."
                 )
                 beta = jnp.zeros(())
-                H_diag = objective.hess_diag(state.params_flat)
-                H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
-                P = jnp.reciprocal(H_diag)
-                # P = jnp.ones_like(P)  # Reset preconditioner
+                # H_diag = objective.hess_diag(state.params_flat)
+                # H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
+                # P = jnp.reciprocal(H_diag)
+                P = jnp.ones_like(P)  # Reset preconditioner
             else:
                 beta = self._compute_beta(
                     g_prev=state.grad_flat, g=g, p=state.search_direction_flat, P=P

@@ -29,7 +29,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000087.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000075.vtu"
     )
 
 
@@ -52,6 +52,7 @@ class PNCG(OrigPNCG):
         total_path_length: Scalar = tree.array(default=0.0)
         net_displacement: Scalar = tree.array(default=0.0)
         path_efficiency: Scalar = tree.array(default=0.0)
+        grad_norm_min: Scalar = tree.array(default=jnp.inf)
 
     @eqx.filter_jit
     def _compute_beta(self, g_prev: Vector, g: Vector, p: Vector, P: Vector) -> Scalar:
@@ -75,6 +76,9 @@ class PNCG(OrigPNCG):
         constraints: Iterable[Constraint] = (),
     ) -> State:
         state = super().step(objective, state, constraints=constraints)  # pyright: ignore[reportAssignmentType]
+        grad_norm: Scalar = jnp.linalg.norm(state.grad_flat)
+        state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
+
         delta_x: Vector = state.alpha * state.search_direction_flat
         state.delta_x_history.append(delta_x)
         # if len(state.delta_x_history) == 20:

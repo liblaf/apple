@@ -7,7 +7,7 @@ from typing import override
 import equinox as eqx
 import jax.numpy as jnp
 import pyvista as pv
-from jaxtyping import Array, Float
+from jaxtyping import Array, Float, Integer
 from liblaf.peach import tree
 from liblaf.peach.constraints import Constraint
 from liblaf.peach.optim import PNCG as OrigPNCG
@@ -29,7 +29,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000075.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000087.vtu"
     )
 
 
@@ -53,6 +53,7 @@ class PNCG(OrigPNCG):
         net_displacement: Scalar = tree.array(default=0.0)
         path_efficiency: Scalar = tree.array(default=0.0)
         grad_norm_min: Scalar = tree.array(default=jnp.inf)
+        stagnation_count: Integer[Array, ""] = tree.array(default=0)
 
     @eqx.filter_jit
     def _compute_beta(self, g_prev: Vector, g: Vector, p: Vector, P: Vector) -> Scalar:
@@ -75,9 +76,52 @@ class PNCG(OrigPNCG):
         *,
         constraints: Iterable[Constraint] = (),
     ) -> State:
-        state = super().step(objective, state, constraints=constraints)  # pyright: ignore[reportAssignmentType]
-        grad_norm: Scalar = jnp.linalg.norm(state.grad_flat)
-        state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
+        if constraints:
+            raise NotImplementedError
+        assert objective.grad_and_hess_diag is not None
+        assert objective.hess_quad is not None
+        g: Vector
+        H_diag: Vector
+        g, H_diag = objective.grad_and_hess_diag(state.params_flat)
+        H_diag = jnp.where(H_diag <= 0.0, 1.0, H_diag)
+        P: Vector = jnp.reciprocal(H_diag)
+        beta: Scalar
+        p: Vector
+        if state.search_direction_flat is None:
+            beta = jnp.zeros(())
+            p = -P * g
+        else:
+            grad_norm = jnp.linalg.norm(state.grad_flat)
+            state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
+            state.stagnation_count = jnp.where(
+                grad_norm < state.grad_norm_min, 0, state.stagnation_count + 1
+            )
+            if state.stagnation_count > 20:
+                logger.warning(
+                    "Stagnation detected: gradient norm has not decreased for 20 steps."
+                )
+                beta = jnp.zeros(())
+            else:
+                beta = self._compute_beta(
+                    g_prev=state.grad_flat, g=g, p=state.search_direction_flat, P=P
+                )
+            p = -P * g + beta * state.search_direction_flat
+        pHp: Scalar = objective.hess_quad(state.params_flat, p)
+        alpha: Scalar = self.line_search.search(objective, state.params_flat, g, p)
+        # alpha *= 0.5
+        state.params_flat += alpha * p
+        DeltaE: Scalar = -alpha * jnp.vdot(g, p) - 0.5 * alpha**2 * pHp
+        if state.first_decrease is None:
+            state.first_decrease = DeltaE
+        state.alpha = alpha
+        state.beta = beta
+        state.decrease = DeltaE
+        state.grad_flat = g
+        state.hess_diag_flat = H_diag
+        state.hess_quad = pHp
+        state.preconditioner_flat = P
+        state.search_direction_flat = p
+        # return state
 
         delta_x: Vector = state.alpha * state.search_direction_flat
         state.delta_x_history.append(delta_x)
@@ -144,6 +188,7 @@ def main(cfg: Config) -> None:
                 "path_efficiency": state.path_efficiency,
                 "total_path_length": state.total_path_length,
                 "net_displacement": state.net_displacement,
+                "stagnation_count": state.stagnation_count,
             },
             step=stats.n_steps,
         )

@@ -15,7 +15,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000087.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000075.vtu"
     )
 
 
@@ -40,6 +40,7 @@ def main(cfg: Config) -> None:
                 "grad_norm": jnp.linalg.norm(state.grad_flat),
                 "grad_max_norm": jnp.linalg.norm(state.grad_flat, ord=jnp.inf),
                 "alpha": state.alpha,
+                "beta": state.beta,
                 "delta_x_norm": jnp.linalg.norm(
                     state.alpha * state.search_direction_flat
                 ),

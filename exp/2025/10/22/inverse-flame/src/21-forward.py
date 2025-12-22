@@ -119,7 +119,7 @@ class PNCG(OrigPNCG):
         # pHp: Scalar = objective.hess_quad(state.params_flat, p)
         pHp: Scalar = objective.hess_quad(jnp.zeros_like(state.params_flat), p)
         alpha: Scalar = self.line_search.search(objective, state.params_flat, g, p)
-        # alpha *= 0.5
+        alpha *= 0.5
         state.params_flat += alpha * p
         DeltaE: Scalar = -alpha * jnp.vdot(g, p) - 0.5 * alpha**2 * pHp
         if state.first_decrease is None:

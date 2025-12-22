@@ -172,6 +172,7 @@ def main(cfg: Config) -> None:
         optimizer=PNCG(
             max_steps=1000,
             timer=True,
+            rtol=1e-8,
             line_search=PNCG.default_line_search(d_hat=1, line_search_steps=0),
         ),
     )

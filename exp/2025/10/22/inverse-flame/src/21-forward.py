@@ -29,7 +29,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.temp(
-        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000075.vtu"
+        "20-inverse-adam-123k.vtu.d/20-inverse-adam-123k_000087.vtu"
     )
 
 
@@ -102,6 +102,7 @@ class PNCG(OrigPNCG):
             )
             state.grad_norm_min = jnp.minimum(state.grad_norm_min, grad_norm)
             if state.stagnation_count > 20:
+                state.stagnation_count = jnp.zeros_like(state.stagnation_count)
                 logger.warning(
                     "Stagnation detected: gradient norm has not decreased for 20 steps."
                 )

@@ -164,6 +164,16 @@ class PhaceInverse(Inverse):
                 "forward": {
                     "relative_decrease": solution.stats.relative_decrease.item(),
                     "success": int(solution.success),
+                    "grad_max_norm": jnp.linalg.norm(
+                        solution.state.grad_flat, ord=jnp.inf
+                    ),
+                    "delta_x_norm": jnp.linalg.norm(
+                        solution.state.alpha * solution.state.search_direction_flat
+                    ),
+                    "delta_x_max_norm": jnp.linalg.norm(
+                        solution.state.alpha * solution.state.search_direction_flat,
+                        ord=jnp.inf,
+                    ),
                 }
             }
         )

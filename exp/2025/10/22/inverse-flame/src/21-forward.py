@@ -10,11 +10,10 @@ import pyvista as pv
 from jaxtyping import Array, Float, Integer
 from liblaf.peach import tree
 from liblaf.peach.constraints import Constraint
-from liblaf.peach.optim import PNCG as OrigPNCG
-from liblaf.peach.optim.abc._types import OptimizeSolution, Result
+from liblaf.peach.optim import PNCG as OPNCG
+from liblaf.peach.optim.abc import OptimizeSolution, Result
 from liblaf.peach.optim.objective import Objective
-from liblaf.peach.optim.pncg._state import PNCGState
-from liblaf.peach.optim.pncg._stats import PNCGStats
+from liblaf.peach.optim.pncg import PNCGState, PNCGStats
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Model, ModelBuilder
@@ -44,9 +43,9 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
 
 
 @tree.define
-class PNCG(OrigPNCG):
+class PNCG(OPNCG):
     @tree.define
-    class State(OrigPNCG.State):
+    class State(OPNCG.State):
         delta_x_history: collections.deque[Vector] = tree.field(
             factory=lambda: collections.deque(maxlen=50)
         )
@@ -174,7 +173,7 @@ def main(cfg: Config) -> None:
     model: Model = build_model(mesh)
     forward = Forward(
         model=model,
-        optimizer=OrigPNCG(
+        optimizer=OPNCG(
             max_steps=1000,
             timer=True,
             rtol=1e-8,

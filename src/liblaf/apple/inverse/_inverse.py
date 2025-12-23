@@ -41,7 +41,12 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     from ._types import Aux, Params
 
     def default_adjoint_solver(
-        self, *, rtol: float = 1e-4, jit: bool = True, timer: bool = True
+        self,
+        *,
+        jit: bool = True,
+        rtol: float = 1e-3,
+        rtol_primary: float = 1e-5,
+        timer: bool = True,
     ) -> LinearSolver:
         cg_max_steps: int = max(1000, int(jnp.ceil(5 * jnp.sqrt(self.model.n_free))))
         minres_max_steps: int = max(
@@ -52,15 +57,17 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
 
             return CompositeSolver(
                 [
-                    JaxCG(max_steps=cg_max_steps, rtol=rtol),
-                    CupyMinRes(max_steps=minres_max_steps, rtol=rtol),
+                    JaxCG(max_steps=cg_max_steps, rtol=rtol, rtol_primary=rtol_primary),
+                    CupyMinRes(
+                        max_steps=minres_max_steps, rtol=rtol, rtol_primary=rtol_primary
+                    ),
                 ],
                 jit=jit,
                 timer=timer,
             )
         return CompositeSolver(
             [
-                JaxCG(max_steps=cg_max_steps, rtol=rtol),
+                JaxCG(max_steps=cg_max_steps, rtol=rtol, rtol_primary=rtol_primary),
                 ScipyMinRes(max_steps=minres_max_steps, rtol=rtol),
             ],
             jit=jit,

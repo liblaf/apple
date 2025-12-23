@@ -28,8 +28,10 @@ def _default_optimizer(self: Forward) -> Optimizer:
     )
     return PNCG(
         max_steps=max_steps,
-        atol=1e-5,
+        atol=1e-10,
         rtol=1e-3,
+        atol_primary=1e-10,
+        rtol_primary=1e-5,
         beta_non_negative=True,
         beta_restart_threshold=2.0,
         max_delta=max_delta,

@@ -245,7 +245,7 @@ def main(cfg: Config) -> None:
         cherries.temp(f"20-inverse-nadam{SUFFIX}.vtu.series")
     ) as writer:
 
-        def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
+        def callback(state: Optimizer.State, _stats: Optimizer.Stats) -> None:
             n_steps: int = len(writer)
             model_params: ModelParams = inverse.make_params(state.params)
             point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])

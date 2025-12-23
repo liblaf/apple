@@ -28,9 +28,12 @@ def _default_optimizer(self: Forward) -> Optimizer:
     )
     return PNCG(
         max_steps=max_steps,
+        atol=1e-10,
+        rtol=1e-5,
         beta_non_negative=True,
         beta_restart_threshold=2.0,
         max_delta=max_delta,
+        timer=True,
     )
 
 
@@ -61,7 +64,9 @@ class Forward:
         solution: Optimizer.Solution = self.optimizer.minimize(
             objective, self.model.u_free, callback=callback
         )
-        if not solution.success:
+        if solution.success:
+            logger.info("Forward success: %r", solution.stats)
+        else:
             logger.warning("Forward fail: %r", solution)
         self.model.u_free = solution.params
         return solution

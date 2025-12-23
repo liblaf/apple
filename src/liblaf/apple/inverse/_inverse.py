@@ -40,17 +40,13 @@ logger: logging.Logger = logging.getLogger(__name__)
 class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     from ._types import Aux, Params
 
-    def default_adjoint_solver(self, *, rtol: float = 1e-3) -> LinearSolver:
+    def default_adjoint_solver(
+        self, *, rtol: float = 1e-3, jit: bool = True, timer: bool = True
+    ) -> LinearSolver:
         cg_max_steps: int = max(1000, int(jnp.ceil(5 * jnp.sqrt(self.model.n_free))))
         minres_max_steps: int = max(
             1000, int(jnp.ceil(10 * jnp.sqrt(self.model.n_free)))
         )
-        # return CompositeSolver(
-        #     [
-        #         JaxCG(max_steps=cg_max_steps, rtol=rtol),
-        #         JaxBiCGStab(max_steps=minres_max_steps, rtol=rtol),
-        #     ]
-        # )
         if peach.cuda.is_available():
             from liblaf.peach.linalg import CupyMinRes
 
@@ -58,13 +54,17 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
                 [
                     JaxCG(max_steps=cg_max_steps, rtol=rtol),
                     CupyMinRes(max_steps=minres_max_steps, rtol=rtol),
-                ]
+                ],
+                jit=jit,
+                timer=timer,
             )
         return CompositeSolver(
             [
                 JaxCG(max_steps=cg_max_steps, rtol=rtol),
                 ScipyMinRes(max_steps=minres_max_steps, rtol=rtol),
-            ]
+            ],
+            jit=jit,
+            timer=timer,
         )
 
     forward: Forward
@@ -89,9 +89,10 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
 
     def adjoint(self, u: Full, dLdu: Full) -> Full:
         solution: LinearSolver.Solution = self.adjoint_inner(u, dLdu)
-        if not solution.success:
+        if solution.success:
+            logger.info("Adjoint success: %r", solution.stats)
+        else:
             logger.warning("Adjoint fail: %r", solution)
-        logger.info("Adjoint Statistics: %r", solution.stats)
         return self.model.to_full(solution.params, 0.0)
 
     def adjoint_inner(self, u: Full, dLdu: Full) -> LinearSolver.Solution:
@@ -201,10 +202,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     def _forward(
         self, model_params: ModelParams, *, callback: Callback | None = None
     ) -> Full:
-        solution: Optimizer.Solution = self._forward_inner(
-            model_params, callback=callback
-        )
-        logger.info("Forward Statistics: %r", solution.stats)
+        self._forward_inner(model_params, callback=callback)
         return self.model.u_full
 
     def _forward_inner(

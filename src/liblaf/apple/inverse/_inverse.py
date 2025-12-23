@@ -19,7 +19,7 @@ from liblaf.peach.linalg import (
     LinearSystem,
     ScipyMinRes,
 )
-from liblaf.peach.optim import Callback, Objective, Optimizer, ScipyOptimizer
+from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer, ScipyOptimizer
 
 from liblaf import peach
 from liblaf.apple.model import Forward, Model
@@ -41,7 +41,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
     from ._types import Aux, Params
 
     def default_adjoint_solver(
-        self, *, rtol: float = 1e-3, jit: bool = True, timer: bool = True
+        self, *, rtol: float = 1e-4, jit: bool = True, timer: bool = True
     ) -> LinearSolver:
         cg_max_steps: int = max(1000, int(jnp.ceil(5 * jnp.sqrt(self.model.n_free))))
         minres_max_steps: int = max(
@@ -128,6 +128,9 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         )
         self.model.frozen = True  # make jax.jit happy
         solution: LinearSolver.Solution = self.adjoint_solver.solve(system, params)
+        # if not solution.success and self.last_adjoint_success:
+        #     params = jnp.zeros_like(u_free)
+        #     solution = self.adjoint_solver.solve(system, params)
         self.model.frozen = False
         self.adjoint_vector = solution.params
         self.last_adjoint_success = jnp.asarray(
@@ -211,7 +214,7 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         self.model.update_params(model_params)
         if not self.last_forward_success:
             self.model.u_free = jnp.zeros((self.model.n_free,))
-        solution: Optimizer.Solution = self.forward.step(callback=callback)
+        solution: PNCG.Solution = self.forward.step(callback=callback)
         self.last_forward_success = jnp.asarray(
             solution.success, self.last_forward_success.dtype
         )

@@ -51,7 +51,9 @@ class Forward:
     def update_params(self, params: ModelParams) -> None:
         self.model.update_params(params)
 
-    def step(self, callback: Callback | None = None) -> Optimizer.Solution:
+    def step(
+        self, callback: Callback | None = None, *, logging: bool = True
+    ) -> Optimizer.Solution:
         objective = Objective(
             fun=self.model.fun,
             grad=self.model.grad,
@@ -64,9 +66,10 @@ class Forward:
         solution: Optimizer.Solution = self.optimizer.minimize(
             objective, self.model.u_free, callback=callback
         )
-        if solution.success:
-            logger.info("Forward success: %r", solution.stats)
-        else:
-            logger.warning("Forward fail: %r", solution)
+        if logging:
+            if solution.success:
+                logger.info("Forward success: %r", solution.stats)
+            else:
+                logger.warning("Forward fail: %r", solution)
         self.model.u_free = solution.params
         return solution

@@ -95,7 +95,7 @@ class PhaceInverse(Inverse):
         point_to_point: Scalar = self.weights.point_to_point * self.point_to_point(u)
         sparse: Scalar = self.weights.sparse * self.sparse(params)
         smooth: Scalar = self.weights.smooth * self.smooth(params)
-        total: Scalar = point_to_point + smooth + sparse
+        total: Scalar = point_to_plane + point_to_point + smooth + sparse
         return total, self.Aux(
             point_to_plane=point_to_plane,
             point_to_point=point_to_point,
@@ -302,6 +302,7 @@ def main(cfg: Config) -> None:
                 face_point_to_plane
             )
             point_to_plane_max: Scalar = jnp.max(jnp.abs(face_point_to_plane))
+            point_to_plane_max *= 10.0  # centimeter to millimeter
 
             mesh.cell_data[ACTIVATION] = model_params["elastic"]["activation"]  # pyright: ignore[reportArgumentType]
 
@@ -316,16 +317,17 @@ def main(cfg: Config) -> None:
             writer.append(mesh)
             cherries.set_step(n_steps)
 
-        inverse.optimizer = Optax(optax.adam(0.03), max_steps=1000, patience=20)
+        inverse.optimizer = Optax(optax.adam(0.03), max_steps=1000, patience=100)
         inverse.weights.smooth = jnp.asarray(1.0)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params
 
+        inverse.optimizer = Optax(optax.adam(0.0003), max_steps=1000, patience=100)
         inverse.weights.smooth = jnp.asarray(0.1)
-        inverse.weights.point_to_point = jnp.asarray(0.0)
-        solution = inverse.solve(params, callback=callback)
+        solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
+        params = solution.params
 
 
 if __name__ == "__main__":

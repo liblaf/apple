@@ -242,7 +242,7 @@ def main(cfg: Config) -> None:
     )
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adan{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-adagrad{SUFFIX}.vtu.series")
     ) as writer:
 
         def callback(state: Optimizer.State, _stats: Optimizer.Stats) -> None:
@@ -265,7 +265,7 @@ def main(cfg: Config) -> None:
             cherries.set_step(n_steps)
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
-        inverse.optimizer = Optax(optax.adan(1e-1), max_steps=1000, patience=100)
+        inverse.optimizer = Optax(optax.adagrad(1.0), max_steps=1000, patience=100)
         inverse.weights.smooth = jnp.asarray(1.0)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)

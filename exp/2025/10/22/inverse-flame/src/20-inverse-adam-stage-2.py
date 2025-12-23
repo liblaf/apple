@@ -328,7 +328,7 @@ def main(cfg: Config) -> None:
         # ic(solution)
         # params = solution.params
 
-        inverse.optimizer = Optax(optax.adam(0.0003), max_steps=1000, patience=20)
+        inverse.optimizer = Optax(optax.adam(1e-5), max_steps=1000, patience=50)
         inverse.weights.smooth = jnp.asarray(1e-3)
         inverse.weights.point_to_point = jnp.asarray(0.1)
         solution = inverse.solve(params, callback=callback)

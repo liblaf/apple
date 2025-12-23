@@ -20,16 +20,17 @@ type Scalar = Float[Array, ""]
 
 
 def _default_optimizer(self: Forward) -> Optimizer:
-    max_steps: int = max(1000, 20 * jnp.ceil(jnp.sqrt(self.model.n_free)).item())
-    d_hat: Scalar = (
-        0.5 * self.model.edges_length_mean
+    max_steps: int = max(1000, jnp.ceil(20 * jnp.sqrt(self.model.n_free)).item())
+    max_delta: Scalar = (
+        0.15 * self.model.edges_length_mean
         if self.model.edges_length_mean > 0
         else jnp.asarray(jnp.inf)
     )
     return PNCG(
         max_steps=max_steps,
-        line_search=PNCG.default_line_search(d_hat=d_hat, line_search_steps=3),
-        clamp_beta=True,
+        beta_non_negative=True,
+        beta_restart_threshold=2.0,
+        max_delta=max_delta,
     )
 
 

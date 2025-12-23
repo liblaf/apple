@@ -242,10 +242,10 @@ def main(cfg: Config) -> None:
     )
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adam{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-adadelta{SUFFIX}.vtu.series")
     ) as writer:
 
-        def callback(state: Optimizer.State, stats: Optimizer.Stats) -> None:
+        def callback(state: Optimizer.State, _stats: Optimizer.Stats) -> None:
             n_steps: int = len(writer)
             model_params: ModelParams = inverse.make_params(state.params)
             point_id: Integer[Array, " points"] = jnp.asarray(mesh.point_data[POINT_ID])
@@ -266,9 +266,12 @@ def main(cfg: Config) -> None:
 
         inverse.adjoint_solver = inverse.default_adjoint_solver(rtol=1e-5)
         inverse.optimizer = Optax(
-            optax.adam(
+            optax.adadelta(
                 optax.exponential_decay(
-                    init_value=0.1, transition_steps=10, decay_rate=0.9, end_value=0.01
+                    init_value=0.1 * (10.0 / 0.003),
+                    transition_steps=10,
+                    decay_rate=0.9,
+                    end_value=0.01 * (10.0 / 0.003),
                 )
             ),
             max_steps=1000,

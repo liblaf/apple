@@ -47,7 +47,7 @@ class DirichletBuilder:
         return Dirichlet(
             dim=self.dim,
             dirichlet_index=dirichlet_index,
-            dirichlet_value=jnp.asarray(self.value.flat[dirichlet_index]),
+            dirichlet_value=jnp.asarray(self.value.flat[dirichlet_index]),  # pyright: ignore[reportArgumentType, reportCallIssue]
             free_index=jnp.flatnonzero(~mask),
             n_points=self.n_points,
         )

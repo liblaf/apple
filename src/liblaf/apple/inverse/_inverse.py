@@ -130,10 +130,10 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
             preconditioner=preconditioner_fn,
             rpreconditioner=preconditioner_fn,
         )
-        # params: Free = (
-        #     self.adjoint_vector if self.last_adjoint_success else jnp.zeros_like(u_free)
-        # )
-        params: Free = jnp.zeros_like(u_free)
+        params: Free = (
+            self.adjoint_vector if self.last_adjoint_success else jnp.zeros_like(u_free)
+        )
+        # params: Free = jnp.zeros_like(u_free)
         self.model.frozen = True  # make jax.jit happy
         solution: LinearSolver.Solution = self.adjoint_solver.solve(system, params)
         # if not solution.success and self.last_adjoint_success:
@@ -220,9 +220,9 @@ class Inverse[ParamsT: Params, AuxT: Aux](abc.ABC):
         self, model_params: ModelParams, *, callback: Callback | None = None
     ) -> Optimizer.Solution:
         self.model.update_params(model_params)
-        # if not self.last_forward_success:
-        #     self.model.u_free = jnp.zeros((self.model.n_free,))
-        self.model.u_free = jnp.zeros((self.model.n_free,))
+        if not self.last_forward_success:
+            self.model.u_free = jnp.zeros((self.model.n_free,))
+        # self.model.u_free = jnp.zeros((self.model.n_free,))
         solution: PNCG.Solution = self.forward.step(callback=callback)
         self.last_forward_success = jnp.asarray(
             solution.success, self.last_forward_success.dtype

@@ -32,7 +32,7 @@ SUFFIX: str = env.str("SUFFIX", default="-123k")
 
 class Config(cherries.BaseConfig):
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
-    expression: str = "Expression000"
+    expression: str = env.str("EXPRESSION", default="Expression000")
 
 
 @tree.define
@@ -271,7 +271,7 @@ def main(cfg: Config) -> None:
     )
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adam-{cfg.expression}-{SUFFIX}.vtu.series")
+        cherries.temp(f"20-inverse-adam-{cfg.expression}{SUFFIX}.vtu.series")
     ) as writer:
 
         def callback(state: Optimizer.State, _stats: Optimizer.Stats) -> None:

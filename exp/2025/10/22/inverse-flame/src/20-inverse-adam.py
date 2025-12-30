@@ -17,7 +17,7 @@ from liblaf.peach.optim.abc import Callback
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
 from liblaf.apple.constants import ACTIVATION, MUSCLE_FRACTION, POINT_ID
-from liblaf.apple.warp import PhaceFixHess
+from liblaf.apple.warp import Phace
 
 type Vector = Float[Array, " N"]
 type EnergyParams = Mapping[str, Array]
@@ -203,7 +203,7 @@ def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
-    elastic: PhaceFixHess = PhaceFixHess.from_pyvista(
+    elastic: Phace = Phace.from_pyvista(
         mesh, requires_grad=["activation"], id="elastic"
     )
     builder.add_energy(elastic)
@@ -313,8 +313,8 @@ def main(cfg: Config) -> None:
             writer.append(mesh)
             cherries.set_step(n_steps)
 
-        inverse.optimizer = Optax(optax.adam(0.003), max_steps=1000, patience=100)
-        inverse.weights.smooth = jnp.asarray(1e-3)
+        inverse.optimizer = Optax(optax.adam(0.03), max_steps=1000, patience=100)
+        inverse.weights.smooth = jnp.asarray(1e-2)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params

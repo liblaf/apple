@@ -11,7 +11,7 @@ from liblaf.apple.warp import math, utils
 
 from . import func
 from ._arap import Arap
-from ._arap_muscle_v2 import ArapMuscleV2 as ArapMuscle
+from ._arap_muscle import ArapMuscle
 from ._base import Hyperelastic
 
 mat33 = Any

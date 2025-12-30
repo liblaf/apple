@@ -41,7 +41,7 @@ class PhaceFixHess(Hyperelastic):
     @staticmethod
     @no_type_check
     @wp.func
-    def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    def get_cell_params_func(params: Params, cid: int) -> ParamsElem:
         return PhaceFixHess.ParamsElem(
             activation=params.activation[cid],
             lambda_=params.lambda_[cid],

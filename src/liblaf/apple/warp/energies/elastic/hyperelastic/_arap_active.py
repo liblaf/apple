@@ -38,7 +38,7 @@ class ArapActive(Hyperelastic):
     @staticmethod
     @no_type_check
     @wp.func
-    def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    def get_cell_params_func(params: Params, cid: int) -> ParamsElem:
         return ArapActive.ParamsElem(
             activation=params.activation[cid],
             mu=params.mu[cid],

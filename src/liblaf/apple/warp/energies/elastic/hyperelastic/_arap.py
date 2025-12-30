@@ -33,7 +33,7 @@ class Arap(Hyperelastic):
     @staticmethod
     @no_type_check
     @wp.func
-    def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    def get_cell_params_func(params: Params, cid: int) -> ParamsElem:
         return Arap.ParamsElem(mu=params.mu[cid])
 
     @override
@@ -64,7 +64,7 @@ class Arap(Hyperelastic):
     @wp.func
     def energy_density_hess_diag_func(
         F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
-    ) -> mat33:
+    ) -> mat43:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
         h4_diag = func.h4_diag(dhdX, U, s, V, clamp=clamp)  # mat43
         h5_diag = func.h5_diag(dhdX)  # mat43
@@ -77,7 +77,7 @@ class Arap(Hyperelastic):
     @wp.func
     def energy_density_hess_prod_func(
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
-    ) -> mat33:
+    ) -> mat43:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
         h4_prod = func.h4_prod(p, dhdX, U, s, V, clamp=clamp)  # mat43
         h5_prod = func.h5_prod(p, dhdX)  # mat43
@@ -92,8 +92,8 @@ class Arap(Hyperelastic):
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
         U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        h4_quad = func.h4_quad(p, dhdX, U, s, V, clamp=clamp)  # float
-        h5_quad = func.h5_quad(p, dhdX)  # float
+        h4_quad = func.h4_quad(p, dhdX, U, s, V, clamp=clamp)  # scalar
+        h5_quad = func.h5_quad(p, dhdX)  # scalar
         h_quad = -F.dtype(2.0) * h4_quad + h5_quad
         return F.dtype(0.5) * params.mu * h_quad
 

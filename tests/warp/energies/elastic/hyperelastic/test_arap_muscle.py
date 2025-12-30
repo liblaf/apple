@@ -48,8 +48,9 @@ def model(mesh: pv.UnstructuredGrid) -> Model:
 
 @hypothesis.given(seed=testing.seed())
 def test_arap_muscle_grad(seed: int, model: Model, mesh: pv.UnstructuredGrid) -> None:
+    common.check_grad(seed, model, mesh)
     # gradient of ArapMuscle is approximate, so we only check descent direction
-    common.check_grad_direction(seed, model, mesh)
+    # common.check_grad_direction(seed, model, mesh)
 
 
 @hypothesis.given(seed=testing.seed())

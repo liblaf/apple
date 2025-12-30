@@ -35,7 +35,7 @@ class ArapMuscle(Arap):
     @staticmethod
     @no_type_check
     @wp.func
-    def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    def get_cell_params_func(params: Params, cid: int) -> ParamsElem:
         return ArapMuscle.ParamsElem(
             activation=params.activation[cid], mu=params.mu[cid]
         )
@@ -46,8 +46,9 @@ class ArapMuscle(Arap):
     @wp.func
     def energy_density_func(F: mat33, params: ParamsElem) -> scalar:
         A = func.make_activation_mat33(params.activation)  # mat33
-        R, _ = math.polar_rv(F)
-        Psi = F.dtype(0.5) * params.mu * math.fro_norm_square(F - R @ A)
+        G = F @ A  # mat33
+        R, _ = math.polar_rv(G)
+        Psi = F.dtype(0.5) * params.mu * math.fro_norm_square(G - R)
         return Psi
 
     @override
@@ -58,8 +59,9 @@ class ArapMuscle(Arap):
         F: mat33, params: ParamsElem, *, clamp: bool = False
     ) -> mat33:
         A = func.make_activation_mat33(params.activation)  # mat33
-        R, _ = math.polar_rv(F)  # mat33
-        PK1 = params.mu * (F - R @ A)
+        G = F @ A  # mat33
+        R, _ = math.polar_rv(G)  # mat33
+        PK1 = params.mu * (G - R) @ wp.transpose(A)
         return PK1
 
     @override
@@ -68,29 +70,13 @@ class ArapMuscle(Arap):
     @wp.func
     def energy_density_hess_diag_func(
         F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
-    ) -> mat33:
+    ) -> mat43:
         A = func.make_activation_mat33(params.activation)  # mat33
-        U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s, clamp=clamp)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        h4_diag = (
-            lambdas[0]
-            * wp.cw_mul(
-                func.deformation_gradient_vjp(dhdX, Q0 @ A),
-                func.deformation_gradient_vjp(dhdX, Q0),
-            )
-            + lambdas[1]
-            * wp.cw_mul(
-                func.deformation_gradient_vjp(dhdX, Q1 @ A),
-                func.deformation_gradient_vjp(dhdX, Q1),
-            )
-            + lambdas[2]
-            * wp.cw_mul(
-                func.deformation_gradient_vjp(dhdX, Q2 @ A),
-                func.deformation_gradient_vjp(dhdX, Q2),
-            )
-        )  # mat43
-        h5_diag = func.h5_diag(dhdX)  # mat43
+        G = F @ A  # mat33
+        dhdX_A = dhdX @ A  # mat43
+        U, s, V = math.svd_rv(G)  # mat33, vec3, mat33
+        h4_diag = func.h4_diag(dhdX_A, U, s, V, clamp=clamp)  # mat43
+        h5_diag = func.h5_diag(dhdX_A)  # mat43
         h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
         return F.dtype(0.5) * params.mu * h_diag  # mat43
 
@@ -100,25 +86,13 @@ class ArapMuscle(Arap):
     @wp.func
     def energy_density_hess_prod_func(
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
-    ) -> mat33:
+    ) -> mat43:
         A = func.make_activation_mat33(params.activation)  # mat33
-        U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s, clamp=clamp)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        dFdx_p = func.deformation_gradient_jvp(dhdX, p)  # mat33
-        h4_prod = (
-            lambdas[0]
-            * func.deformation_gradient_vjp(dhdX, Q0 @ A)
-            * wp.ddot(Q0, dFdx_p)
-            + lambdas[1]
-            * func.deformation_gradient_vjp(dhdX, Q1 @ A)
-            * wp.ddot(Q1, dFdx_p)
-            + lambdas[2]
-            * func.deformation_gradient_vjp(dhdX, Q2 @ A)
-            * wp.ddot(Q2, dFdx_p)
-        )  # mat43
-        # h4_prod = func.h4_prod(p, dhdX, U, s, V, clamp=clamp)  # mat43
-        h5_prod = func.h5_prod(p, dhdX)  # mat43
+        G = F @ A  # mat33
+        dhdX_A = dhdX @ A  # mat43
+        U, s, V = math.svd_rv(G)  # mat33, vec3, mat33
+        h4_prod = func.h4_prod(p, dhdX_A, U, s, V, clamp=clamp)  # mat43
+        h5_prod = func.h5_prod(p, dhdX_A)  # mat43
         h_prod = -F.dtype(2.0) * h4_prod + h5_prod  # mat43
         return F.dtype(0.5) * params.mu * h_prod  # mat43
 
@@ -130,21 +104,11 @@ class ArapMuscle(Arap):
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
         A = func.make_activation_mat33(params.activation)  # mat33
-        U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
-        lambdas = func.lambdas(s, clamp=clamp)  # vec3
-        Q0, Q1, Q2 = func.Qs(U, V)  # mat33, mat33, mat33
-        h4_quad = (
-            lambdas[0]
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q0 @ A), p)
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q0), p)
-            + lambdas[1]
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q1 @ A), p)
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q1), p)
-            + lambdas[2]
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q2 @ A), p)
-            * wp.ddot(func.deformation_gradient_vjp(dhdX, Q2), p)
-        )  # float
-        h5_quad = func.h5_quad(p, dhdX)  # float
+        G = F @ A  # mat33
+        dhdX_A = dhdX @ A  # mat43
+        U, s, V = math.svd_rv(G)  # mat33, vec3, mat33
+        h4_quad = func.h4_quad(p, dhdX_A, U, s, V, clamp=clamp)  # scalar
+        h5_quad = func.h5_quad(p, dhdX_A)  # scalar
         h_quad = -F.dtype(2.0) * h4_quad + h5_quad
         return F.dtype(0.5) * params.mu * h_quad
 

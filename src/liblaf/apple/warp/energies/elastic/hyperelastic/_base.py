@@ -205,7 +205,7 @@ class Hyperelastic(WarpEnergy):
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             output[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
 
         return kernel  # pyright: ignore[reportReturnType]
@@ -230,7 +230,7 @@ class Hyperelastic(WarpEnergy):
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
                 F, cell_params, clamp=False
@@ -263,7 +263,7 @@ class Hyperelastic(WarpEnergy):
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             hess_diag = dV[cid, qid] * self.energy_density_hess_diag_func(
                 F, dhdX[cid, qid], cell_params, clamp=wp.static(self.clamp_lambda)
             )  # mat43
@@ -306,7 +306,7 @@ class Hyperelastic(WarpEnergy):
             p2 = p[vid[2]]  # vec3
             p3 = p[vid[3]]  # vec3
             p_cell = wp.matrix_from_rows(p0, p1, p2, p3)  # mat43
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             hess_prod = dV[cid, qid] * self.energy_density_hess_prod_func(
                 F,
                 p_cell,
@@ -345,7 +345,7 @@ class Hyperelastic(WarpEnergy):
             p2 = p[vid[2]]  # vec3
             p3 = p[vid[3]]  # vec3
             p_cell = wp.matrix_from_rows(p0, p1, p2, p3)  # mat43
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             hess_quad = dV[cid, qid] * self.energy_density_hess_quad_func(
                 F,
                 p_cell,
@@ -354,8 +354,8 @@ class Hyperelastic(WarpEnergy):
                 clamp=wp.static(self.clamp_lambda),
             )
             if wp.static(self.clamp_hess_quad):
-                zero_scalar = hess_quad.dtype(0.0)
-                hess_quad = wp.max(hess_quad, zero_scalar)
+                _0 = hess_quad.dtype(0.0)
+                hess_quad = wp.max(hess_quad, _0)
             output[0] += hess_quad
 
         return kernel  # pyright: ignore[reportReturnType]
@@ -381,17 +381,17 @@ class Hyperelastic(WarpEnergy):
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             value[0] += dV[cid, qid] * self.energy_density_func(F, cell_params)
             # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
                 F, cell_params, clamp=False
             )  # mat33
-            jac_cell = dV[cid, qid] * func.deformation_gradient_vjp(
+            grad_cell = dV[cid, qid] * func.deformation_gradient_vjp(
                 dhdX[cid, qid], PK1
             )  # mat43
             for i in range(4):
-                grad[vid[i]] += jac_cell[i]
+                grad[vid[i]] += grad_cell[i]
 
         return kernel  # pyright: ignore[reportReturnType]
 
@@ -416,7 +416,7 @@ class Hyperelastic(WarpEnergy):
             u3 = u[vid[3]]  # vec3
             u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
             F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
-            cell_params = self.get_cell_params(params, cid)  # ParamsElem
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
             # we want accurate grad, so no clamping here
             PK1 = self.first_piola_kirchhoff_stress_func(
                 F, cell_params, clamp=False
@@ -444,7 +444,7 @@ class Hyperelastic(WarpEnergy):
     @staticmethod
     @no_type_check
     @wp.func
-    def get_cell_params(params: Params, cid: int) -> ParamsElem:
+    def get_cell_params_func(params: Params, cid: int) -> ParamsElem:
         raise NotImplementedError
 
     @staticmethod

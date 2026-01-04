@@ -63,7 +63,7 @@ cuda13 = ["jax[cuda13]>=0.8,<0.9", "liblaf-peach[cuda13]>=0.7,<0.8"]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
-  "liblaf-cherries>=0.7,<0.8",
+  "liblaf-cherries>=1,<1.1",
   "marimo[recommended]>=0.18,<0.19",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",

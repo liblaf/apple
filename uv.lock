@@ -2834,7 +2834,7 @@ requires-dist = [
     { name = "jaxtyping", specifier = ">=0.3,<0.4" },
     { name = "lazy-loader", specifier = ">=0.4,<0.5" },
     { name = "liblaf-grapes", specifier = ">=8,<9" },
-    { name = "liblaf-melon", specifier = ">=0.9,<0.10" },
+    { name = "liblaf-melon", specifier = ">=1.1,<1.2" },
     { name = "liblaf-peach", specifier = ">=0.7,<0.8" },
     { name = "liblaf-peach", extras = ["cuda12"], marker = "extra == 'cuda12'", specifier = ">=0.7,<0.8" },
     { name = "liblaf-peach", extras = ["cuda13"], marker = "extra == 'cuda13'", specifier = ">=0.7,<0.8" },
@@ -2934,7 +2934,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-melon"
-version = "0.9.8"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2960,9 +2960,9 @@ dependencies = [
     { name = "trimesh", extra = ["easy"] },
     { name = "warp-lang" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/e2/1fcfd2a5cb9d91b8e3b87c65d2cccfca5f4ef4d9cbbafc4ef225e493d749/liblaf_melon-0.9.8.tar.gz", hash = "sha256:4db284b588b73386982ef7bbdf56ccec036e7c2fb7ba895e9ddfbf5b001a66da", size = 30474, upload-time = "2025-12-29T11:25:36.177Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/47/f8bee9d777f57cda644e6eb77108403d09ad04c352f33f2265e6801f2b4e/liblaf_melon-1.1.0.tar.gz", hash = "sha256:da6bcd3f447f66cc77a26b853c06762eb1c48ea843f36142c0194c51b91d1343", size = 31537, upload-time = "2026-01-04T12:29:21.515Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/dd/43b23257785cb661b5d8f7ac0db123422aa5cb763a7d09e4883924209ad3/liblaf_melon-0.9.8-py3-none-any.whl", hash = "sha256:e26a3e17d42d11fc146173ed3947663644d96f291b437e8e2ffae429975ab015", size = 73325, upload-time = "2025-12-29T11:25:34.699Z" },
+    { url = "https://files.pythonhosted.org/packages/66/2f/4b0d46e29858823d3e08990384cb8ddbb7e61f83cefdc6d080e80e2ecbf7/liblaf_melon-1.1.0-py3-none-any.whl", hash = "sha256:29d1653dd793426f93fe8f4c6ea2e4d61d417507024d6e249f3a06cea52337e3", size = 75089, upload-time = "2026-01-04T12:29:19.932Z" },
 ]
 
 [[package]]

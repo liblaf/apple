@@ -315,8 +315,8 @@ def main(cfg: Config) -> None:
             writer.append(mesh)
             cherries.set_step(n_steps)
 
-        inverse.optimizer = Optax(optax.adam(0.03), max_steps=1000, patience=100)
-        inverse.weights.smooth = jnp.asarray(1e-2)
+        inverse.optimizer = Optax(optax.adam(0.03), max_steps=2000, patience=100)
+        inverse.weights.smooth = jnp.asarray(1e-6)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params

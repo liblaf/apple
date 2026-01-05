@@ -1,5 +1,5 @@
 from . import energies, fem, model, testing
-from .energies import Gravity, MassSpring, MassSpringPrestrain
+from .energies import Gravity, MassSpring, MassSpringPrestrain, make_activation
 from .fem import Element, Geometry, GeometryTetra, GeometryTriangle, Region, Scheme
 from .model import Dirichlet, DirichletBuilder, JaxEnergy, JaxModel, JaxModelBuilder
 
@@ -20,6 +20,7 @@ __all__ = [
     "Scheme",
     "energies",
     "fem",
+    "make_activation",
     "model",
     "testing",
 ]

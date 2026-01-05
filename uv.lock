@@ -1027,7 +1027,7 @@ wheels = [
 
 [[package]]
 name = "cyclopts"
-version = "4.4.3"
+version = "4.4.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1035,9 +1035,9 @@ dependencies = [
     { name = "rich" },
     { name = "rich-rst" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/21/732453ae69d65d72fe37a34f8b1a455c72313b8b0a905b876da20ff7e81a/cyclopts-4.4.3.tar.gz", hash = "sha256:03797c71b49a39dcad8324d6655363056fb998e2ba0240940050331a7f63fe65", size = 159360, upload-time = "2025-12-28T18:57:03.831Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/c4/60b6068e703c78656d07b249919754f8f60e9e7da3325560574ee27b4e39/cyclopts-4.4.4.tar.gz", hash = "sha256:f30c591c971d974ab4f223e099f881668daed72de713713c984ca41479d393dd", size = 160046, upload-time = "2026-01-05T03:40:18.438Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/28/03f9b8fbf396b3f2eaf65a7ff441ba2fb7dd397109d563a4e556dc5b3efb/cyclopts-4.4.3-py3-none-any.whl", hash = "sha256:951611a9d4d88d9916716ae281faca9af1cb79b88bb4f22bd0192cff54e7dec6", size = 196707, upload-time = "2025-12-28T18:57:04.884Z" },
+    { url = "https://files.pythonhosted.org/packages/20/5b/0eceb9a5990de9025733a0d212ca43649ba9facd58b8552b6bf93c11439d/cyclopts-4.4.4-py3-none-any.whl", hash = "sha256:316f798fe2f2a30cb70e7140cfde2a46617bfbb575d31bbfdc0b2410a447bd83", size = 197398, upload-time = "2026-01-05T03:40:17.141Z" },
 ]
 
 [[package]]
@@ -2150,14 +2150,14 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.148.12"
+version = "6.149.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e6/73/832d0004c927622bd3906a1738eb1d740e5f857cd609b8a0d4ae3ca37be5/hypothesis-6.148.12.tar.gz", hash = "sha256:0d42b7bbd331d3b3ec28c9389b545d0d644b8ce7a82587d90d58ddc1083d575b", size = 472742, upload-time = "2026-01-04T22:11:42.692Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/60/0461f30ba3b97ea8a01ea00d408f8192f9b94e99e431c75f30fb6d65423c/hypothesis-6.149.0.tar.gz", hash = "sha256:27afa07824fbb7785369dfae8e2574ec2ae0b1bdce50f3a327dfc069b79b0a44", size = 474136, upload-time = "2026-01-05T08:20:43.506Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/e3/2b46dcff121175552a0eb12d9ab2fc65dfbae14447e6c5e7cbea9cd43552/hypothesis-6.148.12-py3-none-any.whl", hash = "sha256:f9fd66846cb33f23f2778a4b37834a667d8e211e9a42bac317f32687c9523ea2", size = 539652, upload-time = "2026-01-04T22:11:41.119Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/98/e0e4d75e92ec3b84ed6232baf48eb410fa68650b1fa5102ad52cf378bf97/hypothesis-6.149.0-py3-none-any.whl", hash = "sha256:96420e306421741be4eea4f32bfc7a13360d73400b2e886a5d5e3668a2337a05", size = 541520, upload-time = "2026-01-05T08:20:41.242Z" },
 ]
 
 [[package]]
@@ -2468,14 +2468,14 @@ wheels = [
 
 [[package]]
 name = "jaxtyping"
-version = "0.3.4"
+version = "0.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "wadler-lindig" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/fe/90f8884647073ea77a0fc5ec27e1605288591c89e60e53a6dd1d849ca6fc/jaxtyping-0.3.4.tar.gz", hash = "sha256:b4aac576a1b6c62a363f76f543f21c7cd4c7bb8714816c2c875f28b7abcdb770", size = 45665, upload-time = "2025-12-15T19:26:06.056Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/30/0e29eab664d33127a7a30aebd7a845a95fbfa1887ede692676769820acea/jaxtyping-0.3.5.tar.gz", hash = "sha256:8150ad5b72b62fa63f573d492a79e9e455f070abe3b260f7dc15270b3eb9bba6", size = 45482, upload-time = "2026-01-05T10:51:34.486Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/92/f30138ffa65d51791f85ec057eb76ae8eab125ed20f8f337918df3f1c775/jaxtyping-0.3.4-py3-none-any.whl", hash = "sha256:70e438db2f361575d04cccea50f77f9c8fe92f8b2086dc0ce89e5f1658bebaab", size = 56017, upload-time = "2025-12-15T19:26:04.835Z" },
+    { url = "https://files.pythonhosted.org/packages/73/19/a29de61c7ada0edf4eacfc19355ab8560091b65ea5d2450bcb984e203259/jaxtyping-0.3.5-py3-none-any.whl", hash = "sha256:862c39fa2e526274e82dc96ee8dbe9369dadb651ab1e05d95bd685acb4e2ef02", size = 55824, upload-time = "2026-01-05T10:51:33.523Z" },
 ]
 
 [[package]]
@@ -2834,7 +2834,7 @@ requires-dist = [
     { name = "jaxtyping", specifier = ">=0.3,<0.4" },
     { name = "lazy-loader", specifier = ">=0.4,<0.5" },
     { name = "liblaf-grapes", specifier = ">=8,<9" },
-    { name = "liblaf-melon", specifier = ">=0.9,<0.10" },
+    { name = "liblaf-melon", specifier = ">=1,<2" },
     { name = "liblaf-peach", specifier = ">=0.7,<0.8" },
     { name = "liblaf-peach", extras = ["cuda12"], marker = "extra == 'cuda12'", specifier = ">=0.7,<0.8" },
     { name = "liblaf-peach", extras = ["cuda13"], marker = "extra == 'cuda13'", specifier = ">=0.7,<0.8" },
@@ -2859,7 +2859,7 @@ build = [
 dev = [
     { name = "icecream", specifier = ">=2,<3" },
     { name = "ipykernel", specifier = ">=7,<8" },
-    { name = "liblaf-cherries", specifier = ">=0.7,<0.8" },
+    { name = "liblaf-cherries", specifier = ">=1,<2" },
     { name = "marimo", extras = ["recommended"], specifier = ">=0.18,<0.19" },
     { name = "scipy-stubs", specifier = ">=1,<2" },
     { name = "sympy", specifier = ">=1,<2" },
@@ -2877,7 +2877,7 @@ test = [
 
 [[package]]
 name = "liblaf-cherries"
-version = "0.7.8"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2894,9 +2894,9 @@ dependencies = [
     { name = "rich" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c3/59/86af29673cd25251187b17ee186198fab2ef6e9e47d9e134cd7be1e4be78/liblaf_cherries-0.7.8.tar.gz", hash = "sha256:5c47c16b78d20c32e560c4624e72322074c15c0d5fef3af9b712d3fd4854b39a", size = 14367, upload-time = "2026-01-04T08:24:10.428Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9d/2c/0d9ab23f532d91138842287645317b365540e7e8c22a06edab05cbb5717e/liblaf_cherries-1.0.0.tar.gz", hash = "sha256:2f1c2573128d896a1d4f60b8daa4b44d228bd9be12ea32391e82c7c1b9e420e2", size = 14355, upload-time = "2026-01-04T08:28:38.649Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/4d/85ee2f0122c6f2c31f01e930ab8c8e23cac8bbec7f641e0a61b8c6dd4465/liblaf_cherries-0.7.8-py3-none-any.whl", hash = "sha256:65900af90b18516d9a02cfcfa893be86ab8f188f85c46fac6080f7bad448c55e", size = 26992, upload-time = "2026-01-04T08:24:08.79Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/54/94e60ffc0291caaf712eba4091c230aa4b17614356e156dd7c69a8fd6d1d/liblaf_cherries-1.0.0-py3-none-any.whl", hash = "sha256:64c40c928a5cdbf94c2ace9d32290181d31580878f3789b87deacefe5eaa8fda", size = 26989, upload-time = "2026-01-04T08:28:37.071Z" },
 ]
 
 [[package]]
@@ -2934,7 +2934,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-melon"
-version = "0.9.8"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2960,9 +2960,9 @@ dependencies = [
     { name = "trimesh", extra = ["easy"] },
     { name = "warp-lang" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/e2/1fcfd2a5cb9d91b8e3b87c65d2cccfca5f4ef4d9cbbafc4ef225e493d749/liblaf_melon-0.9.8.tar.gz", hash = "sha256:4db284b588b73386982ef7bbdf56ccec036e7c2fb7ba895e9ddfbf5b001a66da", size = 30474, upload-time = "2025-12-29T11:25:36.177Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/47/f8bee9d777f57cda644e6eb77108403d09ad04c352f33f2265e6801f2b4e/liblaf_melon-1.1.0.tar.gz", hash = "sha256:da6bcd3f447f66cc77a26b853c06762eb1c48ea843f36142c0194c51b91d1343", size = 31537, upload-time = "2026-01-04T12:29:21.515Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/dd/43b23257785cb661b5d8f7ac0db123422aa5cb763a7d09e4883924209ad3/liblaf_melon-0.9.8-py3-none-any.whl", hash = "sha256:e26a3e17d42d11fc146173ed3947663644d96f291b437e8e2ffae429975ab015", size = 73325, upload-time = "2025-12-29T11:25:34.699Z" },
+    { url = "https://files.pythonhosted.org/packages/66/2f/4b0d46e29858823d3e08990384cb8ddbb7e61f83cefdc6d080e80e2ecbf7/liblaf_melon-1.1.0-py3-none-any.whl", hash = "sha256:29d1653dd793426f93fe8f4c6ea2e4d61d417507024d6e249f3a06cea52337e3", size = 75089, upload-time = "2026-01-04T12:29:19.932Z" },
 ]
 
 [[package]]

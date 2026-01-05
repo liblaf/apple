@@ -2,8 +2,7 @@
 
 [env]
 JAX_DEFAULT_MATMUL_PRECISION = "highest"
-XLA_PYTHON_CLIENT_MEM_FRACTION = ".40"
-XLA_PYTHON_CLIENT_PREALLOCATE = "true"
+XLA_PYTHON_CLIENT_PREALLOCATE = "false"
 
 [task_config]
 includes = [".config/mise/tasks", ".config/copier/mise-tasks"]

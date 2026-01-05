@@ -5,6 +5,14 @@ from ._deformation import (
     gradient,
 )
 from ._gradients import g1, g2, g3
+from ._hess_block_diag import (
+    h1_block_diag,
+    h2_block_diag,
+    h3_block_diag,
+    h4_block_diag,
+    h5_block_diag,
+    h6_block_diag,
+)
 from ._hess_diag import h1_diag, h2_diag, h3_diag, h4_diag, h5_diag, h6_diag
 from ._hess_prod import h1_prod, h2_prod, h3_prod, h4_prod, h5_prod, h6_prod
 from ._hess_quad import h1_quad, h2_quad, h3_quad, h4_quad, h5_quad, h6_quad
@@ -24,21 +32,27 @@ __all__ = [
     "g2",
     "g3",
     "gradient",
+    "h1_block_diag",
     "h1_diag",
     "h1_prod",
     "h1_quad",
+    "h2_block_diag",
     "h2_diag",
     "h2_prod",
     "h2_quad",
+    "h3_block_diag",
     "h3_diag",
     "h3_prod",
     "h3_quad",
+    "h4_block_diag",
     "h4_diag",
     "h4_prod",
     "h4_quad",
+    "h5_block_diag",
     "h5_diag",
     "h5_prod",
     "h5_quad",
+    "h6_block_diag",
     "h6_diag",
     "h6_prod",
     "h6_quad",

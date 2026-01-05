@@ -98,6 +98,25 @@ class Arap(Hyperelastic):
         return F.dtype(0.5) * params.mu * h_quad
 
     @override
+    @staticmethod
+    @no_type_check
+    @wp.func
+    def energy_density_hess_block_diag_func(
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
+    ) -> tuple[mat33, mat33, mat33, mat33]:
+        U, s, V = math.svd_rv(F)  # mat33, vec3, mat33
+        h4_bd = func.h4_block_diag(dhdX, U, s, V, clamp=clamp)
+        h5_bd = func.h5_block_diag(dhdX)
+        scale = F.dtype(0.5) * params.mu
+        neg2 = -F.dtype(2.0)
+        return (
+            scale * (neg2 * h4_bd[0] + h5_bd[0]),
+            scale * (neg2 * h4_bd[1] + h5_bd[1]),
+            scale * (neg2 * h4_bd[2] + h5_bd[2]),
+            scale * (neg2 * h4_bd[3] + h5_bd[3]),
+        )
+
+    @override
     @classmethod
     def _params_fields_from_region(cls, region: Region) -> Mapping[str, wp.array]:
         fields: dict[str, wp.array] = {}

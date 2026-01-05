@@ -185,6 +185,14 @@ class Hyperelastic(WarpEnergy):
             outputs=[grad, hess_diag],
         )
 
+    def hess_block_diag(self, u: Vector, hess_block_diag: wp.array) -> None:
+        wp.launch(
+            self.hess_block_diag_kernel,
+            dim=(self.n_cells, self.n_quadrature_points),
+            inputs=[u, self.cells, self.dhdX, self.dV, self.params],
+            outputs=[hess_block_diag],
+        )
+
     @functools.cached_property
     def fun_kernel(self) -> wp.Kernel:
         @wp.kernel
@@ -361,6 +369,38 @@ class Hyperelastic(WarpEnergy):
         return kernel  # pyright: ignore[reportReturnType]
 
     @functools.cached_property
+    def hess_block_diag_kernel(self) -> wp.Kernel:
+        @wp.kernel
+        @no_type_check
+        def kernel(
+            u: wp.array(dtype=vec3),
+            cells: wp.array(dtype=vec4i),
+            dhdX: wp.array2d(dtype=mat43),
+            dV: wp.array2d(dtype=scalar),
+            params: self.Params,
+            hess_block_diag: wp.array(dtype=mat33),
+        ) -> None:
+            cid, qid = wp.tid()
+            vid = cells[cid]  # vec4i
+            u0 = u[vid[0]]  # vec3
+            u1 = u[vid[1]]  # vec3
+            u2 = u[vid[2]]  # vec3
+            u3 = u[vid[3]]  # vec3
+            u_cell = wp.matrix_from_rows(u0, u1, u2, u3)  # mat43
+            F = func.deformation_gradient(u_cell, dhdX[cid, qid])  # mat33
+            cell_params = self.get_cell_params_func(params, cid)  # ParamsElem
+            hess_block_diag_cell = self.energy_density_hess_block_diag_func(
+                F, dhdX[cid, qid], cell_params, clamp=wp.static(self.clamp_lambda)
+            )
+            scale = dV[cid, qid]
+            wp.atomic_add(hess_block_diag, vid[0], scale * hess_block_diag_cell[0])
+            wp.atomic_add(hess_block_diag, vid[1], scale * hess_block_diag_cell[1])
+            wp.atomic_add(hess_block_diag, vid[2], scale * hess_block_diag_cell[2])
+            wp.atomic_add(hess_block_diag, vid[3], scale * hess_block_diag_cell[3])
+
+        return kernel  # pyright: ignore[reportReturnType]
+
+    @functools.cached_property
     def value_and_grad_kernel(self) -> wp.Kernel:
         @wp.kernel
         @no_type_check
@@ -483,6 +523,14 @@ class Hyperelastic(WarpEnergy):
     def energy_density_hess_quad_func(
         F: mat33, p: mat43, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
     ) -> scalar:
+        raise NotImplementedError
+
+    @staticmethod
+    @no_type_check
+    @wp.func
+    def energy_density_hess_block_diag_func(
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
+    ) -> tuple[mat33, mat33, mat33, mat33]:
         raise NotImplementedError
 
     @classmethod

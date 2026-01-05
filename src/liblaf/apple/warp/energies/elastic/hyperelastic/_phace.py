@@ -183,6 +183,48 @@ class Phace(Hyperelastic):
         quad = _2 * quad_arap + quad_vp  # float
         return quad
 
+    @override
+    @staticmethod
+    @no_type_check
+    @wp.func
+    def energy_density_hess_block_diag_func(
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
+    ) -> tuple[mat33, mat33, mat33, mat33]:
+        _1 = F.dtype(1.0)
+        _2 = F.dtype(2.0)
+        J = func.I3(F)  # float
+        g3 = func.g3(F)  # mat33
+        bd_arap_active = ArapMuscle.energy_density_hess_block_diag_func(
+            F, dhdX, Phace._arap_active_params(params), clamp=clamp
+        )
+        bd_arap_passive = Arap.energy_density_hess_block_diag_func(
+            F, dhdX, Phace._arap_params(params), clamp=clamp
+        )
+        d2Psi_dI32 = _2 * params.lambda_  # float
+        dPsi_dI3 = _2 * params.lambda_ * (J - _1)  # float
+        h3_bd = func.h3_block_diag(dhdX, g3)
+        h6_bd = func.h6_block_diag(dhdX, F)
+        mf = params.muscle_fraction
+        imf = _1 - mf
+        return (
+            mf * bd_arap_active[0]
+            + imf * bd_arap_passive[0]
+            + d2Psi_dI32 * h3_bd[0]
+            + dPsi_dI3 * h6_bd[0],
+            mf * bd_arap_active[1]
+            + imf * bd_arap_passive[1]
+            + d2Psi_dI32 * h3_bd[1]
+            + dPsi_dI3 * h6_bd[1],
+            mf * bd_arap_active[2]
+            + imf * bd_arap_passive[2]
+            + d2Psi_dI32 * h3_bd[2]
+            + dPsi_dI3 * h6_bd[2],
+            mf * bd_arap_active[3]
+            + imf * bd_arap_passive[3]
+            + d2Psi_dI32 * h3_bd[3]
+            + dPsi_dI3 * h6_bd[3],
+        )
+
     @staticmethod
     @no_type_check
     @wp.func

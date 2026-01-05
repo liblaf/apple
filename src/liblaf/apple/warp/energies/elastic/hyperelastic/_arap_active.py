@@ -138,6 +138,28 @@ class ArapActive(Hyperelastic):
         )
         return quad
 
+    @override
+    @staticmethod
+    @no_type_check
+    @wp.func
+    def energy_density_hess_block_diag_func(
+        F: mat33, dhdX: mat43, params: ParamsElem, *, clamp: bool = True
+    ) -> tuple[mat33, mat33, mat33, mat33]:
+        bd_active = ArapMuscle.energy_density_hess_block_diag_func(
+            F, dhdX, ArapActive._arap_active_params(params), clamp=clamp
+        )
+        bd_passive = Arap.energy_density_hess_block_diag_func(
+            F, dhdX, ArapActive._arap_params(params), clamp=clamp
+        )
+        mf = params.muscle_fraction
+        imf = F.dtype(1.0) - mf
+        return (
+            mf * bd_active[0] + imf * bd_passive[0],
+            mf * bd_active[1] + imf * bd_passive[1],
+            mf * bd_active[2] + imf * bd_passive[2],
+            mf * bd_active[3] + imf * bd_passive[3],
+        )
+
     @staticmethod
     @no_type_check
     @wp.func

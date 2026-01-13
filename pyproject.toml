@@ -25,6 +25,7 @@ classifiers = [
 ]
 dependencies = [
   "beartype>=0.22,<0.23",
+  "chex>=0.1,<0.2",
   "cytoolz>=1,<2",
   "einops>=0.8,<0.9",
   "equinox>=0.13,<0.14",

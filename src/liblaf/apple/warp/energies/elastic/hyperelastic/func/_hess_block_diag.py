@@ -93,13 +93,13 @@ def h5_block_diag(dhdX: mat43) -> tuple[mat33, mat33, mat33, mat33]:
     t2 = wp.length_sq(dhdX[2])
     t3 = wp.length_sq(dhdX[3])
 
-    I = wp.identity(3, dtype=dhdX.dtype)
+    Id = wp.identity(3, dtype=dhdX.dtype)
 
     return (
-        dhdX.dtype(2.0) * t0 * I,
-        dhdX.dtype(2.0) * t1 * I,
-        dhdX.dtype(2.0) * t2 * I,
-        dhdX.dtype(2.0) * t3 * I,
+        dhdX.dtype(2.0) * t0 * Id,
+        dhdX.dtype(2.0) * t1 * Id,
+        dhdX.dtype(2.0) * t2 * Id,
+        dhdX.dtype(2.0) * t3 * Id,
     )
 
 

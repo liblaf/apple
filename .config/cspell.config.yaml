@@ -8,11 +8,16 @@ caseSensitive: false
 enableGlobDot: true
 ignorePaths:
   - .git/
+  - cspell.*
   - "*.lock"
+  - "*.png"
+  - "*.avi"
+  - "*.mp4"
+  - "*.obj"
+  - "*.series"
   - "*.vtm"
   - "*.vtp"
   - "*.vtu"
-  - cspell.*
 ignoreRandomStrings: true
 maxFileSize: 500KB
 useGitignore: true
@@ -23,16 +28,15 @@ words:
   - asarray
   - bfgs
   - cbrt
+  - chex
   - cholespy
   - cuda
   - cupy
   - cytoolz
   - ddot
   - defjvp
-  - defvjp
   - dhdr
   - direnv
-  - dlpack
   - dofs
   - dtypes
   - eigh
@@ -43,7 +47,6 @@ words:
   - finfo
   - getattr
   - gmres
-  - gtol
   - hessp
   - hynek
   - icosphere
@@ -52,6 +55,7 @@ words:
   - ipython
   - isdtype
   - jaxtyping
+  - kdtree
   - koiter
   - labii
   - lbfgs
@@ -67,6 +71,7 @@ words:
   - ndarray
   - ndindex
   - neumann
+  - novolpres
   - numprocesses
   - numpy
   - optax

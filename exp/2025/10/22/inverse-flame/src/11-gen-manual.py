@@ -41,17 +41,30 @@ def gen_activation(
     mesh: pv.UnstructuredGrid, muscles: dict[str, pv.PolyData]
 ) -> pv.UnstructuredGrid:
     muscle_names: list[str] = mesh.field_data["MuscleName"].tolist()
+    # -
+    # for muscle_name, gamma in [
+    #     ("Levator_labii_superioris_alaeque_nasi001_00", 20.0),
+    #     ("Levator_labii_superioris_alaeque_nasi001_01", 20.0),
+    #     ("Levator_labii_superioris001_00", 30.0),
+    #     ("Levator_labii_superioris001_01", 30.0),
+    #     ("Risorius001_00", 10.0),
+    #     ("Risorius001_01", 10.0),
+    #     ("Zygomaticus_major001_00", 5.0),
+    #     ("Zygomaticus_major001_01", 5.0),
+    #     ("Zygomaticus_minor001_00", 10.0),
+    #     ("Zygomaticus_minor001_01", 10.0),
+    # ]:
     for muscle_name, gamma in [
         ("Levator_labii_superioris_alaeque_nasi001_00", 20.0),
         ("Levator_labii_superioris_alaeque_nasi001_01", 20.0),
-        ("Levator_labii_superioris001_00", 50.0),
-        ("Levator_labii_superioris001_01", 50.0),
-        ("Risorius001_00", 100.0),
-        ("Risorius001_01", 100.0),
+        ("Levator_labii_superioris001_00", 30.0),
+        ("Levator_labii_superioris001_01", 30.0),
+        ("Risorius001_00", 10.0),
+        ("Risorius001_01", 10.0),
         ("Zygomaticus_major001_00", 5.0),
         ("Zygomaticus_major001_01", 5.0),
-        ("Zygomaticus_minor001_00", 50.0),
-        ("Zygomaticus_minor001_01", 50.0),
+        ("Zygomaticus_minor001_00", 10.0),
+        ("Zygomaticus_minor001_01", 10.0),
     ]:
         activation_local: Float[Array, "3 3"] = jnp.diagflat(
             jnp.asarray([gamma, gamma**-0.5, gamma**-0.5])

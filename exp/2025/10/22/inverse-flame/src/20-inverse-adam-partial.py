@@ -31,7 +31,7 @@ SUFFIX: str = env.str("SUFFIX", default="-515k")
 
 
 class Config(cherries.BaseConfig):
-    expression: str = env.str("EXPRESSION", default="Expression000")
+    expression: str = env.str("EXPRESSION", default="Expression002")
     suffix: str = SUFFIX
 
     input: Path = cherries.input(f"10-input-partial{SUFFIX}.vtu")

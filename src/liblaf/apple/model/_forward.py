@@ -33,9 +33,11 @@ def _default_optimizer(self: Forward) -> Optimizer:
         atol_primary=1e-10,
         rtol_primary=1e-5,
         beta_non_negative=True,
-        beta_restart_threshold=2.0,
+        beta_restart_threshold=10.0,
         max_delta=max_delta,
         timer=True,
+        stagnation_max_restarts=20,
+        stagnation_patience=50,
     )
 
 

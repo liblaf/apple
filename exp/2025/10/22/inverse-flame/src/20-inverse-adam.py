@@ -316,7 +316,7 @@ def main(cfg: Config) -> None:
             cherries.set_step(n_steps)
 
         inverse.optimizer = Optax(optax.adam(0.03), max_steps=2000, patience=2000)
-        inverse.weights.smooth = jnp.asarray(1e2)
+        inverse.weights.smooth = jnp.asarray(1.0)
         solution: Optimizer.Solution = inverse.solve(params, callback=callback)
         ic(solution)
         params = solution.params

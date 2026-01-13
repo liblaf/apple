@@ -42,7 +42,7 @@ class Hyperelastic(WarpEnergy):
 
     clamp_hess_diag: bool = True
     clamp_hess_quad: bool = True
-    clamp_lambda: bool = True
+    clamp_lambda: bool = False
 
     @overload
     @classmethod

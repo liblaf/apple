@@ -114,7 +114,7 @@ def main(cfg: Config) -> None:
     )
     mesh = gen_activation(mesh, muscles)
     mesh = forward(mesh)
-    melon.save(cherries.output(f"11-input-manual{cfg.suffix}.vtu"), mesh)
+    melon.save(cherries.output(f"10-input-manual{cfg.suffix}.vtu"), mesh)
 
 
 if __name__ == "__main__":

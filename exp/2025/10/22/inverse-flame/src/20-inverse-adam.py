@@ -18,7 +18,7 @@ from liblaf.peach.optim.abc import Callback
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, MUSCLE_FRACTION, POINT_ID
+from liblaf.apple.constants import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Vector = Float[Array, " N"]
@@ -37,6 +37,7 @@ class Config(cherries.BaseConfig):
     suffix: str = SUFFIX
 
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
+    lambda_: float = env.float("LAMBDA", 3.0)
 
 
 @tree.define
@@ -203,7 +204,10 @@ def get_muscle_id_to_cell_neighbors(
     return muscle_id_to_cell_neighbors
 
 
-def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
+def prepare(cfg: Config, mesh: pv.UnstructuredGrid) -> PhaceInverse:
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
+    # Poisson's ratio = 0.45
+    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), cfg.lambda_)
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
@@ -214,6 +218,7 @@ def prepare(mesh: pv.UnstructuredGrid, expression: str) -> PhaceInverse:
     model: Model = builder.finalize()
     forward = Forward(model=model)
 
+    expression: str = cfg.expression
     mesh = mesh.compute_cell_sizes(length=False, area=False, volume=True)  # pyright: ignore[reportAssignmentType]
     mesh.point_data["_PointId"] = np.arange(mesh.n_points)
     surface: pv.PolyData = mesh.extract_surface()  # pyright: ignore[reportAssignmentType]
@@ -269,13 +274,15 @@ def main(cfg: Config) -> None:
     grapes.config.pretty.short_arrays_threshold.set(10)
 
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
-    inverse: PhaceInverse = prepare(mesh, cfg.expression)
+    inverse: PhaceInverse = prepare(cfg, mesh)
     params: PhaceInverse.Params = PhaceInverse.Params(
         activation=jnp.zeros((inverse.n_active_cells, 6))
     )
 
     with melon.SeriesWriter(
-        cherries.temp(f"20-inverse-adam-{cfg.expression}{cfg.suffix}.vtu.series")
+        cherries.temp(
+            f"20-inverse-adam-lambda{round(cfg.lambda_)}-{cfg.expression}{cfg.suffix}.vtu.series"
+        )
     ) as writer:
 
         def callback(state: Optimizer.State, _stats: Optimizer.Stats) -> None:

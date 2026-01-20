@@ -3,6 +3,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import override
 
+import equinox as eqx
+import jax
 import jax.numpy as jnp
 import numpy as np
 import optax
@@ -314,6 +316,9 @@ def main(cfg: Config) -> None:
             )
             writer.append(mesh)
             cherries.set_step(n_steps)
+
+            eqx.clear_caches()
+            jax.clear_caches()
 
         inverse.optimizer = Optax(optax.adam(0.03), max_steps=2000, patience=2000)
         inverse.weights.smooth = jnp.asarray(1.0)

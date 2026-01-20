@@ -2,7 +2,7 @@ import jax
 import numpy as np
 import pyvista as pv
 from environs import env
-from liblaf.peach.optim import PNCG
+from liblaf.peach.optim import ScipyOptimizer
 
 from liblaf import cherries, melon
 from liblaf.apple.constants import ACTIVATION, LAMBDA, POINT_ID
@@ -28,14 +28,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> Forward:
     builder.add_energy(elastic)
     model: Model = builder.finalize()
     forward = Forward(
-        model,
-        optimizer=PNCG(
-            max_delta=0.15 * model.edges_length_mean,
-            max_steps=5000,
-            rtol=1e-5,
-            rtol_primary=1e-13,
-            stagnation_max_restarts=100,
-        ),
+        model, optimizer=ScipyOptimizer(method="Newton-CG", max_steps=5000)
     )
     return forward
 
@@ -57,7 +50,7 @@ def main(cfg: Config) -> None:
     suffix += f"-act{round(cfg.activation)}"
     suffix += f"-lambda{round(cfg.lambda_)}"
     suffix += "-float64" if jax.config.read("jax_enable_x64") else "-float32"
-    melon.save(cherries.output(f"20-forward{suffix}.vtu"), mesh)
+    melon.save(cherries.output(f"20-forward-newton{suffix}.vtu"), mesh)
 
 
 if __name__ == "__main__":

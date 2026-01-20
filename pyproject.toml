@@ -64,12 +64,13 @@ cuda13 = ["jax[cuda13]>=0.8,<0.9", "liblaf-peach[cuda13]>=0.7,<0.8"]
 dev = [
   "icecream>=2,<3",
   "ipykernel>=7,<8",
+  "keyboard>=0.13.5,<0.14.0",
   "liblaf-cherries>=1,<2",
   "marimo[recommended]>=0.18,<0.19",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",
   "toolz-stubs>=0.2.1,<0.3.0",
-  "viztracer>=1,<2"
+  "viztracer>=1,<2",
 ]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]

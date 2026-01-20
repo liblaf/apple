@@ -20,16 +20,18 @@ export DEBUG=1
 # SUFFIX=-7k python src/20-forward.py
 # SUFFIX=-7k-conform python src/20-forward.py
 
-LR=0.05 COARSEN=true ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.05 COARSEN=true ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
-LR=0.05 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.05 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
-LR=0.03 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.03 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.05 COARSEN=true ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.05 COARSEN=true ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.05 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.05 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.03 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.03 COARSEN=false ACTIVATION=2 VOLUME_PRESERVE=true python src/20-forward-muscle.py
 
-LR=0.05 COARSEN=true ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.05 COARSEN=true ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
-LR=0.05 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.05 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
-LR=0.03 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
-LR=0.03 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.05 COARSEN=true ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.05 COARSEN=true ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.05 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.05 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+# LR=0.03 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=false python src/20-forward-muscle.py
+# LR=0.03 COARSEN=false ACTIVATION=5 VOLUME_PRESERVE=true python src/20-forward-muscle.py
+
+SUFFIX=-7k-conform python src/20-forward.py

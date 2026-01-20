@@ -29,7 +29,7 @@ class Config(cherries.BaseConfig):
 
 def gen_muscles() -> pv.MultiBlock:
     muscles = pv.MultiBlock()
-    muscles.append(pv.Box((0.4, 1.6, 0.2, 0.3, 0.2, 0.8), quads=False), "Muscle000")
+    muscles.append(pv.Box((0.4, 1.6, 0.2, 0.3, 0.0, 1.0), quads=False), "Muscle000")
     # muscles.append(pv.Box((0, 2, 0.7, 0.8, 0.2, 0.8), quads=False), "muscle-002")
     return muscles
 

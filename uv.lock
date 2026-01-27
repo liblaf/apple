@@ -2713,7 +2713,7 @@ requires-dist = [
     { name = "liblaf-peach", specifier = ">=0.8,<0.9" },
     { name = "liblaf-peach", extras = ["cuda12"], marker = "extra == 'cuda12'", specifier = ">=0.8,<0.9" },
     { name = "liblaf-peach", extras = ["cuda13"], marker = "extra == 'cuda13'", specifier = ">=0.8,<0.9" },
-    { name = "lineax", specifier = ">=0.0.8,<0.0.9" },
+    { name = "lineax", specifier = ">=0.1.0,<0.1.1" },
     { name = "loguru", specifier = ">=0.7,<0.8" },
     { name = "matplotlib", specifier = ">=3,<4" },
     { name = "numpy", specifier = ">=2,<3" },
@@ -2938,7 +2938,7 @@ wheels = [
 
 [[package]]
 name = "lineax"
-version = "0.0.8"
+version = "0.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "equinox" },
@@ -2946,9 +2946,9 @@ dependencies = [
     { name = "jaxtyping" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6f/75/6ad88863640c6213887c8928aef406713ecfa3c61808c563b9a3f2bf0673/lineax-0.0.8.tar.gz", hash = "sha256:bb2778066b8882acc88ff569d8e415bc5aa387f751b14ae262c9f9607d7f25bb", size = 45304, upload-time = "2025-03-27T17:38:54.421Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/d6/4e28416a6fe58dd6bc7565b1ffa330f4d0ba7d74212642b1b734c511299e/lineax-0.1.0.tar.gz", hash = "sha256:5f1a8f060142af2cdbf7d66b99e8d3071c3aa734b677df6339df4b4c4c0554d2", size = 50209, upload-time = "2026-01-27T21:17:26.652Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1b/a9/2d8d6002eb124e79f7c9ee2311b62f35289fc7e75ee0bbfbe5a4c7295bb9/lineax-0.0.8-py3-none-any.whl", hash = "sha256:1bd21d6c41afda233769d1c1096329ee75181825c9136be65c92b41f6daa1ddb", size = 68045, upload-time = "2025-03-27T17:38:53.394Z" },
+    { url = "https://files.pythonhosted.org/packages/80/0c/2ed47112fc1958a0a81c9b015d4e1861953a1ec3a17b081c0180a25ce82c/lineax-0.1.0-py3-none-any.whl", hash = "sha256:f00911c6b07d427c4835db46856970c8348bc82a035b51f4386ad09382af957a", size = 74600, upload-time = "2026-01-27T21:17:25.33Z" },
 ]
 
 [[package]]

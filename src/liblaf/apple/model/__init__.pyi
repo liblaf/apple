@@ -1,5 +1,5 @@
 from ._builder import ModelBuilder
 from ._forward import Forward
-from ._model import Model
+from ._model import Model, ModelState
 
-__all__ = ["Forward", "Model", "ModelBuilder"]
+__all__ = ["Forward", "Model", "ModelBuilder", "ModelState"]

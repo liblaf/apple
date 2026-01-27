@@ -1,19 +1,5 @@
-from . import hyperelastic
-from .hyperelastic import (
-    Arap,
-    ArapActive,
-    ArapMuscle,
-    Hyperelastic,
-    Phace,
-    PhaceFixHess,
-)
+from ._arap import WarpArap
+from ._arap_muscle import WarpArapMuscle
+from ._base import WarpElastic
 
-__all__ = [
-    "Arap",
-    "ArapActive",
-    "ArapMuscle",
-    "Hyperelastic",
-    "Phace",
-    "PhaceFixHess",
-    "hyperelastic",
-]
+__all__ = ["WarpArap", "WarpArapMuscle", "WarpElastic"]

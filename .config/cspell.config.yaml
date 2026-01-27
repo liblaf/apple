@@ -22,71 +22,106 @@ ignoreRandomStrings: true
 maxFileSize: 500KB
 useGitignore: true
 words:
+  - anguli
   - arap
-  - argnums
   - arithmatex
-  - asarray
+  - atlanto
+  - auricularis
   - bfgs
+  - callosum
+  - capitis
+  - cava
   - cbrt
+  - cervicis
   - chex
+  - chodra
   - cholespy
+  - cingulate
+  - circothyroid
+  - colli
+  - cricoarytenoid
+  - cricothyroid
   - cuda
-  - cupy
   - cytoolz
   - ddot
-  - defjvp
   - dhdr
+  - digastiric
   - direnv
   - dofs
   - dtypes
   - eigh
   - einops
-  - einsum
+  - epicranius
   - felupe
   - fieldz
   - finfo
+  - flava
+  - genioglossus
+  - geniohyoid
   - getattr
+  - globus
   - gmres
+  - griseum
   - hessp
   - hynek
+  - hyoglossus
   - icosphere
+  - illiocostalis
+  - inferioris
+  - inferor
   - inlinehilite
+  - interansversarii
+  - intertransversarii
   - ipykernel
-  - ipython
   - isdtype
+  - jarp
   - jaxtyping
   - kdtree
   - koiter
   - labii
+  - lamé's
   - lbfgs
   - liblaf
+  - ligamenta
   - lineax
+  - lumborum
+  - mandibula
   - matmul
-  - matvec
+  - mentalis
   - mkdocs
   - mkdocstrings
+  - multifidus
   - nans
-  - nbconvert
-  - nbformat
-  - ndarray
+  - nasi
+  - nasolacrimal
   - ndindex
   - neumann
   - novolpres
+  - nuchal
   - numprocesses
   - numpy
+  - obliqyys
+  - occipitofrontalis
+  - omohyoid
   - optax
   - optim
   - orbicularis
   - oris
+  - palatini
+  - palatoglossus
+  - pallidus
+  - palpebrae
+  - palpebral
   - phace
   - piola
   - pncg
   - primals
+  - procerus
+  - pterygoid
   - pvsm
   - pycache
   - pydantic
   - pydocstyle
-  - pygments
   - pylint
   - pymdownx
   - pypa
@@ -97,24 +132,37 @@ words:
   - pytest
   - pytree
   - pyvista
-  - rmatvec
-  - rpreconditioner
+  - retopo
+  - rhomboideus
+  - risorius
   - rtol
   - scipy
   - sdist
+  - septi
+  - serratus
   - simplejson
   - socialify
+  - sphenomandibular
+  - spinalis
+  - sternocleidomastoid
+  - styloglossus
+  - stylohyoid
+  - stylomandibular
+  - supercilii
+  - supercilli
   - superioris
   - sympy
+  - tectorial
+  - thyrohyoid
   - tombi
   - toolz
   - trimesh
-  - unshallow
-  - unvec
   - uuidgen
   - vdot
   - vecdot
+  - veli
   - venv
+  - vestibulocochlear
   - virtualenv
   - xlabel
   - ylabel

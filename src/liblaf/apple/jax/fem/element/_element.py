@@ -1,12 +1,12 @@
+import jarp
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float, Integer
-from liblaf.peach import tree
 
 from liblaf.apple.jax.fem.quadrature import Scheme
 
 
-@tree.define
+@jarp.define
 class Element:
     """Base-class for a finite element which provides methods for plotting.
 
@@ -23,13 +23,13 @@ class Element:
         return self.points.shape[0]
 
     @property
+    def points(self) -> Float[Array, "points dim"]:
+        raise NotImplementedError
+
+    @property
     def cells(self) -> Integer[Array, " points"]:
         with jax.ensure_compile_time_eval():
             return jnp.arange(self.n_points)
-
-    @property
-    def points(self) -> Float[Array, "points dim"]:
-        raise NotImplementedError
 
     @property
     def quadrature(self) -> Scheme:

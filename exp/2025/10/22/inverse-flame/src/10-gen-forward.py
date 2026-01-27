@@ -6,7 +6,7 @@ import pyvista as pv
 from jaxtyping import Array, Float, Integer
 
 from liblaf import cherries, melon
-from liblaf.apple.constants import ACTIVATION, MUSCLE_FRACTION, POINT_ID
+from liblaf.apple.consts import ACTIVATION, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import Phace
 

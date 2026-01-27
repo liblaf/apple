@@ -2,10 +2,10 @@ import logging
 from typing import Self
 
 import einops
+import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
-from liblaf.peach import tree
 
 from liblaf.apple.jax.fem.element import Element
 from liblaf.apple.jax.fem.geometry import Geometry
@@ -14,17 +14,17 @@ from liblaf.apple.jax.fem.quadrature import Scheme
 logger = logging.getLogger(__name__)
 
 
-@tree.define
+@jarp.define
 class Region:
-    geometry: Geometry = tree.field()
-    quadrature: Scheme = tree.field()
+    geometry: Geometry = jarp.field()
+    quadrature: Scheme = jarp.field()
 
-    h: Float[Array, "q a"] = tree.array(default=None)
-    dhdr: Float[Array, "q a J"] = tree.array(default=None)
-    dXdr: Float[Array, "c q J J"] = tree.array(default=None)
-    drdX: Float[Array, "c q J J"] = tree.array(default=None)
-    dV: Float[Array, "c q"] = tree.array(default=None)
-    dhdX: Float[Array, "c q a J"] = tree.array(default=None)
+    h: Float[Array, "q a"] = jarp.array(default=None)
+    dhdr: Float[Array, "q a J"] = jarp.array(default=None)
+    dXdr: Float[Array, "c q J J"] = jarp.array(default=None)
+    drdX: Float[Array, "c q J J"] = jarp.array(default=None)
+    dV: Float[Array, "c q"] = jarp.array(default=None)
+    dhdX: Float[Array, "c q a J"] = jarp.array(default=None)
 
     @classmethod
     def from_geometry(
@@ -54,12 +54,12 @@ class Region:
         return self.geometry.n_cells
 
     @property
-    def cells(self) -> Integer[Array, "c a"]:
-        return self.geometry.cells
-
-    @property
     def cells_global(self) -> Integer[Array, "c a"]:
         return self.geometry.cells_global
+
+    @property
+    def cells_local(self) -> Integer[Array, "c a"]:
+        return self.geometry.cells_local
 
     @property
     def element(self) -> Element:
@@ -89,7 +89,7 @@ class Region:
             [self.element.gradient(q) for q in self.quadrature.points]
         )
         dXdr: Float[Array, "c q J J"] = einops.einsum(
-            self.points[self.cells], dhdr, "c a I, q a J -> c q I J"
+            self.points[self.cells_local], dhdr, "c a I, q a J -> c q I J"
         )
         drdX: Float[Array, "c q J J"] = jnp.linalg.inv(dXdr)
         dV: Float[Array, "c q"] = (

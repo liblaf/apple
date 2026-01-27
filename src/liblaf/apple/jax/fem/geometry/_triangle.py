@@ -1,16 +1,16 @@
 from typing import Self, override
 
+import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
-from liblaf.peach import tree
 
 from ._geometry import Geometry
 
 
-@tree.define
+@jarp.define
 class GeometryTriangle(Geometry):
-    mesh: pv.PolyData = tree.field()  # pyright: ignore[reportIncompatibleVariableOverride]
+    mesh: pv.PolyData = jarp.static()  # pyright: ignore[reportIncompatibleVariableOverride]
 
     @override
     @classmethod
@@ -20,5 +20,6 @@ class GeometryTriangle(Geometry):
         return self
 
     @property
-    def cells(self) -> Integer[Array, "c a"]:
+    @override
+    def cells_local(self) -> Integer[Array, "c a"]:
         return jnp.asarray(self.mesh.regular_faces)

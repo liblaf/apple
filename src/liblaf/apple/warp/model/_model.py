@@ -1,63 +1,80 @@
 from collections.abc import Mapping
+from typing import Annotated
 
+import jarp
 import warp as wp
-from jaxtyping import Array, Float
-from liblaf.peach import tree
+from frozendict import frozendict
+from jaxtyping import Array
 
 from ._energy import WarpEnergy
+from ._state import WarpEnergyState, WarpModelState
 
-type EnergyParams = Mapping[str, Array]
-type ModelParams = Mapping[str, EnergyParams]
-type Scalar = Float[wp.array, ""]
-type Vector = Float[wp.array, " N"]
+type EnergyMaterials = Mapping[str, Array]
+type ModelMaterials = Mapping[str, EnergyMaterials]
+type Scalar = Annotated[wp.array, " 1"]
+type Vector = Annotated[wp.array, " N"]
 
 
-@tree.define
+@jarp.frozen_static
 class WarpModel:
-    dim: int = tree.field(default=3, kw_only=True)
-    energies: dict[str, WarpEnergy] = tree.field(factory=dict)
+    energies: frozendict[str, WarpEnergy] = jarp.field(factory=lambda: frozendict())
 
-    def update(self, u: Vector) -> None:
-        for energy in self.energies.values():
-            energy.update(u)
+    def init_state(self, u: Vector) -> WarpModelState:
+        data: dict[str, WarpEnergyState] = {}
+        for name, energy in self.energies.items():
+            data[name] = energy.init_state(u)
+        return WarpModelState(data=frozendict(data))
 
-    def update_params(self, params: ModelParams) -> None:
-        for name, energy_params in params.items():
-            self.energies[name].update_params(energy_params)
+    def update(self, state: WarpModelState, u: Vector) -> WarpModelState:
+        for name, energy in self.energies.items():
+            energy.update(state[name], u)
+        return state
 
-    def fun(self, u: Vector, output: Scalar) -> None:
-        for energy in self.energies.values():
-            energy.fun(u, output)
+    def update_materials(self, materials: ModelMaterials) -> None:
+        for name, energy_materials in materials.items():
+            self.energies[name].update_materials(energy_materials)
 
-    def grad(self, u: Vector, output: Vector) -> None:
-        for energy in self.energies.values():
-            energy.grad(u, output)
+    def fun(self, state: WarpModelState, u: Vector, output: Scalar) -> None:
+        output.zero_()
+        for name, energy in self.energies.items():
+            energy.fun(state[name], u, output)
 
-    def hess_diag(self, u: Vector, output: Vector) -> None:
-        for energy in self.energies.values():
-            energy.hess_diag(u, output)
+    def grad(self, state: WarpModelState, u: Vector, output: Vector) -> None:
+        output.zero_()
+        for name, energy in self.energies.items():
+            energy.grad(state[name], u, output)
 
-    def hess_prod(self, u: Vector, p: Vector, output: Vector) -> None:
-        for energy in self.energies.values():
-            energy.hess_prod(u, p, output)
+    def hess_diag(self, state: WarpModelState, u: Vector, output: Vector) -> None:
+        output.zero_()
+        for name, energy in self.energies.items():
+            energy.hess_diag(state[name], u, output)
 
-    def hess_quad(self, u: Vector, p: Vector, output: Scalar) -> None:
-        for energy in self.energies.values():
-            energy.hess_quad(u, p, output)
+    def hess_prod(
+        self, state: WarpModelState, u: Vector, v: Vector, output: Vector
+    ) -> None:
+        output.zero_()
+        for name, energy in self.energies.items():
+            energy.hess_prod(state[name], u, v, output)
 
-    def mixed_derivative_prod(
-        self, u: Vector, p: Vector
+    def hess_quad(
+        self, state: WarpModelState, u: Vector, v: Vector, output: Scalar
+    ) -> None:
+        output.zero_()
+        for name, energy in self.energies.items():
+            energy.hess_quad(state[name], u, v, output)
+
+    def value_and_grad(
+        self, state: WarpModelState, u: Vector, value: Scalar, grad: Vector
+    ) -> None:
+        value.zero_()
+        grad.zero_()
+        for name, energy in self.energies.items():
+            energy.value_and_grad(state[name], u, value, grad)
+
+    def mixed_hess_prod(
+        self, state: WarpModelState, u: Vector, v: Vector
     ) -> dict[str, dict[str, wp.array]]:
-        output: dict[str, dict[str, wp.array]] = {
-            name: energy.mixed_derivative_prod(u, p)
-            for name, energy in self.energies.items()
-        }
-        return output
-
-    def value_and_grad(self, u: Vector, value: Scalar, grad: Vector) -> None:
-        for energy in self.energies.values():
-            energy.value_and_grad(u, value, grad)
-
-    def grad_and_hess_diag(self, u: Vector, grad: Vector, hess_diag: Vector) -> None:
-        for energy in self.energies.values():
-            energy.grad_and_hess_diag(u, grad, hess_diag)
+        outputs: dict[str, dict[str, wp.array]] = {}
+        for name, energy in self.energies.items():
+            outputs[name] = energy.mixed_hess_prod(state[name], u, v)
+        return outputs

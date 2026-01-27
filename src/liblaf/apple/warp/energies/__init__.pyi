@@ -1,12 +1,4 @@
 from . import elastic
-from .elastic import Arap, ArapActive, ArapMuscle, Hyperelastic, Phace, PhaceFixHess
+from .elastic import WarpArap, WarpArapMuscle, WarpElastic
 
-__all__ = [
-    "Arap",
-    "ArapActive",
-    "ArapMuscle",
-    "Hyperelastic",
-    "Phace",
-    "PhaceFixHess",
-    "elastic",
-]
+__all__ = ["WarpArap", "WarpArapMuscle", "WarpElastic", "elastic"]

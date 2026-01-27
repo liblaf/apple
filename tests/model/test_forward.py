@@ -3,9 +3,9 @@ import numpy as np
 import pyvista as pv
 from liblaf.peach.optim import PNCG
 
-from liblaf.apple import Forward, Model, ModelBuilder
-from liblaf.apple.constants import DIRICHLET_MASK, DIRICHLET_VALUE, MU
-from liblaf.apple.warp import Arap
+from liblaf.apple.consts import DIRICHLET_MASK, DIRICHLET_VALUE, MU
+from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.apple.warp import WarpArap
 
 
 def test_forward() -> None:
@@ -19,7 +19,7 @@ def test_forward() -> None:
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)
-    elastic: Arap = Arap.from_pyvista(mesh)
+    elastic: WarpArap = WarpArap.from_pyvista(mesh)
     builder.add_energy(elastic)
 
     model: Model = builder.finalize()

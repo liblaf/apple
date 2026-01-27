@@ -5,7 +5,7 @@ from environs import env
 from liblaf.peach.optim import ScipyOptimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.constants import ACTIVATION, LAMBDA, POINT_ID
+from liblaf.apple.consts import ACTIVATION, LAMBDA, POINT_ID
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import Phace
 

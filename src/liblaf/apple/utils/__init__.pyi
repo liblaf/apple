@@ -1,4 +1,3 @@
-from ._id_mixin import IdMixin
-from ._indices import group_indices
+from ._name_generator import make_name, name_factory
 
-__all__ = ["IdMixin", "group_indices"]
+__all__ = ["make_name", "name_factory"]

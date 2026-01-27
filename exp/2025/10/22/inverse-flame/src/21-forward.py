@@ -8,7 +8,7 @@ from liblaf.peach.optim import PNCG
 
 from liblaf import cherries, melon
 from liblaf.apple import Forward, Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, POINT_ID
+from liblaf.apple.consts import ACTIVATION, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Scalar = Float[Array, ""]

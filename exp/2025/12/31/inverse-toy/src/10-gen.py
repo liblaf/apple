@@ -5,7 +5,7 @@ from environs import env
 from jaxtyping import Array, Float, Integer
 
 from liblaf import cherries, melon
-from liblaf.apple.constants import (
+from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
     DIRICHLET_VALUE,

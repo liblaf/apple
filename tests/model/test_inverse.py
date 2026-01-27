@@ -10,7 +10,7 @@ from liblaf.peach import tree
 from liblaf.peach.optim import Optimizer
 
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder, Phace
-from liblaf.apple.constants import (
+from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
     DIRICHLET_VALUE,

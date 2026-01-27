@@ -1,16 +1,16 @@
-import equinox as eqx
+import jarp
 import jax.numpy as jnp
-from jaxtyping import Array, ArrayLike, Float, Integer
-from liblaf.peach import tree
+from jaxtyping import Array, ArrayLike, Bool, Float, Integer
 
 
-@tree.define
+@jarp.define
 class Dirichlet:
-    dim: int
+    dim: int = jarp.static()
     dirichlet_index: Integer[Array, " dirichlet"]
     dirichlet_value: Float[Array, " dirichlet"]
+    fixed_mask: Bool[Array, "points dim"]
     free_index: Integer[Array, " free"]
-    n_points: int
+    n_points: int = jarp.static()
 
     @property
     def n_dirichlet(self) -> int:
@@ -24,18 +24,16 @@ class Dirichlet:
     def n_full(self) -> int:
         return self.n_points * self.dim
 
-    @eqx.filter_jit
-    def get_dirichlet(
-        self, full: Float[Array, "points dim"]
-    ) -> Float[Array, " dirichlet"]:
+    @jarp.jit(inline=True)
+    def get_fixed(self, full: Float[Array, "points dim"]) -> Float[Array, " dirichlet"]:
         return full.flatten()[self.dirichlet_index]
 
-    @eqx.filter_jit
+    @jarp.jit(inline=True)
     def get_free(self, full: Float[Array, "points dim"]) -> Float[Array, " free"]:
         return full.flatten()[self.free_index]
 
-    @eqx.filter_jit
-    def set_dirichlet(
+    @jarp.jit(inline=True)
+    def set_fixed(
         self,
         full: Float[Array, "points dim"],
         values: Float[ArrayLike, " dirichlet"] | None = None,
@@ -44,13 +42,13 @@ class Dirichlet:
             values = self.dirichlet_value
         return full.flatten().at[self.dirichlet_index].set(values).reshape(full.shape)
 
-    @eqx.filter_jit
+    @jarp.jit(inline=True)
     def set_free(
         self, full: Float[Array, "points dim"], values: Float[ArrayLike, " free"]
     ) -> Float[Array, "points dim"]:
         return full.flatten().at[self.free_index].set(values).reshape(full.shape)
 
-    @eqx.filter_jit
+    @jarp.jit(inline=True)
     def to_full(
         self,
         free: Float[Array, " free"],
@@ -60,5 +58,5 @@ class Dirichlet:
             (self.n_points, self.dim), free.dtype
         )
         full = self.set_free(full, free)
-        full = self.set_dirichlet(full, dirichlet)
+        full = self.set_fixed(full, dirichlet)
         return full

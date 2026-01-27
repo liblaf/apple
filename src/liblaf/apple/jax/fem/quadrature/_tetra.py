@@ -1,25 +1,21 @@
 from typing import Self
 
 import felupe.quadrature
+import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-from liblaf.peach import tree
 
 from ._scheme import Scheme
 
 
-def _default_points() -> Float[Array, "q=1 J=3"]:
-    return jnp.ones((1, 3)) / 4.0
-
-
-def _default_weights() -> Float[Array, "q=1"]:
-    return jnp.ones((1,)) / 6.0
-
-
-@tree.define
+@jarp.define
 class QuadratureTetra(Scheme):
-    points: Float[Array, "q=1 J=3"] = tree.array(factory=_default_points)
-    weights: Float[Array, "q=1"] = tree.array(factory=_default_weights)
+    points: Float[Array, "quadrature dim"] = jarp.array(
+        factory=lambda: jnp.ones((1, 3)) / 4.0
+    )
+    weights: Float[Array, " quadrature"] = jarp.array(
+        factory=lambda: jnp.ones((1,)) / 6.0
+    )
 
     @classmethod
     def from_order(cls, order: int = 1) -> Self:

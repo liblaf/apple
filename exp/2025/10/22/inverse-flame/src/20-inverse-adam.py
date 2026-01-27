@@ -18,7 +18,7 @@ from liblaf.peach.optim.abc import Callback
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, POINT_ID
+from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Vector = Float[Array, " N"]

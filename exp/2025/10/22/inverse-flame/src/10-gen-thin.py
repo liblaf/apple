@@ -9,7 +9,7 @@ from jaxtyping import Array, Bool, Float, Integer
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import utils
-from liblaf.apple.constants import (
+from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
     DIRICHLET_VALUE,

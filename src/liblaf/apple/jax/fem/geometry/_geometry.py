@@ -1,17 +1,17 @@
 from __future__ import annotations
 
+import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
-from liblaf.peach import tree
 
-from liblaf.apple.constants import POINT_ID
+from liblaf.apple.consts import GLOBAL_POINT_ID
 from liblaf.apple.jax.fem.element import Element
 
 
-@tree.define
+@jarp.define
 class Geometry:
-    mesh: pv.DataSet = tree.field()
+    mesh: pv.DataSet = jarp.field()
 
     @classmethod
     def from_pyvista(cls, mesh: pv.DataObject) -> Geometry:
@@ -30,27 +30,27 @@ class Geometry:
 
     @property
     def n_cells(self) -> int:
-        return self.cells.shape[0]
+        return self.cells_local.shape[0]
 
     @property
     def cell_data(self) -> pv.DataSetAttributes:
         return self.mesh.cell_data
 
     @property
-    def cells(self) -> Integer[Array, "c a"]:
+    def cells_global(self) -> Integer[Array, "c a"]:
+        return self.global_point_id[self.cells_local]
+
+    @property
+    def cells_local(self) -> Integer[Array, "c a"]:
         raise NotImplementedError
 
     @property
-    def cells_global(self) -> Integer[Array, "c a"]:
-        return self.point_id[self.cells]
+    def global_point_id(self) -> Integer[Array, "p J"]:
+        return jnp.asarray(self.point_data[GLOBAL_POINT_ID])
 
     @property
     def point_data(self) -> pv.DataSetAttributes:
         return self.mesh.point_data
-
-    @property
-    def point_id(self) -> Integer[Array, "p J"]:
-        return jnp.asarray(self.point_data[POINT_ID])
 
     @property
     def points(self) -> Float[Array, "p J"]:

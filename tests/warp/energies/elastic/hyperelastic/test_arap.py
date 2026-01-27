@@ -2,11 +2,11 @@ import hypothesis
 import numpy as np
 import pytest
 import pyvista as pv
+from liblaf.apple.warp.energies.elastic.hyperelastic import Arap
 
 from liblaf.apple import Model, ModelBuilder
-from liblaf.apple.constants import MU
+from liblaf.apple.consts import MU
 from liblaf.apple.jax import testing
-from liblaf.apple.warp.energies.elastic.hyperelastic import Arap
 
 from . import common
 

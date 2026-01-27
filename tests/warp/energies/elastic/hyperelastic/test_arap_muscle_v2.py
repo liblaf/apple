@@ -2,11 +2,11 @@ import hypothesis
 import numpy as np
 import pytest
 import pyvista as pv
+from liblaf.apple.warp.energies.elastic.hyperelastic._arap_muscle_v2 import ArapMuscleV2
 
 from liblaf.apple import Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, MU
+from liblaf.apple.consts import ACTIVATION, MU
 from liblaf.apple.jax import testing
-from liblaf.apple.warp.energies.elastic.hyperelastic._arap_muscle_v2 import ArapMuscleV2
 
 from . import common
 

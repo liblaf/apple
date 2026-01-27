@@ -2,11 +2,11 @@ import hypothesis
 import numpy as np
 import pytest
 import pyvista as pv
+from liblaf.apple.warp.energies.elastic.hyperelastic import Phace
 
 from liblaf.apple import Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION
+from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION
 from liblaf.apple.jax import testing
-from liblaf.apple.warp.energies.elastic.hyperelastic import Phace
 
 from . import common
 

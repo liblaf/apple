@@ -1,20 +1,20 @@
 from typing import Self
 
-import felupe.quadrature
+import felupe
+import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-from liblaf.peach import tree
 
 
-@tree.define
+@jarp.define
 class Scheme:
-    points: Float[Array, "q J"] = tree.array()
-    weights: Float[Array, " q"] = tree.array()
+    points: Float[Array, "quadrature dim"] = jarp.array()
+    weights: Float[Array, " quadrature"] = jarp.array()
 
     @classmethod
-    def from_felupe(cls, scheme: felupe.quadrature.Scheme) -> Self:
+    def from_felupe(cls, schema: felupe.quadrature.Scheme) -> Self:
         return cls(
-            points=jnp.asarray(scheme.points), weights=jnp.asarray(scheme.weights)
+            points=jnp.asarray(schema.points), weights=jnp.asarray(schema.weights)
         )
 
     @property

@@ -2,21 +2,21 @@ from typing import Any, no_type_check
 
 import warp as wp
 
-mat33 = Any
 vec3 = Any
+mat33 = Any
 
 
 @wp.func
 @no_type_check
-def svd_rv(A: mat33) -> tuple[mat33, vec3, mat33]:
-    U, s, V = wp.svd3(A)
-    return U, s, V
+def svd_rv(F: mat33) -> tuple[mat33, vec3, mat33]:
+    U, sigma, V = wp.svd3(F)
+    return U, sigma, V
 
 
 @wp.func
 @no_type_check
-def polar_rv(A: mat33) -> tuple[mat33, mat33]:
-    U, s, V = svd_rv(A)
+def polar_rv(F: mat33) -> tuple[mat33, mat33]:
+    U, sigma, V = svd_rv(F)
     R = U @ wp.transpose(V)
-    S = V @ wp.diag(s) @ wp.transpose(V)
+    S = V @ wp.diag(sigma) @ wp.transpose(V)
     return R, S

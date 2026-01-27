@@ -6,7 +6,7 @@ import pyvista as pv
 from jaxtyping import Array, Bool, Float
 
 from liblaf import cherries, melon
-from liblaf.apple.constants import ACTIVATION
+from liblaf.apple.consts import ACTIVATION
 from liblaf.apple.jax import make_activation
 
 

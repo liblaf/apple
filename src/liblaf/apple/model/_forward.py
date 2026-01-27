@@ -4,47 +4,55 @@ import logging
 from collections.abc import Mapping
 
 import attrs
+import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-from liblaf.peach import tree
-from liblaf.peach.optim import PNCG, Callback, Objective, Optimizer
+from liblaf.peach.optim import PNCG, Objective, Optimizer
+from liblaf.peach.transforms import FixedTransform
 
-from ._model import Model
+from ._model import Model, ModelState
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-type EnergyParams = Mapping[str, Array]
+type EnergyMaterials = Mapping[str, Array]
 type Free = Float[Array, " free"]
-type ModelParams = Mapping[str, EnergyParams]
+type Full = Float[Array, " full"]
+type ModelMaterials = Mapping[str, EnergyMaterials]
 type Scalar = Float[Array, ""]
 
 
-def _default_optimizer(self: Forward) -> Optimizer:
-    max_steps: int = max(1000, jnp.ceil(20 * jnp.sqrt(self.model.n_free)).item())
-    max_delta: Scalar = (
-        0.15 * self.model.edges_length_mean
-        if self.model.edges_length_mean > 0
-        else jnp.asarray(jnp.inf)
-    )
-    return PNCG(
-        max_steps=max_steps,
-        atol=1e-10,
-        rtol=1e-3,
-        atol_primary=1e-10,
-        rtol_primary=1e-5,
-        beta_non_negative=True,
-        beta_restart_threshold=10.0,
-        max_delta=max_delta,
-        timer=True,
-        stagnation_max_restarts=20,
-        stagnation_patience=50,
-    )
-
-
-@tree.define
+@jarp.define
 class Forward:
     model: Model
-    optimizer: Optimizer = tree.field(
+
+    def _default_state(self) -> ModelState:
+        return self.model.init_state(self.model.u_full)
+
+    state: ModelState = jarp.field(
+        default=attrs.Factory(_default_state, takes_self=True), kw_only=True
+    )
+
+    def _default_optimizer(self: Forward) -> Optimizer:
+        max_steps: int = max(1000, jnp.ceil(20 * jnp.sqrt(self.model.n_free)).item())
+        max_delta: Scalar = (
+            0.15 * self.model.edges_length_mean
+            if self.model.edges_length_mean > 0
+            else jnp.asarray(jnp.inf)
+        )
+        return PNCG(
+            max_steps=jnp.asarray(max_steps),
+            atol=jnp.asarray(1e-10),
+            rtol=jnp.asarray(1e-3),
+            atol_primary=jnp.asarray(1e-10),
+            rtol_primary=jnp.asarray(1e-5),
+            beta_non_negative=True,
+            beta_reset_threshold=jnp.asarray(10.0),
+            max_delta=max_delta,
+            stagnation_max_restarts=jnp.asarray(20),
+            stagnation_patience=jnp.asarray(50),
+        )
+
+    optimizer: Optimizer = jarp.field(
         default=attrs.Factory(_default_optimizer, takes_self=True), kw_only=True
     )
 
@@ -52,23 +60,27 @@ class Forward:
     def u_full(self) -> Float[Array, "points dim"]:
         return self.model.u_full
 
-    def update_params(self, params: ModelParams) -> None:
-        self.model.update_params(params)
+    def update_materials(self, materials: ModelMaterials) -> None:
+        self.model.update_materials(materials)
 
     def step(
-        self, callback: Callback | None = None, *, logging: bool = True
+        self, callback: Optimizer.Callback | None = None, *, logging: bool = True
     ) -> Optimizer.Solution:
-        objective = Objective(
-            fun=self.model.fun,
-            grad=self.model.grad,
-            hess_diag=self.model.hess_diag,
-            hess_prod=self.model.hess_prod,
-            hess_quad=self.model.hess_quad,
-            value_and_grad=self.model.value_and_grad,
-            grad_and_hess_diag=self.model.grad_and_hess_diag,
+        objective: Objective[ModelState, Full] = Objective(
+            update=Model.update,
+            fun=Model.fun,
+            grad=Model.grad,
+            hess_diag=Model.hess_diag,
+            hess_prod=Model.hess_prod,
+            hess_quad=Model.hess_quad,
+            args=(self.model,),
+            transform=FixedTransform(
+                self.model.dirichlet.fixed_mask, self.model.u_full
+            ),
         )
-        solution: Optimizer.Solution = self.optimizer.minimize(
-            objective, self.model.u_free, callback=callback
+        solution: Optimizer.Solution
+        solution, self.state = self.optimizer.minimize(
+            objective, self.state, self.model.u_full, callback=callback
         )
         if logging:
             if solution.success:

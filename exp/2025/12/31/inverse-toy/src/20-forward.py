@@ -6,7 +6,7 @@ from environs import env
 from liblaf.peach.optim import PNCG, Optax, Optimizer, ScipyOptimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.constants import ACTIVATION, LAMBDA, POINT_ID
+from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import Phace
 
@@ -41,7 +41,7 @@ def get_solver(name: str, model: Model) -> Optimizer:
 
 def build_model(mesh: pv.UnstructuredGrid, solver: str) -> Forward:
     builder = ModelBuilder()
-    mesh = builder.assign_global_ids(mesh)
+    mesh = builder.add_points(mesh)
     elastic: Phace = Phace.from_pyvista(mesh)
     builder.add_energy(elastic)
     model: Model = builder.finalize()
@@ -60,7 +60,7 @@ def main(cfg: Config) -> None:
     mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), cfg.lambda_)
     forward: Forward = build_model(mesh, cfg.solver)
     forward.step()
-    mesh.point_data["Solution"] = forward.u_full[mesh.point_data[POINT_ID]]  # pyright: ignore[reportArgumentType]
+    mesh.point_data["Solution"] = forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]  # pyright: ignore[reportArgumentType]
 
     suffix: str = cfg.suffix
     suffix += f"-act{round(cfg.activation)}"

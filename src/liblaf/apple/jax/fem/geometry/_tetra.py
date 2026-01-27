@@ -1,18 +1,18 @@
 from typing import Self, override
 
+import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
-from liblaf.peach import tree
 
 from liblaf.apple.jax.fem.element import ElementTetra
 
 from ._geometry import Geometry
 
 
-@tree.define
+@jarp.define
 class GeometryTetra(Geometry):
-    mesh: pv.UnstructuredGrid = tree.field()  # pyright: ignore[reportIncompatibleVariableOverride]
+    mesh: pv.UnstructuredGrid = jarp.field()  # pyright: ignore[reportIncompatibleVariableOverride]
 
     @override
     @classmethod
@@ -27,5 +27,5 @@ class GeometryTetra(Geometry):
 
     @property
     @override
-    def cells(self) -> Integer[Array, "c a"]:
+    def cells_local(self) -> Integer[Array, "c a"]:
         return jnp.asarray(self.mesh.cells_dict[pv.CellType.TETRA])  # pyright: ignore[reportArgumentType]

@@ -1,35 +1,29 @@
+import jarp
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
-from liblaf.peach import tree
 
 from liblaf import melon
-from liblaf.apple.constants import POINT_ID
-from liblaf.apple.jax.model import (
-    Dirichlet,
-    DirichletBuilder,
-    JaxEnergy,
-    JaxModelBuilder,
-)
-from liblaf.apple.warp.model import WarpEnergy, WarpModelAdapter, WarpModelBuilder
+from liblaf.apple.consts import GLOBAL_POINT_ID
+from liblaf.apple.jax import Dirichlet, DirichletBuilder
+from liblaf.apple.warp import WarpEnergy, WarpModelAdapter, WarpModelBuilder
 
 from ._model import Model
 
-type Full = Float[Array, " full"]
+type Full = Float[Array, "points dim"]
 
 
-@tree.define
+@jarp.define
 class ModelBuilder:
-    edges_length_sum: float = tree.field(default=0.0)
-    n_edges: int = tree.field(default=0)
-    dirichlet: DirichletBuilder = tree.field(factory=DirichletBuilder)
-    jax: JaxModelBuilder = tree.field(factory=JaxModelBuilder)
-    warp: WarpModelBuilder = tree.field(factory=WarpModelBuilder)
+    dirichlet: DirichletBuilder = jarp.field(factory=DirichletBuilder)
+    edges_length_sum: float = jarp.field(default=0.0)
+    n_edges: int = jarp.field(default=0)
+    warp: WarpModelBuilder = jarp.field(factory=WarpModelBuilder)
 
     def __init__(self, dim: int = 3) -> None:
         dirichlet: DirichletBuilder = DirichletBuilder(dim=dim)
-        self.__attrs_init__(dirichlet=dirichlet, warp=WarpModelBuilder(dim=dim))  # pyright: ignore[reportAttributeAccessIssue]
+        self.__attrs_init__(dirichlet=dirichlet)  # pyright: ignore[reportAttributeAccessIssue]
 
     @property
     def n_points(self) -> int:
@@ -38,32 +32,26 @@ class ModelBuilder:
     def add_dirichlet(self, obj: pv.DataSet) -> None:
         self.dirichlet.add_pyvista(obj)
 
-    def add_energy(self, energy: JaxEnergy | WarpEnergy) -> None:
-        if isinstance(energy, JaxEnergy):
-            self.jax.add_energy(energy)
-        elif isinstance(energy, WarpEnergy):
-            self.warp.add_energy(energy)
-        else:
-            raise TypeError(energy)
+    def add_energy(self, energy: WarpEnergy) -> None:
+        self.warp.add_energy(energy)
 
-    def assign_global_ids[T: pv.DataSet](self, obj: T) -> T:
+    def add_points[T: pv.DataSet](self, obj: T) -> T:
         edges_length: Float[np.ndarray, " edges"] = melon.compute_edges_length(obj)
         self.edges_length_sum += np.sum(edges_length)
         self.n_edges += edges_length.size
         start: int = self.n_points
         stop: int = start + obj.n_points
         self.dirichlet.resize(stop)
-        obj.point_data[POINT_ID] = np.arange(start, stop)
+        obj.point_data[GLOBAL_POINT_ID] = np.arange(start, stop)
         return obj
 
     def finalize(self) -> Model:
         dirichlet: Dirichlet = self.dirichlet.finalize()
         u_full: Full = jnp.zeros((self.dirichlet.n_points, self.dirichlet.dim))
-        u_full = dirichlet.set_dirichlet(u_full)
+        u_full = dirichlet.set_fixed(u_full)
         return Model(
             dirichlet=dirichlet,
             u_full=u_full,
-            jax=self.jax.finalize(),
             warp=WarpModelAdapter(self.warp.finalize()),
-            edges_length_mean=self.edges_length_sum / max(1, self.n_edges),  # pyright: ignore[reportArgumentType]
+            edges_length_mean=jnp.asarray(self.edges_length_sum / max(1, self.n_edges)),
         )

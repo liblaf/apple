@@ -1,26 +1,27 @@
-from . import energies, fem, model, testing
-from .energies import Gravity, MassSpring, MassSpringPrestrain, make_activation
-from .fem import Element, Geometry, GeometryTetra, GeometryTriangle, Region, Scheme
-from .model import Dirichlet, DirichletBuilder, JaxEnergy, JaxModel, JaxModelBuilder
+from . import fem, model
+from .fem import (
+    Element,
+    ElementTetra,
+    Geometry,
+    GeometryTetra,
+    GeometryTriangle,
+    QuadratureTetra,
+    Region,
+    Scheme,
+)
+from .model import Dirichlet, DirichletBuilder
 
 __all__ = [
     "Dirichlet",
     "DirichletBuilder",
     "Element",
+    "ElementTetra",
     "Geometry",
     "GeometryTetra",
     "GeometryTriangle",
-    "Gravity",
-    "JaxEnergy",
-    "JaxModel",
-    "JaxModelBuilder",
-    "MassSpring",
-    "MassSpringPrestrain",
+    "QuadratureTetra",
     "Region",
     "Scheme",
-    "energies",
     "fem",
-    "make_activation",
     "model",
-    "testing",
 ]

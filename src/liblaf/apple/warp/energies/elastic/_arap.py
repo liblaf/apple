@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, ClassVar, cast, no_type_check
+from typing import Any, ClassVar, cast, no_type_check, override
 
 import jarp
 import jarp.warp.types as wpt
@@ -127,6 +127,7 @@ class WarpArap(WarpElastic):
         hess_quad_func, __module__
     )
 
+    @override
     @classmethod
     def make_materials(cls, region: Region, requires_grad: Sequence[str]) -> Any:
         @wp.struct

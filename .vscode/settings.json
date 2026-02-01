@@ -14,13 +14,8 @@
     "**/junit.xml": true,
     "**/site/": true
   },
-  "python.analysis.diagnosticMode": "workspace",
-  "python.testing.pytestArgs": [
-    "--color=yes",
-    "--cov",
-    "--numprocesses",
-    "auto"
-  ],
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.testing.pytestArgs": ["--color=yes", "--cov", "--numprocesses", "0"],
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "yaml.customTags": [

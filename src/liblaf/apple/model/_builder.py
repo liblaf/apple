@@ -6,7 +6,7 @@ from jaxtyping import Array, Float
 
 from liblaf import melon
 from liblaf.apple.consts import GLOBAL_POINT_ID
-from liblaf.apple.jax import Dirichlet, DirichletBuilder
+from liblaf.apple.jax import Dirichlet, DirichletBuilder, JaxEnergy, JaxModelBuilder
 from liblaf.apple.warp import WarpEnergy, WarpModelAdapter, WarpModelBuilder
 
 from ._model import Model
@@ -18,6 +18,7 @@ type Full = Float[Array, "points dim"]
 class ModelBuilder:
     dirichlet: DirichletBuilder = jarp.field(factory=DirichletBuilder)
     edges_length_sum: float = jarp.field(default=0.0)
+    jax: JaxModelBuilder = jarp.field(factory=JaxModelBuilder)
     n_edges: int = jarp.field(default=0)
     warp: WarpModelBuilder = jarp.field(factory=WarpModelBuilder)
 
@@ -32,8 +33,13 @@ class ModelBuilder:
     def add_dirichlet(self, obj: pv.DataSet) -> None:
         self.dirichlet.add_pyvista(obj)
 
-    def add_energy(self, energy: WarpEnergy) -> None:
-        self.warp.add_energy(energy)
+    def add_energy(self, energy: JaxEnergy | WarpEnergy) -> None:
+        if isinstance(energy, JaxEnergy):
+            self.jax.add_energy(energy)
+        elif isinstance(energy, WarpEnergy):
+            self.warp.add_energy(energy)
+        else:
+            raise TypeError(energy)
 
     def add_points[T: pv.DataSet](self, obj: T) -> T:
         edges_length: Float[np.ndarray, " edges"] = melon.compute_edges_length(obj)
@@ -52,6 +58,7 @@ class ModelBuilder:
         return Model(
             dirichlet=dirichlet,
             u_full=u_full,
+            jax=self.jax.finalize(),
             warp=WarpModelAdapter(self.warp.finalize()),
             edges_length_mean=jnp.asarray(self.edges_length_sum / max(1, self.n_edges)),
         )

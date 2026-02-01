@@ -151,7 +151,7 @@ class WarpArapMuscle(WarpElastic):
     @classmethod
     def make_materials(cls, region: Region, requires_grad: Sequence[str]) -> Any:
         @wp.struct
-        class WarpArapMaterials:
+        class WarpArapMuscleMaterials:
             activation: wp.array1d(dtype=wpt.vector(6))
             mu: wp.array1d(dtype=wpt.float_)
 
@@ -163,7 +163,7 @@ class WarpArapMuscle(WarpElastic):
         mu = jarp.to_warp(
             region.cell_data[MU], wpt.float_, requires_grad=(MU in requires_grad)
         )
-        materials = WarpArapMaterials()
+        materials = WarpArapMuscleMaterials()
         materials.activation = activation
         materials.mu = mu
         return materials

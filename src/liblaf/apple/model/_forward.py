@@ -66,6 +66,9 @@ class Forward:
     def step(
         self, callback: Optimizer.Callback | None = None, *, logging: bool = True
     ) -> Optimizer.Solution:
+        transform: FixedTransform = FixedTransform(
+            self.model.dirichlet.fixed_mask, self.model.u_full
+        )
         objective: Objective[ModelState, Full] = Objective(
             update=Model.update,
             fun=Model.fun,
@@ -73,10 +76,9 @@ class Forward:
             hess_diag=Model.hess_diag,
             hess_prod=Model.hess_prod,
             hess_quad=Model.hess_quad,
+            value_and_grad=Model.value_and_grad,
+            transform=transform,
             args=(self.model,),
-            transform=FixedTransform(
-                self.model.dirichlet.fixed_mask, self.model.u_full
-            ),
         )
         solution: Optimizer.Solution
         solution, self.state = self.optimizer.minimize(

@@ -1,5 +1,5 @@
 import functools
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from typing import Annotated, Any
 
 import jarp
@@ -8,6 +8,7 @@ import jax.numpy as jnp
 import warp as wp
 from jarp.warp import FfiCallableProtocol
 from jaxtyping import Array, Bool, Float
+from warp._src.jax_experimental.ffi import ModulePreloadMode
 from warp.jax_experimental import GraphMode
 
 from ._energy import WarpEnergy
@@ -18,6 +19,9 @@ type EnergyMaterials = Mapping[str, Array]
 type ModelMaterials = Mapping[str, EnergyMaterials]
 type Scalar = Annotated[Array, ""]
 type Vector = Annotated[Array, "points dim"]
+
+_GRAPH_MODE: GraphMode = GraphMode.NONE
+_MODULE_PRELOAD_MODE = ModulePreloadMode.CURRENT_DEVICE
 
 
 @jarp.define
@@ -47,7 +51,7 @@ class WarpModelAdapter:
         update_callable = _make_update_callable(self.__wrapped__, state.__wrapped__)
         state.u = u
         # prevent this from being DCE'd away
-        (state.marker,) = update_callable(u)
+        (state.marker,) = update_callable(u, output_dims={"marker": (1,)})
         return state, u
 
     def update_materials(self, materials: ModelMaterials) -> None:
@@ -63,8 +67,9 @@ class WarpModelAdapter:
     @jarp.jit(inline=True)
     def grad(self, state: WarpModelAdapterState) -> Vector:
         grad_callable = _make_grad_callable(self.__wrapped__, state.__wrapped__)
-        output: Float[Array, "points 3"]
-        (output,) = grad_callable(state.u, output_dims={"output": state.u.shape})
+        output: Vector
+        # jax.debug.print("{}", state.u)
+        (output,) = grad_callable(state.u, output_dims={"output": (state.u.shape[0],)})
         return output
 
     @jarp.jit(inline=True)
@@ -72,8 +77,10 @@ class WarpModelAdapter:
         hess_diag_callable = _make_hess_diag_callable(
             self.__wrapped__, state.__wrapped__
         )
-        output: Float[Array, "points 3"]
-        (output,) = hess_diag_callable(state.u, output_dims={"output": state.u.shape})
+        output: Vector
+        (output,) = hess_diag_callable(
+            state.u, output_dims={"output": (state.u.shape[0],)}
+        )
         return output
 
     @jarp.jit(inline=True)
@@ -81,9 +88,9 @@ class WarpModelAdapter:
         hess_prod_callable = _make_hess_prod_callable(
             self.__wrapped__, state.__wrapped__
         )
-        output: Float[Array, "points 3"]
+        output: Vector
         (output,) = hess_prod_callable(
-            state.u, v, output_dims={"output": state.u.shape}
+            state.u, v, output_dims={"output": (state.u.shape[0],)}
         )
         return output
 
@@ -96,6 +103,18 @@ class WarpModelAdapter:
         (output,) = hess_quad_callable(state.u, v, output_dims={"output": (1,)})
         return output[0]
 
+    @jarp.jit(inline=True)
+    def value_and_grad(self, state: WarpModelAdapterState) -> tuple[Scalar, Vector]:
+        value_and_grad_callable = _make_value_and_grad_callable(
+            self.__wrapped__, state.__wrapped__
+        )
+        value: Float[Array, " 1"]
+        grad: Vector
+        (value, grad) = value_and_grad_callable(
+            state.u, output_dims={"value": (1,), "grad": (state.u.shape[0],)}
+        )
+        return value[0], grad
+
 
 # TODO: use weakref to avoid memory leaks
 @functools.lru_cache
@@ -105,25 +124,30 @@ def _make_update_callable(
     # This is some dirty trickery to make sure that the update function is
     # JAX-traceable even though it is not pure (it mutates the state).
     @jarp.jax_callable(
-        generic=True, graph_mode=GraphMode.WARP, output_dims={"marker": (1,)}
+        generic=False,
+        graph_mode=_GRAPH_MODE,
+        output_dims={"marker": (1,)},
+        module_preload_mode=_MODULE_PRELOAD_MODE,
     )
-    def update_callable(u_dtype: type) -> Callable[..., None]:
-        def update_callable_inner(
-            u: wp.array1d(dtype=wp.types.vector(3, u_dtype)),
-            marker: wp.array1d(dtype=wp.bool),
-        ) -> None:
-            nonlocal state
-            state = model.update(state, u)
-            marker.zero_()
+    # def update_callable(u_dtype: type) -> Callable[..., None]:
+    def update_callable_inner(
+        u: wp.array1d(dtype=wpt.vec3),
+        marker: wp.array1d(dtype=wp.bool),
+    ) -> None:
+        nonlocal state
+        state = model.update(state, u)
+        marker.zero_()
 
-        return update_callable_inner
+    return update_callable_inner
 
-    return update_callable
+    # return update_callable
 
 
 @functools.lru_cache
 def _make_fun_callable(model: WarpModel, state: WarpModelState) -> FfiCallableProtocol:
-    @jarp.jax_callable(generic=False, graph_mode=GraphMode.WARP)
+    @jarp.jax_callable(
+        generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
+    )
     def fun_callable(
         u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
         output: wp.array1d(dtype=wpt.float_),
@@ -135,7 +159,9 @@ def _make_fun_callable(model: WarpModel, state: WarpModelState) -> FfiCallablePr
 
 @functools.lru_cache
 def _make_grad_callable(model: WarpModel, state: WarpModelState) -> FfiCallableProtocol:
-    @jarp.jax_callable(generic=False, graph_mode=GraphMode.WARP)
+    @jarp.jax_callable(
+        generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
+    )
     def grad_callable(
         u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
         output: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
@@ -149,7 +175,9 @@ def _make_grad_callable(model: WarpModel, state: WarpModelState) -> FfiCallableP
 def _make_hess_diag_callable(
     model: WarpModel, state: WarpModelState
 ) -> FfiCallableProtocol:
-    @jarp.jax_callable(generic=False, graph_mode=GraphMode.WARP)
+    @jarp.jax_callable(
+        generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
+    )
     def hess_diag_callable(
         u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
         output: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
@@ -163,7 +191,9 @@ def _make_hess_diag_callable(
 def _make_hess_prod_callable(
     model: WarpModel, state: WarpModelState
 ) -> FfiCallableProtocol:
-    @jarp.jax_callable(generic=False, graph_mode=GraphMode.WARP)
+    @jarp.jax_callable(
+        generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
+    )
     def hess_prod_callable(
         u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
         v: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
@@ -178,7 +208,12 @@ def _make_hess_prod_callable(
 def _make_hess_quad_callable(
     model: WarpModel, state: WarpModelState
 ) -> FfiCallableProtocol:
-    @jarp.jax_callable(generic=False, graph_mode=GraphMode.WARP)
+    @jarp.jax_callable(
+        generic=False,
+        graph_mode=_GRAPH_MODE,
+        output_dims={"output": (1,)},
+        module_preload_mode=_MODULE_PRELOAD_MODE,
+    )
     def hess_quad_callable(
         u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
         v: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
@@ -187,3 +222,24 @@ def _make_hess_quad_callable(
         model.hess_quad(state, u, v, output)
 
     return hess_quad_callable
+
+
+@functools.lru_cache
+def _make_value_and_grad_callable(
+    model: WarpModel, state: WarpModelState
+) -> FfiCallableProtocol:
+    @jarp.jax_callable(
+        generic=False,
+        num_outputs=2,
+        graph_mode=_GRAPH_MODE,
+        output_dims={"value": (1,)},
+        module_preload_mode=_MODULE_PRELOAD_MODE,
+    )
+    def value_and_grad_callable(
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+        value: wp.array1d(dtype=wpt.float_),
+        grad: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+    ) -> None:
+        model.value_and_grad(state, u, value, grad)
+
+    return value_and_grad_callable

@@ -19,11 +19,7 @@ from liblaf.apple.warp.energies.elastic import (
 # wp.config.mode = "debug"
 wp.config.print_launches = True
 wp.config.verbose = True
-wp.config.verify_autograd_array_access = True
-wp.config.verify_cuda = True
-wp.config.verify_fp = True
-wp.config.verbose_warnings = True
-wp.config.use_precompiled_headers = False
+wp.config.max_unroll = 0
 wp.init()
 
 
@@ -87,28 +83,28 @@ def main(cfg: Config) -> None:
         ic(opt_state)
 
     # warmup
-    u_wp: wp.array = wp.zeros((forward.model.n_points,), dtype=wp.vec3f)
+    # u_wp: wp.array = wp.zeros((forward.model.n_points,), dtype=wp.vec3f)
     # grad_wp: wp.array = wp.zeros((forward.model.n_points,), dtype=wp.vec3f)
-    hess_diag_wp: wp.array = wp.zeros((forward.model.n_points,), dtype=wp.vec3f)
-    # forward.model.warp.__wrapped__.grad(forward.state.warp.__wrapped__, u_wp, grad_wp)
-    # print(grad_wp)
-    forward.model.warp.__wrapped__.hess_diag(
-        forward.state.warp.__wrapped__, u_wp, hess_diag_wp
-    )
-    print(hess_diag_wp)
+    # hess_diag_wp: wp.array = wp.zeros((forward.model.n_points,), dtype=wp.vec3f)
     # forward.model.warp.__wrapped__.grad(forward.state.warp.__wrapped__, u_wp, grad_wp)
     # print(grad_wp)
     # forward.model.warp.__wrapped__.hess_diag(
     #     forward.state.warp.__wrapped__, u_wp, hess_diag_wp
     # )
     # print(hess_diag_wp)
-    print(forward.model.grad(forward.state))
-    print(forward.model.hess_diag(forward.state))
-    print(forward.model.hess_quad(forward.state, forward.state.u))
-    print(forward.model.grad(forward.state))
-    print(forward.model.hess_diag(forward.state))
-    print(forward.model.hess_quad(forward.state, forward.state.u))
-    # forward.step(callback=callback)
+    # forward.model.warp.__wrapped__.grad(forward.state.warp.__wrapped__, u_wp, grad_wp)
+    # print(grad_wp)
+    # forward.model.warp.__wrapped__.hess_diag(
+    #     forward.state.warp.__wrapped__, u_wp, hess_diag_wp
+    # )
+    # print(hess_diag_wp)
+    # print(forward.model.grad(forward.state))
+    # print(forward.model.hess_diag(forward.state))
+    # print(forward.model.hess_quad(forward.state, forward.state.u))
+    # print(forward.model.grad(forward.state))
+    # print(forward.model.hess_diag(forward.state))
+    # print(forward.model.hess_quad(forward.state, forward.state.u))
+    forward.step(callback=callback)
     mesh.point_data["Solution"] = forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]  # pyright: ignore[reportArgumentType]
 
     suffix: str = cfg.suffix

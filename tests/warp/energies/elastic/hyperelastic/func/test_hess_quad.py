@@ -2,14 +2,14 @@ from collections.abc import Callable
 from typing import Any, no_type_check
 
 import hypothesis
+import liblaf.apple.warp.utils as wpu
 import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
+from liblaf.apple.warp.energies.elastic.hyperelastic import func
 
-import liblaf.apple.warp.utils as wpu
 from liblaf.apple.jax import testing
 from liblaf.apple.warp import math
-from liblaf.apple.warp.energies.elastic.hyperelastic import func
 
 type Mat33 = Float[Array, "batch 3 3"]
 type Mat43 = Float[Array, "batch 4 3"]

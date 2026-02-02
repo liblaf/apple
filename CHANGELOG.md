@@ -7,7 +7,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-06
+## [0.7.1](https://github.com/liblaf/apple/releases/tag/v0.7.1) - 2026-02-02
+
+### ✨ Features
+
+- **apple:** improve inverse simulation with coarse-to-fine transfer and enhanced solvers - [61d530e](https://github.com/liblaf/apple/commit/61d530e5230b07c38db367a13fc5a6deb59e48e2) by [@liblaf](https://github.com/liblaf)
+- **apple:** implement hybrid JAX/Warp model framework and WarpPhaceV2 - [315b58e](https://github.com/liblaf/apple/commit/315b58e1a5ac8ce1f058a44944c688a5f7f713b1) by [@liblaf](https://github.com/liblaf)
+- **exp:** update inverse-toy simulation and add Newton solver - [cee4852](https://github.com/liblaf/apple/commit/cee4852cc9ecf957995331dc796da4ac2e6cdf88) by [@liblaf](https://github.com/liblaf)
+- **exp:** add SMAS forward simulation experiments - [e27c9da](https://github.com/liblaf/apple/commit/e27c9daf35ccf2355572decee3c1e3595bfcc508) by [@liblaf](https://github.com/liblaf)
+- **inverse:** enhance inverse solver with constraint support and improved adjoint solver - [892dbfd](https://github.com/liblaf/apple/commit/892dbfd616dd801f1d642ffb1620f55b86942530) by [@liblaf](https://github.com/liblaf)
+- add inverse toy experiments for forward simulation and muscle activation - [19c2c46](https://github.com/liblaf/apple/commit/19c2c46438b85770d7dc4a11971b2d3a05672777) by [@liblaf](https://github.com/liblaf)
+
+### 🐛 Bug Fixes
+
+- **warp:** correct ARAP muscle energy implementation and kernel function names - [d734e9b](https://github.com/liblaf/apple/commit/d734e9bf3909551158ae800dead9611c2c6e1175) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-07
 
 ### 💥 BREAKING CHANGES
 
@@ -40,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.6.1](https://github.com/liblaf/apple/releases/tag/v0.6.1) - 2025-11-29
 

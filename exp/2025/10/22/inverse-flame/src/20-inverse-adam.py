@@ -29,7 +29,7 @@ type Scalar = Float[Array, ""]
 
 
 logger: logging.Logger = logging.getLogger(__name__)
-SUFFIX: str = env.str("SUFFIX", default="-123k")
+SUFFIX: str = env.str("SUFFIX", default="-3152k")
 
 
 class Config(cherries.BaseConfig):
@@ -205,9 +205,9 @@ def get_muscle_id_to_cell_neighbors(
 
 
 def prepare(cfg: Config, mesh: pv.UnstructuredGrid) -> PhaceInverse:
-    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
+    # mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
     # Poisson's ratio = 0.45
-    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), cfg.lambda_)
+    # mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), cfg.lambda_)
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
     builder.add_dirichlet(mesh)

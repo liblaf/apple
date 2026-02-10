@@ -17,7 +17,7 @@ from liblaf.apple.constants import (
     MUSCLE_FRACTION,
 )
 
-SUFFIX: str = env.str("SUFFIX", default="-68k-coarse")
+SUFFIX: str = env.str("SUFFIX", default="-3152k")
 
 
 class Config(cherries.BaseConfig):
@@ -92,8 +92,10 @@ def main(cfg: Config) -> None:
     )
     mesh.point_data[DIRICHLET_VALUE] = np.zeros((mesh.n_points, 3))
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
-    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0)
-    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
+
+    smas_fraction: Float[Array, " cells"] = jnp.asarray(mesh.cell_data["SmasFraction"])
+    mesh.cell_data[LAMBDA] = 3.0 * (1.0 - smas_fraction) + 3.0e2 * smas_fraction
+    mesh.cell_data[MU] = 1.0 * (1.0 - smas_fraction) + 1.0e2 * smas_fraction
 
     melon.save(cfg.input, mesh)
 

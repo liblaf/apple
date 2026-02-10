@@ -45,7 +45,7 @@ def get_solver(name: str, model: Model) -> Optimizer:
 def build_model(mesh: pv.UnstructuredGrid, solver: str) -> Forward:
     builder = ModelBuilder()
     mesh = builder.assign_global_ids(mesh)
-    elastic: StableNeoHookean = StableNeoHookean.from_pyvista(mesh)
+    elastic: Phace = Phace.from_pyvista(mesh)
     builder.add_energy(elastic)
     model: Model = builder.finalize()
     forward = Forward(model, optimizer=get_solver(solver, model))
@@ -70,7 +70,7 @@ def main(cfg: Config) -> None:
     suffix += f"-lambda{round(cfg.lambda_)}"
     suffix += "-float64" if jax.config.read("jax_enable_x64") else "-float32"
     suffix += f"-{cfg.solver}"
-    melon.save(cherries.output(f"20-forward{suffix}.vtu"), mesh)
+    melon.save(cherries.output(f"20-forward-corot{suffix}.vtu"), mesh)
 
 
 if __name__ == "__main__":

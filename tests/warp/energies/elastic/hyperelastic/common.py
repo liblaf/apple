@@ -2,15 +2,15 @@ from collections.abc import Callable, Mapping, Sequence
 
 import jax
 import jax.numpy as jnp
+import liblaf.apple.warp.utils as wpu
 import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, ArrayLike, Float, Key
+from liblaf.apple.warp.energies.elastic.hyperelastic import Hyperelastic
 
-import liblaf.apple.warp.utils as wpu
 from liblaf.apple import Model
 from liblaf.apple.jax import testing
-from liblaf.apple.warp.energies.elastic.hyperelastic import Hyperelastic
 
 type EnergyParams = Mapping[str, Array]
 type Full = Float[Array, "points 3"]

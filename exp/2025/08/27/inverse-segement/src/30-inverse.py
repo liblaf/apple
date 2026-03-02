@@ -9,13 +9,13 @@ import lineax as lx
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Bool, Float
+from liblaf.apple.jax.typing import Scalar, Vector
 from loguru import logger
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax import sim as sim_jax
-from liblaf.apple.jax.typing import Scalar, Vector
 
 
 class Config(cherries.BaseConfig):

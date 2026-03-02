@@ -1,9 +1,9 @@
 import jax.numpy as jnp
+import liblaf.apple.jax.sim as sim_jax
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Float
 
-import liblaf.apple.jax.sim as sim_jax
 from liblaf import melon
 
 

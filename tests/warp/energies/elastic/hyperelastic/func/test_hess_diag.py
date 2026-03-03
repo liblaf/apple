@@ -2,13 +2,13 @@ from collections.abc import Callable, Sequence
 
 import hypothesis
 import jax.numpy as jnp
+import liblaf.apple.warp.utils as wpu
 import numpy as np
 import warp as wp
 from jaxtyping import Array, DTypeLike, Float
-
-import liblaf.apple.warp.utils as wpu
-from liblaf.apple.jax import testing
 from liblaf.apple.warp.energies.elastic.hyperelastic import func
+
+from liblaf.apple.jax import testing
 
 
 def diag_from_quad(

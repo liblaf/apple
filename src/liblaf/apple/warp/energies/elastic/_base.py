@@ -1,12 +1,12 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import Any, ClassVar, Self, cast, no_type_check, overload, override
 
 import jarp
-import jax.numpy as jnp
 import pyvista as pv
 import warp as wp
 
 from liblaf.apple.jax import Region
+from liblaf.apple.warp import math
 from liblaf.apple.warp.model import WarpEnergy, WarpEnergyState
 
 from . import func
@@ -92,7 +92,7 @@ class WarpElastic(WarpEnergy):
     ) -> Self:
         requires_grad = tuple(requires_grad)
         self: Self = cls(
-            cells=jarp.to_warp(region.cells_global.astype(jnp.int32), (4, wp.int32)),
+            cells=jarp.to_warp(region.cells_global, (4, wp.int32)),
             dhdX=jarp.to_warp(region.dhdX, (4, 3, None)),
             dV=jarp.to_warp(region.dV),
             materials=cls.make_materials(region, requires_grad),
@@ -105,17 +105,9 @@ class WarpElastic(WarpEnergy):
     def make_materials(cls, region: Region, requires_grad: Sequence[str]) -> Any:
         raise NotImplementedError
 
-    @classmethod
-    def materials_struct(cls) -> Any:
-        raise NotImplementedError
-
     @property
     def launch_dim(self) -> tuple[int, int]:
         return self.dhdX.shape
-
-    @property
-    def _kernel_inputs(self) -> Iterable[wp.array]:
-        return ()
 
     def deformation_gradient(
         self,
@@ -176,8 +168,6 @@ class WarpElastic(WarpEnergy):
 
     @override
     def hess_diag(self, state: WarpEnergyState, u: wp.array, output: wp.array) -> None:
-        # return
-        # ic(self.launch_dim, u, self.cells, self.dhdX, self.dV, self.materials, output)
         wp.launch(
             self.hess_diag_kernel,
             dim=self.launch_dim,
@@ -200,7 +190,6 @@ class WarpElastic(WarpEnergy):
     def hess_quad(
         self, state: WarpEnergyState, u: wp.array, v: wp.array, output: wp.array
     ) -> None:
-        # return
         wp.launch(
             self.hess_quad_kernel,
             dim=self.launch_dim,
@@ -212,7 +201,6 @@ class WarpElastic(WarpEnergy):
     def make_energy_density_kernel(
         cls, energy_density_func: wp.Function, module: str | None = None
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def energy_density_kernel(
@@ -235,7 +223,6 @@ class WarpElastic(WarpEnergy):
     def make_first_piola_kirchhoff_kernel(
         cls, first_piola_kirchhoff_func: wp.Function, module: str | None = None
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def first_piola_kirchhoff_kernel(
@@ -259,7 +246,6 @@ class WarpElastic(WarpEnergy):
     def make_fun_kernel(
         cls, energy_density_func: wp.Function, module: str | None = None
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def fun_kernel(
@@ -284,7 +270,6 @@ class WarpElastic(WarpEnergy):
     def make_grad_kernel(
         cls, first_piola_kirchhoff_func: wp.Function, module: str | None = None
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def grad_kernel(
@@ -296,8 +281,6 @@ class WarpElastic(WarpEnergy):
             output: wp.array1d(dtype=vec3),
         ) -> None:
             cid, qid = wp.tid()
-            # if cid < 3:
-            #     wp.printf("grad kernel: %d, %d\n", cid, qid)
             cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
             dhdX_cell = dhdX[cid, qid]  # mat43
@@ -319,7 +302,6 @@ class WarpElastic(WarpEnergy):
         *,
         clamp_hess_diag: bool = True,
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def hess_diag_kernel(
@@ -331,9 +313,6 @@ class WarpElastic(WarpEnergy):
             output: wp.array1d(dtype=vec3),  # (points,)
         ) -> None:
             cid, qid = wp.tid()
-            # if cid < 3:
-            #     wp.printf("hess_diag kernel: %d, %d\n", cid, qid)
-            # wp.printf("fun kernel launched: %d, %d\n", cid, qid)
             cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
             dhdX_cell = dhdX[cid, qid]  # mat43
@@ -341,10 +320,10 @@ class WarpElastic(WarpEnergy):
             h_diag = (
                 hess_diag_func(F, dhdX_cell, materials, cid) * dV[cid, qid]
             )  # mat43
-            # if wp.static(clamp_hess_diag):
-            #     h_diag = math.cw_max_4x(
-            #         h_diag, wp.matrix(shape=(4, 3), dtype=h_diag.dtype)
-            #     )
+            if wp.static(clamp_hess_diag):
+                h_diag = math.cw_max_4x(
+                    h_diag, wp.matrix(shape=(4, 3), dtype=h_diag.dtype)
+                )
             for i in range(4):
                 wp.atomic_add(output, cell[i], h_diag[i])
 
@@ -354,7 +333,6 @@ class WarpElastic(WarpEnergy):
     def make_hess_prod_kernel(
         cls, hess_prod_func: wp.Function, module: str | None = None
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def hess_prod_kernel(
@@ -388,7 +366,6 @@ class WarpElastic(WarpEnergy):
         *,
         clamp_hess_quad: bool = True,
     ) -> wp.Kernel:
-        # @wp.kernel
         @wp.kernel(module=module)
         @no_type_check
         def hess_quad_kernel(

@@ -2,13 +2,13 @@ from collections.abc import Callable, Sequence
 
 import einops
 import hypothesis
+import liblaf.apple.warp.utils as wpu
 import numpy as np
 import warp as wp
 from jaxtyping import Array, Float
-
-import liblaf.apple.warp.utils as wpu
-from liblaf.apple.jax import testing
 from liblaf.apple.warp.energies.elastic.hyperelastic import func
+
+from liblaf.apple.jax import testing
 
 
 def check_prod(

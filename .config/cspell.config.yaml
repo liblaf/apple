@@ -24,6 +24,7 @@ useGitignore: true
 words:
   - anguli
   - arap
+  - argnums
   - arithmatex
   - atlanto
   - auricularis
@@ -44,12 +45,14 @@ words:
   - cuda
   - cytoolz
   - ddot
+  - defjvp
   - dhdr
   - digastiric
   - direnv
   - dofs
   - dtypes
   - eigh
+  - eigvals
   - einops
   - epicranius
   - felupe
@@ -87,6 +90,7 @@ words:
   - lumborum
   - mandibula
   - matmul
+  - matvec
   - mentalis
   - mkdocs
   - mkdocstrings
@@ -123,6 +127,7 @@ words:
   - pydantic
   - pydocstyle
   - pylint
+  - pylops
   - pymdownx
   - pypa
   - pypi
@@ -135,6 +140,8 @@ words:
   - retopo
   - rhomboideus
   - risorius
+  - rmatvec
+  - rpreconditioner
   - rtol
   - scipy
   - sdist
@@ -155,10 +162,10 @@ words:
   - sympy
   - tectorial
   - thyrohyoid
+  - todense
   - tombi
   - toolz
   - trimesh
-  - unshallow
   - uuidgen
   - vdot
   - vecdot

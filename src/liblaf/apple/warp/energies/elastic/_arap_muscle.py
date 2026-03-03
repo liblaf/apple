@@ -3,13 +3,12 @@ from typing import Any, ClassVar, cast, no_type_check
 
 import jarp
 import jarp.warp.types as wpt
-import numpy as np
 import warp as wp
 from warp._src.codegen import StructInstance
 
-from liblaf.apple.consts import ACTIVATION, MU
 from liblaf.apple.jax import Region
 from liblaf.apple.warp import math
+from liblaf.apple.warp.energies.elastic import utils
 
 from . import func
 from ._base import WarpElastic
@@ -159,24 +158,12 @@ class WarpArapMuscle(WarpElastic):
         @wp.struct
         class WarpArapMuscleMaterials:
             activation: wp.array1d(dtype=wpt.vector(6))
-            fraction: wp.array1d(dtype=wpt.float_)
-            mu: wp.array1d(dtype=wpt.float_)
+            fraction: wp.array1d(dtype=wpt.floating)
+            mu: wp.array1d(dtype=wpt.floating)
 
-        activation = jarp.to_warp(
-            region.cell_data[ACTIVATION],
-            wpt.vector(6),
-            requires_grad=(ACTIVATION in requires_grad),
-        )
-        fraction = jarp.to_warp(
-            region.cell_data.get("Fraction", np.ones((region.mesh.n_cells,))),
-            wpt.float_,
-            requires_grad=("Fraction" in requires_grad),
-        )
-        mu = jarp.to_warp(
-            region.cell_data[MU], wpt.float_, requires_grad=(MU in requires_grad)
-        )
         materials = WarpArapMuscleMaterials()
-        materials.activation = activation
-        materials.fraction = fraction
-        materials.mu = mu
+        materials.activation = utils.get_activation(region)
+        materials.fraction = utils.get_fraction(region)
+        materials.mu = utils.get_mu(region)
+        utils.require_grads(materials, requires_grad)
         return materials

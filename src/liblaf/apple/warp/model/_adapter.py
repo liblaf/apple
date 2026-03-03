@@ -115,6 +115,23 @@ class WarpModelAdapter:
         )
         return value[0], grad
 
+    def mixed_derivative_prod(
+        self, state: WarpModelAdapterState, p: Vector
+    ) -> ModelMaterials:
+        u_wp: wp.array = jarp.to_warp(state.u, (state.u.shape[-1], None))
+        p_wp: wp.array = jarp.to_warp(p, (p.shape[-1], None))
+        outputs_wp: dict[str, dict[str, wp.array]] = self.__wrapped__.mixed_hess_prod(
+            state.__wrapped__, u_wp, p_wp
+        )
+        outputs_jax: ModelMaterials = {
+            energy_id: {
+                mat_name: wp.to_jax(mat_value)
+                for mat_name, mat_value in energy_output.items()
+            }
+            for energy_id, energy_output in outputs_wp.items()
+        }
+        return outputs_jax
+
 
 # TODO: use weakref to avoid memory leaks
 @functools.lru_cache
@@ -149,8 +166,8 @@ def _make_fun_callable(model: WarpModel, state: WarpModelState) -> FfiCallablePr
         generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
     )
     def fun_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        output: wp.array1d(dtype=wpt.float_),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        output: wp.array1d(dtype=wpt.floating),
     ) -> None:
         model.fun(state, u, output)
 
@@ -163,8 +180,8 @@ def _make_grad_callable(model: WarpModel, state: WarpModelState) -> FfiCallableP
         generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
     )
     def grad_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        output: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        output: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
     ) -> None:
         model.grad(state, u, output)
 
@@ -179,8 +196,8 @@ def _make_hess_diag_callable(
         generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
     )
     def hess_diag_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        output: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        output: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
     ) -> None:
         model.hess_diag(state, u, output)
 
@@ -195,9 +212,9 @@ def _make_hess_prod_callable(
         generic=False, graph_mode=_GRAPH_MODE, module_preload_mode=_MODULE_PRELOAD_MODE
     )
     def hess_prod_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        v: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        output: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        v: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        output: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
     ) -> None:
         model.hess_prod(state, u, v, output)
 
@@ -215,9 +232,9 @@ def _make_hess_quad_callable(
         module_preload_mode=_MODULE_PRELOAD_MODE,
     )
     def hess_quad_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        v: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        output: wp.array1d(dtype=wpt.float_),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        v: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        output: wp.array1d(dtype=wpt.floating),
     ) -> None:
         model.hess_quad(state, u, v, output)
 
@@ -236,9 +253,9 @@ def _make_value_and_grad_callable(
         module_preload_mode=_MODULE_PRELOAD_MODE,
     )
     def value_and_grad_callable(
-        u: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
-        value: wp.array1d(dtype=wpt.float_),
-        grad: wp.array1d(dtype=wp.types.vector(3, wpt.float_)),
+        u: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
+        value: wp.array1d(dtype=wpt.floating),
+        grad: wp.array1d(dtype=wp.types.vector(3, wpt.floating)),
     ) -> None:
         model.value_and_grad(state, u, value, grad)
 

@@ -1,5 +1,11 @@
 from . import energies, math, model
-from .energies import WarpArap, WarpArapMuscle, WarpElastic, WarpPhaceV2
+from .energies import (
+    WarpArap,
+    WarpArapMuscle,
+    WarpElastic,
+    WarpPhaceV2,
+    WarpVolumePreservationDeterminant,
+)
 from .model import (
     WarpEnergy,
     WarpEnergyState,
@@ -22,6 +28,7 @@ __all__ = [
     "WarpModelBuilder",
     "WarpModelState",
     "WarpPhaceV2",
+    "WarpVolumePreservationDeterminant",
     "energies",
     "math",
     "model",

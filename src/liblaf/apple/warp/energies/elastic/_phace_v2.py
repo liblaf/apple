@@ -14,12 +14,16 @@ from liblaf.apple.warp.energies.elastic import func
 from ._arap_func import (
     arap_energy_density_func,
     arap_first_piola_kirchhoff_func,
+    arap_hess_diag_func,
     arap_hess_prod_func,
+    arap_hess_quad_func,
 )
 from ._arap_muscle_func import (
     arap_muscle_energy_density_func,
     arap_muscle_first_piola_kirchhoff_func,
+    arap_muscle_hess_diag_func,
     arap_muscle_hess_prod_func,
+    arap_muscle_hess_quad_func,
 )
 from ._base import WarpElastic
 from ._vol_preserve_det_func import (
@@ -27,6 +31,7 @@ from ._vol_preserve_det_func import (
     volume_preservation_determinant_first_piola_kirchhoff_func,
     volume_preservation_determinant_hess_diag_func,
     volume_preservation_determinant_hess_prod_func,
+    volume_preservation_determinant_hess_quad_func,
 )
 
 int_ = Any
@@ -94,33 +99,33 @@ def hess_diag_func(
 ) -> mat43:
     # return wp.matrix(shape=(4, 3), dtype=F.dtype)
     # if cid < 3:
-    wp.printf("hess_diag: %d\n", cid)
+    # wp.printf("hess_diag: %d\n", cid)
     muscle_fraction = materials.muscle_fraction[cid]  # float
-    # H_diag_arap = arap_hess_diag_func(F, dhdX, materials, cid, clamp=clamp)  # mat43
-    mu = materials.mu[cid]  # float
-    U, sigma, V = wp.svd3(F)  # mat33, vec3, mat33
-    h4_diag = func.h4_diag(dhdX, U, sigma, V, clamp=clamp)  # mat43
-    h5_diag = func.h5_diag(dhdX)  # mat43
-    h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
-    H_diag_arap = F.dtype(0.5) * mu * h_diag  # mat43
-    # H_diag_arap = wp.matrix(shape=(4, 3), dtype=F.dtype)
-    # H_diag_arap_muscle = arap_muscle_hess_diag_func(
-    #     F, dhdX, materials, cid, clamp=clamp
-    # )  # mat43
-    wp.printf("hess_diag H_diag_arap: %d\n", cid)
-    A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    # A = wp.identity(3, dtype=F.dtype)
+    H_diag_arap = arap_hess_diag_func(F, dhdX, materials, cid, clamp=clamp)  # mat43
     # mu = materials.mu[cid]  # float
-    # G = F @ A  # mat33
-    G = F
-    dhdX_A = dhdX @ A  # mat43
-    U, sigma, V = wp.svd3(G)  # mat33, vec3, mat33
-    h4_diag = func.h4_diag(dhdX_A, U, sigma, V)  # mat43 # !!!
-    # h4_diag = wp.matrix(shape=(4, 3), dtype=F.dtype)
-    h5_diag = func.h5_diag(dhdX_A)  # mat43 # !!!
-    h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
-    # return h_diag
-    H_diag_arap_muscle = F.dtype(0.5) * mu * h_diag  # mat33
+    # U, sigma, V = wp.svd3(F)  # mat33, vec3, mat33
+    # h4_diag = func.h4_diag(dhdX, U, sigma, V, clamp=clamp)  # mat43
+    # h5_diag = func.h5_diag(dhdX)  # mat43
+    # h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
+    # H_diag_arap = F.dtype(0.5) * mu * h_diag  # mat43
+    # H_diag_arap = wp.matrix(shape=(4, 3), dtype=F.dtype)
+    H_diag_arap_muscle = arap_muscle_hess_diag_func(
+        F, dhdX, materials, cid, clamp=clamp
+    )  # mat43
+    # wp.printf("hess_diag H_diag_arap: %d\n", cid)
+    # A = func.make_activation_mat33(materials.activation[cid])  # mat33
+    # # A = wp.identity(3, dtype=F.dtype)
+    # # mu = materials.mu[cid]  # float
+    # # G = F @ A  # mat33
+    # G = F
+    # dhdX_A = dhdX @ A  # mat43
+    # U, sigma, V = wp.svd3(G)  # mat33, vec3, mat33
+    # h4_diag = func.h4_diag(dhdX_A, U, sigma, V)  # mat43 # !!!
+    # # h4_diag = wp.matrix(shape=(4, 3), dtype=F.dtype)
+    # h5_diag = func.h5_diag(dhdX_A)  # mat43 # !!!
+    # h_diag = -F.dtype(2.0) * h4_diag + h5_diag  # mat43
+    # # return h_diag
+    # H_diag_arap_muscle = F.dtype(0.5) * mu * h_diag  # mat33
     # H_diag_arap_muscle = wp.matrix(shape=(4, 3), dtype=F.dtype)
     # H_diag_arap_muscle = wp.matrix(shape=(4, 3), dtype=F.dtype)
     H_diag_vol = volume_preservation_determinant_hess_diag_func(
@@ -180,38 +185,38 @@ def _phace_v2_hess_quad_func(
 ) -> float_:
     # return F.dtype(0.0)
     muscle_fraction = materials.muscle_fraction[cid]  # float
-    # H_quad_arap = arap_hess_quad_func(F, v, dhdX, materials, cid, clamp=clamp)  # float
-    mu = materials.mu[cid]  # float
-    U, sigma, V = math.svd_rv(F)  # mat33, vec3, mat33
-    h4_quad = func.h4_quad(v, dhdX, U, sigma, V, clamp=clamp)  # float
-    h5_quad = func.h5_quad(v, dhdX)  # float
-    h_quad = -F.dtype(2.0) * h4_quad + h5_quad  # float
-    H_quad_arap = F.dtype(0.5) * mu * h_quad  # float
+    H_quad_arap = arap_hess_quad_func(F, v, dhdX, materials, cid, clamp=clamp)  # float
+    # mu = materials.mu[cid]  # float
+    # U, sigma, V = math.svd_rv(F)  # mat33, vec3, mat33
+    # h4_quad = func.h4_quad(v, dhdX, U, sigma, V, clamp=clamp)  # float
+    # h5_quad = func.h5_quad(v, dhdX)  # float
+    # h_quad = -F.dtype(2.0) * h4_quad + h5_quad  # float
+    # H_quad_arap = F.dtype(0.5) * mu * h_quad  # float
 
-    # H_quad_arap_muscle = arap_muscle_hess_quad_func(
-    #     F, v, dhdX, materials, cid, clamp=clamp
-    # )  # float
-    A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    mu = materials.mu[cid]  # float
-    G = F @ A  # mat33
-    dhdX_A = dhdX @ A  # mat43
-    U, sigma, V = math.svd_rv(G)  # mat33, vec3, mat33
-    h4_quad = func.h4_quad(v, dhdX_A, U, sigma, V, clamp=clamp)  # float
-    h5_quad = func.h5_quad(v, dhdX_A)  # float
-    h_quad = -F.dtype(2.0) * h4_quad + h5_quad  # float
-    H_quad_arap_muscle = F.dtype(0.5) * mu * h_quad  # float
+    H_quad_arap_muscle = arap_muscle_hess_quad_func(
+        F, v, dhdX, materials, cid, clamp=clamp
+    )  # float
+    # A = func.make_activation_mat33(materials.activation[cid])  # mat33
+    # mu = materials.mu[cid]  # float
+    # G = F @ A  # mat33
+    # dhdX_A = dhdX @ A  # mat43
+    # U, sigma, V = math.svd_rv(G)  # mat33, vec3, mat33
+    # h4_quad = func.h4_quad(v, dhdX_A, U, sigma, V, clamp=clamp)  # float
+    # h5_quad = func.h5_quad(v, dhdX_A)  # float
+    # h_quad = -F.dtype(2.0) * h4_quad + h5_quad  # float
+    # H_quad_arap_muscle = F.dtype(0.5) * mu * h_quad  # float
 
-    # H_quad_vol = volume_preservation_determinant_hess_quad_func(
-    #     F, v, dhdX, materials, cid, clamp=clamp
-    # )  # float
-    lambda_ = materials.lambda_[cid]  # float
-    J = func.I3(F)  # float
-    g3 = func.g3(F)  # mat33
-    h3_quad = func.h3_quad(v, dhdX, g3)  # float
-    h6_quad = func.h6_quad(v, dhdX, F)  # float
-    dPsi_dI3 = lambda_ * (J - F.dtype(1.0))  # float
-    dPsi_dI3_2 = lambda_  # float
-    H_quad_vol = dPsi_dI3_2 * h3_quad + dPsi_dI3 * h6_quad  # float
+    H_quad_vol = volume_preservation_determinant_hess_quad_func(
+        F, v, dhdX, materials, cid, clamp=clamp
+    )  # float
+    # lambda_ = materials.lambda_[cid]  # float
+    # J = func.I3(F)  # float
+    # g3 = func.g3(F)  # mat33
+    # h3_quad = func.h3_quad(v, dhdX, g3)  # float
+    # h6_quad = func.h6_quad(v, dhdX, F)  # float
+    # dPsi_dI3 = lambda_ * (J - F.dtype(1.0))  # float
+    # dPsi_dI3_2 = lambda_  # float
+    # H_quad_vol = dPsi_dI3_2 * h3_quad + dPsi_dI3 * h6_quad  # float
 
     return (
         (F.dtype(1.0) - muscle_fraction) * H_quad_arap

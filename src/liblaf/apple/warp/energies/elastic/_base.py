@@ -2,6 +2,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any, ClassVar, Self, cast, no_type_check, overload, override
 
 import jarp
+import jax.numpy as jnp
 import pyvista as pv
 import warp as wp
 
@@ -91,7 +92,7 @@ class WarpElastic(WarpEnergy):
     ) -> Self:
         requires_grad = tuple(requires_grad)
         self: Self = cls(
-            cells=jarp.to_warp(region.cells_global, (4, wp.int32)),
+            cells=jarp.to_warp(region.cells_global.astype(jnp.int32), (4, wp.int32)),
             dhdX=jarp.to_warp(region.dhdX, (4, 3, None)),
             dV=jarp.to_warp(region.dV),
             materials=cls.make_materials(region, requires_grad),
@@ -176,10 +177,10 @@ class WarpElastic(WarpEnergy):
     @override
     def hess_diag(self, state: WarpEnergyState, u: wp.array, output: wp.array) -> None:
         # return
-        ic(self.launch_dim, u, self.cells, self.dhdX, self.dV, self.materials, output)
+        # ic(self.launch_dim, u, self.cells, self.dhdX, self.dV, self.materials, output)
         wp.launch(
             self.hess_diag_kernel,
-            dim=(1, 1),
+            dim=self.launch_dim,
             inputs=[u, self.cells, self.dhdX, self.dV, self.materials],
             outputs=[output],
         )
@@ -332,7 +333,7 @@ class WarpElastic(WarpEnergy):
             cid, qid = wp.tid()
             # if cid < 3:
             #     wp.printf("hess_diag kernel: %d, %d\n", cid, qid)
-            wp.printf("fun kernel launched: %d, %d\n", cid, qid)
+            # wp.printf("fun kernel launched: %d, %d\n", cid, qid)
             cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
             dhdX_cell = dhdX[cid, qid]  # mat43

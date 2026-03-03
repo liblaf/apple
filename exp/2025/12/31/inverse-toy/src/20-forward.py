@@ -16,10 +16,10 @@ from liblaf.apple.warp.energies.elastic import (
     # WarpVolumePreservationDeterminant,
 )
 
-# wp.config.mode = "debug"
-wp.config.print_launches = True
+wp.config.mode = "release"
+# wp.config.print_launches = True
 wp.config.verbose = True
-wp.config.max_unroll = 0
+# wp.config.max_unroll = 0
 wp.init()
 
 
@@ -104,7 +104,7 @@ def main(cfg: Config) -> None:
     # print(forward.model.grad(forward.state))
     # print(forward.model.hess_diag(forward.state))
     # print(forward.model.hess_quad(forward.state, forward.state.u))
-    forward.step(callback=callback)
+    forward.step()
     mesh.point_data["Solution"] = forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]  # pyright: ignore[reportArgumentType]
 
     suffix: str = cfg.suffix

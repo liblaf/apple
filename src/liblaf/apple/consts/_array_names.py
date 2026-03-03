@@ -16,4 +16,5 @@ MASS = "Mass"
 MU = "mu"  # Shear modulus, Lamé's second parameter
 MUSCLE_FRACTION = "MuscleFraction"
 PRESTRAIN = "Prestrain"
+SMAS_FRACTION = "SmasFraction"
 STIFFNESS = "Stiffness"

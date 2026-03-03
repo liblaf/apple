@@ -11,6 +11,7 @@ from ._array_names import (
     MUSCLE_FRACTION,
     NORMAL,
     PRESTRAIN,
+    SMAS_FRACTION,
     STIFFNESS,
     VOLUME,
 )
@@ -28,6 +29,7 @@ __all__ = [
     "MUSCLE_FRACTION",
     "NORMAL",
     "PRESTRAIN",
+    "SMAS_FRACTION",
     "STIFFNESS",
     "VOLUME",
 ]

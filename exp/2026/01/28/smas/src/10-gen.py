@@ -2,8 +2,12 @@ import numpy as np
 import pyvista as pv
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import DIRICHLET_MASK, DIRICHLET_VALUE, MUSCLE_FRACTION
-from liblaf.apple.consts._array_names import GLOBAL_POINT_ID
+from liblaf.apple.consts import (
+    DIRICHLET_MASK,
+    DIRICHLET_VALUE,
+    GLOBAL_POINT_ID,
+    MUSCLE_FRACTION,
+)
 
 
 class Config(cherries.BaseConfig):
@@ -20,12 +24,21 @@ def make_muscle() -> pv.PolyData:
     return muscle
 
 
+def make_smas() -> pv.PolyData:
+    smas: pv.PolyData = pv.Box((0.0, 10.0, 0.0, 0.2, 0.0, 10.0), quads=False)
+    return smas
+
+
 def make_tetmesh() -> pv.UnstructuredGrid:
     surface = make_surface()
     muscle = make_muscle()
+    smas = make_smas()
     tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=0.01)
     tetmesh.cell_data[MUSCLE_FRACTION] = np.asarray(
         melon.tet.compute_volume_fraction(tetmesh, muscle)
+    )
+    tetmesh.cell_data["SmasFraction"] = np.asarray(
+        melon.tet.compute_volume_fraction(tetmesh, smas)
     )
 
     EPS = 1e-3

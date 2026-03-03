@@ -5,21 +5,21 @@ import einops
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import liblaf.apple.warp.sim as sim_wp
+import liblaf.apple.warp.utils as wp_utils
 import lineax as lx
 import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Float
-from loguru import logger
-
-import liblaf.apple.warp.sim as sim_wp
-import liblaf.apple.warp.utils as wp_utils
-from liblaf import cherries, grapes, melon
-from liblaf.apple import sim
-from liblaf.apple.jax import optim, tree
 from liblaf.apple.jax.sim.energy.elastic import utils
 from liblaf.apple.jax.typing import Scalar, Vector
 from liblaf.apple.warp.typing import vec6
+from loguru import logger
+
+from liblaf import cherries, grapes, melon
+from liblaf.apple import sim
+from liblaf.apple.jax import optim, tree
 
 
 @lx.is_positive_semidefinite.register(lx.DiagonalLinearOperator)

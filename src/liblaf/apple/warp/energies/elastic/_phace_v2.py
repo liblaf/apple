@@ -8,8 +8,6 @@ import warp as wp
 
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION
 from liblaf.apple.jax import Region
-from liblaf.apple.warp import math
-from liblaf.apple.warp.energies.elastic import func
 
 from ._arap_func import (
     arap_energy_density_func,

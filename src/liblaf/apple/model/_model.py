@@ -113,6 +113,13 @@ class Model:
         fun_warp, grad_warp = self.warp.value_and_grad(state.warp)
         return fun_jax + fun_warp, grad_jax + grad_warp
 
+    def mixed_derivative_prod(self, state: ModelState, p: Vector) -> ModelMaterials:
+        mixed_prod_jax: ModelMaterials = self.jax.mixed_derivative_prod(
+            state.jax, state.u, p
+        )
+        mixed_prod_warp: ModelMaterials = self.warp.mixed_derivative_prod(state.warp, p)
+        return {**mixed_prod_jax, **mixed_prod_warp}
+
     def get_energy(self, name: str) -> WarpEnergy:
         return self.warp.energies[name]
 

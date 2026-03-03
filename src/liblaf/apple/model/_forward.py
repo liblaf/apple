@@ -7,8 +7,7 @@ import attrs
 import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-from liblaf.peach.optim import PNCG, Objective, Optimizer
-from liblaf.peach.transforms import FixedTransform
+from liblaf.peach.optim import PNCG, Optimizer
 
 from ._model import Model, ModelState
 
@@ -19,6 +18,35 @@ type Free = Float[Array, " free"]
 type Full = Float[Array, " full"]
 type ModelMaterials = Mapping[str, EnergyMaterials]
 type Scalar = Float[Array, ""]
+
+
+@jarp.define
+class Objective:
+    model: Model
+
+    def update(self, state: ModelState, u_free: Free) -> ModelState:
+        u_full: Full = self.model.dirichlet.to_full(u_free)
+        return self.model.update(state, u_full)
+
+    def fun(self, state: ModelState) -> Scalar:
+        return self.model.fun(state)
+
+    def grad(self, state: ModelState) -> Free:
+        grad_full: Full = self.model.grad(state)
+        return self.model.dirichlet.get_free(grad_full)
+
+    def hess_diag(self, state: ModelState) -> Free:
+        h_diag_full: Full = self.model.hess_diag(state)
+        return self.model.dirichlet.get_free(h_diag_full)
+
+    def hess_prod(self, state: ModelState, p_free: Free) -> Free:
+        p_full: Full = self.model.dirichlet.to_full(p_free, dirichlet=0.0)
+        h_prod_full: Full = self.model.hess_prod(state, p_full)
+        return self.model.dirichlet.get_free(h_prod_full)
+
+    def hess_quad(self, state: ModelState, p_free: Free) -> Scalar:
+        p_full: Full = self.model.dirichlet.to_full(p_free, dirichlet=0.0)
+        return self.model.hess_quad(state, p_full)
 
 
 @jarp.define
@@ -66,23 +94,10 @@ class Forward:
     def step(
         self, callback: Optimizer.Callback | None = None, *, logging: bool = True
     ) -> Optimizer.Solution:
-        transform: FixedTransform = FixedTransform(
-            self.model.dirichlet.fixed_mask, self.model.u_full
-        )
-        objective: Objective[ModelState, Full] = Objective(
-            update=Model.update,
-            fun=Model.fun,
-            grad=Model.grad,
-            hess_diag=Model.hess_diag,
-            hess_prod=Model.hess_prod,
-            hess_quad=Model.hess_quad,
-            value_and_grad=Model.value_and_grad,
-            transform=transform,
-            args=(self.model,),
-        )
+        objective: Objective = Objective(model=self.model)
         solution: Optimizer.Solution
         solution, self.state = self.optimizer.minimize(
-            objective, self.state, self.model.u_full, callback=callback
+            objective, self.state, self.model.u_free, callback=callback
         )
         if logging:
             if solution.success:

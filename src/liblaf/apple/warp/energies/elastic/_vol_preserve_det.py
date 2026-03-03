@@ -1,13 +1,12 @@
 from collections.abc import Sequence
 from typing import Any, ClassVar, cast, no_type_check, override
 
-import jarp
 import jarp.warp.types as wpt
 import warp as wp
 
-from liblaf.apple.consts import LAMBDA
 from liblaf.apple.jax import Region
 from liblaf.apple.warp import math
+from liblaf.apple.warp.energies.elastic import utils
 
 from . import func
 from ._base import WarpElastic
@@ -148,13 +147,9 @@ class WarpVolumePreservationDeterminant(WarpElastic):
     def make_materials(cls, region: Region, requires_grad: Sequence[str]) -> Any:
         @wp.struct
         class WarpVolumePreservationDeterminantMaterials:
-            lambda_: wp.array1d(dtype=wpt.float_)
+            lambda_: wp.array1d(dtype=wpt.floating)
 
-        lambda_ = jarp.to_warp(
-            region.cell_data[LAMBDA],
-            wpt.float_,
-            requires_grad=(LAMBDA in requires_grad),
-        )
         materials = WarpVolumePreservationDeterminantMaterials()
-        materials.lambda_ = lambda_
+        materials.lambda_ = utils.get_lambda(region)
+        utils.require_grads(materials, requires_grad)
         return materials

@@ -27,16 +27,16 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     builder.add_energy(energy_fat)
 
     mesh.cell_data["Fraction"] = aponeurosis_frac
-    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e3)
     energy_aponeurosis: WarpArap = WarpArap.from_pyvista(mesh)
     builder.add_energy(energy_aponeurosis)
 
     mesh.cell_data["Fraction"] = muscle_frac
-    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e3)
     energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(mesh)
     builder.add_energy(energy_muscle)
 
-    mesh.cell_data[LAMBDA] = fat_frac * 3.0 + smas_frac * 3.0e2
+    mesh.cell_data[LAMBDA] = fat_frac * 3.0 + smas_frac * 3.0e3
     energy_vol: WarpVolumePreservationDeterminant = (
         WarpVolumePreservationDeterminant.from_pyvista(mesh)
     )

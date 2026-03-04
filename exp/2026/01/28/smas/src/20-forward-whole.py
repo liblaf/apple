@@ -10,10 +10,12 @@ from liblaf.apple import scene
 from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
 from liblaf.apple.model import Forward, Model
 
+SUFFIX: str = "-smas46-muscle46"
+
 
 class Config(cherries.BaseConfig):
     activation: float = env.float("ACTIVATION", 2.0)
-    input: Path = cherries.input("10-input.vtu")
+    input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
 
 
 def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
@@ -38,7 +40,12 @@ def main(cfg: Config) -> None:
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
-    melon.save(cherries.output(f"20-forward-whole-act{cfg.activation:.0f}.vtu"), mesh)
+    melon.save(
+        cherries.output(
+            f"20-forward-whole{SUFFIX}-act{cfg.activation:.0f}-stiff-ratio1e3.vtu"
+        ),
+        mesh,
+    )
 
 
 if __name__ == "__main__":

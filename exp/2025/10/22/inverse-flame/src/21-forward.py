@@ -8,7 +8,7 @@ from liblaf.peach.optim import PNCG
 
 from liblaf import cherries, melon
 from liblaf.apple import Forward, Model, ModelBuilder
-from liblaf.apple.constants import ACTIVATION, POINT_ID
+from liblaf.apple.constants import ACTIVATION, DIRICHLET_MASK, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Scalar = Float[Array, ""]
@@ -18,10 +18,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Config(cherries.BaseConfig):
-    input: Path = cherries.input("10-input-515k.vtu")
-    activation: Path = cherries.temp(
-        "20-inverse-adam-Expression002-sliding-515k.vtu.d/20-inverse-adam-Expression002-sliding-515k_001999.vtu"
-    )
+    input: Path = cherries.input("10-input-3152k.vtu")
+    activation: Path = cherries.input("20-inverse-adam-Expression002-3152k_000349.vtu")
 
 
 def build_model(mesh: pv.UnstructuredGrid) -> Model:
@@ -37,7 +35,8 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     activation_mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.activation)
-    mesh.cell_data[ACTIVATION] = activation_mesh.cell_data[ACTIVATION]
+    mesh.cell_data[ACTIVATION] = 0.4 * activation_mesh.cell_data[ACTIVATION]
+    mesh.point_data[DIRICHLET_MASK] = activation_mesh.point_data[DIRICHLET_MASK]
     model: Model = build_model(mesh)
     forward = Forward(
         model,
@@ -78,8 +77,8 @@ def main(cfg: Config) -> None:
     mesh.point_data["PointToPoint"] = (
         mesh.point_data["Displacement"] - mesh.point_data["Expression002"]
     )
-    melon.save(cherries.temp("21-forward.vtu"), mesh)
+    melon.save(cherries.temp("21-forward-3152k-old-act-to-smas-0.4.vtu"), mesh)
 
 
 if __name__ == "__main__":
-    cherries.main(main)
+    cherries.main(main, profile="debug")

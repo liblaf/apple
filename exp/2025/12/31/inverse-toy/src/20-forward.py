@@ -8,7 +8,6 @@ from liblaf.peach.optim import PNCG, Optax, Optimizer, ScipyOptimizer
 from liblaf import cherries, melon
 from liblaf.apple.constants import ACTIVATION, LAMBDA, POINT_ID
 from liblaf.apple.model import Forward, Model, ModelBuilder
-from liblaf.apple.warp import Phace
 from liblaf.apple.warp.energies.elastic.hyperelastic._stable_neo_hookean import (
     StableNeoHookean,
 )

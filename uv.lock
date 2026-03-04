@@ -5057,7 +5057,10 @@ dependencies = [
     { name = "numpy" },
 ]
 wheels = [
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.13.0.dev20260303-py3-none-macosx_11_0_arm64.whl", hash = "sha256:9978169be46a7c97743c3ac4c48fb2edb9f079a4c8c174adc98bd3f31b26230c" },
     { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.13.0.dev20260303-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:e6bfa8a485e8c9c28830c28f6669f3e6c1550feee2f00f53b70ce29b4f46bcbb" },
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.13.0.dev20260303-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:4d3945b3ba1879a2230f83e1676e0dbdfd6a06d24ebb1ac7bfa667f12cface92" },
+    { url = "https://pypi.nvidia.com/warp-lang/warp_lang-1.13.0.dev20260303-py3-none-win_amd64.whl", hash = "sha256:91484192fe3710d8854d7454dbc434af753c86b735e3d6b79276abe88ba07b54" },
 ]
 
 [[package]]

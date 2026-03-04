@@ -20,12 +20,12 @@ def make_surface() -> pv.PolyData:
 
 
 def make_muscle() -> pv.PolyData:
-    muscle: pv.PolyData = pv.Box((0.0, 5.0, 0.0, 0.2, 4.0, 6.0), quads=False)
+    muscle: pv.PolyData = pv.Box((0.0, 5.0, 0.4, 0.6, 4.0, 6.0), quads=False)
     return muscle
 
 
 def make_smas() -> pv.PolyData:
-    smas: pv.PolyData = pv.Box((0.0, 10.0, 0.0, 0.2, 0.0, 10.0), quads=False)
+    smas: pv.PolyData = pv.Box((0.0, 10.0, 0.3, 0.7, 0.0, 10.0), quads=False)
     return smas
 
 
@@ -69,9 +69,9 @@ def make_subface(mesh: pv.UnstructuredGrid) -> pv.PolyData:
 
 def main(_cfg: Config) -> None:
     tetmesh: pv.UnstructuredGrid = make_tetmesh()
-    subface: pv.PolyData = make_subface(tetmesh)
-    melon.save(cherries.output("10-input.vtu"), tetmesh)
-    melon.save(cherries.output("10-subface.vtp"), subface)
+    # subface: pv.PolyData = make_subface(tetmesh)
+    melon.save(cherries.output("10-input-smas37-muscle46.vtu"), tetmesh)
+    # melon.save(cherries.output("10-subface.vtp"), subface)
 
 
 if __name__ == "__main__":

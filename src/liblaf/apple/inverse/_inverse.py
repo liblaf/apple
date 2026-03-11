@@ -82,7 +82,8 @@ class Inverse[T]:
     losses: list[Loss]
     adjoint_solver: LinearSolver = jarp.field(factory=FallbackSolver, kw_only=True)
     optimizer: Optimizer = jarp.field(
-        factory=lambda: Optax(optax.adam(0.01)), kw_only=True
+        factory=lambda: Optax(optax.sgd(0.1), patience=jnp.asarray(1000)),
+        kw_only=True,
     )
 
     adjoint_vector: Free = jarp.array(default=None, kw_only=True)

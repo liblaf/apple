@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+import logging
 from typing import Self
 
 import jarp
+import jax
 import jax.numpy as jnp
+import optax
 from jaxtyping import Array, Bool, Float
-from liblaf.peach.linalg import LinearSolver
-from liblaf.peach.optim import Optimizer
+from liblaf.peach.linalg import FallbackSolver, LinearSolver
+from liblaf.peach.optim import Optax, Optimizer
 
+from liblaf import cherries
 from liblaf.apple.model import Forward, Free, Full, Model, ModelMaterials, ModelState
 
 from .loss import Loss
@@ -13,6 +19,8 @@ from .loss import Loss
 type BoolNumeric = Bool[Array, ""]
 type Scalar = Float[Array, ""]
 type Vector = Float[Array, " N"]
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 @jarp.define
@@ -33,7 +41,10 @@ class AdjointLinearSystem:
         )
 
     def matvec(self, p_free: Free) -> Free:
-        return self.model.hess_prod(self.model_state, p_free)
+        p_full: Full = self.model.dirichlet.to_full(p_free, dirichlet=0.0)
+        output_full: Full = self.model.hess_prod(self.model_state, p_full)
+        output_free: Free = self.model.dirichlet.get_free(output_full)
+        return output_free
 
     def rmatvec(self, p_free: Free) -> Free:
         return self.matvec(p_free)
@@ -45,24 +56,38 @@ class AdjointLinearSystem:
         return self.preconditioner(p_free)
 
 
-class InverseObjective:
-    def value_and_grad(self, params: ModelMaterials) -> tuple[Scalar, ModelMaterials]:
-        raise NotImplementedError
+@jarp.define
+class InverseObjective[T]:
+    inverse: Inverse[T]
+    structure: jarp.Structure[T]
 
-    def make_params(self, params: Vector) -> ModelMaterials:
-        raise NotImplementedError
+    def update(self, _state: Vector, params_flat: Vector) -> Vector:
+        return params_flat
+
+    def value_and_grad(self, params_flat: Vector) -> tuple[Scalar, Vector]:
+        params_tree: T = self.structure.unravel(params_flat)
+        materials: ModelMaterials
+        materials, vjp = jax.vjp(self.inverse.make_materials, params_tree)
+        self.inverse.update(materials)
+        value, grad = self.inverse.value_and_grad(materials)
+        grad_tree: T
+        (grad_tree,) = vjp(grad)
+        grad_flat: Vector = self.structure.ravel(grad_tree)
+        return value, grad_flat
 
 
 @jarp.define
-class Inverse:
+class Inverse[T]:
     forward: Forward
     losses: list[Loss]
-    adjoint_solver: LinearSolver
-    optimizer: Optimizer
+    adjoint_solver: LinearSolver = jarp.field(factory=FallbackSolver, kw_only=True)
+    optimizer: Optimizer = jarp.field(
+        factory=lambda: Optax(optax.adam(0.01)), kw_only=True
+    )
 
-    adjoint_vector: Free = jarp.array(default=None)
-    last_adjoint_success: BoolNumeric = jarp.array(default=False)
-    last_forward_success: BoolNumeric = jarp.array(default=False)
+    adjoint_vector: Free = jarp.array(default=None, kw_only=True)
+    last_adjoint_success: BoolNumeric = jarp.array(default=False, kw_only=True)
+    last_forward_success: BoolNumeric = jarp.array(default=False, kw_only=True)
 
     @property
     def model(self) -> Model:
@@ -75,7 +100,7 @@ class Inverse:
         solution: Optimizer.Solution = self.forward.step()
         self.last_forward_success = jnp.asarray(solution.success)
 
-    @jarp.jit(inline=True)
+    @jarp.jit(filter=True, inline=True)
     def fun(self, materials: ModelMaterials) -> Scalar:
         losses = [loss.fun(self.model.u_full, materials) for loss in self.losses]
         return jnp.sum(jnp.stack(losses))
@@ -87,20 +112,28 @@ class Inverse:
         dLdu: Full
         dLdq: dict[str, dict[str, Array]]
         L, dLdu, dLdq = self.loss_and_grad(materials)
+        jax.debug.print("L: {L}", L=L)
         p: Free = self.adjoint(dLdu)
+        # jax.debug.print("p: {p}", p=p)
         mixed_prod: ModelMaterials = self.model.mixed_derivative_prod(
             self.forward.state, p
         )
         for energy_id, energy in mixed_prod.items():
             for mat_name, v in energy.items():
+                # jax.debug.print(
+                #     "dLdq['{energy_id}']['{mat_name}']: {v}",
+                #     energy_id=energy_id,
+                #     mat_name=mat_name,
+                #     v=v,
+                # )
                 dLdq[energy_id][mat_name] += v
         return L, dLdq
 
-    @jarp.jit(inline=True)
+    @jarp.jit(filter=True, inline=True)
     def loss_and_grad(
         self, materials: ModelMaterials
     ) -> tuple[Scalar, Full, dict[str, dict[str, Array]]]:
-        L: Scalar = self.fun(materials)
+        L: Scalar = jnp.zeros(())
         dLdu: Full = jnp.zeros_like(self.model.u_full)
         dLdq: dict[str, dict[str, Array]] = {
             energy_id: {
@@ -111,11 +144,15 @@ class Inverse:
         }
         for loss in self.losses:
             L_i, (dLdu_i, dLdq_i) = loss.value_and_grad(self.model.u_full, materials)
+            jax.debug.callback(
+                lambda name, value: cherries.log_metric(name, value), loss.name, L_i
+            )
             L += L_i
             dLdu += dLdu_i
             for energy_id, energy in dLdq_i.items():
                 for mat_name, v in energy.items():
                     dLdq[energy_id][mat_name] += v
+        jax.debug.callback(lambda value: cherries.log_metric("loss", value), L)
         return L, dLdu, dLdq
 
     def adjoint(self, dLdu: Full) -> Full:
@@ -126,6 +163,26 @@ class Inverse:
             else jnp.zeros_like(self.model.u_free)
         )
         solution: LinearSolver.Solution = self.adjoint_solver.solve(system, p_free)
+        if solution.success:
+            logger.info("Adjoint success")
+        else:
+            logger.warning("Adjoint failed")
         self.last_adjoint_success = jnp.asarray(solution.success)
         self.adjoint_vector = solution.params
         return self.model.dirichlet.to_full(self.adjoint_vector, dirichlet=0.0)
+
+    def make_materials(self, params: T) -> ModelMaterials:
+        return params  # pyright: ignore[reportReturnType]
+
+    def solve(self, params: T, callback: Optimizer.Callback | None = None) -> T:
+        params_flat: Vector
+        structure: jarp.Structure[T]
+        params_flat, structure = jarp.ravel(params)
+        objective = InverseObjective(inverse=self, structure=structure)
+        solution: Optimizer.Solution
+        solution, _ = self.optimizer.minimize(
+            objective, params, params_flat, callback=callback
+        )
+        ic(solution)
+        params_tree: T = structure.unravel(solution.params)
+        return params_tree

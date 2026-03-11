@@ -1,18 +1,29 @@
-import abc
 from collections.abc import Mapping
 from pathlib import Path
-from typing import ClassVar, override
+from typing import Any
 
 import jarp
-import jax
 import jax.numpy as jnp
+import numpy as np
 import pyvista as pv
-from jaxtyping import Array, Bool, Float
-from liblaf.peach.optim import Optimizer
+from jaxtyping import Array, Bool, Float, Integer
+from liblaf.peach.optim import Objective, Optimizer
 
 from liblaf import cherries, melon
-from liblaf.apple import scene
-from liblaf.apple.model import Forward, Model
+from liblaf.apple.consts import (
+    ACTIVATION,
+    LAMBDA,
+    MU,
+    MUSCLE_FRACTION,
+    SMAS_FRACTION,
+)
+from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
+from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.apple.warp import (
+    WarpArap,
+    WarpArapMuscle,
+    WarpVolumePreservationDeterminant,
+)
 
 type EnergyMaterials = Mapping[str, Array]
 type ModelMaterials = Mapping[str, EnergyMaterials]
@@ -21,67 +32,117 @@ type Vector = Float[Array, "points dim"]
 type BoolNumeric = Bool[Array, ""]
 
 
-class Loss(abc.ABC):
-    name: ClassVar[str] = "loss"
+@jarp.define
+class MyInverse(Inverse):
+    muscle_indices: Integer[Array, " muscle_cells"] = jarp.field()
+    full_activation: Float[Array, "cells 6"] = jarp.field()
 
-    @abc.abstractmethod
-    def fun(self, u_full: Vector, materials: ModelMaterials) -> Scalar:
-        raise NotImplementedError
-
-    @jarp.jit(inline=True)
-    def grad(
-        self, u_full: Vector, materials: ModelMaterials
-    ) -> tuple[Vector, ModelMaterials]:
-        return jax.grad(self.fun, argnums=(0, 1))(u_full, materials)
+    def make_materials(self, params: Vector) -> ModelMaterials:
+        activation: Float[Array, " cells 6"] = self.full_activation.at[
+            self.muscle_indices
+        ].set(params)
+        return {"muscle": {"activation": activation}}
 
 
-class PointToPointLoss(Loss):
-    name: ClassVar[str] = "point_to_point"
-
-    face_mask: Bool[Array, " points"]
-    target: Vector
-
-    @override
-    def fun(self, u_full: Vector, materials: ModelMaterials) -> Scalar:
-        return jnp.mean(jnp.sum(jnp.square(u_full - self.target), axis=-1))
-
-
-class Inverse:
-    forward: Forward
-    losses: list[Loss]
-
-    last_adjoint_success: BoolNumeric = jarp.array(default=False)
-    last_forward_success: BoolNumeric = jarp.array(default=False)
-
-    @property
-    def model(self) -> Model:
-        return self.forward.model
-
-    def fun(self, materials: ModelMaterials) -> Scalar:
-        return self.loss(self.model.u_full, materials)
-
-    def loss(self, u_full: Vector, materials: ModelMaterials) -> Scalar:
-        for loss in self.losses:
-            loss_value: Scalar = loss.fun(u_full, materials)
-        return loss_value
-
-    def update(self, materials: ModelMaterials) -> None:
-        self.forward.update_materials(materials)
-        if not self.last_forward_success:
-            self.model.u_free = jnp.zeros_like(self.model.u_free)
-        solution: Optimizer.Solution = self.forward.step()
-        self.last_forward_success = jnp.asarray(solution.success)
+SUFFIX: str = "-smas46-muscle46-prestrain"
 
 
 class Config(cherries.BaseConfig):
-    target: Path = cherries.input("20-forward-whole-act2.vtu")
+    target: Path = cherries.input(f"20-forward{SUFFIX}.vtu")
+
+
+def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
+    builder = ModelBuilder()
+
+    muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
+    smas_frac: np.ndarray = mesh.cell_data[SMAS_FRACTION]
+    aponeurosis_frac: np.ndarray = smas_frac - muscle_frac
+    fat_frac: np.ndarray = 1.0 - smas_frac
+
+    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
+    mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
+    mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
+        [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    )
+    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+    #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    # )
+    builder.add_dirichlet(mesh)
+
+    mesh.cell_data["Fraction"] = fat_frac
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
+    energy_fat: WarpArap = WarpArap.from_pyvista(mesh)
+    builder.add_energy(energy_fat)
+
+    mesh.cell_data["Fraction"] = aponeurosis_frac
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
+    energy_aponeurosis: WarpArapMuscle = WarpArapMuscle.from_pyvista(mesh)
+    builder.add_energy(energy_aponeurosis)
+
+    mesh.cell_data["Fraction"] = muscle_frac
+    mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
+    energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(
+        mesh, requires_grad=("activation",), name="muscle"
+    )
+    builder.add_energy(energy_muscle)
+
+    mesh.cell_data[LAMBDA] = fat_frac * 3.0 + smas_frac * 3.0e2
+    energy_vol: WarpVolumePreservationDeterminant = (
+        WarpVolumePreservationDeterminant.from_pyvista(mesh)
+    )
+    builder.add_energy(energy_vol)
+
+    model: Model = builder.finalize()
+    return model
+
+
+def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
+    surface_indices: Integer[Array, " surface_points"] = mesh.surface_indices()
+    losses: list[Loss] = [
+        PointToPointLoss(
+            indices=jnp.asarray(surface_indices),
+            target=jnp.asarray(mesh.point_data["Solution"][surface_indices]),
+        )
+    ]
+    muscle_indices: Integer[Array, " muscle_cells"] = jnp.flatnonzero(
+        mesh.cell_data["MuscleFraction"] > 1e-3
+    )
+    full_activation: Float[Array, "cells 6"] = jnp.asarray(mesh.cell_data[ACTIVATION])
+    return MyInverse(
+        forward=forward,
+        losses=losses,
+        muscle_indices=muscle_indices,
+        full_activation=full_activation,
+    )
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
-    model: Model = scene.build_phace_v3(mesh)
+    model: Model = build_phace_v3(mesh)
     forward: Forward = Forward(model)
+    inverse: MyInverse = build_inverse(mesh, forward)
+    params: Vector = jnp.asarray(mesh.cell_data[ACTIVATION][inverse.muscle_indices])
+    with melon.io.SeriesWriter(
+        cherries.temp(f"30-inverse{SUFFIX}.vtu.series")
+    ) as writer:
+
+        def callback(
+            _objective: Objective[Any],
+            _model_state: Any,
+            _opt_state: Optimizer.State,
+            _opt_stats: Optimizer.Stats,
+        ) -> None:
+            mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
+            writer.append(mesh)
+
+        params = inverse.solve(params, callback)
+    materials: ModelMaterials = inverse.make_materials(params)
+    forward.update_materials(materials)
+    forward.step()
+    mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
+    mesh.cell_data["Activation"] = np.asarray(materials["muscle"]["activation"])
+    melon.save(cherries.output(f"30-inverse{SUFFIX}.vtu"), mesh)
 
 
 if __name__ == "__main__":
-    cherries.main(main, profile="debug")
+    cherries.main(main)

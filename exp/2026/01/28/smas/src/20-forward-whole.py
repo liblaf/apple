@@ -10,7 +10,7 @@ from liblaf.apple import scene
 from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
 from liblaf.apple.model import Forward, Model
 
-SUFFIX: str = "-smas46-muscle46"
+SUFFIX: str = "-ellipsoid"
 
 
 class Config(cherries.BaseConfig):
@@ -42,7 +42,7 @@ def main(cfg: Config) -> None:
     )
     melon.save(
         cherries.output(
-            f"20-forward-whole{SUFFIX}-act{cfg.activation:.0f}-stiff-ratio1e3.vtu"
+            f"20-forward{SUFFIX}-act{cfg.activation:.0f}-stiff-ratio1e2.vtu"
         ),
         mesh,
     )

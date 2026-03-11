@@ -5,10 +5,11 @@ from typing import Any, cast
 import jarp
 import jax.numpy as jnp
 import numpy as np
+import optax
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
-from liblaf.peach.optim import Objective, Optimizer
+from liblaf.peach.optim import Objective, Optax, Optimizer
 
 from liblaf import cherries, melon
 from liblaf.apple.consts import (
@@ -118,6 +119,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
         losses=losses,
         muscle_indices=muscle_indices,
         full_activation=full_activation,
+        optimizer=Optax(optax.sgd(0.3), patience=jnp.asarray(1000)),
     )
 
 

@@ -21,7 +21,7 @@ from liblaf.apple.warp import (
     WarpVolumePreservationDeterminant,
 )
 
-SUFFIX: str = "-ellipsoid"
+SUFFIX: str = "-smas8x-muscle8x"
 
 
 class Config(cherries.BaseConfig):

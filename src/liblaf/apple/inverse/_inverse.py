@@ -9,7 +9,7 @@ import jax.numpy as jnp
 import optax
 from jaxtyping import Array, Bool, Float
 from liblaf.peach.linalg import FallbackSolver, LinearSolver
-from liblaf.peach.optim import Optax, Optimizer
+from liblaf.peach.optim import PNCG, Optax, Optimizer
 
 from liblaf import cherries
 from liblaf.apple.model import Forward, Free, Full, Model, ModelMaterials, ModelState
@@ -98,7 +98,15 @@ class Inverse[T]:
         self.model.update_materials(materials)
         if not self.last_forward_success:
             self.model.u_free = jnp.zeros_like(self.model.u_free)
-        solution: Optimizer.Solution = self.forward.step()
+        solution: PNCG.Solution = self.forward.step()
+        cherries.log_metrics(
+            {
+                "forward": {
+                    "decrease": solution.state.best_decrease,
+                    "relative_decrease": solution.stats.relative_decrease,
+                }
+            }
+        )
         self.last_forward_success = jnp.asarray(solution.success)
 
     @jarp.jit(filter=True, inline=True)

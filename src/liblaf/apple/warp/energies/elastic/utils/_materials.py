@@ -34,3 +34,4 @@ def require_grads(materials: StructInstance, requires_grad: Sequence[str]) -> No
     for name in requires_grad:
         arr: wp.array = getattr(materials, name)
         arr.requires_grad = True
+        setattr(materials, name, arr)

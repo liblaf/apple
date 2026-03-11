@@ -45,7 +45,6 @@ words:
   - cuda
   - cytoolz
   - ddot
-  - defjvp
   - dhdr
   - digastiric
   - direnv

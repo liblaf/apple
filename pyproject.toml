@@ -46,7 +46,7 @@ dependencies = [
   "pyvista>=0.47,<0.48",
   "rich>=14,<15",
   "scipy>=1,<2",
-  "warp-lang==1.13.0.dev20260303",
+  "warp-lang==1.13.0.dev20260303"
 ]
 dynamic = ["version"]
 
@@ -104,9 +104,8 @@ source = "vcs"
 
 [tool.pyright]
 exclude = [
-  ".venv",
-  "**/__pycache__",
   "**/.*",
+  "**/__pycache__",
   "**/exp/2024",
   "**/exp/2025/04",
   "**/exp/2025/05",
@@ -116,7 +115,8 @@ exclude = [
   "**/exp/2025/09",
   "**/exp/2025/10/29",
   "**/marimo",
-  "**/node_modules"
+  "**/node_modules",
+  ".venv"
 ]
 extends = ".config/linters/pyrightconfig.json"
 reportInvalidTypeForm = "none"

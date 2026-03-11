@@ -69,7 +69,7 @@ dev = [
   "liblaf-cherries>=1,<2",
   "scipy-stubs>=1,<2",
   "sympy>=1,<2",
-  "toolz-stubs>=0.3,<0.4",
+  "toolz-stubs>=0.4,<0.5",
   "viztracer>=1,<2"
 ]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]

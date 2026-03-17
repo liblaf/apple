@@ -20,4 +20,9 @@ class UniformActivationLoss(Loss):
     @jarp.jit(inline=True)
     def fun(self, u_full: Full, materials: ModelMaterials) -> Scalar:
         act: Float[Array, "cells 6"] = materials["muscle"]["activation"]
-        return jnp.sum(jnp.var(act[self.muscle_indices], axis=0))
+        return jnp.mean(
+            jnp.square(
+                act[self.muscle_indices]
+                - jnp.mean(act[self.muscle_indices], axis=0, keepdims=True)
+            )
+        )

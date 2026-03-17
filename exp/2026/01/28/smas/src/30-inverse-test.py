@@ -111,7 +111,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
             indices=jnp.asarray(surface_indices),
             target=jnp.asarray(mesh.point_data["Solution"][surface_indices]),
         ),
-        # UniformActivationLoss(muscle_indices=muscle_indices),
+        UniformActivationLoss(muscle_indices=muscle_indices),
     ]
     full_activation: Float[Array, "cells 6"] = jnp.asarray(mesh.cell_data[ACTIVATION])
     return MyInverse(

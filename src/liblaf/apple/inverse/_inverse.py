@@ -15,10 +15,9 @@ from liblaf.peach.linalg import (
     LinearSolver,
     LinearSystem,
     Result,
-    State,
 )
 from liblaf.peach.linalg import utils as linalg_utils
-from liblaf.peach.optim import PNCG, Optax, Optimizer, Stats
+from liblaf.peach.optim import PNCG, Optax, Optimizer
 
 from liblaf import cherries
 from liblaf.apple.model import Forward, Free, Full, Model, ModelMaterials, ModelState
@@ -200,9 +199,7 @@ class Inverse[T]:
             )
             L += L_i
             dLdu += dLdu_i
-            for energy_id, energy in dLdq_i.items():
-                for mat_name, v in energy.items():
-                    dLdq[energy_id][mat_name] += v
+            dLdq = jax.tree.map(jnp.add, dLdq, dLdq_i)
         jax.debug.callback(lambda value: cherries.log_metric("loss", value), L)
         return L, dLdu, dLdq
 

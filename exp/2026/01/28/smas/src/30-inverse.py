@@ -19,7 +19,7 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss, UniformActivationLoss
+from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
     WarpArap,

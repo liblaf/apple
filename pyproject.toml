@@ -46,7 +46,7 @@ dependencies = [
   "pyvista>=0.47,<0.48",
   "rich>=14,<15",
   "scipy>=1,<2",
-  "warp-lang==1.13.0.dev20260303"
+  "warp-lang>1,<2",
 ]
 dynamic = ["version"]
 

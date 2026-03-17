@@ -2,16 +2,16 @@ from . import elastic
 from .elastic import (
     WarpArap,
     WarpArapMuscle,
+    WarpArapMuscleOld,
     WarpElastic,
-    WarpPhaceV2,
     WarpVolumePreservationDeterminant,
 )
 
 __all__ = [
     "WarpArap",
     "WarpArapMuscle",
+    "WarpArapMuscleOld",
     "WarpElastic",
-    "WarpPhaceV2",
     "WarpVolumePreservationDeterminant",
     "elastic",
 ]

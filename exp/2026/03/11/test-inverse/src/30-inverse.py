@@ -15,7 +15,7 @@ from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU
 from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss, UniformActivationLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
-from liblaf.apple.warp import WarpArapMuscle, WarpVolumePreservationDeterminant
+from liblaf.apple.warp import WarpArapMuscleOld, WarpVolumePreservationDeterminant
 
 type EnergyMaterials = Mapping[str, Array]
 type ModelMaterials = Mapping[str, EnergyMaterials]
@@ -51,7 +51,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     builder.add_dirichlet(mesh)
 
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
-    energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(
+    energy_muscle: WarpArapMuscleOld = WarpArapMuscleOld.from_pyvista(
         mesh, requires_grad=("activation",), name="muscle"
     )
     builder.add_energy(energy_muscle)

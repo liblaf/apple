@@ -136,9 +136,9 @@ class Inverse[T]:
 
     def update(self, materials: ModelMaterials) -> None:
         self.model.update_materials(materials)
-        # if not self.last_forward_success:
-        #     self.model.u_free = jnp.zeros_like(self.model.u_free)
-        self.model.u_free = jnp.zeros_like(self.model.u_free)
+        if not self.last_forward_success:
+            self.model.u_free = jnp.zeros_like(self.model.u_free)
+        # self.model.u_free = jnp.zeros_like(self.model.u_free)
         solution: PNCG.Solution = self.forward.step()
         cherries.log_metrics(
             {
@@ -213,7 +213,7 @@ class Inverse[T]:
             if self.last_adjoint_success
             else jnp.zeros_like(self.model.u_free)
         )
-        p_free: Free = jnp.zeros_like(self.model.u_free)
+        # p_free: Free = jnp.zeros_like(self.model.u_free)
         solution: LinearSolver.Solution = self.adjoint_solver.solve(system, p_free)
         ic(solution)
         cherries.log_metrics(

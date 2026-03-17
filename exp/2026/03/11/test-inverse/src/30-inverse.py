@@ -13,7 +13,7 @@ from liblaf.peach.optim import Objective, Optax, Optimizer
 
 from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU
-from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
+from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss, UniformActivationLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import WarpArapMuscle, WarpVolumePreservationDeterminant
 
@@ -77,7 +77,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
             indices=jnp.asarray(surface_indices),
             target=jnp.asarray(mesh.point_data["Solution"][surface_indices]),
         ),
-        # UniformActivationLoss(muscle_indices=muscle_indices),
+        UniformActivationLoss(muscle_indices=muscle_indices),
     ]
     full_activation: Float[Array, "cells 6"] = jnp.asarray(mesh.cell_data[ACTIVATION])
     return MyInverse(

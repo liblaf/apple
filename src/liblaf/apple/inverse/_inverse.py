@@ -1,15 +1,24 @@
 from __future__ import annotations
 
 import logging
-from typing import Self
+from typing import Self, override
 
 import jarp
 import jax
 import jax.numpy as jnp
 import optax
 from jaxtyping import Array, Bool, Float
-from liblaf.peach.linalg import FallbackSolver, LinearSolver
-from liblaf.peach.optim import PNCG, Optax, Optimizer
+from liblaf.peach.linalg import (
+    CupyMinRes,
+    FallbackSolver,
+    JaxCG,
+    LinearSolver,
+    LinearSystem,
+    Result,
+    State,
+)
+from liblaf.peach.linalg import utils as linalg_utils
+from liblaf.peach.optim import PNCG, Optax, Optimizer, Stats
 
 from liblaf import cherries
 from liblaf.apple.model import Forward, Free, Full, Model, ModelMaterials, ModelState
@@ -77,10 +86,41 @@ class InverseObjective[T]:
 
 
 @jarp.define
+class AdjointSolver(FallbackSolver):
+    @staticmethod
+    def _default_solvers() -> list[LinearSolver]:
+        return [
+            JaxCG(rtol=jnp.asarray(1e-3), rtol_primary=jnp.asarray(1e-6)),
+            CupyMinRes(tol=1e-6),
+        ]
+
+    solvers: list[LinearSolver] = jarp.field(factory=_default_solvers)
+
+    @override
+    def compute(
+        self,
+        system: LinearSystem,
+        state: FallbackSolver.State,
+        stats: FallbackSolver.Stats,
+    ) -> tuple[FallbackSolver.State, FallbackSolver.Stats, Result]:
+        state, stats, result = super().compute(system, state, stats)
+        min_residual: Scalar = jnp.asarray(jnp.inf)
+        for state_i in state.state:
+            if state_i.params is not None:
+                residual: Scalar = linalg_utils.absolute_residual(
+                    system.matvec, state_i.params, system.b
+                )
+                if residual < min_residual:
+                    state.params = state_i.params
+                    min_residual = residual
+        return state, stats, result
+
+
+@jarp.define
 class Inverse[T]:
     forward: Forward
     losses: list[Loss]
-    adjoint_solver: LinearSolver = jarp.field(factory=FallbackSolver, kw_only=True)
+    adjoint_solver: LinearSolver = jarp.field(factory=AdjointSolver, kw_only=True)
     optimizer: Optimizer = jarp.field(
         factory=lambda: Optax(optax.sgd(0.1), patience=jnp.asarray(1000)),
         kw_only=True,
@@ -124,6 +164,7 @@ class Inverse[T]:
         jax.debug.print("L: {L}", L=L)
         p: Free = self.adjoint(dLdu)
         # jax.debug.print("p: {p}", p=p)
+        ic(jnp.count_nonzero(dLdq["muscle"]["activation"]))
         mixed_prod: ModelMaterials = self.model.mixed_derivative_prod(
             self.forward.state, p
         )
@@ -171,7 +212,19 @@ class Inverse[T]:
             if self.last_adjoint_success
             else jnp.zeros_like(self.model.u_free)
         )
+        # p_free: Free = jnp.zeros_like(self.model.u_free)
         solution: LinearSolver.Solution = self.adjoint_solver.solve(system, p_free)
+        ic(solution)
+        cherries.log_metrics(
+            {
+                "adjoint": {
+                    "success": solution.success,
+                    "relative_residual": linalg_utils.relative_residual(
+                        system.matvec, solution.params, system.b
+                    ),
+                }
+            }
+        )
         if solution.success:
             logger.info("Adjoint success")
         else:

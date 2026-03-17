@@ -46,7 +46,7 @@ class MyInverse(Inverse):
         return {"muscle": {"activation": activation}}
 
 
-SUFFIX: str = "-whole-smas02-muscle02-act2"
+SUFFIX: str = "-smas46-muscle46-prestrain"
 
 
 class Config(cherries.BaseConfig):
@@ -63,12 +63,12 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
 
     mesh: pv.UnstructuredGrid = builder.add_points(mesh)
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
-    # mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
-    #     [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    # )
-    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-    #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    # )
+    mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
+        [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    )
+    mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+        [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac
@@ -111,7 +111,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
             indices=jnp.asarray(surface_indices),
             target=jnp.asarray(mesh.point_data["Solution"][surface_indices]),
         ),
-        UniformActivationLoss(muscle_indices=muscle_indices),
+        # UniformActivationLoss(muscle_indices=muscle_indices),
     ]
     full_activation: Float[Array, "cells 6"] = jnp.asarray(mesh.cell_data[ACTIVATION])
     return MyInverse(
@@ -139,6 +139,7 @@ def main(cfg: Config) -> None:
             _opt_state: Optimizer.State,
             _opt_stats: Optimizer.Stats,
         ) -> None:
+            cherries.set_step((cherries.run.get_step() or 0) + 1)
             mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
             mesh.point_data["PointToPoint"] = np.asarray(
                 forward.u_full - mesh.point_data["Solution"]

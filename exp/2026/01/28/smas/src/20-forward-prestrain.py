@@ -21,7 +21,7 @@ from liblaf.apple.warp import (
     WarpVolumePreservationDeterminant,
 )
 
-SUFFIX: str = "-smas8x-muscle8x"
+SUFFIX: str = "-smas46-muscle46"
 
 
 class Config(cherries.BaseConfig):

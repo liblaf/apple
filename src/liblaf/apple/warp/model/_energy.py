@@ -65,9 +65,11 @@ class WarpEnergy:
         if not self.requires_grad:
             return {}
         output: wp.array = wp.zeros_like(v)
+        for name in self.requires_grad:
+            param: wp.array = getattr(self.materials, name)
+            param.grad.zero_()  # pyright: ignore[reportOptionalMemberAccess]
         with wp.Tape() as tape:
             self.grad(state, u, output)
-        tape.zero()
         tape.backward(grads={output: v})
         outputs: dict[str, wp.array] = {}
         for name in self.requires_grad:

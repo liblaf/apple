@@ -5,7 +5,7 @@ import pyvista as pv
 from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, MU
+from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
     WarpArapMuscle,
@@ -28,7 +28,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     mesh: pv.UnstructuredGrid = builder.add_points(mesh)
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
     mesh.cell_data[ACTIVATION] = np.tile(
-        np.asarray([2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]), (mesh.n_cells, 1)
+        np.asarray([2.0 - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]), (mesh.n_cells, 1)
     )
     builder.add_dirichlet(mesh)
 
@@ -36,6 +36,7 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(mesh)
     builder.add_energy(energy_muscle)
 
+    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0)
     energy_vol: WarpVolumePreservationDeterminant = (
         WarpVolumePreservationDeterminant.from_pyvista(mesh)
     )

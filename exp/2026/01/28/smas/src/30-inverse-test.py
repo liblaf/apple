@@ -66,9 +66,9 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
         [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     )
-    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-    #     [4.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    # )
+    mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+        [4.8 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac

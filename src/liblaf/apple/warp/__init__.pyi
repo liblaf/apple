@@ -2,8 +2,8 @@ from . import energies, math, model
 from .energies import (
     WarpArap,
     WarpArapMuscle,
+    WarpArapMuscleOld,
     WarpElastic,
-    WarpPhaceV2,
     WarpVolumePreservationDeterminant,
 )
 from .model import (
@@ -19,6 +19,7 @@ from .model import (
 __all__ = [
     "WarpArap",
     "WarpArapMuscle",
+    "WarpArapMuscleOld",
     "WarpElastic",
     "WarpEnergy",
     "WarpEnergyState",
@@ -27,7 +28,6 @@ __all__ = [
     "WarpModelAdapterState",
     "WarpModelBuilder",
     "WarpModelState",
-    "WarpPhaceV2",
     "WarpVolumePreservationDeterminant",
     "energies",
     "math",

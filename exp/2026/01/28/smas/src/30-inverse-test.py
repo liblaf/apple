@@ -119,7 +119,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
         losses=losses,
         muscle_indices=muscle_indices,
         full_activation=full_activation,
-        optimizer=Optax(optax.sgd(0.03), patience=jnp.asarray(1000)),
+        optimizer=Optax(optax.sgd(0.1), patience=jnp.asarray(1000)),
     )
 
 

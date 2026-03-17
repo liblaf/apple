@@ -51,7 +51,9 @@ def build_model(mesh: pv.UnstructuredGrid) -> Model:
     builder.add_dirichlet(mesh)
 
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
-    energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(mesh)
+    energy_muscle: WarpArapMuscle = WarpArapMuscle.from_pyvista(
+        mesh, requires_grad=("activation",), name="muscle"
+    )
     builder.add_energy(energy_muscle)
 
     mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0)

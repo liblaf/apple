@@ -1,5 +1,5 @@
 from . import fem, model
-from .energies import JaxMassSpring, JaxMassSpringPrestrain
+from .energies import JaxMassSpring, JaxMassSpringPrestrain, JaxPointForce
 from .fem import (
     Element,
     ElementTetra,
@@ -35,6 +35,7 @@ __all__ = [
     "JaxModel",
     "JaxModelBuilder",
     "JaxModelState",
+    "JaxPointForce",
     "QuadratureTetra",
     "Region",
     "Scheme",

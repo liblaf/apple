@@ -8,12 +8,14 @@ from liblaf.peach.optim import Optimizer
 from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
+    DIRICHLET_MASK,
     GLOBAL_POINT_ID,
     LAMBDA,
     MU,
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
     WarpArap,
@@ -36,20 +38,31 @@ def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
 
 def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     builder = ModelBuilder()
+    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
+
+    mesh.point_data[DIRICHLET_MASK][mesh.points[:, 1] < 1e-3, :] = False
+    surface: pv.PolyData = mesh.extract_surface()
+    surface = melon.tri.compute_point_area(surface)
+    bottom_indices: np.ndarray = surface.point_data[GLOBAL_POINT_ID][
+        surface.points[:, 1] < 1e-3
+    ]
+    mesh.point_data["Force"] = np.zeros_like(mesh.points)
+    mesh.point_data["Force"][bottom_indices, 1] = (
+        1.0 * surface.point_data["Area"][surface.points[:, 1] < 1e-3]
+    )
 
     muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
     smas_frac: np.ndarray = mesh.cell_data[SMAS_FRACTION]
     aponeurosis_frac: np.ndarray = smas_frac - muscle_frac
     fat_frac: np.ndarray = 1.0 - smas_frac
 
-    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
         [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     )
-    mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-        [10.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    )
+    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+    #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    # )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac
@@ -75,6 +88,9 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     )
     builder.add_energy(energy_vol)
 
+    ext_force: JaxPointForce = JaxPointForce.from_pyvista(mesh)
+    builder.add_energy(ext_force)
+
     model: Model = builder.finalize()
     return model
 
@@ -90,7 +106,7 @@ def main(cfg: Config) -> None:
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
-    melon.save(cherries.output(f"20-forward{SUFFIX}-prestrain-act10.vtu"), mesh)
+    melon.save(cherries.output(f"20-forward{SUFFIX}-prestrain-ext-force-1e0.vtu"), mesh)
 
 
 if __name__ == "__main__":

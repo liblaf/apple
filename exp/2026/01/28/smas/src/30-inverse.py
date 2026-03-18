@@ -12,13 +12,7 @@ from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach.optim import Objective, Optax, Optimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import (
-    ACTIVATION,
-    LAMBDA,
-    MU,
-    MUSCLE_FRACTION,
-    SMAS_FRACTION,
-)
+from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, SMAS_FRACTION
 from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
@@ -66,9 +60,9 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
         [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     )
-    mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-        [4.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    )
+    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+    #     [4.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    # )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac
@@ -125,6 +119,7 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
+    target: pv.UnstructuredGrid = mesh.copy()
     model: Model = build_phace_v3(mesh)
     forward: Forward = Forward(model)
     inverse: MyInverse = build_inverse(mesh, forward)
@@ -142,13 +137,13 @@ def main(cfg: Config) -> None:
             cherries.set_step((cherries.run.get_step() or 0) + 1)
             mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
             mesh.point_data["PointToPoint"] = np.asarray(
-                forward.u_full - mesh.point_data["Solution"]
+                forward.u_full - target.point_data["Solution"]
             )
             mesh.cell_data["InverseActivation"] = cast(
                 "wp.array", model.get_energy("muscle").materials.activation
             ).numpy()
             mesh.cell_data["ActivationDiff"] = (
-                mesh.cell_data["InverseActivation"] - mesh.cell_data["Activation"]
+                mesh.cell_data["InverseActivation"] - target.cell_data["Activation"]
             )
             writer.append(mesh)
 
@@ -158,13 +153,13 @@ def main(cfg: Config) -> None:
     forward.step()
     mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
     mesh.point_data["PointToPoint"] = np.asarray(
-        forward.u_full - mesh.point_data["Solution"]
+        forward.u_full - target.point_data["Solution"]
     )
     mesh.cell_data["InverseActivation"] = cast(
         "wp.array", model.get_energy("muscle").materials.activation
     ).numpy()
     mesh.cell_data["ActivationDiff"] = (
-        mesh.cell_data["InverseActivation"] - mesh.cell_data["Activation"]
+        mesh.cell_data["InverseActivation"] - target.cell_data["Activation"]
     )
     melon.save(cherries.output(f"30-inverse{SUFFIX}.vtu"), mesh)
 

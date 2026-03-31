@@ -1,6 +1,7 @@
 import time
 from typing import Protocol, override
 
+import attrs
 import jarp
 import jax
 import jax.numpy as jnp
@@ -236,20 +237,24 @@ class PNCG(peach_optim.PNCG):
         hess_quad: Scalar,
     ) -> tuple[X, State]:
         decrease: Scalar = value - trial_value
-        opt_state.first_decrease = jax.lax.select(
+        first_decrease: Scalar = jax.lax.select(
             opt_state.n_steps == 0, decrease, opt_state.first_decrease
         )
-        opt_state.alpha = alpha
-        opt_state.beta = beta
-        opt_state.decrease = decrease
-        opt_state.grad = grad
-        opt_state.hess_diag = hess_diag
-        opt_state.hess_quad = hess_quad
-        opt_state.params += alpha * search_direction
-        opt_state.preconditioner = preconditioner
-        opt_state.search_direction = search_direction
+        opt_state = attrs.evolve(
+            opt_state,
+            first_decrease=first_decrease,
+            alpha=alpha,
+            beta=beta,
+            decrease=decrease,
+            grad=grad,
+            hess_diag=hess_diag,
+            hess_quad=hess_quad,
+            params=opt_state.params + alpha * search_direction,
+            preconditioner=preconditioner,
+            search_direction=search_direction,
+        )
         opt_state = self._detect_stagnation(opt_state)
-        opt_state.n_steps += 1
+        opt_state = attrs.evolve(opt_state, n_steps=opt_state.n_steps + 1)
         return model_state, opt_state
 
     def _reject_step[X](
@@ -266,18 +271,21 @@ class PNCG(peach_optim.PNCG):
         hess_quad: Scalar,
     ) -> tuple[X, State]:
         model_state = objective.update(model_state, params)
-        opt_state.alpha = jnp.zeros_like(opt_state.alpha)
-        opt_state.beta = jnp.zeros_like(opt_state.beta)
-        opt_state.decrease = jnp.asarray(jnp.inf, dtype=hess_quad.dtype)
-        opt_state.grad = grad
-        opt_state.hess_diag = hess_diag
-        opt_state.hess_quad = hess_quad
-        opt_state.preconditioner = preconditioner
-        opt_state.search_direction = search_direction
-        opt_state.stagnation_counter = jnp.maximum(
-            opt_state.stagnation_counter, self.stagnation_patience
+        opt_state = attrs.evolve(
+            opt_state,
+            alpha=jnp.zeros_like(opt_state.alpha),
+            beta=jnp.zeros_like(opt_state.beta),
+            decrease=jnp.asarray(jnp.inf, dtype=hess_quad.dtype),
+            grad=grad,
+            hess_diag=hess_diag,
+            hess_quad=hess_quad,
+            preconditioner=preconditioner,
+            search_direction=search_direction,
+            stagnation_counter=jnp.maximum(
+                opt_state.stagnation_counter, self.stagnation_patience
+            ),
         )
-        opt_state.n_steps += 1
+        opt_state = attrs.evolve(opt_state, n_steps=opt_state.n_steps + 1)
         return model_state, opt_state
 
     def _step_nan[X](
@@ -292,15 +300,18 @@ class PNCG(peach_optim.PNCG):
         hess_quad: Scalar,
     ) -> tuple[X, State]:
         nan = jnp.asarray(jnp.nan, dtype=hess_quad.dtype)
-        opt_state.alpha = jnp.zeros_like(opt_state.alpha)
-        opt_state.beta = jnp.zeros_like(opt_state.beta)
-        opt_state.decrease = nan
-        opt_state.grad = grad
-        opt_state.hess_diag = hess_diag
-        opt_state.hess_quad = hess_quad
-        opt_state.preconditioner = preconditioner
-        opt_state.search_direction = search_direction
-        opt_state.n_steps += 1
+        opt_state = attrs.evolve(
+            opt_state,
+            alpha=jnp.zeros_like(opt_state.alpha),
+            beta=jnp.zeros_like(opt_state.beta),
+            decrease=nan,
+            grad=grad,
+            hess_diag=hess_diag,
+            hess_quad=hess_quad,
+            preconditioner=preconditioner,
+            search_direction=search_direction,
+            n_steps=opt_state.n_steps + 1,
+        )
         return model_state, opt_state
 
     @override

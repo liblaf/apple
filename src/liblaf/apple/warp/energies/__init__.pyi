@@ -4,6 +4,8 @@ from .elastic import (
     WarpArapMuscle,
     WarpArapMuscleOld,
     WarpElastic,
+    WarpNeoHookean,
+    WarpNeoHookeanMuscle,
     WarpVolumePreservationDeterminant,
 )
 
@@ -12,6 +14,8 @@ __all__ = [
     "WarpArapMuscle",
     "WarpArapMuscleOld",
     "WarpElastic",
+    "WarpNeoHookean",
+    "WarpNeoHookeanMuscle",
     "WarpVolumePreservationDeterminant",
     "elastic",
 ]

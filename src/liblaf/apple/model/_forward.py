@@ -7,7 +7,9 @@ import attrs
 import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
-from liblaf.peach.optim import PNCG, Optimizer
+from liblaf.peach.optim import Optimizer
+
+from liblaf.apple.optim import PNCG
 
 from ._model import Model, ModelState
 
@@ -61,7 +63,7 @@ class Forward:
     )
 
     def _default_optimizer(self: Forward) -> Optimizer:
-        max_steps: int = max(1000, jnp.ceil(20 * jnp.sqrt(self.model.n_free)).item())
+        max_steps: int = max(100000, jnp.ceil(20 * jnp.sqrt(self.model.n_free)).item())
         max_delta: Scalar = (
             0.15 * self.model.edges_length_mean
             if self.model.edges_length_mean > 0
@@ -76,8 +78,8 @@ class Forward:
             beta_non_negative=True,
             beta_reset_threshold=jnp.asarray(10.0),
             max_delta=max_delta,
-            stagnation_max_restarts=jnp.asarray(20),
-            stagnation_patience=jnp.asarray(50),
+            stagnation_max_restarts=jnp.asarray(200),
+            stagnation_patience=jnp.asarray(500),
         )
 
     optimizer: Optimizer = jarp.field(

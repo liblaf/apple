@@ -24,29 +24,24 @@ classifiers = [
   "Typing :: Typed"
 ]
 dependencies = [
-  "beartype>=0.22,<0.23",
-  "chex>=0.1,<0.2",
-  "cytoolz>=1,<2",
-  "einops>=0.8,<0.9",
-  "equinox>=0.13,<0.14",
-  "felupe>=10,<11",
-  "frozendict>=2.4.7,<3.0.0",
-  "jarp>=0.1.1,<0.2.0",
-  "jax>=0.9,<0.10",
-  "jaxtyping>=0.3,<0.4",
-  "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=9,<10",
-  "liblaf-melon>=1,<2",
-  "liblaf-peach>=0.9,<0.10",
-  "lineax>=0.1,<0.2",
-  "loguru>=0.7,<0.8",
-  "matplotlib>=3,<4",
-  "numpy>=2,<3",
-  "optax>=0.2,<0.3",
-  "pyvista>=0.47,<0.48",
-  "rich>=14,<15",
-  "scipy>=1,<2",
-  "warp-lang>1,<2",
+  "einops>=0.8",
+  "equinox>=0.13",
+  "felupe>=10",
+  "frozendict>=2",
+  "jarp>=0.1.8",
+  "jax>=0.9",
+  "jaxtyping>=0.3",
+  "lazy-loader>=0.1",
+  "liblaf-grapes>=9",
+  "liblaf-melon>=1",
+  "liblaf-peach>=0.9.3",
+  "lineax>=0.1",
+  "numpy>=2.2",
+  "optax>=0.2",
+  "pyvista>=0.47",
+  "rich>=14",
+  "scipy>=1.17",
+  "warp-lang>1",
 ]
 dynamic = ["version"]
 
@@ -59,22 +54,23 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/apple"
 
 [project.optional-dependencies]
-cuda12 = ["jax[cuda12]>=0.9,<0.10", "liblaf-peach[cuda12]>=0.9,<0.10"]
-cuda13 = ["jax[cuda13]>=0.9,<0.10", "liblaf-peach[cuda13]>=0.9,<0.10"]
+cuda12 = ["jax[cuda12]>=0.9", "liblaf-peach[cuda12]>=0.9"]
+cuda13 = ["jax[cuda13]>=0.9", "liblaf-peach[cuda13]>=0.9"]
 
 [dependency-groups]
 dev = [
-  "icecream>=2,<3",
-  "ipykernel>=7,<8",
-  "liblaf-cherries>=1,<2",
-  "scipy-stubs>=1,<2",
-  "sympy>=1,<2",
-  "toolz-stubs>=0.3,<0.4",
-  "viztracer>=1,<2"
+  "icecream>=2.1.10",
+  "ipykernel>=7",
+  "liblaf-cherries>=1",
+  "sympy>=1",
+  "viztracer>=1",
 ]
-build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
-docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
-test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=9,<10"]
+build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
+docs = ["liblaf-mkdocs-preset>=0.2", "mkdocs>=1,<2"]
+lint = ["import-linter[ui]>=2", "ruff>=0.15"]
+nox = ["liblaf-nox-recipes>=0.1", "nox>=2026"]
+test = ["hypothesis>=6", "pytest>=9", "pytest-cov>=7", "pytest-randomly>=4"]
+typing = ["scipy-stubs>=1"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -102,6 +98,14 @@ packages = ["src/liblaf"]
 [tool.hatch.version]
 source = "vcs"
 
+[tool.importlinter]
+root_package = "liblaf.apple"
+
+[[tool.importlinter.contracts]]
+ancestors = ["liblaf.apple"]
+name = "Acyclic siblings"
+type = "acyclic_siblings"
+
 [tool.pyright]
 exclude = [
   "**/.*",
@@ -124,11 +128,12 @@ reportInvalidTypeForm = "none"
 [tool.pytest]
 addopts = [
   "--doctest-modules",
-  "--hypothesis-explain",
   "--import-mode=importlib",
+  "--junitxml=junit.xml",
   "--showlocals"
 ]
 consider_namespace_packages = true
+junit_family = "legacy"
 strict = true
 testpaths = ["benches", "src", "tests"]
 
@@ -150,9 +155,11 @@ ignore = [
   "RUF002"
 ]
 
+[tool.ty.environment]
+python = ".venv"
+
 [tool.uv]
 default-groups = "all"
 
-[[tool.uv.index]]
-name = "nvidia"
-url = "https://pypi.nvidia.com/"
+[tool.uv.sources]
+liblaf-peach = { path = "../peach", editable = true }

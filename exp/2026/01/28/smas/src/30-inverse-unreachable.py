@@ -5,19 +5,14 @@ from typing import Any, cast
 import jarp
 import jax.numpy as jnp
 import numpy as np
+import optax
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
-from liblaf.peach.optim import Objective, Optimizer
+from liblaf.peach.optim import Objective, Optax, Optimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import (
-    ACTIVATION,
-    LAMBDA,
-    MU,
-    MUSCLE_FRACTION,
-    SMAS_FRACTION,
-)
+from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, SMAS_FRACTION
 from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
@@ -45,7 +40,7 @@ class MyInverse(Inverse):
         return {"muscle": {"activation": activation}}
 
 
-SUFFIX: str = "-whole-smas02-muscle02-act2"
+SUFFIX: str = "-smas46-muscle46-prestrain"
 
 
 class Config(cherries.BaseConfig):
@@ -62,11 +57,11 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
 
     mesh: pv.UnstructuredGrid = builder.add_points(mesh)
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
-    # mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
-    #     [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    # )
+    mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
+        [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    )
     # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-    #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    #     [4.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     # )
     builder.add_dirichlet(mesh)
 
@@ -97,14 +92,17 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     return model
 
 
+def make_unreachable_target(target: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+    target.point_data["Solution"] = np.zeros_like(target.points)
+    target.point_data["Solution"][:, 1] = target.points[:, 1]
+    return target
+
+
 def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
     surface_indices: Integer[Array, " surface_points"] = mesh.surface_indices()
     muscle_indices: Integer[Array, " muscle_cells"] = jnp.flatnonzero(
         mesh.cell_data["MuscleFraction"] > 1e-3
     )
-    # gen unreachable target
-    mesh.point_data["Solution"] = np.zeros_like(mesh.points)
-    mesh.point_data["Solution"][:, 1] = mesh.points[:, 1]
     losses: list[Loss] = [
         PointToPointLoss(
             indices=jnp.asarray(surface_indices),
@@ -118,14 +116,18 @@ def build_inverse(mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
         losses=losses,
         muscle_indices=muscle_indices,
         full_activation=full_activation,
+        optimizer=Optax(optax.adam(0.03), patience=jnp.asarray(1000)),
     )
 
 
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.target)
+    target: pv.UnstructuredGrid = make_unreachable_target(mesh.copy())
+    mesh.point_data["Solution"] = target.point_data["Solution"].copy()
     model: Model = build_phace_v3(mesh)
+    target.cell_data[ACTIVATION] = mesh.cell_data[ACTIVATION].copy()
     forward: Forward = Forward(model)
-    inverse: MyInverse = build_inverse(mesh, forward)
+    inverse: MyInverse = build_inverse(target, forward)
     params: Vector = jnp.asarray(mesh.cell_data[ACTIVATION][inverse.muscle_indices])
     with melon.io.SeriesWriter(
         cherries.temp(f"30-inverse-unreachable{SUFFIX}.vtu.series")
@@ -137,15 +139,16 @@ def main(cfg: Config) -> None:
             _opt_state: Optimizer.State,
             _opt_stats: Optimizer.Stats,
         ) -> None:
+            cherries.set_step((cherries.run.get_step() or 0) + 1)
             mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
             mesh.point_data["PointToPoint"] = np.asarray(
-                forward.u_full - mesh.point_data["Solution"]
+                forward.u_full - target.point_data["Solution"]
             )
             mesh.cell_data["InverseActivation"] = cast(
                 "wp.array", model.get_energy("muscle").materials.activation
             ).numpy()
             mesh.cell_data["ActivationDiff"] = (
-                mesh.cell_data["InverseActivation"] - mesh.cell_data["Activation"]
+                mesh.cell_data["InverseActivation"] - target.cell_data["Activation"]
             )
             writer.append(mesh)
 
@@ -155,13 +158,13 @@ def main(cfg: Config) -> None:
     forward.step()
     mesh.point_data["InverseSolution"] = np.asarray(forward.u_full)
     mesh.point_data["PointToPoint"] = np.asarray(
-        forward.u_full - mesh.point_data["Solution"]
+        forward.u_full - target.point_data["Solution"]
     )
     mesh.cell_data["InverseActivation"] = cast(
         "wp.array", model.get_energy("muscle").materials.activation
     ).numpy()
     mesh.cell_data["ActivationDiff"] = (
-        mesh.cell_data["InverseActivation"] - mesh.cell_data["Activation"]
+        mesh.cell_data["InverseActivation"] - target.cell_data["Activation"]
     )
     melon.save(cherries.output(f"30-inverse-unreachable{SUFFIX}.vtu"), mesh)
 

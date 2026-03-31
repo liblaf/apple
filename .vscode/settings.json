@@ -18,6 +18,7 @@
   "python.testing.pytestArgs": ["--color=yes", "--cov", "--numprocesses", "0"],
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
+  "ty.diagnosticMode": "openFilesOnly",
   "yaml.customTags": [
     // ref: <https://squidfunk.github.io/mkdocs-material/creating-your-site/#minimal-configuration>
     "!ENV scalar",

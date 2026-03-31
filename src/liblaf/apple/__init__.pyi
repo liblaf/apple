@@ -1,3 +1,3 @@
-from . import consts, jax, model, scene, warp
+from . import consts, jax, model, optim, scene, warp
 
-__all__ = ["consts", "jax", "model", "scene", "warp"]
+__all__ = ["consts", "jax", "model", "optim", "scene", "warp"]

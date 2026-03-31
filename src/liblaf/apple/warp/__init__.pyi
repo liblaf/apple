@@ -6,6 +6,8 @@ from .energies import (
     WarpElastic,
     WarpNeoHookean,
     WarpNeoHookeanMuscle,
+    WarpStableNeoHookean,
+    WarpStableNeoHookeanMuscle,
     WarpVolumePreservationDeterminant,
 )
 from .model import (
@@ -32,6 +34,8 @@ __all__ = [
     "WarpModelState",
     "WarpNeoHookean",
     "WarpNeoHookeanMuscle",
+    "WarpStableNeoHookean",
+    "WarpStableNeoHookeanMuscle",
     "WarpVolumePreservationDeterminant",
     "energies",
     "math",

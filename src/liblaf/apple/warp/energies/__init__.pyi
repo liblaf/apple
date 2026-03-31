@@ -6,6 +6,8 @@ from .elastic import (
     WarpElastic,
     WarpNeoHookean,
     WarpNeoHookeanMuscle,
+    WarpStableNeoHookean,
+    WarpStableNeoHookeanMuscle,
     WarpVolumePreservationDeterminant,
 )
 
@@ -16,6 +18,8 @@ __all__ = [
     "WarpElastic",
     "WarpNeoHookean",
     "WarpNeoHookeanMuscle",
+    "WarpStableNeoHookean",
+    "WarpStableNeoHookeanMuscle",
     "WarpVolumePreservationDeterminant",
     "elastic",
 ]

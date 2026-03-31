@@ -1,12 +1,12 @@
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Objective, Optimizer
+from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
 from liblaf.apple.consts import (
@@ -19,9 +19,9 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.model import Forward, Model, ModelBuilder, ModelState
+from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
-from liblaf.apple.warp import WarpNeoHookean, WarpNeoHookeanMuscle
+from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"
 
@@ -71,7 +71,7 @@ def apply_bottom_arch_dirichlet(
 
 def build_phace_v3(mesh: pv.UnstructuredGrid, arch_height: float) -> Model:
     builder = ModelBuilder()
-    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
+    mesh = builder.add_points(mesh)
     mesh = apply_bottom_arch_dirichlet(mesh, arch_height)
 
     muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
@@ -83,33 +83,28 @@ def build_phace_v3(mesh: pv.UnstructuredGrid, arch_height: float) -> Model:
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
         [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     )
-    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-    #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    # )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
     mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0)
-    energy_fat: WarpNeoHookean = WarpNeoHookean.from_pyvista(mesh)
-    builder.add_energy(energy_fat)
+    builder.add_energy(WarpStableNeoHookean.from_pyvista(mesh))
 
     mesh.cell_data["Fraction"] = aponeurosis_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
     mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0e2)
-    energy_aponeurosis: WarpNeoHookeanMuscle = WarpNeoHookeanMuscle.from_pyvista(mesh)
-    builder.add_energy(energy_aponeurosis)
+    builder.add_energy(WarpStableNeoHookeanMuscle.from_pyvista(mesh))
 
     mesh.cell_data["Fraction"] = muscle_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
     mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 3.0e2)
-    energy_muscle: WarpNeoHookeanMuscle = WarpNeoHookeanMuscle.from_pyvista(
-        mesh, requires_grad=("activation",), name="muscle"
+    builder.add_energy(
+        WarpStableNeoHookeanMuscle.from_pyvista(
+            mesh, requires_grad=("activation",), name="muscle"
+        )
     )
-    builder.add_energy(energy_muscle)
 
-    model: Model = builder.finalize()
-    return model
+    return builder.finalize()
 
 
 def initialize_parabolic_guess(
@@ -128,62 +123,19 @@ def main(cfg: Config) -> None:
     ic(mesh)
     model: Model = build_phace_v3(mesh, cfg.arch_height)
     initialize_parabolic_guess(model, mesh, cfg.arch_height)
-    forward: Forward = Forward(model)
+    forward = Forward(model)
     optimizer = cast("PNCG", forward.optimizer)
-    ic(optimizer.max_delta)
     optimizer.rtol = jnp.asarray(1e-5)
     optimizer.rtol_primary = jnp.asarray(1e-6)
 
-    def callback(
-        _objective: Objective[Any],
-        _model_state: ModelState,
-        opt_state: PNCG.State,
-        opt_stats: PNCG.Stats,
-    ) -> None:
-        cherries.log_metrics(
-            {
-                "objective/fun": _objective.fun(_model_state),
-                "optimizer/alpha": opt_state.alpha,
-                "optimizer/beta": opt_state.beta,
-                "optimizer/decrease": opt_state.decrease,
-                "optimizer/best_decrease": opt_state.best_decrease,
-                "optimizer/first_decrease": opt_state.first_decrease,
-                "optimizer/relative_decrease": opt_stats.relative_decrease,
-                "optimizer/grad_norm": jnp.linalg.norm(opt_state.grad),
-                "optimizer/grad_max_norm": jnp.linalg.norm(opt_state.grad, ord=jnp.inf),
-                "optimizer/hess_diag_min": jnp.min(opt_state.hess_diag),
-                "optimizer/hess_diag_max": jnp.max(opt_state.hess_diag),
-                "optimizer/hess_quad": opt_state.hess_quad,
-                "optimizer/search_direction_norm": jnp.linalg.norm(
-                    opt_state.search_direction
-                ),
-                "optimizer/search_direction_max_norm": jnp.linalg.norm(
-                    opt_state.search_direction, ord=jnp.inf
-                ),
-                "optimizer/step_norm": jnp.linalg.norm(
-                    opt_state.alpha * opt_state.search_direction
-                ),
-                "optimizer/step_max_norm": jnp.linalg.norm(
-                    opt_state.alpha * opt_state.search_direction, ord=jnp.inf
-                ),
-                "optimizer/stagnation_counter": opt_state.stagnation_counter,
-                "optimizer/stagnation_restarts": opt_state.stagnation_restarts,
-                "optimizer/time": opt_stats.time,
-            },
-            step=opt_state.n_steps,
-        )
-
-    solve_callback: PNCG.Callback[ModelState] | None = None
-    if not optimizer.jit:
-        solve_callback = callback
-    solution: Optimizer.Solution = forward.step(callback=solve_callback)
+    solution: Optimizer.Solution = forward.step()
     ic(solution)
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
     melon.save(
         cherries.output(
-            f"20-forward{SUFFIX}-prestrain-bottom-dirichlet-arch-neo-hookean.vtu"
+            f"20-forward{SUFFIX}-prestrain-bottom-dirichlet-arch-stable-neo-hookean.vtu"
         ),
         mesh,
     )

@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 
+import attrs
 import equinox as eqx
 import jarp
 import jax
@@ -21,6 +22,7 @@ type Vector = Float[Array, "points dim"]
 class JaxEnergy:
     name: str = jarp.static(default=utils.name_factory, kw_only=True)
     requires_grad: frozenset[str] = jarp.static(default=frozenset(), kw_only=True)
+    material_names: tuple[str, ...] = jarp.static(default=(), kw_only=True)
 
     def init_state(self, u: Vector) -> JaxEnergyState:  # noqa: ARG002
         return JaxEnergyState()
@@ -29,7 +31,23 @@ class JaxEnergy:
         return state
 
     def update_materials(self, materials: EnergyMaterials) -> None:
-        pass
+        for name, new_val in materials.items():
+            setattr(self, name, jnp.asarray(new_val))
+
+    def read_materials(self) -> dict[str, Array]:
+        return {
+            name: jnp.asarray(getattr(self, name))
+            for name in self.iter_material_names()
+        }
+
+    def iter_material_names(self) -> tuple[str, ...]:
+        if self.material_names:
+            return self.material_names
+        return tuple(
+            field.name
+            for field in attrs.fields(type(self))
+            if field.name not in {"name", "requires_grad", "material_names"}
+        )
 
     def fun(self, state: JaxEnergyState, u: Vector) -> Scalar:
         raise NotImplementedError

@@ -1,0 +1,656 @@
+{
+  "forward": {
+    "result": "stagnation",
+    "success": false,
+    "n_steps": 1033,
+    "best_decrease": Infinity,
+    "relative_decrease": 4.939491191180423e-05,
+    "grad_norm": 0.4959976077079773
+  },
+  "initial_spectrum": {
+    "n_free": 186441,
+    "hess_diag_abs_min": 0.583930253982544,
+    "hess_diag_max": 2319.68115234375,
+    "hess_diag_mean": 258.1804101061124,
+    "hess_diag_min": 0.583930253982544,
+    "hess_diag_nonpositive": 0,
+    "preconditioner_inverse_max": 2319.6812728260975,
+    "preconditioner_inverse_min": 0.583930232495005,
+    "preconditioner_max": 1.7125333547592163,
+    "preconditioner_min": 0.00043109370744787157,
+    "lambda_max": {
+      "converged": true,
+      "values": [
+        4419.203843638775,
+        4443.239202002824
+      ]
+    },
+    "lambda_min": {
+      "coarse": {
+        "converged": false,
+        "values": []
+      },
+      "converged": true,
+      "method": "shift_invert_minres",
+      "shift_invert_attempts": [
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": 0.0
+          },
+          "sigma": 0.0,
+          "values": [
+            0.14674880545659086,
+            0.15264672030937723
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.25818041010611237
+          },
+          "sigma": -0.25818041010611237,
+          "values": [
+            0.09755463480037652,
+            0.10357652396579858
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -258.1804101061124
+          },
+          "sigma": -258.1804101061124,
+          "values": [
+            0.5077696587438822,
+            2.987401157229556
+          ]
+        }
+      ],
+      "values": [
+        0.09755463480037652,
+        0.10357652396579858
+      ]
+    },
+    "preconditioned_lambda_max": {
+      "converged": true,
+      "values": [
+        3.608868195010647,
+        3.6569173306363125
+      ]
+    },
+    "preconditioned_lambda_min": {
+      "coarse": {
+        "converged": true,
+        "values": [
+          -7.189357053039005e-05,
+          -5.627612296476136e-05
+        ]
+      },
+      "converged": true,
+      "method": "shift_invert_minres",
+      "shift_invert_attempts": [
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.00107189357053039
+          },
+          "sigma": -0.00107189357053039,
+          "values": [
+            0.009205522569822518,
+            0.010560954283082815
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": 0.0
+          },
+          "sigma": 0.0,
+          "values": [
+            0.009264496149953533,
+            0.011093440307637665
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.0010000000037579538
+          },
+          "sigma": -0.0010000000037579538,
+          "values": [
+            0.008750924102176098,
+            0.011075709714569764
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -1.0000000037579537
+          },
+          "sigma": -1.0000000037579537,
+          "values": [
+            0.006902958721924257,
+            0.019097754437136683
+          ]
+        }
+      ],
+      "values": [
+        0.006902958721924257,
+        0.008750924102176098
+      ]
+    }
+  },
+  "final_spectrum": {
+    "n_free": 186441,
+    "hess_diag_abs_min": 0.3685203790664673,
+    "hess_diag_max": 5567.62939453125,
+    "hess_diag_mean": 275.1657734099753,
+    "hess_diag_min": 0.3685203790664673,
+    "hess_diag_nonpositive": 0,
+    "preconditioner_inverse_max": 5567.629202145855,
+    "preconditioner_inverse_min": 0.36852037842911517,
+    "preconditioner_max": 2.7135541439056396,
+    "preconditioner_min": 0.00017960966215468943,
+    "lambda_max": {
+      "converged": true,
+      "values": [
+        9501.312981632796,
+        9843.681307134502
+      ]
+    },
+    "lambda_min": {
+      "coarse": {
+        "converged": false,
+        "values": []
+      },
+      "converged": true,
+      "method": "shift_invert_minres",
+      "shift_invert_attempts": [
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": 0.0
+          },
+          "sigma": 0.0,
+          "values": [
+            0.1301981232711607,
+            0.141023666149816
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.27516577340997533
+          },
+          "sigma": -0.27516577340997533,
+          "values": [
+            0.08717459530674465,
+            0.1012062012788077
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -275.1657734099753
+          },
+          "sigma": -275.1657734099753,
+          "values": [
+            0.4790595356508902,
+            3.1024173191239584
+          ]
+        }
+      ],
+      "values": [
+        0.08717459530674465,
+        0.1012062012788077
+      ]
+    },
+    "preconditioned_lambda_max": {
+      "converged": true,
+      "values": [
+        4.568287743331999,
+        4.619993555290477
+      ]
+    },
+    "preconditioned_lambda_min": {
+      "coarse": {
+        "converged": true,
+        "values": [
+          0.00013429135657475226,
+          0.00013645616089826725
+        ]
+      },
+      "converged": true,
+      "method": "shift_invert_minres",
+      "shift_invert_attempts": [
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.0008657086434252477
+          },
+          "sigma": -0.0008657086434252477,
+          "values": [
+            0.011965425639557992,
+            0.013998492336675317
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": 0.0
+          },
+          "sigma": 0.0,
+          "values": [
+            0.011519867116412095,
+            0.013825374125613124
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -0.0010000000038310382
+          },
+          "sigma": -0.0010000000038310382,
+          "values": [
+            0.011304328683818763,
+            0.014184898047141483
+          ]
+        },
+        {
+          "converged": true,
+          "minres": {
+            "info_history": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "maxiter": 40,
+            "n_calls": 21,
+            "n_failures": 0,
+            "rtol": 0.01,
+            "shift": -1.0000000038310382
+          },
+          "sigma": -1.0000000038310382,
+          "values": [
+            0.00693303217358987,
+            0.0193849406125699
+          ]
+        }
+      ],
+      "values": [
+        0.00693303217358987,
+        0.011304328683818763
+      ]
+    }
+  }
+}

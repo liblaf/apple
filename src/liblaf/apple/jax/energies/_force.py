@@ -16,6 +16,7 @@ type Vector = Float[Array, "points dim"]
 
 @jarp.define
 class JaxPointForce(JaxEnergy):
+    material_names: tuple[str, ...] = jarp.static(default=("force",), kw_only=True)
     force: Vector = jarp.field()
     indices: Index = jarp.field()
 

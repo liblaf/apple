@@ -8,6 +8,7 @@ import pyvista as pv
 from liblaf.peach.optim import PNCG
 
 from liblaf.apple.consts import ACTIVATION, DIRICHLET_MASK, DIRICHLET_VALUE, LAMBDA, MU
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import WarpNeoHookean, WarpNeoHookeanMuscle
 
@@ -167,3 +168,52 @@ def test_neo_hookean_bottom_arch_example_builds() -> None:
     assert cfg.arch_height == 0.25
     assert sum(isinstance(energy, WarpNeoHookean) for energy in energies) == 1
     assert sum(isinstance(energy, WarpNeoHookeanMuscle) for energy in energies) == 2
+
+
+def test_neo_hookean_ext_force_example_builds() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    script = repo_root / "exp/2026/01/28/smas/src/20-forward-ext-force-neo-hookean.py"
+    spec = importlib.util.spec_from_file_location("ext_force_nh", script)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    cfg = module.Config(
+        input=repo_root / "exp/2026/01/28/smas/data/10-input-smas46-muscle46.vtu",
+        activation=2.5,
+        force_scale=0.1,
+        lambda_value=9.0,
+    )
+    mesh = module.load_mesh(cfg)
+    model = module.build_phace_v3(
+        mesh, cfg.activation, cfg.force_scale, cfg.lambda_value
+    )
+    warp_energies = list(model.warp.energies.values())
+    jax_energies = list(model.jax.energies.values())
+    passive = next(
+        energy for energy in warp_energies if isinstance(energy, WarpNeoHookean)
+    )
+    muscles = [
+        energy for energy in warp_energies if isinstance(energy, WarpNeoHookeanMuscle)
+    ]
+
+    assert cfg.activation == 2.5
+    assert cfg.force_scale == 0.1
+    assert cfg.lambda_value == 9.0
+    assert sum(isinstance(energy, WarpNeoHookean) for energy in warp_energies) == 1
+    assert (
+        sum(isinstance(energy, WarpNeoHookeanMuscle) for energy in warp_energies) == 2
+    )
+    assert sum(isinstance(energy, JaxPointForce) for energy in jax_energies) == 1
+    assert module.format_force_scale(cfg.force_scale) == "1e-1"
+    assert module.format_lambda_value(cfg.lambda_value) == "9"
+    np.testing.assert_allclose(
+        np.asarray(passive.read_materials()["lambda_"]),
+        cfg.lambda_value,
+    )
+    for energy in muscles:
+        np.testing.assert_allclose(
+            np.asarray(energy.read_materials()["lambda_"]),
+            cfg.lambda_value * 1.0e2,
+        )

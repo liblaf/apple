@@ -1,0 +1,83 @@
+{
+  "forward": {
+    "result": "secondary_success",
+    "success": true,
+    "n_steps": 1176,
+    "best_decrease": Infinity,
+    "relative_decrease": 7.90006379247643e-05,
+    "grad_norm": 0.008272669278085232
+  },
+  "initial_spectrum": {
+    "n_free": 186441,
+    "hess_diag_min": 0.20946960151195526,
+    "hess_diag_max": 930.2356567382812,
+    "hess_diag_mean": 80.39814774171128,
+    "hess_diag_abs_min": 0.20946960151195526,
+    "hess_diag_nonpositive": 0,
+    "preconditioner_min": 0.0010749964276328683,
+    "preconditioner_max": 4.773962497711182,
+    "raw_smallest_algebraic": {
+      "converged": true,
+      "values": [
+        -0.1147980783677198,
+        -0.10779722417016065
+      ]
+    },
+    "raw_largest_algebraic": {
+      "converged": true,
+      "values": [
+        1463.8351435231455,
+        1552.2768774078584
+      ]
+    },
+    "preconditioned_smallest_algebraic": {
+      "converged": true,
+      "values": [
+        -0.0012331862994487271,
+        -0.0012096817992747976
+      ]
+    },
+    "preconditioned_largest_algebraic": {
+      "converged": true,
+      "values": [
+        3.192968666332833,
+        3.2774269768285915
+      ]
+    }
+  },
+  "final_spectrum": {
+    "n_free": 186441,
+    "hess_diag_min": 0.13700281083583832,
+    "hess_diag_max": 1362.3682861328125,
+    "hess_diag_mean": 87.41903446997196,
+    "hess_diag_abs_min": 0.13700281083583832,
+    "hess_diag_nonpositive": 0,
+    "preconditioner_min": 0.0007340158917941153,
+    "preconditioner_max": 7.2991204261779785,
+    "raw_smallest_algebraic": {
+      "converged": false,
+      "values": []
+    },
+    "raw_largest_algebraic": {
+      "converged": true,
+      "values": [
+        2476.6850311587636,
+        2503.9605893149487
+      ]
+    },
+    "preconditioned_smallest_algebraic": {
+      "converged": true,
+      "values": [
+        0.0003776515934581405,
+        0.00038774403042991573
+      ]
+    },
+    "preconditioned_largest_algebraic": {
+      "converged": true,
+      "values": [
+        3.9364183792244156,
+        4.17999608503905
+      ]
+    }
+  }
+}

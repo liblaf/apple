@@ -1,3 +1,21 @@
-from ._pncg import PNCG
+from ._pncg import (
+    PNCG,
+    ConvergenceCriteria,
+    HessianDamping,
+    LineSearchSettings,
+    NonlinearStageObjective,
+    PNCGIteration,
+    PNCGOverrides,
+    PNCGResult,
+)
 
-__all__ = ["PNCG"]
+__all__ = [
+    "PNCG",
+    "ConvergenceCriteria",
+    "HessianDamping",
+    "LineSearchSettings",
+    "NonlinearStageObjective",
+    "PNCGIteration",
+    "PNCGOverrides",
+    "PNCGResult",
+]

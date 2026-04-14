@@ -25,7 +25,7 @@ def make_muscle() -> pv.PolyData:
 
 
 def make_smas() -> pv.PolyData:
-    smas: pv.PolyData = pv.Box((0.0, 10.0, 0.3, 0.7, 0.0, 10.0), quads=False)
+    smas: pv.PolyData = pv.Box((0.0, 10.0, 0.4, 0.6, 0.0, 10.0), quads=False)
     return smas
 
 
@@ -33,7 +33,7 @@ def make_tetmesh() -> pv.UnstructuredGrid:
     surface = make_surface()
     muscle = make_muscle()
     smas = make_smas()
-    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=0.01)
+    tetmesh: pv.UnstructuredGrid = melon.tetwild(surface, lr=0.02)
     tetmesh.cell_data[MUSCLE_FRACTION] = np.asarray(
         melon.tet.compute_volume_fraction(tetmesh, muscle)
     )
@@ -70,7 +70,7 @@ def make_subface(mesh: pv.UnstructuredGrid) -> pv.PolyData:
 def main(_cfg: Config) -> None:
     tetmesh: pv.UnstructuredGrid = make_tetmesh()
     # subface: pv.PolyData = make_subface(tetmesh)
-    melon.save(cherries.output("10-input-smas37-muscle46.vtu"), tetmesh)
+    melon.save(cherries.output("10-input-smas46-muscle46-coarse.vtu"), tetmesh)
     # melon.save(cherries.output("10-subface.vtp"), subface)
 
 

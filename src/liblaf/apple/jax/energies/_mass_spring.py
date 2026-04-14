@@ -21,6 +21,9 @@ type Vector = Float[Array, "points dim"]
 
 @jarp.define
 class JaxMassSpring(JaxEnergy):
+    material_names: tuple[str, ...] = jarp.static(
+        default=("length", "stiffness"), kw_only=True
+    )
     edges: Integer[Array, " edges 2"]
     length: Float[Array, " edges"]
     points: Float[Array, "edges 2 3"]

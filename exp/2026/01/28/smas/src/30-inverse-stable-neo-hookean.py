@@ -43,8 +43,8 @@ SUFFIX: str = "-smas46-muscle46"
 
 class Config(cherries.BaseConfig):
     inverse_lr: float = env.float("INVERSE_LR", 0.03)
-    inverse_max_steps: int = env.int("INVERSE_MAX_STEPS", 20)
-    inverse_patience: int = env.int("INVERSE_PATIENCE", 20)
+    inverse_max_steps: int = env.int("INVERSE_MAX_STEPS", 1000)
+    inverse_patience: int = env.int("INVERSE_PATIENCE", 1000)
     target: Path = cherries.input(
         f"20-forward{SUFFIX}-prestrain-bottom-dirichlet-arch-stable-neo-hookean.vtu"
     )
@@ -87,7 +87,9 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     return builder.finalize()
 
 
-def build_inverse(cfg: Config, mesh: pv.UnstructuredGrid, forward: Forward) -> MyInverse:
+def build_inverse(
+    cfg: Config, mesh: pv.UnstructuredGrid, forward: Forward
+) -> MyInverse:
     surface_indices: Integer[Array, " surface_points"] = mesh.surface_indices()
     muscle_indices: Integer[Array, " muscle_cells"] = jnp.flatnonzero(
         mesh.cell_data["MuscleFraction"] > 1e-3
@@ -119,8 +121,8 @@ def main(cfg: Config) -> None:
     model: Model = build_phace_v3(mesh)
     forward: Forward = Forward(model)
     forward_optimizer = cast("PNCG", forward.optimizer)
-    forward_optimizer.rtol = jnp.asarray(1e-5)
-    forward_optimizer.rtol_primary = jnp.asarray(1e-6)
+    forward_optimizer.rtol = jnp.asarray(1e-3)
+    forward_optimizer.rtol_primary = jnp.asarray(1e-5)
     inverse: MyInverse = build_inverse(cfg, mesh, forward)
     params: Vector = jnp.asarray(mesh.cell_data[ACTIVATION][inverse.muscle_indices])
     with melon.io.SeriesWriter(

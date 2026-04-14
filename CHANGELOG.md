@@ -7,6 +7,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/liblaf/apple/compare/v0.7.0...v0.8.0) (2026-04-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Refactored warp elastic energy module structure
+
+### ✨ Features
+
+* add inverse toy experiments for forward simulation and muscle activation ([19c2c46](https://github.com/liblaf/apple/commit/19c2c46438b85770d7dc4a11971b2d3a05672777))
+* add Neo-Hookean Warp energies and line-search PNCG ([0dbe70c](https://github.com/liblaf/apple/commit/0dbe70ccb422cac1de519f9cd34bc00fb46bc652))
+* add staged PNCG continuation for forward solves ([6362af3](https://github.com/liblaf/apple/commit/6362af3055c1aa3848ba9122a55ae03db371079d))
+* **apple:** add SMAS support and volume fraction for elastic energies ([0710f9c](https://github.com/liblaf/apple/commit/0710f9cf2d9ebe6a7b5ad3d081be3c5f0266e2dd))
+* **apple:** implement hybrid JAX/Warp model framework and WarpPhaceV2 ([315b58e](https://github.com/liblaf/apple/commit/315b58e1a5ac8ce1f058a44944c688a5f7f713b1))
+* **apple:** improve inverse simulation with coarse-to-fine transfer and enhanced solvers ([61d530e](https://github.com/liblaf/apple/commit/61d530e5230b07c38db367a13fc5a6deb59e48e2))
+* **exp:** add SMAS forward simulation experiments ([e27c9da](https://github.com/liblaf/apple/commit/e27c9daf35ccf2355572decee3c1e3595bfcc508))
+* **exp:** update inverse-toy simulation and add Newton solver ([cee4852](https://github.com/liblaf/apple/commit/cee4852cc9ecf957995331dc796da4ac2e6cdf88))
+* **inverse:** enhance inverse solver with constraint support and improved adjoint solver ([892dbfd](https://github.com/liblaf/apple/commit/892dbfd616dd801f1d642ffb1620f55b86942530))
+* refactor elastic energies and add inverse physics module ([100c251](https://github.com/liblaf/apple/commit/100c2513fb39071e8eabe355aa4148964fdbd121))
+
+
+### 🐛 Bug Fixes
+
+* **warp:** correct ARAP muscle energy implementation and kernel function names ([d734e9b](https://github.com/liblaf/apple/commit/d734e9bf3909551158ae800dead9611c2c6e1175))
+
+
+### 📝 Documentation
+
+* **smas:** update inverse-unreachable clipped figures ([ed3b81a](https://github.com/liblaf/apple/commit/ed3b81a01add8157d7afb9444c554c947a8303e7))
+
 ## [0.7.0](https://github.com/liblaf/apple/releases/tag/v0.7.0) - 2025-12-06
 
 ### 💥 BREAKING CHANGES

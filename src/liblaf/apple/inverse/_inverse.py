@@ -138,12 +138,30 @@ class Inverse[T]:
         if not self.last_forward_success:
             self.model.u_free = jnp.zeros_like(self.model.u_free)
         # self.model.u_free = jnp.zeros_like(self.model.u_free)
+        grad = self.forward.model.grad(self.forward.state)
+        cherries.log_metrics(
+            {
+                "forward": {
+                    "init_grad_norm": jnp.linalg.norm(grad),
+                    "init_grad_norm_max": jnp.linalg.norm(grad, ord=jnp.inf),
+                }
+            }
+        )
         solution: PNCG.Solution = self.forward.step()
         cherries.log_metrics(
             {
                 "forward": {
-                    "decrease": solution.state.best_decrease,
+                    "decrease": solution.state.decrease,
+                    "first_decrease": solution.state.first_decrease,
+                    "grad_norm_max": jnp.linalg.norm(solution.state.grad, ord=jnp.inf),
+                    "grad_norm": jnp.linalg.norm(solution.state.grad),
                     "relative_decrease": solution.stats.relative_decrease,
+                    "success": solution.success,
+                    "relative_grad_norm": solution.stats.grad_norm
+                    / solution.stats.first_grad_norm,
+                    # "relative_residual":
+                    # "decrease": solution.state.best_decrease,
+                    # "relative_decrease": solution.stats.relative_decrease,
                 }
             }
         )

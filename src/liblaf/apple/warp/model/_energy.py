@@ -21,6 +21,7 @@ vec3 = Any
 class WarpEnergy:
     name: str = jarp.static(default=utils.name_factory, kw_only=True)
     materials: StructInstance = jarp.static(default=None, kw_only=True)
+    material_names: tuple[str, ...] = jarp.static(default=(), kw_only=True)
     requires_grad: tuple[str, ...] = jarp.static(default=(), kw_only=True)
 
     def init_state(self, u: Vector) -> WarpEnergyState:  # noqa: ARG002
@@ -33,6 +34,19 @@ class WarpEnergy:
         for name, new_val in materials.items():
             param: wp.array = getattr(self.materials, name)
             wp.copy(param, jarp.to_warp(new_val, param.dtype))
+
+    def read_materials(self) -> dict[str, Array]:
+        return {
+            name: wp.to_jax(getattr(self.materials, name))
+            for name in self.iter_material_names()
+        }
+
+    def iter_material_names(self) -> tuple[str, ...]:
+        if self.material_names:
+            return self.material_names
+        if self.materials is None:
+            return ()
+        return tuple(self.materials._cls.vars.keys())
 
     def fun(self, state: WarpEnergyState, u: Vector, output: Scalar) -> None:
         raise NotImplementedError

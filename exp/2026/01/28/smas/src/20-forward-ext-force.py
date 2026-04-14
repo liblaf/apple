@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pyvista as pv
+import warp as wp
 from environs import env
 from liblaf.peach.optim import Optimizer
 
@@ -28,6 +29,8 @@ SUFFIX: str = "-smas46-muscle46"
 
 class Config(cherries.BaseConfig):
     activation: float = env.float("ACTIVATION", 2.0)
+    force_scale: float = env.float("FORCE_SCALE", 1.0)
+    lambda_value: float = env.float("LAMBDA_VALUE", 3.0)
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
 
 
@@ -36,20 +39,45 @@ def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
     return mesh
 
 
-def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
-    builder = ModelBuilder()
-    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
+def format_force_scale(force_scale: float) -> str:
+    mantissa, exponent = f"{force_scale:.0e}".split("e")
+    return f"{mantissa}e{int(exponent)}"
 
-    mesh.point_data[DIRICHLET_MASK][mesh.points[:, 1] < 1e-3, :] = False
+
+def format_lambda_value(lambda_value: float) -> str:
+    if np.isclose(lambda_value, round(lambda_value)):
+        return str(int(round(lambda_value)))
+    mantissa, exponent = f"{lambda_value:.0e}".split("e")
+    return f"{mantissa}e{int(exponent)}"
+
+
+def apply_bottom_ext_force(
+    mesh: pv.UnstructuredGrid, force_scale: float
+) -> pv.UnstructuredGrid:
+    bottom_mask: np.ndarray = mesh.points[:, 1] < 1e-3
+    mesh.point_data[DIRICHLET_MASK][bottom_mask, :] = False
     surface: pv.PolyData = mesh.extract_surface(algorithm=None)
     surface = melon.tri.compute_point_area(surface)
+    surface_bottom_mask: np.ndarray = surface.points[:, 1] < 1e-3
     bottom_indices: np.ndarray = surface.point_data[GLOBAL_POINT_ID][
-        surface.points[:, 1] < 1e-3
+        surface_bottom_mask
     ]
     mesh.point_data["Force"] = np.zeros_like(mesh.points)
     mesh.point_data["Force"][bottom_indices, 1] = (
-        1.0 * surface.point_data["Area"][surface.points[:, 1] < 1e-3]
+        force_scale * surface.point_data["Area"][surface_bottom_mask]
     )
+    return mesh
+
+
+def build_phace_v3(
+    mesh: pv.UnstructuredGrid,
+    activation: float,
+    force_scale: float,
+    lambda_value: float,
+) -> Model:
+    builder = ModelBuilder()
+    mesh: pv.UnstructuredGrid = builder.add_points(mesh)
+    mesh = apply_bottom_ext_force(mesh, force_scale)
 
     muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
     smas_frac: np.ndarray = mesh.cell_data[SMAS_FRACTION]
@@ -58,7 +86,7 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
 
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
-        [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+        [activation - 1.0, 0.25 - 1.0, activation - 1.0, 0.0, 0.0, 0.0]
     )
     # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
     #     [5.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
@@ -82,13 +110,14 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
     )
     builder.add_energy(energy_muscle)
 
-    mesh.cell_data[LAMBDA] = fat_frac * 3.0 + smas_frac * 3.0e2
+    mesh.cell_data[LAMBDA] = fat_frac * lambda_value + smas_frac * lambda_value * 1.0e2
     energy_vol: WarpVolumePreservationDeterminant = (
         WarpVolumePreservationDeterminant.from_pyvista(mesh)
     )
     builder.add_energy(energy_vol)
 
     ext_force: JaxPointForce = JaxPointForce.from_pyvista(mesh)
+    ext_force.name = "force"
     builder.add_energy(ext_force)
 
     model: Model = builder.finalize()
@@ -96,9 +125,12 @@ def build_phace_v3(mesh: pv.UnstructuredGrid) -> Model:
 
 
 def main(cfg: Config) -> None:
+    wp.init()
     mesh: pv.UnstructuredGrid = load_mesh(cfg)
     ic(mesh)
-    model: Model = build_phace_v3(mesh)
+    model: Model = build_phace_v3(
+        mesh, cfg.activation, cfg.force_scale, cfg.lambda_value
+    )
     forward: Forward = Forward(model)
 
     solution: Optimizer.Solution = forward.step()
@@ -106,7 +138,15 @@ def main(cfg: Config) -> None:
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
-    melon.save(cherries.output(f"20-forward{SUFFIX}-prestrain-ext-force-1e0.vtu"), mesh)
+    melon.save(
+        cherries.output(
+            "20-forward"
+            f"{SUFFIX}-prestrain-ext-force-corotational-lambda-"
+            f"{format_lambda_value(cfg.lambda_value)}-force-"
+            f"{format_force_scale(cfg.force_scale)}.vtu"
+        ),
+        mesh,
+    )
 
 
 if __name__ == "__main__":

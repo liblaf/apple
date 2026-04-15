@@ -24,7 +24,7 @@ from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
-SUFFIX: str = "-smas46-muscle46"
+SUFFIX: str = "-smas46-muscle46-conform"
 
 
 class Config(cherries.BaseConfig):
@@ -54,12 +54,16 @@ def format_lambda_value(lambda_value: float) -> str:
 def apply_bottom_ext_force(
     mesh: pv.UnstructuredGrid, force_scale: float
 ) -> pv.UnstructuredGrid:
-    bottom_mask: np.ndarray = mesh.points[:, 1] < 1e-3
+    bottom_mask: np.ndarray = (mesh.points[:, 1] < 1e-2) & ~mesh.point_data[
+        DIRICHLET_MASK
+    ][:, 0]
     mesh.point_data[DIRICHLET_MASK][bottom_mask, :] = False
 
     surface: pv.PolyData = mesh.extract_surface(algorithm=None)
     surface = melon.tri.compute_point_area(surface)
-    surface_bottom_mask: np.ndarray = surface.points[:, 1] < 1e-3
+    surface_bottom_mask: np.ndarray = (
+        surface.points[:, 1] < 1e-2
+    ) & ~surface.point_data[DIRICHLET_MASK][:, 0]
     bottom_indices: np.ndarray = surface.point_data[GLOBAL_POINT_ID][
         surface_bottom_mask
     ]

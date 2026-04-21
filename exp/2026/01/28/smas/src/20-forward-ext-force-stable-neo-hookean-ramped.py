@@ -7,7 +7,6 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
 from liblaf.apple.consts import (
@@ -19,19 +18,41 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce, Region
-from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.apple.jax import JaxPointForce
+from liblaf.apple.model import (
+    Forward,
+    ForwardStage,
+    MaterialReference,
+    Model,
+    ModelBuilder,
+    StageState,
+)
 from liblaf.apple.optim import PNCG
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
-SUFFIX: str = "-smas46-muscle46-coarse"
+SUFFIX: str = "-smas46-muscle46-conform"
 
 
 class Config(cherries.BaseConfig):
     activation: float = env.float("ACTIVATION", 2.0)
     force_scale: float = env.float("FORCE_SCALE", 1.0)
     lambda_value: float = env.float("LAMBDA_VALUE", 3.0)
+    num_steps: int = env.int("NUM_STEPS", 20)
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
+
+
+@attrs.frozen
+class ForceRampProgram:
+    unit_force: jnp.ndarray
+
+    def state_at(self, *, progress: float, forward: Forward) -> StageState:
+        del forward
+        scale = jnp.asarray(progress, dtype=self.unit_force.dtype)
+        return StageState(
+            material_values={
+                MaterialReference("force", "force"): scale * self.unit_force,
+            }
+        )
 
 
 def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
@@ -51,13 +72,19 @@ def format_lambda_value(lambda_value: float) -> str:
     return f"{mantissa}e{int(exponent)}"
 
 
-def add_volume_change_ratio(
-    mesh: pv.UnstructuredGrid, u_full: jnp.ndarray
-) -> pv.UnstructuredGrid:
-    region = Region.from_pyvista(mesh, grad=True)
-    deformation_gradient: np.ndarray = np.asarray(region.deformation_gradient(u_full))
-    mesh.cell_data["VolumeChangeRatio"] = np.linalg.det(deformation_gradient[:, 0])
-    return mesh
+def make_output_stem(cfg: Config) -> str:
+    return (
+        "20-forward"
+        f"{SUFFIX}-prestrain-ext-force-stable-neo-hookean-ramped-lambda-"
+        f"{format_lambda_value(cfg.lambda_value)}-force-"
+        f"{format_force_scale(cfg.force_scale)}-steps-{cfg.num_steps}"
+    )
+
+
+def make_force_scales(cfg: Config) -> np.ndarray:
+    if cfg.num_steps < 1:
+        raise ValueError(f"NUM_STEPS must be at least 1, got {cfg.num_steps}")
+    return np.linspace(0.0, cfg.force_scale, cfg.num_steps + 1)
 
 
 def apply_bottom_ext_force(
@@ -86,12 +113,11 @@ def apply_bottom_ext_force(
 def build_phace_v3(
     mesh: pv.UnstructuredGrid,
     activation: float,
-    force_scale: float,
     lambda_value: float,
 ) -> Model:
     builder = ModelBuilder()
     mesh = builder.add_points(mesh)
-    mesh = apply_bottom_ext_force(mesh, force_scale)
+    mesh = apply_bottom_ext_force(mesh, 1.0)
 
     muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
     smas_frac: np.ndarray = mesh.cell_data[SMAS_FRACTION]
@@ -129,13 +155,28 @@ def build_phace_v3(
     return builder.finalize()
 
 
+def update_mesh_solution(
+    mesh: pv.UnstructuredGrid,
+    forward: Forward,
+    unit_force: np.ndarray,
+    *,
+    stage_index: int,
+    force_scale: float,
+) -> pv.UnstructuredGrid:
+    mesh.point_data["Force"] = force_scale * unit_force
+    mesh.point_data["Solution"] = np.asarray(
+        forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
+    )
+    mesh.field_data["ForceScale"] = np.asarray([force_scale], dtype=float)
+    mesh.field_data["StageIndex"] = np.asarray([stage_index], dtype=int)
+    return mesh
+
+
 def main(cfg: Config) -> None:
     wp.init()
     mesh: pv.UnstructuredGrid = load_mesh(cfg)
     ic(mesh)
-    model: Model = build_phace_v3(
-        mesh, cfg.activation, cfg.force_scale, cfg.lambda_value
-    )
+    model: Model = build_phace_v3(mesh, cfg.activation, cfg.lambda_value)
     forward: Forward = Forward(model)
     optimizer = cast("PNCG", forward.optimizer)
     optimizer.convergence = attrs.evolve(
@@ -144,21 +185,39 @@ def main(cfg: Config) -> None:
         target_relative_gradient_norm=jnp.asarray(1e-5),
     )
 
-    solution: Optimizer.Solution = forward.step()
-    ic(solution)
-    mesh.point_data["Solution"] = np.asarray(
-        forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
-    )
-    mesh = add_volume_change_ratio(mesh, forward.u_full)
-    melon.save(
-        cherries.output(
-            "20-forward"
-            f"{SUFFIX}-prestrain-ext-force-stable-neo-hookean-lambda-"
-            f"{format_lambda_value(cfg.lambda_value)}-force-"
-            f"{format_force_scale(cfg.force_scale)}.vtu"
-        ),
-        mesh,
-    )
+    force_ref = MaterialReference("force", "force")
+    unit_force = np.asarray(forward.read_material_values()[force_ref])
+    force_program = ForceRampProgram(unit_force=jnp.asarray(unit_force))
+    force_scales = make_force_scales(cfg)
+
+    with melon.io.SeriesWriter(
+        cherries.output(f"{make_output_stem(cfg)}.vtu.series")
+    ) as writer:
+        for stage_index, force_scale in enumerate(force_scales):
+            stage = ForwardStage(
+                name=f"force-{format_force_scale(force_scale)}",
+                progress=float(force_scale),
+                initial_guess="zero" if stage_index == 0 else "last_successful",
+            )
+            stage_result = forward.solve_stage(stage, state_program=force_program)
+            ic(stage_result)
+            if not stage_result.solver_result.success:
+                raise RuntimeError(
+                    "forward stage failed at "
+                    f"force scale {force_scale:g} with status "
+                    f"{stage_result.solver_result.status}"
+                )
+            cherries.set_step(stage_index)
+            mesh = update_mesh_solution(
+                mesh,
+                forward,
+                unit_force,
+                stage_index=stage_index,
+                force_scale=float(force_scale),
+            )
+            writer.append(mesh, time=float(force_scale))
+
+    melon.save(cherries.output(f"{make_output_stem(cfg)}.vtu"), mesh)
 
 
 if __name__ == "__main__":

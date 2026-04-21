@@ -12,26 +12,25 @@ from liblaf.peach.optim import Optimizer
 from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
-    DIRICHLET_MASK,
     GLOBAL_POINT_ID,
     LAMBDA,
     MU,
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce, Region
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
-SUFFIX: str = "-smas46-muscle46-coarse"
+SUFFIX: str = "-smas46-muscle46"
 
 
 class Config(cherries.BaseConfig):
     activation: float = env.float("ACTIVATION", 2.0)
     force_scale: float = env.float("FORCE_SCALE", 1.0)
     lambda_value: float = env.float("LAMBDA_VALUE", 3.0)
-    input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
+    input: Path = cherries.input(f"11-input{SUFFIX}-smas-bottom-force.vtu")
 
 
 def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
@@ -51,35 +50,14 @@ def format_lambda_value(lambda_value: float) -> str:
     return f"{mantissa}e{int(exponent)}"
 
 
-def add_volume_change_ratio(
-    mesh: pv.UnstructuredGrid, u_full: jnp.ndarray
-) -> pv.UnstructuredGrid:
-    region = Region.from_pyvista(mesh, grad=True)
-    deformation_gradient: np.ndarray = np.asarray(region.deformation_gradient(u_full))
-    mesh.cell_data["VolumeChangeRatio"] = np.linalg.det(deformation_gradient[:, 0])
-    return mesh
-
-
-def apply_bottom_ext_force(
+def apply_stored_ext_force(
     mesh: pv.UnstructuredGrid, force_scale: float
 ) -> pv.UnstructuredGrid:
-    bottom_mask: np.ndarray = (mesh.points[:, 1] < 1e-2) & ~mesh.point_data[
-        DIRICHLET_MASK
-    ][:, 0]
-    mesh.point_data[DIRICHLET_MASK][bottom_mask, :] = False
-
-    surface: pv.PolyData = mesh.extract_surface(algorithm=None)
-    surface = melon.tri.compute_point_area(surface)
-    surface_bottom_mask: np.ndarray = (
-        surface.points[:, 1] < 1e-2
-    ) & ~surface.point_data[DIRICHLET_MASK][:, 0]
-    bottom_indices: np.ndarray = surface.point_data[GLOBAL_POINT_ID][
-        surface_bottom_mask
-    ]
-    mesh.point_data["Force"] = np.zeros_like(mesh.points)
-    mesh.point_data["Force"][bottom_indices, 1] = (
-        force_scale * surface.point_data["Area"][surface_bottom_mask]
-    )
+    if "Force" not in mesh.point_data:
+        raise KeyError(
+            "mesh is missing point_data['Force']; run 11-smas-bottom-force.py first"
+        )
+    mesh.point_data["Force"] = force_scale * np.asarray(mesh.point_data["Force"])
     return mesh
 
 
@@ -91,7 +69,7 @@ def build_phace_v3(
 ) -> Model:
     builder = ModelBuilder()
     mesh = builder.add_points(mesh)
-    mesh = apply_bottom_ext_force(mesh, force_scale)
+    mesh = apply_stored_ext_force(mesh, force_scale)
 
     muscle_frac: np.ndarray = mesh.cell_data[MUSCLE_FRACTION]
     smas_frac: np.ndarray = mesh.cell_data[SMAS_FRACTION]
@@ -149,11 +127,10 @@ def main(cfg: Config) -> None:
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
-    mesh = add_volume_change_ratio(mesh, forward.u_full)
     melon.save(
         cherries.output(
             "20-forward"
-            f"{SUFFIX}-prestrain-ext-force-stable-neo-hookean-lambda-"
+            f"{SUFFIX}-smas-only-prestrain-ext-force-stable-neo-hookean-lambda-"
             f"{format_lambda_value(cfg.lambda_value)}-force-"
             f"{format_force_scale(cfg.force_scale)}.vtu"
         ),

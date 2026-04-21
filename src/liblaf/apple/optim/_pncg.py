@@ -94,6 +94,7 @@ class PNCGResult:
     ]
     final_iteration: PNCGIteration
     best_parameters: Vector
+    n_steps: Integer[Array, ""]
 
 
 @jarp.define(kw_only=True)
@@ -909,6 +910,7 @@ class PNCG(Optimizer[PNCGObjective, PNCGState, PNCGStats]):
             status=status,
             final_iteration=final_iteration,
             best_parameters=solution.state.best_params,
+            n_steps=solution.state.n_steps,
         )
 
 

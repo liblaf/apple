@@ -62,6 +62,7 @@ dev = [
   "icecream>=2.1.10",
   "ipykernel>=7",
   "liblaf-cherries>=1",
+  "pygame>=2.6.1",
   "sympy>=1",
   "viztracer>=1",
 ]

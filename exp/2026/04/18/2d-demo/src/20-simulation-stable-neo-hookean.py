@@ -60,7 +60,7 @@ DAMPING = 15.0  # velocity damping
 SUBSTEPS = 100  # substeps per frame
 
 # Wind
-WIND_STEP = 0.1  # wind increment per key press
+WIND_STEP = 1.0  # wind increment per key press
 INITIAL_WIND = 0.0
 
 

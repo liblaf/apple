@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
+from liblaf.apple.consts import GLOBAL_POINT_ID
 from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, MaterialReference
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
@@ -101,6 +102,78 @@ def test_stable_neo_hookean_uniform_ext_force_example_builds() -> None:
     assert sum(isinstance(energy, JaxPointForce) for energy in jax_energies) == 1
     np.testing.assert_allclose(active, cfg.force_scale)
     assert module.format_force_scale(cfg.force_scale) == "5e-2"
+
+
+def test_stable_neo_hookean_fat_only_top_dirichlet_ext_force_example_builds() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    script = (
+        repo_root
+        / "exp/2026/01/28/smas/src/20-forward-ext-force-stable-neo-hookean-fat-only-top-dirichlet.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "ext_force_stable_nh_fat_only_top_dirichlet", script
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    cfg = module.Config(
+        input=(
+            repo_root / "exp/2026/01/28/smas/data/10-input-smas46-muscle46-coarse.vtu"
+        ),
+        force_scale=0.1,
+        lambda_value=49.0,
+        mu_value=2.0,
+        surface_tolerance=1.0e-2,
+    )
+    mesh = module.load_mesh(cfg)
+    model = module.build_pure_fat_model(
+        mesh,
+        cfg.force_scale,
+        cfg.lambda_value,
+        cfg.mu_value,
+        cfg.surface_tolerance,
+    )
+    warp_energies = list(model.warp.energies.values())
+    jax_energies = list(model.jax.energies.values())
+    passive = next(
+        energy for energy in warp_energies if isinstance(energy, WarpStableNeoHookean)
+    )
+    force = next(energy for energy in jax_energies if isinstance(energy, JaxPointForce))
+
+    assert cfg.force_scale == 0.1
+    assert cfg.lambda_value == 49.0
+    assert cfg.mu_value == 2.0
+    assert (
+        sum(isinstance(energy, WarpStableNeoHookean) for energy in warp_energies) == 1
+    )
+    assert (
+        sum(isinstance(energy, WarpStableNeoHookeanMuscle) for energy in warp_energies)
+        == 0
+    )
+    assert sum(isinstance(energy, JaxPointForce) for energy in jax_energies) == 1
+    assert module.format_force_scale(cfg.force_scale) == "1e-1"
+    assert module.format_material_value(cfg.lambda_value) == "49"
+    assert module.format_material_value(cfg.mu_value) == "2"
+
+    materials = passive.read_materials()
+    np.testing.assert_allclose(np.asarray(materials["fraction"]), 1.0)
+    np.testing.assert_allclose(np.asarray(materials["lambda_"]), cfg.lambda_value)
+    np.testing.assert_allclose(np.asarray(materials["mu"]), cfg.mu_value)
+
+    top_mask = mesh.points[:, 1] >= mesh.bounds[3] - cfg.surface_tolerance
+    fixed_mask = np.asarray(model.dirichlet.fixed_mask)[
+        mesh.point_data[GLOBAL_POINT_ID]
+    ]
+    assert np.all(fixed_mask[top_mask])
+    assert not np.any(fixed_mask[~top_mask])
+
+    bottom_mask = mesh.points[:, 1] <= mesh.bounds[2] + cfg.surface_tolerance
+    force_array = np.asarray(force.force)
+    np.testing.assert_allclose(force_array[:, [0, 2]], 0.0)
+    np.testing.assert_allclose(force_array[~bottom_mask], 0.0)
+    assert np.any(force_array[bottom_mask, 1] > 0.0)
 
 
 def test_stable_neo_hookean_uniform_ramped_ext_force_example_builds() -> None:

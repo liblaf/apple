@@ -77,9 +77,7 @@ def _stable_neo_hookean_muscle_hess_diag_func(
     h3_diag = func.h3_diag(dhdX_A, func.g3(G))
     h5_diag = func.h5_diag(dhdX_A)
     h6_diag = func.h6_diag(dhdX_A, G)
-    return fraction * (
-        lambda_ * h3_diag + F.dtype(0.5) * mu * h5_diag + c * h6_diag
-    )
+    return fraction * (lambda_ * h3_diag + F.dtype(0.5) * mu * h5_diag + c * h6_diag)
 
 
 @wp.func
@@ -104,9 +102,7 @@ def _stable_neo_hookean_muscle_hess_prod_func(
     h3_prod = func.h3_prod(v, dhdX_A, func.g3(G))
     h5_prod = func.h5_prod(v, dhdX_A)
     h6_prod = func.h6_prod(v, dhdX_A, G)
-    return fraction * (
-        lambda_ * h3_prod + F.dtype(0.5) * mu * h5_prod + c * h6_prod
-    )
+    return fraction * (lambda_ * h3_prod + F.dtype(0.5) * mu * h5_prod + c * h6_prod)
 
 
 @wp.func
@@ -131,9 +127,7 @@ def _stable_neo_hookean_muscle_hess_quad_func(
     h3_quad = func.h3_quad(v, dhdX_A, func.g3(G))
     h5_quad = func.h5_quad(v, dhdX_A)
     h6_quad = func.h6_quad(v, dhdX_A, G)
-    return fraction * (
-        lambda_ * h3_quad + F.dtype(0.5) * mu * h5_quad + c * h6_quad
-    )
+    return fraction * (lambda_ * h3_quad + F.dtype(0.5) * mu * h5_quad + c * h6_quad)
 
 
 @jarp.frozen_static

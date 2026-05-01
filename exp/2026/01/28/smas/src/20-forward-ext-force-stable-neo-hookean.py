@@ -19,7 +19,7 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce
+from liblaf.apple.jax import JaxPointForce, Region
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
@@ -51,15 +51,28 @@ def format_lambda_value(lambda_value: float) -> str:
     return f"{mantissa}e{int(exponent)}"
 
 
+def add_volume_change_ratio(
+    mesh: pv.UnstructuredGrid, u_full: jnp.ndarray
+) -> pv.UnstructuredGrid:
+    region = Region.from_pyvista(mesh, grad=True)
+    deformation_gradient: np.ndarray = np.asarray(region.deformation_gradient(u_full))
+    mesh.cell_data["VolumeChangeRatio"] = np.linalg.det(deformation_gradient[:, 0])
+    return mesh
+
+
 def apply_bottom_ext_force(
     mesh: pv.UnstructuredGrid, force_scale: float
 ) -> pv.UnstructuredGrid:
-    bottom_mask: np.ndarray = mesh.points[:, 1] < 1e-3
+    bottom_mask: np.ndarray = (mesh.points[:, 1] < 1e-2) & ~mesh.point_data[
+        DIRICHLET_MASK
+    ][:, 0]
     mesh.point_data[DIRICHLET_MASK][bottom_mask, :] = False
 
     surface: pv.PolyData = mesh.extract_surface(algorithm=None)
     surface = melon.tri.compute_point_area(surface)
-    surface_bottom_mask: np.ndarray = surface.points[:, 1] < 1e-3
+    surface_bottom_mask: np.ndarray = (
+        surface.points[:, 1] < 1e-2
+    ) & ~surface.point_data[DIRICHLET_MASK][:, 0]
     bottom_indices: np.ndarray = surface.point_data[GLOBAL_POINT_ID][
         surface_bottom_mask
     ]
@@ -87,7 +100,14 @@ def build_phace_v3(
 
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
-        [activation - 1.0, 0.25 - 1.0, activation - 1.0, 0.0, 0.0, 0.0]
+        [
+            activation - 1.0,
+            (1 / activation / activation) - 1.0,
+            activation - 1.0,
+            0.0,
+            0.0,
+            0.0,
+        ]
     )
     builder.add_dirichlet(mesh)
 
@@ -136,12 +156,13 @@ def main(cfg: Config) -> None:
     mesh.point_data["Solution"] = np.asarray(
         forward.u_full[mesh.point_data[GLOBAL_POINT_ID]]
     )
+    mesh = add_volume_change_ratio(mesh, forward.u_full)
     melon.save(
         cherries.output(
             "20-forward"
             f"{SUFFIX}-prestrain-ext-force-stable-neo-hookean-lambda-"
             f"{format_lambda_value(cfg.lambda_value)}-force-"
-            f"{format_force_scale(cfg.force_scale)}.vtu"
+            f"{format_force_scale(cfg.force_scale)}-prestrain-{cfg.activation:.1f}.vtu"
         ),
         mesh,
     )

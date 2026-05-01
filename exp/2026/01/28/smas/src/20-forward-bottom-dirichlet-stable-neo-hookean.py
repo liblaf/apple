@@ -29,12 +29,20 @@ SUFFIX: str = "-smas46-muscle46"
 class Config(cherries.BaseConfig):
     activation: float = env.float("ACTIVATION", 2.0)
     arch_height: float = env.float("ARCH_HEIGHT", 2.0)
+    lambda_value: float = env.float("LAMBDA_VALUE", 49.0)
     input: Path = cherries.input(f"10-input{SUFFIX}.vtu")
 
 
 def load_mesh(cfg: Config) -> pv.UnstructuredGrid:
     mesh: pv.UnstructuredGrid = melon.load_unstructured_grid(cfg.input)
     return mesh
+
+
+def format_lambda_value(lambda_value: float) -> str:
+    if np.isclose(lambda_value, round(lambda_value)):
+        return str(int(round(lambda_value)))
+    mantissa, exponent = f"{lambda_value:.0e}".split("e")
+    return f"{mantissa}e{int(exponent)}"
 
 
 def compute_arch_profile(
@@ -44,7 +52,7 @@ def compute_arch_profile(
 ) -> np.ndarray:
     if points is None:
         points = mesh.points
-    bottom_mask: np.ndarray = mesh.points[:, 1] < 1e-3
+    bottom_mask: np.ndarray = mesh.points[:, 1] < 5e-3
     bottom_points: np.ndarray = mesh.points[bottom_mask]
 
     x_min, x_max = bottom_points[:, 0].min(), bottom_points[:, 0].max()
@@ -60,7 +68,7 @@ def compute_arch_profile(
 def apply_bottom_arch_dirichlet(
     mesh: pv.UnstructuredGrid, arch_height: float
 ) -> pv.UnstructuredGrid:
-    bottom_mask: np.ndarray = mesh.points[:, 1] < 1e-3
+    bottom_mask: np.ndarray = mesh.points[:, 1] < 5e-3
     arch: np.ndarray = compute_arch_profile(mesh, arch_height, mesh.points[bottom_mask])
 
     mesh.point_data[DIRICHLET_MASK][bottom_mask] = True
@@ -69,7 +77,9 @@ def apply_bottom_arch_dirichlet(
     return mesh
 
 
-def build_phace_v3(mesh: pv.UnstructuredGrid, arch_height: float) -> Model:
+def build_phace_v3(
+    mesh: pv.UnstructuredGrid, arch_height: float, lambda_value: float
+) -> Model:
     builder = ModelBuilder()
     mesh = builder.add_points(mesh)
     mesh = apply_bottom_arch_dirichlet(mesh, arch_height)
@@ -83,24 +93,24 @@ def build_phace_v3(mesh: pv.UnstructuredGrid, arch_height: float) -> Model:
     mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
         [2.0 - 1.0, 0.25 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
     )
-    mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
-        [4.0 - 1.0, 0.125 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
-    )
+    # mesh.cell_data[ACTIVATION][muscle_frac > 1e-3] = np.asarray(
+    #     [4.0 - 1.0, 0.125 - 1.0, 2.0 - 1.0, 0.0, 0.0, 0.0]
+    # )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0)
-    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 49.0)
+    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), lambda_value)
     builder.add_energy(WarpStableNeoHookean.from_pyvista(mesh))
 
     mesh.cell_data["Fraction"] = aponeurosis_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
-    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 49.0e2)
+    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), lambda_value * 1.0e2)
     builder.add_energy(WarpStableNeoHookeanMuscle.from_pyvista(mesh))
 
     mesh.cell_data["Fraction"] = muscle_frac
     mesh.cell_data[MU] = np.full((mesh.n_cells,), 1.0e2)
-    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), 49.0e2)
+    mesh.cell_data[LAMBDA] = np.full((mesh.n_cells,), lambda_value * 1.0e2)
     builder.add_energy(
         WarpStableNeoHookeanMuscle.from_pyvista(
             mesh, requires_grad=("activation",), name="muscle"
@@ -124,12 +134,12 @@ def main(cfg: Config) -> None:
     wp.init()
     mesh: pv.UnstructuredGrid = load_mesh(cfg)
     ic(mesh)
-    model: Model = build_phace_v3(mesh, cfg.arch_height)
+    model: Model = build_phace_v3(mesh, cfg.arch_height, cfg.lambda_value)
     initialize_parabolic_guess(model, mesh, cfg.arch_height)
     forward = Forward(model)
-    optimizer = cast("PNCG", forward.optimizer)
-    optimizer.rtol = jnp.asarray(1e-3)
-    optimizer.rtol_primary = jnp.asarray(1e-5)
+    # optimizer = cast("PNCG", forward.optimizer)
+    # optimizer.rtol = jnp.asarray(1e-3)
+    # optimizer.rtol_primary = jnp.asarray(1e-5)
 
     solution: Optimizer.Solution = forward.step()
     ic(solution)
@@ -138,7 +148,9 @@ def main(cfg: Config) -> None:
     )
     melon.save(
         cherries.output(
-            f"20-forward{SUFFIX}-prestrain-bottom-dirichlet-arch-stable-neo-hookean.vtu"
+            "20-forward"
+            f"{SUFFIX}-prestrain-bottom-dirichlet-arch-stable-neo-hookean-lambda-"
+            f"{format_lambda_value(cfg.lambda_value)}.vtu"
         ),
         mesh,
     )

@@ -422,6 +422,7 @@ class Forward:
             overrides=stage.solver_overrides,
             callback=callback,
         )
+        logger.info("%s", solver_result)
         self.model.u_free = solver_result.final_iteration.parameters
         self.state = self.model.init_state(self.model.u_full)
         stage_result = ForwardStageResult(stage=stage, solver_result=solver_result)

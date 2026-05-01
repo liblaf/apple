@@ -86,9 +86,9 @@ def build_phace_v3(
     fat_frac: np.ndarray = 1.0 - smas_frac
 
     mesh.cell_data[ACTIVATION] = np.zeros((mesh.n_cells, 6))
-    mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
-        [activation - 1.0, 0.25 - 1.0, activation - 1.0, 0.0, 0.0, 0.0]
-    )
+    # mesh.cell_data[ACTIVATION][smas_frac > 1e-3] = np.asarray(
+    #     [activation - 1.0, 0.25 - 1.0, activation - 1.0, 0.0, 0.0, 0.0]
+    # )
     builder.add_dirichlet(mesh)
 
     mesh.cell_data["Fraction"] = fat_frac

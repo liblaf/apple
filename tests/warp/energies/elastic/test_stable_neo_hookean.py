@@ -111,9 +111,7 @@ def _make_muscle_materials(batch: int) -> StableNeoHookeanMuscleMaterials:
     return materials
 
 
-def _energy_density(
-    F: np.ndarray, materials: StableNeoHookeanMaterials
-) -> np.ndarray:
+def _energy_density(F: np.ndarray, materials: StableNeoHookeanMaterials) -> np.ndarray:
     F_wp = wp.from_numpy(F, dtype=wp.mat33d)
     output_wp = wp.zeros(F.shape[0], dtype=wp.float64)
     wp.launch(

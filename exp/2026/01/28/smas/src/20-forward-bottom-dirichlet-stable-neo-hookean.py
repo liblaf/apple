@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 
 import jax.numpy as jnp
 import numpy as np
@@ -20,7 +19,6 @@ from liblaf.apple.consts import (
     SMAS_FRACTION,
 )
 from liblaf.apple.model import Forward, Model, ModelBuilder
-from liblaf.apple.optim import PNCG
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"

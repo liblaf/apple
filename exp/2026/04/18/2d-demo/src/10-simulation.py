@@ -1,5 +1,4 @@
-"""
-2D Muscle-Fascia Neohookean FEM Simulation
+"""2D Muscle-Fascia Neohookean FEM Simulation
 ==========================================
 
 Simulates a flat meat slab (100x11 elements) with a stiff fascia middle layer.
@@ -76,8 +75,7 @@ COLOR_TEXT_DIM = (130, 130, 145)
 
 
 def build_mesh():
-    """
-    Build triangular mesh from a structured quad grid.
+    """Build triangular mesh from a structured quad grid.
 
     Each quad cell (col, row) is split into 2 triangles:
       Triangle 0: [bottom-left, bottom-right, top-right]
@@ -126,8 +124,7 @@ def build_mesh():
 
 
 def init_state(f2v):
-    """
-    Initialize node positions and precompute reference configuration.
+    """Initialize node positions and precompute reference configuration.
 
     Precomputes:
       - Dm_inv:   (NF, 2, 2) inverse of reference edge matrix
@@ -186,8 +183,7 @@ def init_state(f2v):
 
 
 def compute_elastic_forces(pos, f2v, Dm_inv, Dm_inv_T, W, elem_mu, elem_lam):
-    """
-    Compute internal elastic forces using the analytical Neohookean stress.
+    """Compute internal elastic forces using the analytical Neohookean stress.
 
     For each element:
       1. F = Ds @ Dm_inv              (deformation gradient)
@@ -271,8 +267,7 @@ def substep(
     wind,
     mass,
 ):
-    """
-    Single substep of Symplectic Euler integration.
+    """Single substep of Symplectic Euler integration.
 
     1. Compute elastic forces (analytical Neohookean)
     2. Add wind force on bottom nodes

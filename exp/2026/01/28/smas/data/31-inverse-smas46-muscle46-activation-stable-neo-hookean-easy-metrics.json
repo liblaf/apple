@@ -1,0 +1,29 @@
+[
+  {
+    "step": 1,
+    "log_relative_activation": 0.6830968447064438,
+    "relative_activation": 1.98,
+    "actual_activation_x": 2.574,
+    "actual_activation_y": 0.5917159763313609,
+    "actual_activation_z": 1.3,
+    "activation_error": -0.020000000000000018,
+    "loss": 0.002189452873991038,
+    "point_to_point_l2": 1.6774851341660875,
+    "point_to_point_rmse": 0.006314729847785062,
+    "point_to_point_inf": 0.026894493468048175,
+    "activation_diff_l2": 2.7709218682597574,
+    "activation_diff_inf": 0.026000000000000245,
+    "inverse_grad": -0.42706544630112797,
+    "inverse_grad_abs": 0.42706544630112797,
+    "adjoint_success": true,
+    "adjoint_relative_residual": 9.79855892248193e-07,
+    "forward_success": true,
+    "forward_result": "target_converged",
+    "forward_n_steps": 783,
+    "forward_grad_norm": 0.00039279373133560964,
+    "forward_relative_grad_norm": 9.884358448347973e-06,
+    "forward_objective": 1481.1424852869957,
+    "forward_best_objective": 1481.1424852869957,
+    "finite_outputs": true
+  }
+]

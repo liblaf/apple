@@ -55,14 +55,10 @@ def compute_bottom_force(
     is_below_y_threshold: np.ndarray = np.all(face_y < y_threshold, axis=1)
     is_on_x_boundary: np.ndarray = np.all(
         np.isclose(face_x, x_min, atol=boundary_tolerance), axis=1
-    ) | np.all(
-        np.isclose(face_x, x_max, atol=boundary_tolerance), axis=1
-    )
+    ) | np.all(np.isclose(face_x, x_max, atol=boundary_tolerance), axis=1)
     is_on_z_boundary: np.ndarray = np.all(
         np.isclose(face_z, z_min, atol=boundary_tolerance), axis=1
-    ) | np.all(
-        np.isclose(face_z, z_max, atol=boundary_tolerance), axis=1
-    )
+    ) | np.all(np.isclose(face_z, z_max, atol=boundary_tolerance), axis=1)
     bottom_cell_mask: np.ndarray = (
         is_below_y_threshold & ~is_on_x_boundary & ~is_on_z_boundary
     )
@@ -104,9 +100,7 @@ def apply_bottom_force(
 def main(cfg: Config) -> None:
     mesh: pv.UnstructuredGrid = load_mesh(cfg)
     smas_tets = extract_smas_tets(mesh, cfg.smas_threshold)
-    force = compute_bottom_force(
-        smas_tets, cfg.y_threshold, cfg.boundary_tolerance
-    )
+    force = compute_bottom_force(smas_tets, cfg.y_threshold, cfg.boundary_tolerance)
     smas_tets = apply_bottom_force(smas_tets, force)
     melon.save(cfg.output, smas_tets)
 

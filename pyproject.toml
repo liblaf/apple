@@ -64,6 +64,7 @@ dev = [
   "liblaf-cherries>=1",
   "pygame>=2.6.1",
   "sympy>=1",
+  "torch>=2.11.0",
   "viztracer>=1",
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]

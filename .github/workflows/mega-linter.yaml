@@ -28,7 +28,7 @@ jobs:
     steps:
       - id: auth
         name: Auth
-        uses: liblaf/actions/auth@v1
+        uses: liblaf/actions/auth@0d18501335a3b930ccc19923d9439102a05367fd # v3
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
@@ -38,7 +38,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - id: lint
         name: MegaLinter
-        uses: liblaf/actions/mega-linter@v1
+        uses: liblaf/actions/mega-linter@0d18501335a3b930ccc19923d9439102a05367fd # v3
         with:
           token: ${{ steps.auth.outputs.token }}
       - if: success() || failure()
@@ -69,7 +69,7 @@ jobs:
           reviewers: ${{ github.repository_owner }}
       - if: steps.lint.outputs.has-updated-sources > 0 && github.ref != 'refs/heads/main'
         name: Commit and Push Applied Linter Fixes
-        uses: liblaf/actions/commit@v1
+        uses: liblaf/actions/commit@0d18501335a3b930ccc19923d9439102a05367fd # v3
         with:
           add-options: --verbose --update
           message: "chore(mega-linter): apply linters automatic fixes"

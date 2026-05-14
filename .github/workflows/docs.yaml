@@ -28,7 +28,7 @@ jobs:
       - name: Set Environment Variables
         run: echo 'SITE_URL=${{ steps.config.outputs.base_url }}' >> "$GITHUB_ENV"
       - name: Setup uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           activate-environment: true
       - name: Install Dependencies

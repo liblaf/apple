@@ -9,13 +9,13 @@ import pyvista as pv
 import warp as wp
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
-from liblaf.peach.optim import Objective, Optax, Optimizer
-
-from liblaf import cherries, jarp, melon
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, SMAS_FRACTION
 from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
+from liblaf.peach.optim import Objective, Optax, Optimizer
+
+from liblaf import cherries, jarp, melon
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 type EnergyMaterials = Mapping[str, Array]

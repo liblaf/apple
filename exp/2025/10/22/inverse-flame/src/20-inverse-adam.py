@@ -11,6 +11,7 @@ import optax
 import pyvista as pv
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
+from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, POINT_ID
 from liblaf.peach import tree
 from liblaf.peach.linalg import CompositeSolver
 from liblaf.peach.optim import PNCG, Optax, Optimizer
@@ -18,7 +19,6 @@ from liblaf.peach.optim.abc import Callback
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
-from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Vector = Float[Array, " N"]

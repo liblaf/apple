@@ -3,9 +3,9 @@ from pathlib import Path
 import numpy as np
 import pyvista as pv
 from environs import env
+from liblaf.apple.consts import GLOBAL_POINT_ID, SMAS_FRACTION
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import GLOBAL_POINT_ID, SMAS_FRACTION
 
 FORCE = "Force"
 IS_SMAS_TET = "IsSmasTet"

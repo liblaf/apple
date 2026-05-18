@@ -1,9 +1,10 @@
 from typing import Self
 
 import felupe
-import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
+
+from liblaf import jarp
 
 
 @jarp.define

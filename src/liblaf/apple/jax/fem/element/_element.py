@@ -1,8 +1,8 @@
-import jarp
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Float, Integer
 
+from liblaf import jarp
 from liblaf.apple.jax.fem.quadrature import Scheme
 
 
@@ -33,7 +33,7 @@ class Element:
 
     @property
     def quadrature(self) -> Scheme:
-        return None  # pyright: ignore[reportReturnType]
+        return NotImplemented
 
     def function(self, coords: Float[Array, " dim"]) -> Float[Array, " points"]:
         """Return the shape functions at given coordinates."""

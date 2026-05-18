@@ -3,7 +3,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, cast
 
-import jarp
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -14,7 +13,7 @@ from environs import env
 from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach.optim import Objective, Optax, Optimizer
 
-from liblaf import cherries, melon
+from liblaf import cherries, jarp, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     GLOBAL_POINT_ID,

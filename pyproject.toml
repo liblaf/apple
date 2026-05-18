@@ -21,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Typing :: Typed"
 ]
 dependencies = [
@@ -28,11 +29,12 @@ dependencies = [
   "equinox>=0.13",
   "felupe>=10",
   "frozendict>=2",
-  "jarp>=0.1.8",
-  "jax>=0.9",
+  "ipctk>=1.5.0",
+  "jax>=0.10",
   "jaxtyping>=0.3",
   "lazy-loader>=0.1",
   "liblaf-grapes>=9",
+  "liblaf-jarp>=0.2",
   "liblaf-melon>=1",
   "liblaf-peach>=0.9.3",
   "lineax>=0.1",
@@ -54,8 +56,8 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/apple"
 
 [project.optional-dependencies]
-cuda12 = ["jax[cuda12]>=0.9", "liblaf-peach[cuda12]>=0.9"]
-cuda13 = ["jax[cuda13]>=0.9", "liblaf-peach[cuda13]>=0.9"]
+cuda12 = ["jax[cuda12]>=0.10", "liblaf-peach[cuda12]>=0.9"]
+cuda13 = ["jax[cuda13]>=0.10", "liblaf-peach[cuda13]>=0.9"]
 
 [dependency-groups]
 dev = [
@@ -68,11 +70,29 @@ dev = [
   "viztracer>=1",
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
-docs = ["liblaf-mkdocs-preset>=0.2", "mkdocs>=1,<2"]
+docs = [
+  "griffe-fieldz>=0.5",
+  "griffe-inherited-docstrings>=1",
+  "griffe-pydantic>=1",
+  "griffe-warnings-deprecated>=1",
+  "mkdocstrings[python]>=1",
+  "zensical>=0.0.41"
+]
 lint = ["import-linter[ui]>=2", "ruff>=0.15"]
-nox = ["liblaf-nox-recipes>=0.1", "nox>=2026"]
-test = ["hypothesis>=6", "pytest>=9", "pytest-cov>=7", "pytest-randomly>=4"]
-typing = ["scipy-stubs>=1"]
+nox = ["liblaf-nox-recipes>=0.1", "nox>=2026", "nox-uv>=0.7"]
+test = [
+  "hypothesis>=6",
+  "pytest>=9",
+  "pytest-codspeed>=4.5.0",
+  "pytest-cov>=7",
+  "pytest-randomly>=4",
+  { include-group = "dev" },
+]
+typing = [
+  "mypy>=2.1.0",
+  "pybind11-stubgen>=2.5.5",
+  "scipy-stubs>=1",
+]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -107,25 +127,10 @@ root_package = "liblaf.apple"
 ancestors = ["liblaf.apple"]
 name = "Acyclic siblings"
 type = "acyclic_siblings"
-
-[tool.pyright]
-exclude = [
-  "**/.*",
-  "**/__pycache__",
-  "**/exp/2024",
-  "**/exp/2025/04",
-  "**/exp/2025/05",
-  "**/exp/2025/06",
-  "**/exp/2025/07",
-  "**/exp/2025/08",
-  "**/exp/2025/09",
-  "**/exp/2025/10/29",
-  "**/marimo",
-  "**/node_modules",
-  ".venv"
+ignore_imports = [
+  "liblaf.apple.jax.fem.geometry._geometry -> liblaf.apple.jax.fem.geometry._tetra",
+  "liblaf.apple.jax.fem.geometry._geometry -> liblaf.apple.jax.fem.geometry._triangle"
 ]
-extends = ".config/linters/pyrightconfig.json"
-reportInvalidTypeForm = "none"
 
 [tool.pytest]
 addopts = [
@@ -144,7 +149,7 @@ exclude = ["**/marimo/"]
 extend = ".config/linters/.ruff.toml"
 
 [tool.ruff.lint]
-exclude = ["**/.*/"]
+exclude = ["**/.*/", "typings/ipctk/*.pyi"]
 ignore = [
   "ANN201",
   "ANN202",
@@ -158,10 +163,11 @@ ignore = [
 ]
 
 [tool.ty.environment]
-python = ".venv"
+extra-paths = ["typings"]
 
 [tool.uv]
 default-groups = "all"
 
 [tool.uv.sources]
-liblaf-peach = { path = "../peach", editable = true }
+liblaf-peach = { editable = true, path = "../peach" }
+ipctk = { git = "https://github.com/ipc-sim/ipc-toolkit.git" }

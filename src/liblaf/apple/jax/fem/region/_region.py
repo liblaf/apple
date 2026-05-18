@@ -2,11 +2,11 @@ import logging
 from typing import Self
 
 import einops
-import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
 
+from liblaf import jarp
 from liblaf.apple.jax.fem.element import Element
 from liblaf.apple.jax.fem.geometry import Geometry
 from liblaf.apple.jax.fem.quadrature import Scheme

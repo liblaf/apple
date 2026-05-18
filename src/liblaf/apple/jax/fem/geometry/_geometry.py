@@ -1,11 +1,11 @@
-from __future__ import annotations
+from typing import Self, cast
 
-import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Float, Integer
 
-from liblaf.apple.consts import GLOBAL_POINT_ID
+from liblaf import jarp
+from liblaf.apple.common import GLOBAL_POINT_ID
 from liblaf.apple.jax.fem.element import Element
 
 
@@ -14,14 +14,14 @@ class Geometry:
     mesh: pv.DataSet = jarp.field()
 
     @classmethod
-    def from_pyvista(cls, mesh: pv.DataObject) -> Geometry:
+    def from_pyvista(cls, mesh: pv.DataObject) -> Self:
         from ._tetra import GeometryTetra
         from ._triangle import GeometryTriangle
 
         if isinstance(mesh, pv.PolyData):
-            return GeometryTriangle.from_pyvista(mesh)
+            return cast("Self", GeometryTriangle.from_pyvista(mesh))
         if isinstance(mesh, pv.UnstructuredGrid):
-            return GeometryTetra.from_pyvista(mesh)
+            return cast("Self", GeometryTetra.from_pyvista(mesh))
         raise NotImplementedError
 
     @property
@@ -46,7 +46,7 @@ class Geometry:
 
     @property
     def global_point_id(self) -> Integer[Array, "p J"]:
-        return jnp.asarray(self.point_data[GLOBAL_POINT_ID])
+        return jnp.asarray(self.point_data[GLOBAL_POINT_ID.vtk])
 
     @property
     def point_data(self) -> pv.DataSetAttributes:

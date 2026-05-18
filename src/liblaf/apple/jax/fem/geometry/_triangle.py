@@ -1,9 +1,10 @@
-from typing import Self, override
+from typing import Self, cast, override
 
-import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
+
+from liblaf import jarp
 
 from ._geometry import Geometry
 
@@ -14,8 +15,9 @@ class GeometryTriangle(Geometry):
 
     @override
     @classmethod
-    def from_pyvista(cls, mesh: pv.PolyData) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
-        mesh = mesh.triangulate()  # pyright: ignore[reportAssignmentType]
+    def from_pyvista(cls, mesh: pv.DataObject) -> Self:
+        mesh: pv.PolyData = cast("pv.PolyData", mesh)
+        mesh: pv.PolyData = mesh.triangulate()
         self: Self = cls(mesh=mesh)
         return self
 

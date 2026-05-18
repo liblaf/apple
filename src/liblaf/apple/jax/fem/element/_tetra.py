@@ -1,9 +1,9 @@
 from typing import override
 
-import jarp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
 
+from liblaf import jarp
 from liblaf.apple.jax.fem.quadrature import QuadratureTetra
 
 from ._element import Element

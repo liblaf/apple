@@ -2,7 +2,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, cast
 
-import jarp
 import jax.numpy as jnp
 import numpy as np
 import optax
@@ -11,7 +10,7 @@ import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
 from liblaf.peach.optim import Objective, Optax, Optimizer
 
-from liblaf import cherries, melon
+from liblaf import cherries, jarp, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     LAMBDA,

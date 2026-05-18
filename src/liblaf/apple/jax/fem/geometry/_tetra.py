@@ -1,10 +1,10 @@
-from typing import Self, override
+from typing import Self, cast, override
 
-import jarp
 import jax.numpy as jnp
 import pyvista as pv
 from jaxtyping import Array, Integer
 
+from liblaf import jarp
 from liblaf.apple.jax.fem.element import ElementTetra
 
 from ._geometry import Geometry
@@ -12,11 +12,12 @@ from ._geometry import Geometry
 
 @jarp.define
 class GeometryTetra(Geometry):
-    mesh: pv.UnstructuredGrid = jarp.field()  # pyright: ignore[reportIncompatibleVariableOverride]
+    mesh: pv.UnstructuredGrid = jarp.field()
 
-    @override
     @classmethod
-    def from_pyvista(cls, mesh: pv.UnstructuredGrid) -> Self:  # pyright: ignore[reportIncompatibleMethodOverride]
+    @override
+    def from_pyvista(cls, mesh: pv.DataObject) -> Self:
+        mesh: pv.UnstructuredGrid = cast("pv.UnstructuredGrid", mesh)
         self: Self = cls(mesh=mesh)
         return self
 
@@ -28,4 +29,4 @@ class GeometryTetra(Geometry):
     @property
     @override
     def cells_local(self) -> Integer[Array, "c a"]:
-        return jnp.asarray(self.mesh.cells_dict[pv.CellType.TETRA])  # pyright: ignore[reportArgumentType]
+        return jnp.asarray(self.mesh.cells_dict[pv.CellType.TETRA])  # ty:ignore[invalid-argument-type]

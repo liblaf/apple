@@ -3,7 +3,7 @@
 # DO NOT EDIT!
 
 builtins = ["ic"]
-exclude = ["_version.py"]
+extend-exclude = ["_version.py"]
 fix = true
 show-fixes = true
 
@@ -34,6 +34,7 @@ ignore = [
   "PLR2004",
   "RET504",
   "S101",
+  "S310",
   "S603",
   "S607",
   "T201",
@@ -50,7 +51,7 @@ select = ["ALL"]
 [lint.flake8-annotations]
 allow-star-arg-any = true
 
-[lint.flake8-import-conventions.aliases]
+[lint.flake8-import-conventions.extend-aliases]
 "jax.numpy" = "jnp"
 "jax.typing" = "jxt"
 "matplotlib" = "mpl"

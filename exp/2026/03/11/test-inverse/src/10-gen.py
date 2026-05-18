@@ -1,8 +1,8 @@
 import numpy as np
 import pyvista as pv
+from liblaf.apple.consts._array_names import DIRICHLET_MASK, DIRICHLET_VALUE
 
 from liblaf import cherries, melon
-from liblaf.apple.consts._array_names import DIRICHLET_MASK, DIRICHLET_VALUE
 
 
 class Config(cherries.BaseConfig):

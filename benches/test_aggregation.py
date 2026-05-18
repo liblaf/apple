@@ -5,7 +5,6 @@ import pytest
 import pyvista as pv
 import warp as wp
 import warp.jax_experimental.ffi
-import warp.types as wpt
 from jaxtyping import Array
 from pytest_codspeed import BenchmarkFixture
 
@@ -32,9 +31,9 @@ def mesh(request: pytest.FixtureRequest) -> pv.UnstructuredGrid:
 def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> None:
     @wp.kernel
     def kernel(
-        points: wp.array(dtype=wpt.vec3d),
-        cells: wp.array(dtype=wpt.vec4i),
-        output: wp.array(dtype=wpt.float64),
+        points: wp.array[wp.vec3d],
+        cells: wp.array[wp.vec4i],
+        output: wp.array[wp.float64],
     ) -> None:
         tid = wp.tid()
         cell = cells[tid]
@@ -56,9 +55,9 @@ def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> N
 
     @warp.jax_experimental.ffi.jax_callable
     def callable_(
-        points: wp.array(dtype=wpt.vec3d),
-        cells: wp.array(dtype=wpt.vec4i),
-        output: wp.array(dtype=wpt.float64),
+        points: wp.array[wp.vec3d],
+        cells: wp.array[wp.vec4i],
+        output: wp.array[wp.float64],
     ) -> None:
         output.zero_()
         wp.launch(kernel, dim=cells.shape, inputs=[points, cells], outputs=[output])
@@ -74,7 +73,7 @@ def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> N
         return jax.block_until_ready(output)
 
     points: Array = jnp.asarray(mesh.points, dtype=jnp.float64)
-    cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # pyright: ignore[reportArgumentType]
+    cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # ty:ignore[invalid-argument-type]
     points = jax.block_until_ready(points)
     cells = jax.block_until_ready(cells)
 
@@ -85,12 +84,11 @@ def test_atomic_add(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> N
 
 @pytest.mark.benchmark(group="hello")
 def test_segment_sum(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> None:
+    mat43d = wp.types.matrix((4, 3), wp.float64)
+
     @warp.jax_experimental.ffi.jax_kernel
     @wp.kernel
-    def kernel(
-        points: wp.array(dtype=wpt.matrix((4, 3), wpt.float64)),
-        output: wp.array(dtype=wpt.vec4d),
-    ) -> None:
+    def kernel(points: wp.array[mat43d], output: wp.array[wp.vec4d]) -> None:
         tid = wp.tid()
         p0 = points[tid][0]
         p1 = points[tid][1]
@@ -122,10 +120,10 @@ def test_segment_sum(benchmark: BenchmarkFixture, mesh: pv.UnstructuredGrid) -> 
         return jax.block_until_ready(output)
 
     points: Array = jnp.asarray(mesh.points, dtype=jnp.float64)
-    cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # pyright: ignore[reportArgumentType]
+    cells: Array = jnp.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=jnp.int32)  # ty:ignore[invalid-argument-type]
     points = jax.block_until_ready(points)
     cells = jax.block_until_ready(cells)
 
-    output: Array = benchmark(target, points, cells)  # pyright: ignore[reportArgumentType]
+    output: Array = benchmark(target, points, cells)
 
     assert output.sum().item() == pytest.approx(mesh.volume)

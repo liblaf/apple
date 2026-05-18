@@ -1,8 +1,6 @@
 import numpy as np
 import pyvista as pv
 from environs import env
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     DIRICHLET_MASK,
     DIRICHLET_VALUE,
@@ -10,6 +8,8 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
+
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):

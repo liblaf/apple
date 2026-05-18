@@ -5,9 +5,6 @@ import optax
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import PNCG, Objective, Optax, Optimizer, ScipyOptimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     GLOBAL_POINT_ID,
@@ -15,8 +12,11 @@ from liblaf.apple.consts import (
     PRESTRAIN,
     STIFFNESS,
 )
-from liblaf.apple.jax import JaxMassSpringPrestrain
 from liblaf.apple.model import Forward, Model, ModelBuilder, ModelState
+from liblaf.peach.optim import PNCG, Objective, Optax, Optimizer, ScipyOptimizer
+
+from liblaf import cherries, melon
+from liblaf.apple.jax import JaxMassSpringPrestrain
 from liblaf.apple.warp import WarpPhaceV2
 
 wp.config.mode = "debug"

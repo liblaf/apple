@@ -9,13 +9,13 @@ import numpy as np
 import pyvista as pv
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
+from liblaf.apple.consts import ACTIVATION, MUSCLE_FRACTION, POINT_ID
 from liblaf.peach import tree
 from liblaf.peach.linalg import LinearSolver
 from liblaf.peach.optim import Optimizer, ScipyOptimizer
 
 from liblaf import cherries, grapes, melon
 from liblaf.apple import Forward, Inverse, Model, ModelBuilder
-from liblaf.apple.consts import ACTIVATION, MUSCLE_FRACTION, POINT_ID
 from liblaf.apple.warp import Phace
 
 type Vector = Float[Array, " N"]

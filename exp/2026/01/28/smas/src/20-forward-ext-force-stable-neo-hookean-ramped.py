@@ -7,8 +7,6 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -18,7 +16,6 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import (
     Forward,
     ForwardStage,
@@ -28,6 +25,9 @@ from liblaf.apple.model import (
     StageState,
 )
 from liblaf.apple.optim import PNCG
+
+from liblaf import cherries, melon
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46-conform"

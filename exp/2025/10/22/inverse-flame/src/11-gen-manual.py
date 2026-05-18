@@ -5,10 +5,10 @@ import numpy as np
 import pyvista as pv
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION, POINT_ID
 from liblaf.apple.model import Forward, Model, ModelBuilder
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import Phace
 
 

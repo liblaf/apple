@@ -8,10 +8,6 @@ import pyvista as pv
 import scipy.sparse.linalg as spla
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Optimizer
-from liblaf.peach.optim.pncg._pncg import _make_preconditioner
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -23,6 +19,10 @@ from liblaf.apple.consts import (
     SMAS_FRACTION,
 )
 from liblaf.apple.model import Forward, Full, Model, ModelBuilder
+from liblaf.peach.optim import Optimizer
+from liblaf.peach.optim.pncg._pncg import _make_preconditioner
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"

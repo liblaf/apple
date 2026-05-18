@@ -2,9 +2,6 @@ from pathlib import Path
 
 import numpy as np
 import pyvista as pv
-from liblaf.peach.optim import Optimizer, ScipyOptimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -14,6 +11,9 @@ from liblaf.apple.consts import (
     MU,
 )
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import Optimizer, ScipyOptimizer
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import WarpPhaceV2
 
 

@@ -4,9 +4,6 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Optimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -16,8 +13,11 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import Optimizer
+
+from liblaf import cherries, melon
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.warp import (
     WarpArap,
     WarpArapMuscle,

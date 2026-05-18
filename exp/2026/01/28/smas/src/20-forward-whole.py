@@ -3,12 +3,12 @@ from pathlib import Path
 import numpy as np
 import pyvista as pv
 from environs import env
+from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
+from liblaf.apple.model import Forward, Model
 from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
 from liblaf.apple import scene
-from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
-from liblaf.apple.model import Forward, Model
 
 SUFFIX: str = "-ellipsoid"
 

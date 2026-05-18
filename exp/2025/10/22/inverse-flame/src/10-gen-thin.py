@@ -6,9 +6,6 @@ import pyvista as pv
 import scipy
 from environs import env
 from jaxtyping import Array, Bool, Float, Integer
-
-from liblaf import cherries, grapes, melon
-from liblaf.apple import utils
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -17,6 +14,9 @@ from liblaf.apple.consts import (
     MU,
     MUSCLE_FRACTION,
 )
+
+from liblaf import cherries, grapes, melon
+from liblaf.apple import utils
 
 SUFFIX: str = env.str("SUFFIX", default="-123k")
 

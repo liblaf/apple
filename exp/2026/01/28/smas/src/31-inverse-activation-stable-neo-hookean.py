@@ -16,12 +16,6 @@ import pyvista as pv
 import warp as wp
 from environs import env
 from jaxtyping import Array, Float, Integer
-from liblaf.apple.inverse._inverse import InverseObjective
-from liblaf.peach.linalg import LinearSolver
-from liblaf.peach.linalg import utils as linalg_utils
-from liblaf.peach.optim import Objective, Optax, Optimizer
-
-from liblaf import cherries, jarp, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -33,8 +27,14 @@ from liblaf.apple.consts import (
     SMAS_FRACTION,
 )
 from liblaf.apple.inverse import AdjointLinearSystem, Inverse, Loss, PointToPointLoss
+from liblaf.apple.inverse._inverse import InverseObjective
 from liblaf.apple.model import Forward, Free, Model, ModelBuilder, ModelMaterials
 from liblaf.apple.optim import PNCG
+from liblaf.peach.linalg import LinearSolver
+from liblaf.peach.linalg import utils as linalg_utils
+from liblaf.peach.optim import Objective, Optax, Optimizer
+
+from liblaf import cherries, jarp, melon
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 type EnergyMaterials = Mapping[str, Array]

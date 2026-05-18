@@ -3,9 +3,6 @@ from pathlib import Path
 import numpy as np
 import pyvista as pv
 from environs import env
-from liblaf.peach.optim import Optimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     GLOBAL_POINT_ID,
@@ -15,6 +12,9 @@ from liblaf.apple.consts import (
     SMAS_FRACTION,
 )
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import Optimizer
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import (
     WarpArap,
     WarpArapMuscle,

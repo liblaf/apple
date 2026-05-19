@@ -43,7 +43,7 @@ class Collision:
 
     broad_phase: ipctk.BroadPhase = attrs.field(factory=_default_broad_phase)
     narrow_phase_ccd: ipctk.NarrowPhaseCCD = attrs.field(
-        factory=ipctk.TightInclusionCCD
+        factory=lambda: ipctk.TightInclusionCCD(tolerance=1e-3, max_iterations=10**3)
     )
 
     dmin: float = attrs.field(default=0.0)
@@ -64,13 +64,19 @@ class Collision:
             state.collisions.collision_set_type = (
                 ipctk.NormalCollisions.CollisionSetType.IMPROVED_MAX_APPROX
             )
-        vertices: VDim = self.vertices[self.indices]
-        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        vertices: Float[np.ndarray, "V dim"] = self.vertices.numpy(force=True)
         state.candidates.build(
             mesh=self.collision_mesh,
             vertices=vertices,
             inflation_radius=self.inflation_radius,
             broad_phase=self.broad_phase,
+        )
+        state.collisions.build(
+            candidates=state.candidates,
+            mesh=self.collision_mesh,
+            vertices=vertices,
+            dhat=self.potential.dhat,
+            dmin=self.dmin,
         )
         return state
 
@@ -87,6 +93,15 @@ class Collision:
             inflation_radius=self.inflation_radius,
             broad_phase=self.broad_phase,
         )
+        # if state.candidates.is_step_collision_free(
+        #     mesh=self.collision_mesh,
+        #     vertices_t0=vertices_t0,
+        #     vertices_t1=vertices_t1,
+        #     min_distance=self.min_distance,
+        #     narrow_phase_ccd=self.narrow_phase_ccd,
+        # ):
+        #     print("step is collision free")
+        #     return torch.ones((), dtype=u.dtype)
         alpha: float = state.candidates.compute_collision_free_stepsize(
             mesh=self.collision_mesh,
             vertices_t0=vertices_t0,
@@ -94,11 +109,19 @@ class Collision:
             min_distance=self.min_distance,
             narrow_phase_ccd=self.narrow_phase_ccd,
         )
+        print("CCD alpha:", alpha)
         return torch.as_tensor(alpha)
 
     def update(self, state: State, u: Full) -> None:
         vertices: VDim = self.vertices + u[self.indices]
         vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        state.candidates.clear()
+        state.candidates.build(
+            mesh=self.collision_mesh,
+            vertices=vertices,
+            inflation_radius=self.inflation_radius,
+            broad_phase=self.broad_phase,
+        )
         state.collisions.clear()
         state.collisions.build(
             candidates=state.candidates,
@@ -125,7 +148,7 @@ class Collision:
         )
         grad: Float[Tensor, " V*dim"] = torch.as_tensor(grad)
         grad: VDim = grad.reshape(vertices.shape)
-        output[self.indices] = grad
+        output.index_add_(0, self.indices, grad)
 
     def hess_diag(self, state: State, u: Full, output: Full) -> None:
         vertices: VDim = self.vertices + u[self.indices]
@@ -137,7 +160,7 @@ class Collision:
         )
         H_diag: Float[Tensor, " V*dim"] = torch.as_tensor(H_diag)
         H_diag: VDim = H_diag.reshape(vertices.shape)
-        output[self.indices] = H_diag
+        output.index_add_(0, self.indices, H_diag)
 
     def hess_prod(self, state: State, u: Full, p: Full, output: Full) -> None:
         if state.hess is None:
@@ -150,7 +173,7 @@ class Collision:
         p: Float[np.ndarray, " V*dim"] = p.numpy(force=True)
         Hp: Float[np.ndarray, " V*dim"] = state.hess @ p
         Hp: VDim = torch.as_tensor(Hp).reshape(self.vertices.shape)
-        output[self.indices] = Hp
+        output.index_add_(0, self.indices, Hp)
 
     def hess_quad(self, state: State, u: Full, p: Full) -> Scalar:
         vertices: VDim = self.vertices + u[self.indices]

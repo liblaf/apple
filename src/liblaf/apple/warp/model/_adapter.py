@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 
 import attrs
@@ -15,6 +16,21 @@ type Full = Float[Tensor, "points dim"]
 @attrs.define
 class WarpModelAdapter:
     __wrapped__: WarpModel = attrs.field()
+
+    def get_materials(self) -> dict[str, dict[str, Tensor]]:
+        materials: dict[str, dict[str, wp.array]] = self.__wrapped__.get_materials()
+        return {
+            pot_name: {mat_name: wp.to_torch(arr) for mat_name, arr in pot_mat.items()}
+            for pot_name, pot_mat in materials.items()
+        }
+
+    def set_materials(
+        self, materials: Mapping[str, Mapping[str, wp.array | Tensor]]
+    ) -> None:
+        self.__wrapped__.set_materials(materials)
+
+    def require_grad(self, materials: Mapping[str, Mapping[str, bool]]) -> None:
+        self.__wrapped__.require_grad(materials)
 
     def fun(self, u: Full) -> Scalar:
         output: Scalar = torch.zeros((1,), dtype=u.dtype, device=u.device)
@@ -51,6 +67,12 @@ class WarpModelAdapter:
         with _stream(u):
             self.__wrapped__.hess_quad(u_wp, p_wp, output_wp)
         return output[0]
+
+    def mixed_derivative_prod(self, u: Full, p: Full) -> None:
+        u_wp: wp.array = _from_torch_vec3(u)
+        p_wp: wp.array = _from_torch_vec3(p)
+        with _stream(u):
+            self.__wrapped__.mixed_derivative_prod(u_wp, p_wp)
 
 
 def _from_torch_float(x: Tensor) -> wp.array:

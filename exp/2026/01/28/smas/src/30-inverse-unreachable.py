@@ -8,12 +8,12 @@ import optax
 import pyvista as pv
 import warp as wp
 from jaxtyping import Array, Bool, Float, Integer
-from liblaf.peach.optim import Objective, Optax, Optimizer
-
-from liblaf import cherries, jarp, melon
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, SMAS_FRACTION
 from liblaf.apple.inverse import Inverse, Loss, PointToPointLoss
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import Objective, Optax, Optimizer
+
+from liblaf import cherries, jarp, melon
 from liblaf.apple.warp import (
     WarpArap,
     WarpArapMuscle,

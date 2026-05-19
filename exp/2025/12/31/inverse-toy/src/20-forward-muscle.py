@@ -2,11 +2,11 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from environs import env
+from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU, MUSCLE_FRACTION
+from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.peach.optim import PNCG
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU, MUSCLE_FRACTION
-from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import WarpArapMuscle
 
 

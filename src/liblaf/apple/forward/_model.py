@@ -1,5 +1,8 @@
+from collections.abc import Mapping
+
 import attrs
 import torch
+import warp as wp
 from jaxtyping import Float
 from torch import Tensor
 
@@ -45,6 +48,17 @@ class Model:
     def n_points(self) -> int:
         return self.dof_map.n_points
 
+    def get_materials(self) -> dict[str, dict[str, Tensor]]:
+        return self.warp_model.get_materials()
+
+    def set_materials(
+        self, materials: Mapping[str, Mapping[str, wp.array | Tensor]]
+    ) -> None:
+        self.warp_model.set_materials(materials)
+
+    def require_grad(self, materials: Mapping[str, Mapping[str, bool]]) -> None:
+        self.warp_model.require_grad(materials)
+
     @method_with_device
     def init(self) -> State:
         u_full: Full = self.dof_map.to_full(torch.zeros((self.n_free,)))
@@ -73,6 +87,7 @@ class Model:
         if self.collision is not None:
             assert state.collision is not None
             output += self.collision.fun(state.collision, state.u)
+        print("fun:", output)
         return output
 
     @method_with_device
@@ -82,6 +97,7 @@ class Model:
         if self.collision is not None:
             assert state.collision is not None
             self.collision.grad(state.collision, state.u, output)
+        print("grad norm:", output.norm())
         return output
 
     @method_with_device
@@ -108,4 +124,9 @@ class Model:
         if self.collision is not None:
             assert state.collision is not None
             output += self.collision.hess_quad(state.collision, state.u, p)
+        return output
+
+    def mixed_derivative_prod(self, state: State, p: Full) -> Full:
+        output: Full = torch.zeros_like(state.u)
+        self.warp_model.mixed_derivative_prod(state.u, p)
         return output

@@ -49,7 +49,8 @@ class Geometry:
 
     @property
     def points(self) -> Float[Tensor, "p J"]:
-        return torch.tensor(self.mesh.points)
+        dtype: torch.dtype = torch.get_default_dtype()
+        return torch.tensor(self.mesh.points, dtype=dtype)
 
 
 @functools.singledispatch

@@ -7,7 +7,6 @@ import jax
 import jax.numpy as jnp
 import liblaf.apple.jax.sim as sim_jax
 import liblaf.apple.warp.sim as sim_wp
-import liblaf.apple.warp.utils as wp_utils
 import lineax as lx
 import numpy as np
 import pyvista as pv
@@ -17,6 +16,7 @@ from liblaf.apple.jax.typing import Scalar, Vector
 from liblaf.apple.warp.typing import vec6
 from loguru import logger
 
+import liblaf.apple.warp.utils as wp_utils
 from liblaf import cherries, grapes, melon
 from liblaf.apple import sim
 from liblaf.apple.jax import optim, tree

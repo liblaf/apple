@@ -15,12 +15,12 @@ from liblaf.apple.consts import (
     MUSCLE_FRACTION,
     SMAS_FRACTION,
 )
-from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
 from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
+from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"

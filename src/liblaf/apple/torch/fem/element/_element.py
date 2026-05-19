@@ -1,3 +1,5 @@
+from typing import cast
+
 import attrs
 import torch
 from jaxtyping import Float, Integer
@@ -32,7 +34,7 @@ class Element:
 
     @property
     def quadrature(self) -> Scheme:
-        return NotImplemented
+        raise NotImplementedError
 
     def function(self, coords: Float[Tensor, " dim"]) -> Float[Tensor, " points"]:
         """Return the shape functions at given coordinates."""

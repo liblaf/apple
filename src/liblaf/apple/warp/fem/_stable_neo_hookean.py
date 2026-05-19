@@ -1,12 +1,14 @@
-from typing import Any, ClassVar, cast, override
+from collections.abc import Mapping
+from typing import Any, ClassVar, cast
 
 import attrs
 import warp as wp
 
+from liblaf.apple.common import LAMBDA, MU
 from liblaf.apple.warp import math
-from liblaf.apple.warp.utils import warp_struct
+from liblaf.apple.warp.model import MaterialField
 
-from . import func, utils
+from . import func
 from ._base import WarpPotentialFem
 
 floating = Any
@@ -106,14 +108,15 @@ def hess_quad(
 
 @attrs.define
 class StableNeoHookean(WarpPotentialFem):
-    @warp_struct
-    class Materials:
+    class Materials(WarpPotentialFem.Materials):
         lmbda: wp.array
         mu: wp.array
 
-        @classmethod
-        def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
-            return {"lmbda": wp.array1d(dtype=dtype), "mu": wp.array1d(dtype=dtype)}
+    MATERIAL_FIELDS: ClassVar[Mapping[str, MaterialField]] = {
+        **WarpPotentialFem.MATERIAL_FIELDS,
+        LAMBDA.value: MaterialField.CELL.floating(LAMBDA.value),
+        MU.value: MaterialField.CELL.floating(MU.value),
+    }
 
     energy_density_func: ClassVar[wp.Function] = cast("wp.Function", energy_density)
     first_piola_kirchhoff_func: ClassVar[wp.Function] = cast(
@@ -145,11 +148,3 @@ class StableNeoHookean(WarpPotentialFem):
     hess_quad_kernel: ClassVar[wp.Kernel] = WarpPotentialFem.make_hess_quad_kernel(
         hess_quad_func
     )
-
-    @classmethod
-    @override
-    def materials_from_region(cls, region: Any, requires_grad: Any) -> Materials:
-        materials: cls.Materials = cls.Materials()
-        materials.lmbda = utils.get_lambda(region)
-        materials.mu = utils.get_mu(region)
-        return materials

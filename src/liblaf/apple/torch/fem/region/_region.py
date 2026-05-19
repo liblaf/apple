@@ -1,3 +1,4 @@
+import contextlib
 import functools
 import logging
 from typing import Self
@@ -19,14 +20,15 @@ logger: logging.Logger = logging.getLogger(__name__)
 @attrs.define
 class Region:
     geometry: Geometry
-    quadrature: Scheme
+    quadrature: Scheme = attrs.field(default=None)
 
     @classmethod
     def from_geometry(
         cls, geometry: Geometry, *, quadrature: Scheme | None = None
     ) -> Self:
         if quadrature is None:
-            quadrature: Scheme = geometry.element.quadrature
+            with contextlib.suppress(NotImplementedError):
+                quadrature: Scheme = geometry.element.quadrature
         self: Self = cls(geometry=geometry, quadrature=quadrature)
         return self
 

@@ -1,16 +1,12 @@
-from collections.abc import Callable, Sequence
-from typing import Any, ClassVar, Self, cast, no_type_check, overload, override
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, ClassVar, Self, cast, no_type_check, override
 
 import attrs
-import pyvista as pv
 import warp as wp
-from jaxtyping import Float
-from torch import Tensor
 
 from liblaf.apple.torch.fem import Region
 from liblaf.apple.warp import math
-from liblaf.apple.warp.model import WarpPotential
-from liblaf.apple.warp.utils import warp_default_dtype, warp_struct
+from liblaf.apple.warp.model import MaterialField, WarpPotential
 
 from . import func, utils
 
@@ -18,7 +14,6 @@ floating = Any
 mat33 = Any
 mat43 = Any
 vec3 = Any
-vec4i = Any
 Materials = Any
 WarpRegion = Any
 
@@ -27,34 +22,33 @@ WarpRegion = Any
 @no_type_check
 def _deformation_gradient_kernel(
     u: wp.array1d[vec3],  # (points,)
-    cells: wp.array1d[vec4i],  # (cells,)
-    dhdX: wp.array2d[mat43],  # (cells, quadrature)
+    cells: wp.array1d[wp.vec4i],  # (cells,)
+    materials: Materials,
     output: wp.array2d[mat33],  # (cells, quadrature)
 ) -> None:
     cid, qid = wp.tid()
     cell = cells[cid]  # vec4i
     u_cell = func.get_cell_displacements(u, cell)
-    output[cid, qid] = func.deformation_gradient(u_cell, dhdX[cid, qid])
+    output[cid, qid] = func.deformation_gradient(u_cell, materials.dhdX[cid, qid])
 
 
 @attrs.define
 class WarpPotentialFem(WarpPotential):
-    @warp_struct
-    class _Region:
-        cells: wp.array
-        """(cells,)"""
+    class Materials(WarpPotential.Materials):
         dhdX: wp.array
         """(cells, quadrature)"""
         dV: wp.array
         """(cells, quadrature)"""
 
-        @classmethod
-        def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
-            return {
-                "cells": wp.array1d(dtype=wp.vec4i),
-                "dhdX": wp.array2d(dtype=wp.types.matrix((4, 3), dtype)),
-                "dV": wp.array2d(dtype=dtype),
-            }
+    MATERIAL_FIELDS: ClassVar[Mapping[str, MaterialField]] = {
+        **WarpPotential.MATERIAL_FIELDS,
+        "dhdX": MaterialField(
+            "dhdX",
+            lambda dtype: wp.array2d(dtype=wp.types.matrix((4, 3), dtype)),
+            utils.get_dhdX,
+        ),
+        "dV": MaterialField("dV", lambda dtype: wp.array2d(dtype=dtype), utils.get_dV),
+    }
 
     energy_density_func: ClassVar[wp.Function]
     first_piola_kirchhoff_func: ClassVar[wp.Function]
@@ -74,55 +68,27 @@ class WarpPotentialFem(WarpPotential):
     hess_diag_kernel: ClassVar[wp.Kernel]
     hess_quad_kernel: ClassVar[wp.Kernel]
 
-    region: _Region
+    cells: wp.array
+    materials: Materials = attrs.field(default=None, kw_only=True)
 
-    @overload
-    @classmethod
-    def from_pyvista(  # ty:ignore[invalid-overload]
-        cls, obj: pv.DataObject, *, requires_grad: Sequence[str] = (), **kwargs
-    ) -> Self: ...
-    @classmethod
-    def from_pyvista(cls, obj: pv.DataObject, **kwargs) -> Self:
-        region: Region = Region.from_pyvista(obj)
-        return cls.from_region(region, **kwargs)
-
-    @overload
-    @classmethod
-    def from_region(  # ty:ignore[invalid-overload]
-        cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
-    ) -> Self: ...
     @classmethod
     def from_region(
-        cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
+        cls, region: Region, requires_grad: Sequence[str] = (), **kwargs
     ) -> Self:
-        dtype: Any = warp_default_dtype()
-        requires_grad = tuple(requires_grad)
-        fraction: Float[Tensor, " cells"] = utils.get_fraction(region)
-        region_wp: WarpPotentialFem._Region = cls._Region()
-        region_wp.cells = wp.from_torch(region.cells_global, wp.vec4i)
-        region_wp.dhdX = wp.from_torch(region.dhdX, wp.types.matrix((4, 3), dtype))
-        region_wp.dV = wp.from_torch(fraction[:, None] * region.dV, dtype)
-        self: Self = cls(
-            region=region_wp,
-            materials=cls.materials_from_region(region, requires_grad),
-            requires_grad=requires_grad,
-            **kwargs,
-        )
+        cells: wp.array = wp.from_torch(region.cells_global, dtype=wp.vec4i)
+        self: Self = cls(cells=cells, **kwargs)
+        self.materials = self.material_from_region(region, requires_grad=requires_grad)
         return self
-
-    @classmethod
-    def materials_from_region(cls, region: Region, requires_grad: Sequence[str]) -> Any:
-        raise NotImplementedError
 
     @property
     def launch_dim(self) -> tuple[int, int]:
-        return self.region.dhdX.shape
+        return self.materials.dhdX.shape
 
     def deformation_gradient(self, u: wp.array, output: wp.array) -> None:
         wp.launch(
             self.deformation_gradient_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.region.cells, self.region.dhdX],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -130,13 +96,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.energy_density_kernel,
             dim=self.launch_dim,
-            inputs=[
-                u,
-                self.region.cells,
-                self.region.dhdX,
-                self.region.dV,
-                self.materials,
-            ],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -144,7 +104,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.first_piola_kirchhoff_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.region.cells, self.region.dhdX, self.materials],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -153,7 +113,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.fun_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.region, self.materials],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -162,7 +122,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.grad_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.region, self.materials],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -171,7 +131,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.hess_diag_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.region, self.materials],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -180,7 +140,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.hess_prod_kernel,
             dim=self.launch_dim,
-            inputs=[u, p, self.region, self.materials],
+            inputs=[u, p, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -189,7 +149,7 @@ class WarpPotentialFem(WarpPotential):
         wp.launch(
             self.hess_quad_kernel,
             dim=self.launch_dim,
-            inputs=[u, p, self.region, self.materials],
+            inputs=[u, p, self.cells, self.materials],
             outputs=[output],
         )
 
@@ -201,15 +161,14 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def energy_density_kernel(
             u: wp.array1d[vec3],
-            cells: wp.array1d[vec4i],
-            dhdX: wp.array2d[mat43],
+            cells: wp.array1d[wp.vec4i],
             materials: Materials,
             output: wp.array2d[floating],
         ) -> None:
             cid, qid = wp.tid()
             cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            dhdX_cell = dhdX[cid, qid]  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
             output[cid, qid] = energy_density_func(F, materials, cid)
 
@@ -225,15 +184,14 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def first_piola_kirchhoff_kernel(
             u: wp.array1d[vec3],
-            cells: wp.array1d[vec4i],
-            dhdX: wp.array2d[mat43],
+            cells: wp.array1d[wp.vec4i],
             materials: Materials,
             output: wp.array2d[mat33],
         ) -> None:
             cid, qid = wp.tid()
             cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            dhdX_cell = dhdX[cid, qid]  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
             P = first_piola_kirchhoff_func(F, materials, cid)  # mat33
             output[cid, qid] = P
@@ -248,17 +206,17 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def fun_kernel(
             u: wp.array1d[vec3],
-            region: WarpRegion,
+            cells: wp.array1d[wp.vec4i],
             materials: Materials,
             output: wp.array1d[floating],
         ) -> None:
             cid, qid = wp.tid()
-            cell = region.cells[cid]  # vec4i
+            cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            dhdX_cell = region.dhdX[cid, qid]  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
             Psi = energy_density_func(F, materials, cid)  # float
-            wp.atomic_add(output, 0, Psi * region.dV[cid, qid])
+            wp.atomic_add(output, 0, Psi * materials.dV[cid, qid])
 
         return cast("wp.Kernel", fun_kernel)
 
@@ -272,18 +230,18 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def grad_kernel(
             u: wp.array1d[vec3],
-            region: WarpRegion,
+            cells: wp.array1d[wp.vec4i],
             materials: Materials,
             output: wp.array1d[vec3],
         ) -> None:
             cid, qid = wp.tid()
-            cell = region.cells[cid]  # vec4i
+            cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            dhdX_cell = region.dhdX[cid, qid]  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
             P = first_piola_kirchhoff_func(F, materials, cid)  # mat33
             grad_cell = (
-                func.deformation_gradient_vjp(dhdX_cell, P) * region.dV[cid, qid]
+                func.deformation_gradient_vjp(dhdX_cell, P) * materials.dV[cid, qid]
             )  # mat43
             for i in range(4):
                 wp.atomic_add(output, cell[i], grad_cell[i])
@@ -302,17 +260,17 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def hess_diag_kernel(
             u: wp.array1d[vec3],  # (points,)
-            region: WarpRegion,
+            cells: wp.array1d[wp.vec4i],  # (cells,)
             materials: Materials,
             output: wp.array1d[vec3],  # (points,)
         ) -> None:
             cid, qid = wp.tid()
-            cell = region.cells[cid]  # vec4i
+            cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            dhdX_cell = region.dhdX[cid, qid]  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
             H_diag = (
-                hess_diag_func(F, dhdX_cell, materials, cid) * region.dV[cid, qid]
+                hess_diag_func(F, dhdX_cell, materials, cid) * materials.dV[cid, qid]
             )  # mat43
             if wp.static(clamp_hess_diag):
                 H_diag = math.cw_max_4x(
@@ -331,19 +289,19 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def hess_prod_kernel(
             u: wp.array1d[vec3],  # (points,)
-            v: wp.array1d[vec3],  # (points,)
-            region: WarpRegion,
+            p: wp.array1d[vec3],  # (points,)
+            cells: wp.array1d[wp.vec4i],  # (cells,)
             materials: Materials,
             output: wp.array1d[vec3],  # (points,)
         ) -> None:
             cid, qid = wp.tid()
-            cell = region.cells[cid]  # vec4i
+            cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            v_cell = func.get_cell_displacements(v, cell)  # mat43
-            dhdX_cell = region.dhdX[cid, qid]  # mat43
+            p_cell = func.get_cell_displacements(p, cell)  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
-            h_prod = region.dV[cid, qid] * hess_prod_func(
-                F, v_cell, dhdX_cell, materials, cid
+            h_prod = materials.dV[cid, qid] * hess_prod_func(
+                F, p_cell, dhdX_cell, materials, cid
             )  # mat43
             for i in range(4):
                 wp.atomic_add(output, cell[i], h_prod[i])
@@ -362,19 +320,19 @@ class WarpPotentialFem(WarpPotential):
         @no_type_check
         def hess_quad_kernel(
             u: wp.array1d[vec3],  # (points,)
-            v: wp.array1d[vec3],  # (points,)
-            region: WarpRegion,
+            p: wp.array1d[vec3],  # (points,)
+            cells: wp.array1d[wp.vec4i],  # (cells,)
             materials: Materials,
             output: wp.array1d[floating],  # (1,)
         ) -> None:
             cid, qid = wp.tid()
-            cell = region.cells[cid]  # vec4i
+            cell = cells[cid]  # vec4i
             u_cell = func.get_cell_displacements(u, cell)  # mat43
-            v_cell = func.get_cell_displacements(v, cell)  # mat43
-            dhdX_cell = region.dhdX[cid, qid]  # mat43
+            p_cell = func.get_cell_displacements(p, cell)  # mat43
+            dhdX_cell = materials.dhdX[cid, qid]  # mat43
             F = func.deformation_gradient(u_cell, dhdX_cell)  # mat33
-            h_quad = region.dV[cid, qid] * hess_quad_func(
-                F, v_cell, dhdX_cell, materials, cid
+            h_quad = materials.dV[cid, qid] * hess_quad_func(
+                F, p_cell, dhdX_cell, materials, cid
             )  # float
             if wp.static(clamp_hess_quad):
                 h_quad = wp.max(h_quad, h_quad.dtype(0.0))

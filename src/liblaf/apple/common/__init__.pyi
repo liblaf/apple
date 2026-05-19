@@ -3,6 +3,7 @@ from ._moduli import lame_converter
 from ._potential_name import DEFAULT_POTENTIAL_NAME
 from .attr_name import (
     ACTIVATION,
+    ACTIVATION_INV,
     DISPLACEMENT,
     FIXED_MASK,
     FIXED_VALUE,
@@ -20,6 +21,7 @@ from .attr_name import (
 
 __all__ = [
     "ACTIVATION",
+    "ACTIVATION_INV",
     "DEFAULT_POTENTIAL_NAME",
     "DISPLACEMENT",
     "FIXED_MASK",

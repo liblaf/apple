@@ -33,9 +33,10 @@ dependencies = [
   "liblaf-melon>=1",
   "liblaf-peach>=0.10",
   "numpy>=2.3.2",
+  "optree>=0.19.1",
   "pyvista>=0.47",
   "torch>=2.11.0",
-  "warp-lang>=1.13"
+  "warp-lang>=1.13",
 ]
 dynamic = ["version"]
 
@@ -51,11 +52,12 @@ dynamic = ["version"]
 dev = [
   "icecream>=2.1.10",
   "ipykernel>=7",
+  "jax[cuda13]>=0.10.0",
   "liblaf-cherries>=1",
   "liblaf-grapes>=9",
   "pygame>=2.6.1",
   "sympy>=1",
-  "viztracer>=1"
+  "viztracer>=1",
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
 docs = [
@@ -146,9 +148,6 @@ ignore = [
   "PLR0913",
   "RUF002"
 ]
-
-[tool.ty.environment]
-extra-paths = ["typings"]
 
 [tool.uv]
 default-groups = "all"

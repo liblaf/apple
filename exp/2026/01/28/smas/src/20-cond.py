@@ -4,10 +4,10 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from environs import env
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION, LAMBDA, MU, MUSCLE_FRACTION, SMAS_FRACTION
 from liblaf.apple.model import Forward, Model, ModelBuilder
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import (
     WarpArap,
     WarpArapMuscle,

@@ -26,24 +26,16 @@ classifiers = [
 ]
 dependencies = [
   "einops>=0.8",
-  "equinox>=0.13",
   "felupe>=10",
-  "frozendict>=2",
   "ipctk>=1.5.0",
-  "jax>=0.10",
   "jaxtyping>=0.3",
   "lazy-loader>=0.1",
-  "liblaf-grapes>=9",
-  "liblaf-jarp>=0.2",
   "liblaf-melon>=1",
-  "liblaf-peach>=0.9.3",
-  "lineax>=0.1",
-  "numpy>=2.2",
-  "optax>=0.2",
+  "liblaf-peach>=0.10",
+  "numpy>=2.3.2",
   "pyvista>=0.47",
-  "rich>=14",
-  "scipy>=1.17",
-  "warp-lang>1",
+  "torch>=2.11.0",
+  "warp-lang>=1.13"
 ]
 dynamic = ["version"]
 
@@ -55,19 +47,15 @@ dynamic = ["version"]
 "Release Notes" = "https://github.com/liblaf/apple/releases"
 "Source Code" = "https://github.com/liblaf/apple"
 
-[project.optional-dependencies]
-cuda12 = ["jax[cuda12]>=0.10", "liblaf-peach[cuda12]>=0.9"]
-cuda13 = ["jax[cuda13]>=0.10", "liblaf-peach[cuda13]>=0.9"]
-
 [dependency-groups]
 dev = [
   "icecream>=2.1.10",
   "ipykernel>=7",
   "liblaf-cherries>=1",
+  "liblaf-grapes>=9",
   "pygame>=2.6.1",
   "sympy>=1",
-  "torch>=2.11.0",
-  "viztracer>=1",
+  "viztracer>=1"
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
 docs = [
@@ -76,7 +64,7 @@ docs = [
   "griffe-pydantic>=1",
   "griffe-warnings-deprecated>=1",
   "mkdocstrings[python]>=1",
-  "zensical>=0.0.41"
+  "zensical>=0.0.43"
 ]
 lint = ["import-linter[ui]>=2", "ruff>=0.15"]
 nox = ["liblaf-nox-recipes>=0.1", "nox>=2026", "nox-uv>=0.7"]
@@ -89,9 +77,10 @@ test = [
   { include-group = "dev" },
 ]
 typing = [
+  "ipctk-stubs>=1",
   "mypy>=2.1.0",
   "pybind11-stubgen>=2.5.5",
-  "scipy-stubs>=1",
+  "scipy-stubs>=1"
 ]
 
 [build-system]
@@ -127,10 +116,6 @@ root_package = "liblaf.apple"
 ancestors = ["liblaf.apple"]
 name = "Acyclic siblings"
 type = "acyclic_siblings"
-ignore_imports = [
-  "liblaf.apple.jax.fem.geometry._geometry -> liblaf.apple.jax.fem.geometry._tetra",
-  "liblaf.apple.jax.fem.geometry._geometry -> liblaf.apple.jax.fem.geometry._triangle"
-]
 
 [tool.pytest]
 addopts = [
@@ -168,6 +153,10 @@ extra-paths = ["typings"]
 [tool.uv]
 default-groups = "all"
 
+[[tool.uv.index]]
+name = "ipctk"
+url = "https://liblaf.github.io/mirrors-ipc-toolkit/simple/"
+
 [tool.uv.sources]
-liblaf-peach = { editable = true, path = "../peach" }
-ipctk = { git = "https://github.com/ipc-sim/ipc-toolkit.git" }
+ipctk = { index = "ipctk" }
+ipctk-stubs = { index = "ipctk" }

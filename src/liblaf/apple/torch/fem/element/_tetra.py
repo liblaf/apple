@@ -1,20 +1,21 @@
 from typing import override
 
-import jax.numpy as jnp
-from jaxtyping import Array, Float
+import attrs
+import torch
+from jaxtyping import Float
+from torch import Tensor
 
-from liblaf import jarp
-from liblaf.apple.jax.fem.quadrature import QuadratureTetra
+from liblaf.apple.torch.fem.quadrature import QuadratureTetra
 
 from ._element import Element
 
 
-@jarp.define
+@attrs.define
 class ElementTetra(Element):
     @property
     @override
-    def points(self) -> Float[Array, "points dim"]:
-        return jnp.asarray(
+    def points(self) -> Float[Tensor, "points dim"]:
+        return torch.tensor(
             [
                 [0.0, 0.0, 0.0],
                 [1.0, 0.0, 0.0],
@@ -29,13 +30,13 @@ class ElementTetra(Element):
         return QuadratureTetra()
 
     @override
-    def function(self, coords: Float[Array, " dim"]) -> Float[Array, "points=4"]:
+    def function(self, coords: Float[Tensor, " dim"]) -> Float[Tensor, "points=4"]:
         r, s, t = coords
-        return jnp.asarray([1.0 - r - s - t, r, s, t])
+        return torch.tensor([1.0 - r - s - t, r, s, t])
 
     @override
-    def gradient(self, coords: Float[Array, " dim"]) -> Float[Array, "points dim"]:
-        return jnp.asarray(
+    def gradient(self, coords: Float[Tensor, " dim"]) -> Float[Tensor, "points dim"]:
+        return torch.tensor(
             [
                 [-1.0, -1.0, -1.0],
                 [1.0, 0.0, 0.0],
@@ -45,5 +46,5 @@ class ElementTetra(Element):
         )
 
     @override
-    def hessian(self, coords: Float[Array, " dim"]) -> Float[Array, "points dim dim"]:
-        return jnp.zeros((4, 3, 3))
+    def hessian(self, coords: Float[Tensor, " dim"]) -> Float[Tensor, "points dim dim"]:
+        return torch.zeros((4, 3, 3))

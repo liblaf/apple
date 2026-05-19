@@ -1,59 +1,68 @@
 from typing import override
 
 import attrs
-import jax.numpy as jnp
-from jaxtyping import Array, Float
+import torch
+from jaxtyping import Float
 from liblaf.peach.optim import Problem
+from torch import Tensor
 
-from liblaf import jarp
+from liblaf.apple.torch.utils import method_with_device
 
 from ._model import Model
-from ._state import ModelState
 
-type Free = Float[Array, " free"]
-type Full = Float[Array, "points dim"]
-type Scalar = Float[Array, ""]
+type Free = Float[Tensor, " free"]
+type Full = Float[Tensor, "points dim"]
+type Scalar = Float[Tensor, ""]
 
 
-@jarp.define
-class ForwardProblem(Problem[ModelState]):
-    from ._state import ModelState as State
+@attrs.define
+class ForwardProblem(Problem[Model.State]):
+    type State = Model.State
 
     model: Model
 
-    @override
-    def before_trial(self, state: State, u: Free) -> State:
-        u_full: Full = self.model.dof_map.to_full(u)
-        return attrs.evolve(state, u=u_full)
+    @property
+    def device(self) -> torch.device:
+        return self.model.device
 
+    @method_with_device
     @override
     def max_step_size(self, state: State, p: Free) -> Scalar:
-        if self.model.collision is None:
-            return jnp.ones(())
         p_full: Full = self.model.dof_map.to_full_grad(p)
-        return self.model.collision.max_step_size(state.u, p_full)
+        return self.model.max_step_size(state, p_full)
 
+    @method_with_device
+    @override
+    def update(self, state: State, u: Free) -> None:
+        u_full: Full = self.model.dof_map.to_full(u)
+        self.model.update(state, u_full)
+
+    @method_with_device
     @override
     def fun(self, state: State) -> Scalar:
-        return self.model.fun(state.u)
+        return self.model.fun(state)
 
+    @method_with_device
     @override
     def grad(self, state: State) -> Free:
-        grad_full: Full = self.model.grad(state.u)
+        grad_full: Full = self.model.grad(state)
         return self.model.dof_map.to_free_grad(grad_full)
 
+    @method_with_device
     @override
     def hess_diag(self, state: State) -> Free:
-        hess_diag_full: Full = self.model.hess_diag(state.u)
-        return self.model.dof_map.to_free_hess_diag(hess_diag_full)
+        H_diag_full: Full = self.model.hess_diag(state)
+        return self.model.dof_map.to_free_hess_diag(H_diag_full)
 
+    @method_with_device
     @override
     def hess_prod(self, state: State, p: Free) -> Free:
         p_full: Full = self.model.dof_map.to_full_grad(p)
-        hess_prod_full: Full = self.model.hess_prod(state.u, p_full)
-        return self.model.dof_map.to_free_grad(hess_prod_full)
+        Hp_full: Full = self.model.hess_prod(state, p_full)
+        return self.model.dof_map.to_free_grad(Hp_full)
 
+    @method_with_device
     @override
     def hess_quad(self, state: State, p: Free) -> Scalar:
         p_full: Full = self.model.dof_map.to_full_grad(p)
-        return self.model.hess_quad(state.u, p_full)
+        return self.model.hess_quad(state, p_full)

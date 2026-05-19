@@ -11,7 +11,7 @@ class AttrName(enum.StrEnum):
     FORCE = enum.auto()
     FRACTION = enum.auto()
     GLOBAL_POINT_ID = enum.auto()
-    LAMBDA = "lambda_"
+    LAMBDA = "lmbda"
     MASS_DENSITY = enum.auto()
     MU = enum.auto()
     NU = enum.auto()

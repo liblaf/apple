@@ -1,15 +1,16 @@
 from collections.abc import Callable, Sequence
 from typing import Any, ClassVar, Self, cast, no_type_check, overload, override
 
-import liblaf.jarp.warp.types as wpt
+import attrs
 import pyvista as pv
 import warp as wp
-from jaxtyping import Array, Float
+from jaxtyping import Float
+from torch import Tensor
 
-from liblaf import jarp
-from liblaf.apple.jax.fem import Region
+from liblaf.apple.torch.fem import Region
 from liblaf.apple.warp import math
 from liblaf.apple.warp.model import WarpPotential
+from liblaf.apple.warp.utils import warp_default_dtype, warp_struct
 
 from . import func, utils
 
@@ -36,8 +37,25 @@ def _deformation_gradient_kernel(
     output[cid, qid] = func.deformation_gradient(u_cell, dhdX[cid, qid])
 
 
-@jarp.frozen_static
+@attrs.define
 class WarpPotentialFem(WarpPotential):
+    @warp_struct
+    class _Region:
+        cells: wp.array
+        """(cells,)"""
+        dhdX: wp.array
+        """(cells, quadrature)"""
+        dV: wp.array
+        """(cells, quadrature)"""
+
+        @classmethod
+        def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
+            return {
+                "cells": wp.array1d(dtype=wp.vec4i),
+                "dhdX": wp.array2d(dtype=wp.types.matrix((4, 3), dtype)),
+                "dV": wp.array2d(dtype=dtype),
+            }
+
     energy_density_func: ClassVar[wp.Function]
     first_piola_kirchhoff_func: ClassVar[wp.Function]
     hess_diag_func: ClassVar[wp.Function]
@@ -56,24 +74,7 @@ class WarpPotentialFem(WarpPotential):
     hess_diag_kernel: ClassVar[wp.Kernel]
     hess_quad_kernel: ClassVar[wp.Kernel]
 
-    @jarp.struct
-    class _Region:
-        cells: wp.array[wp.vec4i]
-        """(cells,)"""
-        dhdX: wp.array[wpt.mat43]  # ty:ignore[invalid-type-form]
-        """(cells, quadrature)"""
-        dV: wp.array[wpt.floating]  # ty:ignore[invalid-type-form]
-        """(cells, quadrature)"""
-
-        @classmethod
-        def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
-            return {
-                "cells": wp.array1d(dtype=wp.vec4i),
-                "dhdX": wp.array2d(dtype=wp.types.matrix((4, 3), dtype)),
-                "dV": wp.array2d(dtype=dtype),
-            }
-
-    region: _Region = jarp.static()
+    region: _Region
 
     @overload
     @classmethod
@@ -82,7 +83,7 @@ class WarpPotentialFem(WarpPotential):
     ) -> Self: ...
     @classmethod
     def from_pyvista(cls, obj: pv.DataObject, **kwargs) -> Self:
-        region: Region = Region.from_pyvista(obj, grad=True)
+        region: Region = Region.from_pyvista(obj)
         return cls.from_region(region, **kwargs)
 
     @overload
@@ -94,14 +95,13 @@ class WarpPotentialFem(WarpPotential):
     def from_region(
         cls, region: Region, *, requires_grad: Sequence[str] = (), **kwargs
     ) -> Self:
+        dtype: Any = warp_default_dtype()
         requires_grad = tuple(requires_grad)
-        fraction: Float[Array, " cells"] = utils.get_fraction(region)
+        fraction: Float[Tensor, " cells"] = utils.get_fraction(region)
         region_wp: WarpPotentialFem._Region = cls._Region()
-        region_wp.cells = jarp.to_warp(region.cells_global, wp.vec4i)
-        region_wp.dhdX = jarp.to_warp(
-            region.dhdX, wp.types.matrix((4, 3), wpt.floating)
-        )
-        region_wp.dV = jarp.to_warp(fraction[:, None] * region.dV, wpt.floating)
+        region_wp.cells = wp.from_torch(region.cells_global, wp.vec4i)
+        region_wp.dhdX = wp.from_torch(region.dhdX, wp.types.matrix((4, 3), dtype))
+        region_wp.dV = wp.from_torch(fraction[:, None] * region.dV, dtype)
         self: Self = cls(
             region=region_wp,
             materials=cls.materials_from_region(region, requires_grad),

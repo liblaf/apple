@@ -1,10 +1,11 @@
 from typing import Any, ClassVar, cast, override
 
+import attrs
 import warp as wp
 
-from liblaf import jarp
 from liblaf.apple.common import ACTIVATION, LAMBDA, MU
 from liblaf.apple.warp import math
+from liblaf.apple.warp.utils import warp_struct
 
 from . import func, utils
 from ._base import WarpPotentialFem
@@ -18,7 +19,7 @@ Materials = Any
 @wp.func
 def energy_density(F: mat33, materials: Materials, cid: int) -> floating:
     A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     G = F @ A  # mat33
     I2 = func.I2(G)  # float
@@ -33,7 +34,7 @@ def energy_density(F: mat33, materials: Materials, cid: int) -> floating:
 @wp.func
 def first_piola_kirchhoff(F: mat33, materials: Materials, cid: int) -> mat33:
     A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     G = F @ A  # mat33
     J = func.I3(G)  # float
@@ -54,7 +55,7 @@ def hess_diag(
     clamp_lambda: bool = True,  # noqa: ARG001
 ) -> mat33:
     A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     G = F @ A  # mat33
     J = func.I3(G)  # float
@@ -77,7 +78,7 @@ def hess_diag(
 @wp.func
 def hess_prod(F: mat33, p: mat43, dhdX: mat43, materials: Materials, cid: int) -> mat33:
     A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     G = F @ A  # mat33
     J = func.I3(G)  # float
@@ -98,7 +99,7 @@ def hess_quad(
     F: mat33, p: mat43, dhdX: mat43, materials: Materials, cid: int
 ) -> floating:
     A = func.make_activation_mat33(materials.activation[cid])  # mat33
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     G = F @ A  # mat33
     J = func.I3(G)  # float
@@ -114,12 +115,12 @@ def hess_quad(
     return d2Psi_dI32 * h3_quad + dPsi_dI2 * h5_quad + dPsi_dI3 * h6_quad
 
 
-@jarp.frozen_static
+@attrs.define
 class StableNeoHookeanMuscle(WarpPotentialFem):
-    @jarp.struct
+    @warp_struct
     class Materials:
         activation: wp.array
-        lambda_: wp.array
+        lmbda: wp.array
         mu: wp.array
 
         @classmethod
@@ -166,6 +167,6 @@ class StableNeoHookeanMuscle(WarpPotentialFem):
     def materials_from_region(cls, region: Any, requires_grad: Any) -> Materials:
         materials: cls.Materials = cls.Materials()
         materials.activation = utils.get_activation(region)
-        materials.lambda_ = utils.get_lambda(region)
+        materials.lmbda = utils.get_lambda(region)
         materials.mu = utils.get_mu(region)
         return materials

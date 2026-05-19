@@ -1,21 +1,22 @@
 from typing import Self
 
+import attrs
 import felupe
-import jax.numpy as jnp
-from jaxtyping import Array, Float
+import torch
+from jaxtyping import Float
+from torch import Tensor
 
-from liblaf import jarp
 
-
-@jarp.define
+@attrs.define
 class Scheme:
-    points: Float[Array, "quadrature dim"] = jarp.array()
-    weights: Float[Array, " quadrature"] = jarp.array()
+    points: Float[Tensor, "quadrature dim"]
+    weights: Float[Tensor, " quadrature"]
 
     @classmethod
     def from_felupe(cls, schema: felupe.quadrature.Scheme) -> Self:
         return cls(
-            points=jnp.asarray(schema.points), weights=jnp.asarray(schema.weights)
+            points=torch.tensor(schema.points),
+            weights=torch.tensor(schema.weights),
         )
 
     @property

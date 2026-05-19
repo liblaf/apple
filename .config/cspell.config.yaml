@@ -24,14 +24,11 @@ words:
   - acot
   - acoth
   - anguli
-  - arange
   - arap
   - arithmatex
-  - armijo
   - arpack
   - ascontiguousarray
   - atlanto
-  - atol
   - auricularis
   - bfgs
   - binarize
@@ -53,6 +50,7 @@ words:
   - cuda
   - ddot
   - dhat
+  - dhdr
   - digastiric
   - dmin
   - dofs
@@ -71,9 +69,9 @@ words:
   - flava
   - genioglossus
   - geniohyoid
-  - gkᵀpk
   - globus
   - gmres
+  - grimp
   - griseum
   - hessp
   - hofschuster
@@ -88,7 +86,6 @@ words:
   - intertransversarii
   - ipctk
   - ipykernel
-  - isdtype
   - jarp
   - jaxtyping
   - kdtree
@@ -100,34 +97,28 @@ words:
   - ligamenta
   - lineax
   - linenums
+  - lmbda
   - lucide
   - lumborum
   - mandibula
-  - mathrm
   - matmul
   - matvec
-  - meanj
   - mentalis
   - minv
   - mkdocs
   - mkdocstrings
   - multifidus
   - mypy
-  - nans
   - nasi
   - nasolacrimal
-  - ndindex
   - neumann
   - novolpres
   - nuchal
-  - numprocesses
   - numpy
   - obliqyys
   - occipitofrontalis
   - omohyoid
   - opinv
-  - optax
-  - optim
   - orbicularis
   - oris
   - oxfmt
@@ -140,10 +131,8 @@ words:
   - phace
   - piola
   - pipx
-  - pkᵀhkpk
   - pncg
   - precond
-  - primals
   - procerus
   - pterygoid
   - pvsm

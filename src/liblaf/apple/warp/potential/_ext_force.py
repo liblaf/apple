@@ -1,14 +1,14 @@
 from typing import Any, Self, no_type_check, override
 
-import liblaf.jarp.warp.types as wpt
+import attrs
 import numpy as np
 import pyvista as pv
 import warp as wp
 from jaxtyping import Float, Integer
 
-from liblaf import jarp
 from liblaf.apple.common import FORCE, GLOBAL_POINT_ID
 from liblaf.apple.warp.model import WarpPotential
+from liblaf.apple.warp.utils import warp_default_dtype, warp_struct
 
 floating = Any
 vec3 = Any
@@ -39,9 +39,9 @@ def grad_kernel(
     wp.atomic_add(output, vid, f)
 
 
-@jarp.frozen_static
+@attrs.define
 class ExternalForce(WarpPotential):
-    @jarp.struct
+    @warp_struct
     class Materials:
         force: wp.array
 
@@ -49,15 +49,16 @@ class ExternalForce(WarpPotential):
         def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
             return {"force": wp.array1d(dtype=wp.types.vector(3, dtype=dtype))}
 
-    indices: wp.array[wp.int32] = jarp.static()
-    materials: Materials = jarp.static()
+    indices: wp.array[wp.int32]
+    materials: Materials
 
     @classmethod
     def from_pyvista(cls, obj: pv.PolyData) -> Self:
+        dtype: Any = warp_default_dtype()
         force: Float[np.ndarray, " V 3"] = obj.point_data[FORCE.vtk]
         indices: Integer[np.ndarray, " V"] = obj.point_data[GLOBAL_POINT_ID.vtk]
         materials: ExternalForce.Materials = cls.Materials()
-        materials.force = wp.from_numpy(force, wpt.vec3)
+        materials.force = wp.from_numpy(force, wp.types.vector(3, dtype))
         return cls(indices=wp.from_numpy(indices, wp.int32), materials=materials)
 
     @override

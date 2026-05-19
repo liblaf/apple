@@ -1,9 +1,10 @@
 from typing import Any, ClassVar, cast, override
 
+import attrs
 import warp as wp
 
-from liblaf import jarp
 from liblaf.apple.warp import math
+from liblaf.apple.warp.utils import warp_struct
 
 from . import func, utils
 from ._base import WarpPotentialFem
@@ -16,7 +17,7 @@ Materials = Any
 
 @wp.func
 def energy_density(F: mat33, materials: Materials, cid: int) -> floating:
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     I2 = func.I2(F)  # float
     J = func.I3(F)  # float
@@ -29,7 +30,7 @@ def energy_density(F: mat33, materials: Materials, cid: int) -> floating:
 
 @wp.func
 def first_piola_kirchhoff(F: mat33, materials: Materials, cid: int) -> mat33:
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     J = func.I3(F)  # float
     dPsi_dI2 = F.dtype(0.5) * mu  # float
@@ -48,7 +49,7 @@ def hess_diag(
     *,
     clamp_lambda: bool = True,  # noqa: ARG001
 ) -> mat33:
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     J = func.I3(F)  # float
     # g2 = func.g2(F)  # mat33
@@ -69,7 +70,7 @@ def hess_diag(
 
 @wp.func
 def hess_prod(F: mat33, p: mat43, dhdX: mat43, materials: Materials, cid: int) -> mat33:
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     J = func.I3(F)  # float
     # g2 = func.g2(F)  # mat33
@@ -88,7 +89,7 @@ def hess_prod(F: mat33, p: mat43, dhdX: mat43, materials: Materials, cid: int) -
 def hess_quad(
     F: mat33, p: mat43, dhdX: mat43, materials: Materials, cid: int
 ) -> floating:
-    la = materials.lambda_[cid]  # float
+    la = materials.lmbda[cid]  # float
     mu = materials.mu[cid]  # float
     J = func.I3(F)  # float
     # g2 = func.g2(F)  # mat33
@@ -103,16 +104,16 @@ def hess_quad(
     return d2Psi_dI32 * h3_quad + dPsi_dI2 * h5_quad + dPsi_dI3 * h6_quad
 
 
-@jarp.frozen_static
+@attrs.define
 class StableNeoHookean(WarpPotentialFem):
-    @jarp.struct
+    @warp_struct
     class Materials:
-        lambda_: wp.array
+        lmbda: wp.array
         mu: wp.array
 
         @classmethod
         def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
-            return {"lambda_": wp.array1d(dtype=dtype), "mu": wp.array1d(dtype=dtype)}
+            return {"lmbda": wp.array1d(dtype=dtype), "mu": wp.array1d(dtype=dtype)}
 
     energy_density_func: ClassVar[wp.Function] = cast("wp.Function", energy_density)
     first_piola_kirchhoff_func: ClassVar[wp.Function] = cast(
@@ -149,6 +150,6 @@ class StableNeoHookean(WarpPotentialFem):
     @override
     def materials_from_region(cls, region: Any, requires_grad: Any) -> Materials:
         materials: cls.Materials = cls.Materials()
-        materials.lambda_ = utils.get_lambda(region)
+        materials.lmbda = utils.get_lambda(region)
         materials.mu = utils.get_mu(region)
         return materials

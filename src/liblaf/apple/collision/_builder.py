@@ -1,25 +1,28 @@
+import attrs
 import ipctk
 import numpy as np
 import pyvista as pv
+import torch
 from jaxtyping import Float, Integer
 
-from liblaf import jarp
 from liblaf.apple.common import GLOBAL_POINT_ID
 
 from ._collision import Collision
 
 
-@jarp.define
+@attrs.define
 class CollisionBuilder:
-    stiffness: float = jarp.static()
-    use_physical_barrier: bool = jarp.static(default=True)
+    stiffness: float
+    use_physical_barrier: bool = attrs.field(default=True)
 
-    rest_positions: Float[np.ndarray, "V dim"] = jarp.field(default=np.empty((0, 3)))
-    faces: Integer[np.ndarray, "F 3"] = jarp.field(
-        default=np.empty((0, 3), dtype=np.int32)
+    rest_positions: Float[np.ndarray, "V dim"] = attrs.field(
+        factory=lambda: np.empty((0, 3))
     )
-    indices: Integer[np.ndarray, " V"] = jarp.field(
-        default=np.empty((0,), dtype=np.int32)
+    faces: Integer[np.ndarray, "F 3"] = attrs.field(
+        factory=lambda: np.empty((0, 3), dtype=np.int32)
+    )
+    indices: Integer[np.ndarray, " V"] = attrs.field(
+        factory=lambda: np.empty((0,), dtype=np.int32)
     )
 
     @property
@@ -52,15 +55,9 @@ class CollisionBuilder:
             stiffness=self.stiffness,
             use_physical_barrier=self.use_physical_barrier,
         )
-        collisions: ipctk.NormalCollisions = ipctk.NormalCollisions()
-        if self.use_physical_barrier:
-            collisions.use_area_weighting = True
-            collisions.collision_set_type = (
-                ipctk.NormalCollisions.CollisionSetType.IMPROVED_MAX_APPROX
-            )
         return Collision(
             collision_mesh=collision_mesh,
-            indices=self.indices,
+            indices=torch.as_tensor(self.indices),
             potential=potential,
-            collisions=collisions,
+            use_physical_barrier=self.use_physical_barrier,
         )

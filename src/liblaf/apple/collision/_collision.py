@@ -2,255 +2,166 @@ import logging
 
 import attrs
 import ipctk
-import jax.experimental
-import jax.numpy as jnp
 import numpy as np
 import scipy.sparse
-from jaxtyping import Array, Float, Integer
-
-from liblaf import jarp
+import torch
+from jaxtyping import Float, Integer
+from torch import Tensor
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-type Full = Array[Float, "points dim"]
-type Scalar = Array[Float, ""]
-type VDim = Array[Float, "V dim"]
+type Full = Float[Tensor, "points dim"]
+type Scalar = Float[Tensor, ""]
+type VDim = Float[Tensor, "V dim"]
 
 
-@jarp.define
+@attrs.define
 class Collision:
-    @jarp.define
+    @attrs.define
     class State:
-        marker: Scalar = jarp.array()
+        candidates: ipctk.Candidates = attrs.field(factory=ipctk.Candidates)
+        collisions: ipctk.NormalCollisions = attrs.field(factory=ipctk.NormalCollisions)
+        hess: scipy.sparse.csc_matrix | None = None
 
-    collision_mesh: ipctk.CollisionMesh = jarp.static()
-    indices: Integer[Array, " V"] = jarp.array()
-    potential: ipctk.BarrierPotential = jarp.static()
+    @staticmethod
+    def _default_broad_phase() -> ipctk.BroadPhase:
+        if torch.cuda.is_available() and hasattr(ipctk, "SweepAndTiniestQueue"):
+            logger.debug("broad phase: SweepAndTiniestQueue")
+            return ipctk.SweepAndTiniestQueue()
+        logger.debug("broad phase: LBVH")
+        return ipctk.LBVH()
 
-    broad_phase: ipctk.BroadPhase = jarp.static(factory=ipctk.LBVH)
-    candidates: ipctk.Candidates = jarp.static(factory=ipctk.Candidates)
-    collisions: ipctk.NormalCollisions = jarp.static(factory=ipctk.NormalCollisions)
-    narrow_phase_ccd: ipctk.NarrowPhaseCCD = jarp.static(
+    def _default_inflation_radius(self) -> float:
+        return 0.5 * self.potential.dhat
+
+    def _default_vertices(self) -> VDim:
+        return torch.as_tensor(self.collision_mesh.rest_positions)
+
+    collision_mesh: ipctk.CollisionMesh
+    indices: Integer[Tensor, " V"]
+    potential: ipctk.BarrierPotential
+
+    broad_phase: ipctk.BroadPhase = attrs.field(factory=_default_broad_phase)
+    narrow_phase_ccd: ipctk.NarrowPhaseCCD = attrs.field(
         factory=ipctk.TightInclusionCCD
     )
 
-    def _default_inflation_radius(self) -> Scalar:
-        return jnp.asarray(0.5 * self.potential.dhat)
-
-    dmin: Scalar = jarp.array(default=jnp.zeros(()))
-    inflation_radius: Scalar = jarp.array(
+    dmin: float = attrs.field(default=0.0)
+    inflation_radius: float = attrs.field(
         default=attrs.Factory(_default_inflation_radius, takes_self=True)
     )
-    min_distance: Scalar = jarp.array(default=jnp.zeros(()))
+    min_distance: float = attrs.field(default=0.0)
+    use_physical_barrier: bool = attrs.field(default=True)
 
-    def _default_vertices(self) -> VDim:
-        return jnp.asarray(self.collision_mesh.rest_positions)
-
-    vertices: Float[Array, "V dim"] = jarp.array(
+    vertices: Float[Tensor, "V dim"] = attrs.field(
         default=attrs.Factory(_default_vertices, takes_self=True)
     )
 
-    def max_step_size(self, u: Full, p: Full) -> Scalar:
+    def init(self) -> State:
+        state: Collision.State = Collision.State()
+        if self.use_physical_barrier:
+            state.collisions.use_area_weighting = True
+            state.collisions.collision_set_type = (
+                ipctk.NormalCollisions.CollisionSetType.IMPROVED_MAX_APPROX
+            )
+        vertices: VDim = self.vertices[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        state.candidates.build(
+            mesh=self.collision_mesh,
+            vertices=vertices,
+            inflation_radius=self.inflation_radius,
+            broad_phase=self.broad_phase,
+        )
+        return state
+
+    def max_step_size(self, state: State, u: Full, p: Full) -> Scalar:
         vertices_t0: Full = self.vertices + u[self.indices]
         vertices_t1: Full = vertices_t0 + p[self.indices]
-        alpha: Scalar = jax.pure_callback(
-            self._compute_collision_free_stepsize,
-            jnp.zeros(()),
-            vertices_t0,
-            vertices_t1,
-        )
-        return alpha
-
-    def fun(self, u: Full) -> Scalar:
-        vertices: VDim = self.vertices + u[self.indices]
-        output = jax.pure_callback(self._fun, jnp.zeros(()), vertices=vertices)
-        return output
-
-    def grad(self, u: Full) -> Full:
-        vertices: VDim = self.vertices + u[self.indices]
-        grad: Float[Array, " V*dim"] = jax.pure_callback(
-            self._gradient,
-            jax.ShapeDtypeStruct((vertices.size,), float),
-            vertices=vertices,
-        )
-        grad: VDim = grad.reshape(vertices.shape)
-        grad_full: Full = jnp.zeros_like(u)
-        grad_full = grad_full.at[self.indices].set(grad)
-        return grad_full
-
-    def hess_diag(self, u: Full) -> Full:
-        vertices: VDim = self.vertices + u[self.indices]
-        H_diag: Float[Array, " V*dim"] = jax.pure_callback(
-            self._gauss_newton_hessian_diagonal,
-            jax.ShapeDtypeStruct((vertices.size,), float),
-            vertices=vertices,
-        )
-        H_diag: VDim = H_diag.reshape(vertices.shape)
-        H_diag_full: Full = jnp.zeros_like(u)
-        H_diag_full = H_diag_full.at[self.indices].set(H_diag)
-        return H_diag_full
-
-    def hess_prod(self, u: Full, p: Full) -> Full:
-        vertices: VDim = self.vertices + u[self.indices]
-        Hp: VDim = jax.pure_callback(
-            self._hessian_prod,
-            jax.ShapeDtypeStruct((vertices.size,), float),
-            vertices=vertices,
-            p=p[self.indices],
-        )
-        Hp_full: Full = jnp.zeros_like(u)
-        Hp_full = Hp_full.at[self.indices].set(Hp)
-        return Hp_full
-
-    def hess_quad(self, u: Full, p: Full) -> Scalar:
-        vertices: VDim = self.vertices + u[self.indices]
-        pHp: Scalar = jax.pure_callback(
-            self._gauss_newton_hessian_quadratic_form,
-            jnp.zeros(()),
-            vertices=vertices,
-            p=p[self.indices],
-        )
-        return pHp
-
-    def _compute_collision_free_stepsize(
-        self, vertices_t0: VDim, vertices_t1: VDim
-    ) -> Scalar:
-        vertices_t0: Float[np.ndarray, "V dim"] = np.asarray(vertices_t0)
-        vertices_t1: Float[np.ndarray, "V dim"] = np.asarray(vertices_t1)
-        self.candidates.clear()
-        self.candidates.build(
+        vertices_t0: Float[np.ndarray, "V dim"] = vertices_t0.numpy(force=True)
+        vertices_t1: Float[np.ndarray, "V dim"] = vertices_t1.numpy(force=True)
+        state.candidates.clear()
+        state.candidates.build(
             mesh=self.collision_mesh,
             vertices_t0=vertices_t0,
             vertices_t1=vertices_t1,
             inflation_radius=self.inflation_radius,
             broad_phase=self.broad_phase,
         )
-        alpha: float = self.candidates.compute_collision_free_stepsize(
+        alpha: float = state.candidates.compute_collision_free_stepsize(
             mesh=self.collision_mesh,
             vertices_t0=vertices_t0,
             vertices_t1=vertices_t1,
             min_distance=self.min_distance,
             narrow_phase_ccd=self.narrow_phase_ccd,
         )
-        logger.debug("compute_collision_free_stepsize(): %f", alpha)
-        return jnp.asarray(alpha)
+        return torch.as_tensor(alpha)
 
-    def _fun(self, vertices: VDim) -> Scalar:
-        vertices = np.asarray(vertices)
-        # self.candidates.clear()
-        # self.candidates.build(
-        #     mesh=self.collision_mesh,
-        #     vertices=vertices,
-        #     inflation_radius=self.inflation_radius,
-        #     broad_phase=self.broad_phase,
-        # )
-        self.collisions.clear()
-        self.collisions.build(
-            candidates=self.candidates,
+    def update(self, state: State, u: Full) -> None:
+        vertices: VDim = self.vertices + u[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        state.collisions.clear()
+        state.collisions.build(
+            candidates=state.candidates,
             mesh=self.collision_mesh,
             vertices=vertices,
             dhat=self.potential.dhat,
             dmin=self.dmin,
         )
-        logger.debug("fun(): %d collisions", len(self.collisions))
+        state.hess = None
+
+    def fun(self, state: State, u: Full) -> Scalar:
+        vertices: VDim = self.vertices + u[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
         fun: float = self.potential(
-            collisions=self.collisions, mesh=self.collision_mesh, X=vertices
+            collisions=state.collisions, mesh=self.collision_mesh, X=vertices
         )
-        return jnp.asarray(fun)
+        return torch.as_tensor(fun)
 
-    def _gauss_newton_hessian_diagonal(self, vertices: VDim) -> VDim:
-        vertices = np.asarray(vertices)
-        # self.candidates.clear()
-        # self.candidates.build(
-        #     mesh=self.collision_mesh,
-        #     vertices=vertices,
-        #     inflation_radius=self.inflation_radius,
-        #     broad_phase=self.broad_phase,
-        # )
-        self.collisions.clear()
-        self.collisions.build(
-            candidates=self.candidates,
-            mesh=self.collision_mesh,
-            vertices=vertices,
-            dhat=self.potential.dhat,
-            dmin=self.dmin,
+    def grad(self, state: State, u: Full, output: Full) -> None:
+        vertices: VDim = self.vertices + u[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        grad: Float[np.ndarray, " V*dim"] = self.potential.gradient(
+            state.collisions, mesh=self.collision_mesh, X=vertices
         )
-        logger.debug("hess_diag(): %d collisions", len(self.collisions))
+        grad: Float[Tensor, " V*dim"] = torch.as_tensor(grad)
+        grad: VDim = grad.reshape(vertices.shape)
+        output[self.indices] = grad
+
+    def hess_diag(self, state: State, u: Full, output: Full) -> None:
+        vertices: VDim = self.vertices + u[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
         H_diag: Float[np.ndarray, " V*dim"] = (
             self.potential.gauss_newton_hessian_diagonal(
-                collisions=self.collisions, mesh=self.collision_mesh, vertices=vertices
+                collisions=state.collisions, mesh=self.collision_mesh, vertices=vertices
             )
         )
-        return jnp.asarray(H_diag)
+        H_diag: Float[Tensor, " V*dim"] = torch.as_tensor(H_diag)
+        H_diag: VDim = H_diag.reshape(vertices.shape)
+        output[self.indices] = H_diag
 
-    def _gauss_newton_hessian_quadratic_form(self, vertices: VDim, p: VDim) -> Scalar:
-        vertices = np.asarray(vertices)
-        p = np.asarray(p).reshape(-1)
-        # self.candidates.clear()
-        # self.candidates.build(
-        #     mesh=self.collision_mesh,
-        #     vertices=vertices,
-        #     inflation_radius=self.inflation_radius,
-        #     broad_phase=self.broad_phase,
-        # )
-        self.collisions.clear()
-        self.collisions.build(
-            candidates=self.candidates,
-            mesh=self.collision_mesh,
-            vertices=vertices,
-            dhat=self.potential.dhat,
-            dmin=self.dmin,
-        )
-        logger.debug("hess_quad(): %d collisions", len(self.collisions))
+    def hess_prod(self, state: State, u: Full, p: Full, output: Full) -> None:
+        if state.hess is None:
+            vertices: VDim = self.vertices + u[self.indices]
+            vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+            state.hess = self.potential.hessian(
+                collisions=state.collisions, mesh=self.collision_mesh, X=vertices
+            )
+        p: Float[Tensor, " V*dim"] = p[self.indices].flatten()
+        p: Float[np.ndarray, " V*dim"] = p.numpy(force=True)
+        Hp: Float[np.ndarray, " V*dim"] = state.hess @ p
+        Hp: VDim = torch.as_tensor(Hp).reshape(self.vertices.shape)
+        output[self.indices] = Hp
+
+    def hess_quad(self, state: State, u: Full, p: Full) -> Scalar:
+        vertices: VDim = self.vertices + u[self.indices]
+        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
+        p: VDim = p[self.indices]
+        p: Float[Tensor, " V*dim"] = p.flatten()
+        p: Float[np.ndarray, " V*dim"] = p.numpy(force=True)
         pHp: float = self.potential.gauss_newton_hessian_quadratic_form(
-            collisions=self.collisions, mesh=self.collision_mesh, vertices=vertices, p=p
-        )
-        return jnp.asarray(pHp)
-
-    def _gradient(self, vertices: VDim) -> Float[Array, " V*dim"]:
-        vertices: Float[np.ndarray, " V*dim"] = np.asarray(vertices)
-        # self.candidates.clear()
-        # self.candidates.build(
-        #     mesh=self.collision_mesh,
-        #     vertices=vertices,
-        #     inflation_radius=self.inflation_radius,
-        #     broad_phase=self.broad_phase,
-        # )
-        self.collisions.clear()
-        self.collisions.build(
-            candidates=self.candidates,
+            collisions=state.collisions,
             mesh=self.collision_mesh,
             vertices=vertices,
-            dhat=self.potential.dhat,
-            dmin=self.dmin,
+            p=p,
         )
-        logger.debug("grad(): %d collisions", len(self.collisions))
-        grad: Float[np.ndarray, " V*dim"] = self.potential.gradient(
-            collisions=self.collisions, mesh=self.collision_mesh, X=vertices
-        )
-        return jnp.asarray(grad)
-
-    def _hessian_prod(self, vertices: VDim, p: VDim) -> Float[Array, " V*dim"]:
-        vertices: Float[np.ndarray, "V dim"] = np.asarray(vertices)
-        p: Float[np.ndarray, "V dim"] = np.asarray(p)
-        # self.candidates.clear()
-        # self.candidates.build(
-        #     mesh=self.collision_mesh,
-        #     vertices=vertices,
-        #     inflation_radius=self.inflation_radius,
-        #     broad_phase=self.broad_phase,
-        # )
-        self.collisions.clear()
-        self.collisions.build(
-            candidates=self.candidates,
-            mesh=self.collision_mesh,
-            vertices=vertices,
-            dhat=self.potential.dhat,
-            dmin=self.dmin,
-        )
-        logger.debug("hess_prod(): %d collisions", len(self.collisions))
-        H: scipy.sparse.csc_matrix = self.potential.hessian(
-            collisions=self.collisions, mesh=self.collision_mesh, X=vertices
-        )
-        Hp: Float[np.ndarray, " V*dim"] = H @ p.flat
-        return jnp.asarray(Hp)
+        return torch.as_tensor(pHp)

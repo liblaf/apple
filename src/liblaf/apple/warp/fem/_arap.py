@@ -1,9 +1,10 @@
 from typing import Any, ClassVar, cast, override
 
+import attrs
 import warp as wp
 
-from liblaf import jarp
 from liblaf.apple.warp import math
+from liblaf.apple.warp.utils import warp_struct
 
 from . import func, utils
 from ._base import WarpPotentialFem
@@ -52,8 +53,8 @@ def hess_prod(
 ) -> mat33:
     mu = materials.mu[cid]  # float
     U, sigma, V = math.svd_rv(F)  # mat33, vec3, mat33
-    h4_prod = func.h4_prod(dhdX, p, U, sigma, V, clamp_lambda=clamp_lambda)  # mat43
-    h5_prod = func.h5_prod(dhdX, p)  # mat43
+    h4_prod = func.h4_prod(p, dhdX, U, sigma, V, clamp_lambda=clamp_lambda)  # mat43
+    h5_prod = func.h5_prod(p, dhdX)  # mat43
     h_prod = -F.dtype(2.0) * h4_prod + h5_prod  # mat43
     return F.dtype(0.5) * mu * h_prod  # mat33
 
@@ -76,11 +77,11 @@ def hess_quad(
     return F.dtype(0.5) * mu * h_quad  # float
 
 
-@jarp.frozen_static
+@attrs.define
 class Arap(WarpPotentialFem):
-    @jarp.struct
+    @warp_struct
     class Materials:
-        mu: wp.array[floating]
+        mu: wp.array
 
         @classmethod
         def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:

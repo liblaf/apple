@@ -25,10 +25,10 @@ class Config(cherries.BaseConfig):
 
     E_fat: float = 1.0
     nu: float = 0.49
-    smas_stiffness_ratio: float = 1.0e3
+    smas_stiffness_ratio: float = 1.0e2
     lr: float = 0.02
     coarsen: bool = False
-    bottom_pressure: float = 2.6
+    bottom_pressure: float = 0.3
     smas_prestrain: tuple[float, float, float, float, float, float] = (
         0.8,
         1.0,
@@ -41,7 +41,6 @@ class Config(cherries.BaseConfig):
     optimizer_max_steps: int = 3000
     rtol_primary: float = 5.0e-4
     rtol_secondary: float = 5.0e-4
-    load_steps: int = 4
     boundary_atol: float = 1.0e-2
     bottom_atol: float = 1.0e-6
 
@@ -159,7 +158,6 @@ def add_reference_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.field_data["OptimizerMaxSteps"] = np.asarray([cfg.optimizer_max_steps])
     mesh.field_data["RtolPrimary"] = np.asarray([cfg.rtol_primary])
     mesh.field_data["RtolSecondary"] = np.asarray([cfg.rtol_secondary])
-    mesh.field_data["LoadSteps"] = np.asarray([cfg.load_steps])
     mesh.field_data["SmasLayerBounds"] = np.asarray([SMAS_BOUNDS])
     mesh.field_data["SmasPrestrain"] = np.asarray([cfg.smas_prestrain])
     mesh.field_data["SmasActivation"] = activation_from_prestrain(cfg.smas_prestrain)[
@@ -263,15 +261,6 @@ def tensor_scalar(value: Any) -> float:
     return float(to_numpy(value).reshape(-1)[0])
 
 
-def pressure_schedule(cfg: Config) -> np.ndarray:
-    if cfg.load_steps < 1:
-        msg = f"load_steps must be >= 1, got {cfg.load_steps}."
-        raise ValueError(msg)
-    return np.linspace(
-        cfg.bottom_pressure / cfg.load_steps, cfg.bottom_pressure, cfg.load_steps
-    )
-
-
 def add_metric_fields(
     mesh: pv.UnstructuredGrid, metrics: dict[str, float | str]
 ) -> None:
@@ -291,28 +280,11 @@ def solve(
 ) -> tuple[pv.UnstructuredGrid, dict[str, float | str]]:
     from liblaf.apple.common import GLOBAL_POINT_ID
 
-    body: pv.UnstructuredGrid | None = None
-    forward = None
-    solution = None
-    initial_energy: float | None = None
-    total_optimizer_steps = 0
+    body = base_body.copy(deep=True)
+    forward = build_model(body, cfg)
 
-    for pressure in pressure_schedule(cfg):
-        step_cfg = cfg.model_copy(update={"bottom_pressure": float(pressure)})
-        previous_u = None if forward is None else forward.state.u.detach().clone()
-        body = base_body.copy(deep=True)
-        forward = build_model(body, step_cfg)
-        if previous_u is not None:
-            forward.model.update(forward.state, previous_u)
-        if initial_energy is None:
-            initial_energy = tensor_scalar(forward.problem.fun(forward.state))
-        solution = forward.step()
-        total_optimizer_steps += int(solution.state.step)
-
-    assert body is not None
-    assert forward is not None
-    assert solution is not None
-    assert initial_energy is not None
+    initial_energy = tensor_scalar(forward.problem.fun(forward.state))
+    solution = forward.step()
     final_energy = tensor_scalar(forward.problem.fun(forward.state))
 
     global_ids = body.point_data[GLOBAL_POINT_ID.vtk]
@@ -321,7 +293,7 @@ def solve(
     metrics: dict[str, float | str] = {
         "initial_energy": initial_energy,
         "final_energy": final_energy,
-        "optimizer_steps": float(total_optimizer_steps),
+        "optimizer_steps": float(solution.state.step),
         "optimizer_result": solution.result.name,
         "max_displacement": float(np.linalg.norm(displacement, axis=1).max()),
         "bottom_max_displacement_y": float(
@@ -376,7 +348,6 @@ def log_metrics(metrics: dict[str, float | str], cfg: Config) -> None:
         "optimizer_max_steps": float(cfg.optimizer_max_steps),
         "rtol_primary": cfg.rtol_primary,
         "rtol_secondary": cfg.rtol_secondary,
-        "load_steps": float(cfg.load_steps),
         "smas_prestrain_x": cfg.smas_prestrain[0],
         "smas_prestrain_y": cfg.smas_prestrain[1],
         "smas_prestrain_z": cfg.smas_prestrain[2],

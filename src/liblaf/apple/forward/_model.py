@@ -87,7 +87,6 @@ class Model:
         if self.collision is not None:
             assert state.collision is not None
             output += self.collision.fun(state.collision, state.u)
-        print("fun:", output)
         return output
 
     @method_with_device
@@ -97,7 +96,6 @@ class Model:
         if self.collision is not None:
             assert state.collision is not None
             self.collision.grad(state.collision, state.u, output)
-        print("grad norm:", output.norm())
         return output
 
     @method_with_device

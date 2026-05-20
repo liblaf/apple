@@ -1,0 +1,121 @@
+{
+  "target_input": "/home/liblaf/github/liblaf/apple/exp/2026/05/13/toy/data/10-activation-fixed-side-no-collision-input.vtu",
+  "target_output": "/home/liblaf/github/liblaf/apple/exp/2026/05/13/toy/data/10-activation-fixed-side-no-collision.vtu",
+  "n_points": 372,
+  "n_surface_points": 212,
+  "inverse_max_steps": 80,
+  "optimizer_steps": 6,
+  "stop_reason": "point_error_tol",
+  "inverse_lr": 0.1,
+  "adam_beta1": 0.3,
+  "adam_beta2": 0.8,
+  "forward_rtol": 1e-05,
+  "bbox_diagonal": 1.7320508075688772,
+  "point_error_rel_tol": 0.001,
+  "point_error_tol": 0.0017320508075688772,
+  "target_activation_y": 0.25,
+  "recovered_activation_y": 0.2524867643486216,
+  "activation_abs_error": 0.0024867643486216062,
+  "target_activation": [
+    0.0,
+    0.25,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "recovered_activation": [
+    0.0,
+    0.2524867643486216,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "final_loss": 8.210978827772869e-07,
+  "surface_mean_error": 0.0012544476424056362,
+  "surface_rms_error": 0.0015694883396610059,
+  "surface_max_error": 0.0024878821613495347,
+  "all_rms_error": 0.0015013809564489073,
+  "all_max_error": 0.0024878821613495347,
+  "trace": [
+    {
+      "step": 0.0,
+      "loss": 0.008298753266392844,
+      "surface_mean_error": 0.12611260184874679,
+      "surface_rms_error": 0.15778548665570777,
+      "surface_max_error": 0.2500011063109741,
+      "activation_y": 0.09999998493749633,
+      "grad_activation_y": -0.06639001530829114,
+      "optimizer_steps": 1.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 1.0,
+      "loss": 0.0029877218160704964,
+      "surface_mean_error": 0.07566955744918995,
+      "surface_rms_error": 0.09467399562821616,
+      "surface_max_error": 0.1500146682220987,
+      "activation_y": 0.1862401548278188,
+      "grad_activation_y": -0.03983485088318566,
+      "optimizer_steps": 2.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 2.0,
+      "loss": 0.0005397989827800521,
+      "surface_mean_error": 0.03216369091048932,
+      "surface_rms_error": 0.04024173142820965,
+      "surface_max_error": 0.06376993850975492,
+      "activation_y": 0.24544929671147087,
+      "grad_activation_y": -0.01693214967481535,
+      "optimizer_steps": 3.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 3.0,
+      "loss": 2.7500377677095225e-06,
+      "surface_mean_error": 0.0022955918531676277,
+      "surface_rms_error": 0.002872301046744329,
+      "surface_max_error": 0.0045588952809243015,
+      "activation_y": 0.26934828355977697,
+      "grad_activation_y": -0.0012085516163604143,
+      "optimizer_steps": 4.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 4.0,
+      "loss": 4.970604947236009e-05,
+      "surface_mean_error": 0.009760215175355495,
+      "surface_rms_error": 0.012211394204474781,
+      "surface_max_error": 0.01935095880642458,
+      "activation_y": 0.2653853188881138,
+      "grad_activation_y": 0.0051380810639520364,
+      "optimizer_steps": 5.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 5.0,
+      "loss": 3.143025781316723e-05,
+      "surface_mean_error": 0.007761147592208621,
+      "surface_rms_error": 0.009710343631381008,
+      "surface_max_error": 0.015386203280242837,
+      "activation_y": 0.2524867643486216,
+      "grad_activation_y": 0.004085737256870073,
+      "optimizer_steps": 6.0,
+      "stopped": 0.0
+    },
+    {
+      "step": 6.0,
+      "loss": 8.212707984135499e-07,
+      "surface_mean_error": 0.0012545404315259347,
+      "surface_rms_error": 0.0015696535908411927,
+      "surface_max_error": 0.0024885059759505975,
+      "activation_y": 0.2524867643486216,
+      "grad_activation_y": 0.0006604495943599025,
+      "optimizer_steps": 6.0,
+      "stopped": 1.0
+    }
+  ],
+  "passed": true
+}

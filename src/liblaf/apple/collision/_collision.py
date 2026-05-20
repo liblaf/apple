@@ -43,7 +43,7 @@ class Collision:
 
     broad_phase: ipctk.BroadPhase = attrs.field(factory=_default_broad_phase)
     narrow_phase_ccd: ipctk.NarrowPhaseCCD = attrs.field(
-        factory=lambda: ipctk.TightInclusionCCD(tolerance=1e-3, max_iterations=10**3)
+        factory=ipctk.TightInclusionCCD
     )
 
     dmin: float = attrs.field(default=0.0)
@@ -93,15 +93,6 @@ class Collision:
             inflation_radius=self.inflation_radius,
             broad_phase=self.broad_phase,
         )
-        # if state.candidates.is_step_collision_free(
-        #     mesh=self.collision_mesh,
-        #     vertices_t0=vertices_t0,
-        #     vertices_t1=vertices_t1,
-        #     min_distance=self.min_distance,
-        #     narrow_phase_ccd=self.narrow_phase_ccd,
-        # ):
-        #     print("step is collision free")
-        #     return torch.ones((), dtype=u.dtype)
         alpha: float = state.candidates.compute_collision_free_stepsize(
             mesh=self.collision_mesh,
             vertices_t0=vertices_t0,
@@ -115,13 +106,13 @@ class Collision:
     def update(self, state: State, u: Full) -> None:
         vertices: VDim = self.vertices + u[self.indices]
         vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
-        state.candidates.clear()
-        state.candidates.build(
-            mesh=self.collision_mesh,
-            vertices=vertices,
-            inflation_radius=self.inflation_radius,
-            broad_phase=self.broad_phase,
-        )
+        # state.candidates.clear()
+        # state.candidates.build(
+        #     mesh=self.collision_mesh,
+        #     vertices=vertices,
+        #     inflation_radius=self.inflation_radius,
+        #     broad_phase=self.broad_phase,
+        # )
         state.collisions.clear()
         state.collisions.build(
             candidates=state.candidates,

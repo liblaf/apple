@@ -21,8 +21,6 @@ maxFileSize: 32KB
 useGitignore: true
 words:
   - aabbs
-  - acot
-  - acoth
   - anguli
   - arap
   - arithmatex
@@ -54,7 +52,6 @@ words:
   - digastiric
   - dmin
   - dofs
-  - drel
   - eigh
   - eigsh
   - eigvals
@@ -64,7 +61,6 @@ words:
   - epicranius
   - felupe
   - fieldz
-  - filib
   - finfo
   - flava
   - genioglossus
@@ -74,7 +70,6 @@ words:
   - grimp
   - griseum
   - hessp
-  - hofschuster
   - hynek
   - hyoglossus
   - icosphere
@@ -89,7 +84,6 @@ words:
   - jarp
   - jaxtyping
   - kdtree
-  - kraemer
   - labii
   - lbfgs
   - lbvh
@@ -119,6 +113,7 @@ words:
   - occipitofrontalis
   - omohyoid
   - opinv
+  - optree
   - orbicularis
   - oris
   - oxfmt
@@ -155,6 +150,7 @@ words:
   - risorius
   - rmatvec
   - rmse
+  - rpreconditioner
   - rtol
   - rumdl
   - savez
@@ -178,11 +174,11 @@ words:
   - taiki
   - tectorial
   - thyrohyoid
-  - tmax
   - todense
   - tombi
   - trimesh
   - twemoji
+  - unflatten
   - vdot
   - vecdot
   - veli

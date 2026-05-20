@@ -2,7 +2,6 @@ import functools
 import logging
 
 import attrs
-import torch
 from jaxtyping import Float
 from liblaf.peach.optim import Optimizer
 from torch import Tensor
@@ -18,14 +17,22 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 @attrs.define
 class Forward:
-    def _default_optimizer(self) -> Optimizer:
+    def default_optimizer(
+        self, *, max_steps: int = 5000, atol: float = 0.0, rtol: float = 5e-4
+    ) -> Optimizer:
         from liblaf.peach.optim import Pncg
 
-        max_step_norm: float = torch.inf
-        if self.model.collision is not None:
-            max_step_norm: float = 0.5 * self.model.collision.potential.dhat
-        criteria: Pncg.ConvergenceCriteria = Pncg.ConvergenceCriteria(max_steps=1500)
-        line_search: Pncg.LineSearch = Pncg.LineSearch(max_step_norm=max_step_norm)
+        # max_step_norm: float = torch.inf
+        # if self.model.collision is not None:
+        #     max_step_norm: float = 0.5 * self.model.collision.potential.dhat
+        criteria: Pncg.ConvergenceCriteria = Pncg.ConvergenceCriteria(
+            max_steps=max_steps,
+            atol_primary=atol,
+            rtol_primary=rtol,
+            atol_secondary=atol,
+            rtol_secondary=rtol,
+        )
+        line_search: Pncg.LineSearch = Pncg.LineSearch()
         return Pncg(criteria=criteria, line_search=line_search)
 
     def _default_state(self) -> Model.State:
@@ -33,7 +40,7 @@ class Forward:
 
     model: Model
     optimizer: Optimizer = attrs.field(
-        default=attrs.Factory(_default_optimizer, takes_self=True)
+        default=attrs.Factory(default_optimizer, takes_self=True)
     )
     state: Model.State = attrs.field(
         default=attrs.Factory(_default_state, takes_self=True)

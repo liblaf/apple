@@ -1,5 +1,5 @@
 import logging
-from typing import Any, cast, override
+from typing import Any, Mapping, cast, override
 
 import attrs
 import optree
@@ -41,8 +41,7 @@ class DifferentiableForward:
         logger.info(solution)
         return solution
 
-    def forward(self) -> Full:
-        materials: dict[str, dict[str, Tensor]] = self.model.get_materials()
+    def forward(self, materials: Mapping[str, Mapping[str, Tensor]]) -> Full:
         leaves, spec = optree.tree_flatten(cast("Any", materials))
         return _DifferentiableForward.apply(self, spec, *leaves)
 
@@ -81,7 +80,8 @@ class _AdjointProblem:
 
 
 class FunctionCtx(torch.autograd.function.FunctionCtx):
-    need_inputs_grad: tuple[bool, ...]
+    needs_input_grad: tuple[bool, ...]
+    saved_tensors: tuple[Tensor, ...]
     forward: DifferentiableForward
     spec: optree.PyTreeSpec
 
@@ -104,23 +104,38 @@ class _DifferentiableForward(Function):
     def setup_context(
         ctx: FunctionCtx, inputs: tuple[Any, ...], output: Tensor
     ) -> None:
-        forward, spec, *_args = inputs
+        forward, spec, *args = inputs
         ctx.forward = forward
         ctx.spec = spec
+        ctx.save_for_backward(*args)
 
     @staticmethod
     @once_differentiable
     @override
     def backward(ctx: FunctionCtx, grad_output: Tensor) -> tuple[Tensor | None, ...]:
-        materials_requires_grad: dict[str, dict[str, bool]] = cast(
-            "dict[str, dict[str, bool]]", ctx.spec.unflatten(ctx.need_inputs_grad[2:])
+        original_materials: dict[str, dict[str, Tensor]] = (
+            ctx.forward.model.get_materials()
         )
-        ctx.forward.model.require_grad(materials_requires_grad)
-        solution: LinearSolver.Solution = ctx.forward.adjoint_solve(grad_output)
-        p: Free = solution.params
-        p: Full = ctx.forward.model.dof_map.to_full_grad(p)
-        ctx.forward.model.mixed_derivative_prod(ctx.forward.state, p)
-        materials: dict[str, dict[str, Tensor]] = ctx.forward.model.get_materials()
-        leaves: list[Tensor] = optree.tree_leaves(cast("Any", materials))
-        grads: list[Tensor | None] = [leaf.grad for leaf in leaves]
+        try:
+            leaves: list[Tensor] = [
+                leaf.detach().requires_grad_(needs_grad)
+                for leaf, needs_grad in zip(
+                    ctx.saved_tensors, ctx.needs_input_grad[2:], strict=True
+                )
+            ]
+            tmp_materials: dict[str, dict[str, Tensor]] = cast(
+                "dict[str, dict[str, Tensor]]", ctx.spec.unflatten(leaves)
+            )
+            ctx.forward.model.set_materials(tmp_materials)
+            solution: LinearSolver.Solution = ctx.forward.adjoint_solve(grad_output)
+            p: Free = solution.params
+            p: Full = ctx.forward.model.dof_map.to_full_grad(p)
+            result_materials: dict[str, dict[str, Tensor]] = (
+                ctx.forward.model.get_materials()
+            )
+            leaves: list[Tensor] = optree.tree_leaves(cast("Any", result_materials))
+            ctx.forward.model.mixed_derivative_prod(ctx.forward.state, p)
+            grads: list[Tensor | None] = [leaf.grad for leaf in leaves]
+        finally:
+            ctx.forward.model.set_materials(original_materials)
         return (None, None, *grads)

@@ -1,18 +1,18 @@
 import attrs
-import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
-from jaxtyping import Array, Float, Integer
+import torch
+from jaxtyping import Bool, Float, Integer
+from torch import Tensor
 
-from liblaf import jarp
 from liblaf.apple.common import FIXED_MASK, FIXED_VALUE, GLOBAL_POINT_ID
 
 from ._dof_map import DofMap
 
 
-@jarp.define
+@attrs.define
 class DofMapBuilder:
-    dim: int = jarp.static(default=3)
+    dim: int = attrs.field(default=3)
 
     def _default_fixed_mask(self) -> Integer[np.ndarray, "points dim"]:
         return np.empty((0, self.dim), np.bool)
@@ -20,10 +20,10 @@ class DofMapBuilder:
     def _default_full_values(self) -> Float[np.ndarray, "points dim"]:
         return np.empty((0, self.dim))
 
-    fixed_mask: Integer[np.ndarray, "points dim"] = jarp.field(
+    fixed_mask: Integer[np.ndarray, "points dim"] = attrs.field(
         default=attrs.Factory(_default_fixed_mask, takes_self=True)
     )
-    full_values: Float[np.ndarray, "points dim"] = jarp.field(
+    full_values: Float[np.ndarray, "points dim"] = attrs.field(
         default=attrs.Factory(_default_full_values, takes_self=True)
     )
 
@@ -50,11 +50,17 @@ class DofMapBuilder:
         )
 
     def finalize(self) -> DofMap:
-        fixed_indices: Integer[Array, " fixed"] = jnp.flatnonzero(self.fixed_mask)
-        fixed_values: Float[Array, " fixed"] = jnp.asarray(
-            self.full_values.flatten()[fixed_indices]
+        fixed_mask: Bool[Tensor, "points dim"] = torch.as_tensor(self.fixed_mask)
+        full_values: Float[Tensor, "points dim"] = torch.as_tensor(self.full_values)
+        fixed_indices: Integer[Tensor, " fixed"] = torch.nonzero(
+            fixed_mask.flatten()
+        ).squeeze(dim=-1)
+        fixed_values: Float[Tensor, " fixed"] = torch.as_tensor(
+            full_values.flatten()[fixed_indices]
         )
-        free_indices: Integer[Array, " free"] = jnp.flatnonzero(~self.fixed_mask)
+        free_indices: Integer[Tensor, " free"] = torch.nonzero(
+            ~fixed_mask.flatten()
+        ).squeeze(dim=-1)
         return DofMap(
             dim=self.dim,
             n_points=self.n_points,

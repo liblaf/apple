@@ -1,3 +1,3 @@
-from ._material import get_activation, get_fraction, get_lambda, get_mu, require_grads
+from ._material import get_activation_inv, get_dhdX, get_dV
 
-__all__ = ["get_activation", "get_fraction", "get_lambda", "get_mu", "require_grads"]
+__all__ = ["get_activation_inv", "get_dV", "get_dhdX"]

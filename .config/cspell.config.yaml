@@ -21,17 +21,12 @@ maxFileSize: 32KB
 useGitignore: true
 words:
   - aabbs
-  - acot
-  - acoth
   - anguli
-  - arange
   - arap
   - arithmatex
-  - armijo
   - arpack
   - ascontiguousarray
   - atlanto
-  - atol
   - auricularis
   - bfgs
   - binarize
@@ -53,10 +48,10 @@ words:
   - cuda
   - ddot
   - dhat
+  - dhdr
   - digastiric
   - dmin
   - dofs
-  - drel
   - eigh
   - eigsh
   - eigvals
@@ -66,17 +61,15 @@ words:
   - epicranius
   - felupe
   - fieldz
-  - filib
   - finfo
   - flava
   - genioglossus
   - geniohyoid
-  - gkᵀpk
   - globus
   - gmres
+  - grimp
   - griseum
   - hessp
-  - hofschuster
   - hynek
   - hyoglossus
   - icosphere
@@ -88,11 +81,9 @@ words:
   - intertransversarii
   - ipctk
   - ipykernel
-  - isdtype
   - jarp
   - jaxtyping
   - kdtree
-  - kraemer
   - labii
   - lbfgs
   - lbvh
@@ -100,34 +91,29 @@ words:
   - ligamenta
   - lineax
   - linenums
+  - lmbda
   - lucide
   - lumborum
   - mandibula
-  - mathrm
   - matmul
   - matvec
-  - meanj
   - mentalis
   - minv
   - mkdocs
   - mkdocstrings
   - multifidus
   - mypy
-  - nans
   - nasi
   - nasolacrimal
-  - ndindex
   - neumann
   - novolpres
   - nuchal
-  - numprocesses
   - numpy
   - obliqyys
   - occipitofrontalis
   - omohyoid
   - opinv
-  - optax
-  - optim
+  - optree
   - orbicularis
   - oris
   - oxfmt
@@ -140,10 +126,8 @@ words:
   - phace
   - piola
   - pipx
-  - pkᵀhkpk
   - pncg
   - precond
-  - primals
   - procerus
   - pterygoid
   - pvsm
@@ -166,6 +150,7 @@ words:
   - risorius
   - rmatvec
   - rmse
+  - rpreconditioner
   - rtol
   - rumdl
   - savez
@@ -189,11 +174,11 @@ words:
   - taiki
   - tectorial
   - thyrohyoid
-  - tmax
   - todense
   - tombi
   - trimesh
   - twemoji
+  - unflatten
   - vdot
   - vecdot
   - veli

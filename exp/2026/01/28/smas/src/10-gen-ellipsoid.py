@@ -1,13 +1,13 @@
 import numpy as np
 import pyvista as pv
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     DIRICHLET_MASK,
     DIRICHLET_VALUE,
     GLOBAL_POINT_ID,
     MUSCLE_FRACTION,
 )
+
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):

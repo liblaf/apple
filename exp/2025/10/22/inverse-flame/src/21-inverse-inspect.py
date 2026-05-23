@@ -4,10 +4,10 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from jaxtyping import Array, Bool, Float
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION
 from liblaf.apple.jax import make_activation
+
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):

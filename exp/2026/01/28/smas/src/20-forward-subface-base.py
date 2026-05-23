@@ -4,9 +4,6 @@ import numpy as np
 import pyvista as pv
 from environs import env
 from jaxtyping import Bool
-from liblaf.peach.optim import ScipyOptimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     DIRICHLET_MASK,
     DIRICHLET_VALUE,
@@ -16,6 +13,9 @@ from liblaf.apple.consts import (
 )
 from liblaf.apple.jax import JaxMassSpring
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import ScipyOptimizer
+
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):

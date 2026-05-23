@@ -5,9 +5,6 @@ import optax
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import PNCG, Objective, Optax, Optimizer, ScipyOptimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA
 from liblaf.apple.model import Forward, Model, ModelBuilder, ModelState
 from liblaf.apple.warp.energies.elastic import (
@@ -15,6 +12,9 @@ from liblaf.apple.warp.energies.elastic import (
     WarpPhaceV2,
     # WarpVolumePreservationDeterminant,
 )
+from liblaf.peach.optim import PNCG, Objective, Optax, Optimizer, ScipyOptimizer
+
+from liblaf import cherries, melon
 
 wp.config.mode = "release"
 # wp.config.print_launches = True

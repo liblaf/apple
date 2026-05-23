@@ -2,11 +2,11 @@ from pathlib import Path
 
 import numpy as np
 import pyvista as pv
+from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
+from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.peach.optim import Optimizer
 
 from liblaf import cherries, melon
-from liblaf.apple.consts import ACTIVATION, GLOBAL_POINT_ID, LAMBDA, MU
-from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.warp import (
     WarpArapMuscle,
     WarpVolumePreservationDeterminant,

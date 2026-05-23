@@ -6,9 +6,6 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Objective, Optimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -21,6 +18,9 @@ from liblaf.apple.consts import (
 )
 from liblaf.apple.model import Forward, Model, ModelBuilder, ModelState
 from liblaf.apple.optim import PNCG
+from liblaf.peach.optim import Objective, Optimizer
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import WarpNeoHookean, WarpNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"

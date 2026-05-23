@@ -3,8 +3,6 @@ import numpy as np
 import pyvista as pv
 from environs import env
 from jaxtyping import Array, Float, Integer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -13,6 +11,8 @@ from liblaf.apple.consts import (
     MU,
     MUSCLE_FRACTION,
 )
+
+from liblaf import cherries, melon
 
 
 class Config(cherries.BaseConfig):

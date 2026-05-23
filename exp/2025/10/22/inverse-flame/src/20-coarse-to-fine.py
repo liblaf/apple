@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pyvista as pv
+from liblaf.apple.consts import ACTIVATION, POINT_ID
 
 from liblaf import cherries, melon
 from liblaf.apple import Forward, Model, ModelBuilder
-from liblaf.apple.consts import ACTIVATION, POINT_ID
 from liblaf.apple.warp import Phace
 
 

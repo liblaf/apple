@@ -1,43 +1,48 @@
 import functools
+import logging
 
 import attrs
-import jax.numpy as jnp
-from jaxtyping import Array, Float, Integer
+from jaxtyping import Float
 from liblaf.peach.optim import Optimizer
-
-from liblaf import jarp
+from torch import Tensor
 
 from ._model import Model
 from ._problem import ForwardProblem
-from ._state import ModelState
 
-type Free = Float[Array, " free"]
-type Full = Float[Array, "points dim"]
+type Free = Float[Tensor, " free"]
+type Full = Float[Tensor, "points dim"]
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-@jarp.define
+@attrs.define
 class Forward:
+    def default_optimizer(
+        self, *, max_steps: int = 5000, atol: float = 0.0, rtol: float = 5e-4
+    ) -> Optimizer:
+        from liblaf.peach.optim import Pncg
+
+        # max_step_norm: float = torch.inf
+        # if self.model.collision is not None:
+        #     max_step_norm: float = 0.5 * self.model.collision.potential.dhat
+        criteria: Pncg.ConvergenceCriteria = Pncg.ConvergenceCriteria(
+            max_steps=max_steps,
+            atol_primary=atol,
+            rtol_primary=rtol,
+            atol_secondary=atol,
+            rtol_secondary=rtol,
+        )
+        line_search: Pncg.LineSearch = Pncg.LineSearch()
+        return Pncg(criteria=criteria, line_search=line_search)
+
+    def _default_state(self) -> Model.State:
+        return self.model.init()
+
     model: Model
-
-    def _default_optimizer(self) -> Optimizer:
-        from liblaf.peach.optim import PNCG
-        from liblaf.peach.optim.pncg import ConvergenceCriteria, LineSearch
-
-        max_steps: Integer[Array, ""] = jnp.asarray(1500)
-        criteria = ConvergenceCriteria(max_steps=max_steps)
-        # TODO: add max_step_norm bound from edge lengths
-        line_search = LineSearch()
-        return PNCG(criteria=criteria, line_search=line_search)
-
-    def _default_state(self) -> ModelState:
-        u_free: Free = jnp.zeros((self.model.n_free,))
-        u_full: Full = self.model.dof_map.to_full(u_free)
-        return ModelState(u=u_full)
-
-    optimizer: Optimizer = jarp.field(
-        default=attrs.Factory(_default_optimizer, takes_self=True)
+    optimizer: Optimizer = attrs.field(
+        default=attrs.Factory(default_optimizer, takes_self=True)
     )
-    state: ModelState = attrs.field(
+    state: Model.State = attrs.field(
         default=attrs.Factory(_default_state, takes_self=True)
     )
 
@@ -50,7 +55,8 @@ class Forward:
         return ForwardProblem(model=self.model)
 
     def step(self) -> Optimizer.Solution:
-        solution, self.state = self.optimizer.minimize(
+        solution: Optimizer.Solution = self.optimizer.minimize(
             self.problem, self.state, self.free
         )
+        logger.info(solution)
         return solution

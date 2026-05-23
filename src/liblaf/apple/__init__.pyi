@@ -1,3 +1,3 @@
-from . import collision, common, forward, jax, warp
+from . import collision, common, forward, torch, warp
 
-__all__ = ["collision", "common", "forward", "jax", "warp"]
+__all__ = ["collision", "common", "forward", "torch", "warp"]

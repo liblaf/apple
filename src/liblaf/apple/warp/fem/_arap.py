@@ -1,11 +1,14 @@
-from typing import Any, ClassVar, cast, override
+from collections.abc import Mapping
+from typing import Any, ClassVar, cast
 
+import attrs
 import warp as wp
 
-from liblaf import jarp
+from liblaf.apple.common import MU
 from liblaf.apple.warp import math
+from liblaf.apple.warp.model import MaterialField
 
-from . import func, utils
+from . import func
 from ._base import WarpPotentialFem
 
 floating = Any
@@ -52,8 +55,8 @@ def hess_prod(
 ) -> mat33:
     mu = materials.mu[cid]  # float
     U, sigma, V = math.svd_rv(F)  # mat33, vec3, mat33
-    h4_prod = func.h4_prod(dhdX, p, U, sigma, V, clamp_lambda=clamp_lambda)  # mat43
-    h5_prod = func.h5_prod(dhdX, p)  # mat43
+    h4_prod = func.h4_prod(p, dhdX, U, sigma, V, clamp_lambda=clamp_lambda)  # mat43
+    h5_prod = func.h5_prod(p, dhdX)  # mat43
     h_prod = -F.dtype(2.0) * h4_prod + h5_prod  # mat43
     return F.dtype(0.5) * mu * h_prod  # mat33
 
@@ -76,15 +79,15 @@ def hess_quad(
     return F.dtype(0.5) * mu * h_quad  # float
 
 
-@jarp.frozen_static
+@attrs.define
 class Arap(WarpPotentialFem):
-    @jarp.struct
-    class Materials:
-        mu: wp.array[floating]
+    class Materials(WarpPotentialFem.Materials):
+        mu: wp.array
 
-        @classmethod
-        def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
-            return {"mu": wp.array1d(dtype=dtype)}
+    MATERIAL_FIELDS: ClassVar[Mapping[str, MaterialField]] = {
+        **WarpPotentialFem.MATERIAL_FIELDS,
+        MU.value: MaterialField.CELL.floating(MU.vtk),
+    }
 
     energy_density_func: ClassVar[wp.Function] = cast("wp.Function", energy_density)
     first_piola_kirchhoff_func: ClassVar[wp.Function] = cast(
@@ -116,10 +119,3 @@ class Arap(WarpPotentialFem):
     hess_quad_kernel: ClassVar[wp.Kernel] = WarpPotentialFem.make_hess_quad_kernel(
         hess_quad_func
     )
-
-    @classmethod
-    @override
-    def materials_from_region(cls, region: Any, requires_grad: Any) -> Materials:
-        materials: cls.Materials = cls.Materials()
-        materials.mu = utils.get_mu(region)
-        return materials

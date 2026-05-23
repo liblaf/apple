@@ -5,9 +5,6 @@ import jax.numpy as jnp
 import numpy as np
 import pyvista as pv
 from environs import env
-from liblaf.peach.optim import PNCG, Optimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     DIRICHLET_MASK,
@@ -19,6 +16,9 @@ from liblaf.apple.consts import (
     SMAS_FRACTION,
 )
 from liblaf.apple.model import Forward, Model, ModelBuilder
+from liblaf.peach.optim import PNCG, Optimizer
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import (
     WarpArap,
     WarpArapMuscle,

@@ -7,9 +7,6 @@ import numpy as np
 import pyvista as pv
 import warp as wp
 from environs import env
-from liblaf.peach.optim import Optimizer
-
-from liblaf import cherries, melon
 from liblaf.apple.consts import (
     ACTIVATION,
     GLOBAL_POINT_ID,
@@ -21,6 +18,9 @@ from liblaf.apple.consts import (
 from liblaf.apple.jax import JaxPointForce
 from liblaf.apple.model import Forward, Model, ModelBuilder
 from liblaf.apple.optim import PNCG
+from liblaf.peach.optim import Optimizer
+
+from liblaf import cherries, melon
 from liblaf.apple.warp import WarpStableNeoHookean, WarpStableNeoHookeanMuscle
 
 SUFFIX: str = "-smas46-muscle46"

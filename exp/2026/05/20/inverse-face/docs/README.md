@@ -4,12 +4,12 @@
 
 - stop reason: `mean_point_error_tol`
 - passed: `True`
-- target mean error: `0.0910711 cm`
-- target RMS error: `0.122756 cm`
-- target max error: `0.796076 cm`
-- final loss: `0.00502302`
-- optimizer steps: `3`
-- series frames: `4`
+- target mean error: `0.0766953 cm`
+- target RMS error: `0.0923131 cm`
+- target max error: `0.319675 cm`
+- final loss: `0.00284057`
+- optimizer steps: `1`
+- series frames: `2`
 
 ## Problem
 
@@ -29,13 +29,11 @@
 - SMAS stiffness ratio: `100.0`
 - collisions: `off`
 - optimized field: `muscle mean plus tet residual ActivationInv`
-- Adam: `lr=0.3`, `betas=(0.0, 0.9)`
+- Adam: `lr=0.1`, `betas=(0.0, 0.9)`
 
 ## Trace
 
 | step | loss | target mean error (cm) | best mean error (cm) | muscle grad | tet grad |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | 0.0132676 | 0.167013 | 0.167013 | 0.00022795 | 3.8493e-07 |
-| 1 | 0.0120128 | 0.158432 | 0.158432 | 0.000935831 | 1.64341e-06 |
-| 2 | 0.00827229 | 0.126432 | 0.126432 | 0.00177499 | 3.79529e-06 |
-| 3 | 0.00502302 | 0.0910711 | 0.0910711 | 0.000421169 | 4.54191e-06 |
+| 0 | 0.00665554 | 0.101503 | 0.101503 | 0.00256377 | 1.06505e-05 |
+| 1 | 0.00284057 | 0.0766953 | 0.0766953 | 0.00527571 | 1.19705e-05 |

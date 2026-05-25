@@ -1,4 +1,7 @@
+import contextlib
+import io
 import json
+import logging
 import math
 import time
 import warnings
@@ -39,9 +42,9 @@ class Config(cherries.BaseConfig):
     smas_stiffness_ratio: float = 1.0e2
     active_fraction_tol: float = 1.0e-3
 
-    forward_rtol: float = 1.0e-3
-    forward_atol: float = 1.0e-5
-    forward_max_steps: int = 1500
+    forward_rtol: float = 1.0e-2
+    forward_atol: float = 1.0e-4
+    forward_max_steps: int = 600
 
     inverse_lr: float = 0.5
     adam_beta1: float = 0.0
@@ -55,6 +58,9 @@ class Config(cherries.BaseConfig):
     loss_tol: float = 1.0e-5
     point_error_rel_tol: float = 2.0e-3
     activation_l2_weight: float = 1.0e-8
+    adjoint_maxiter: int = 60
+    adjoint_rtol: float = 1.0e-2
+    adjoint_atol: float = 0.0
 
     activation_inv_residual_scale: float = 1.0
     activation_inv_diag_min: float = -0.8
@@ -67,6 +73,8 @@ def configure_runtime() -> None:
     if not torch.cuda.is_available():
         msg = "This experiment uses Warp kernels through Torch and needs CUDA."
         raise RuntimeError(msg)
+    logging.getLogger("liblaf.apple.forward._forward").setLevel(logging.WARNING)
+    logging.getLogger("liblaf.apple.inverse._diff_forward").setLevel(logging.WARNING)
     warnings.filterwarnings(
         "ignore",
         message=r"The \.grad attribute of a Tensor that is not a leaf Tensor.*",
@@ -76,6 +84,11 @@ def configure_runtime() -> None:
     torch.set_default_device("cuda")
     wp.config.mode = "release"
     wp.init()
+
+
+def forward_quiet(differentiable_forward: Any, materials: Any) -> torch.Tensor:
+    with contextlib.redirect_stdout(io.StringIO()):
+        return differentiable_forward.forward(materials)
 
 
 def to_numpy(value: Any) -> np.ndarray:
@@ -405,9 +418,21 @@ def solve_inverse(  # noqa: PLR0915
     series_writer: Any,
 ) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]], str, int, dict[str, float]]:
     from liblaf.apple.inverse import DifferentiableForward
+    from liblaf.peach.linalg import FallbackSolver
+    from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
 
     forward = build_forward(mesh, cfg)
     differentiable_forward = DifferentiableForward(forward)
+    differentiable_forward.adjoint_solver = FallbackSolver(
+        solvers=[
+            CupyCG(
+                maxiter=cfg.adjoint_maxiter,
+                rtol=cfg.adjoint_rtol,
+                atol=cfg.adjoint_atol,
+            ),
+            CupyMinRes(maxiter=cfg.adjoint_maxiter, tol=cfg.adjoint_rtol),
+        ]
+    )
     base_materials = forward.model.get_materials()
     global_ids, target, point_ids_t, point_global_ids_t = inverse_tensors(
         mesh, target_displacement, target_point_ids
@@ -458,7 +483,7 @@ def solve_inverse(  # noqa: PLR0915
         )
 
         forward_start = time.perf_counter()
-        output = differentiable_forward.forward(materials)
+        output = forward_quiet(differentiable_forward, materials)
         forward_elapsed = time.perf_counter() - forward_start
         timing["forward_elapsed_s"] += forward_elapsed
 
@@ -702,6 +727,9 @@ def summarize(
         "stagnation_patience": int(cfg.stagnation_patience),
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
         "activation_l2_weight": float(cfg.activation_l2_weight),
+        "adjoint_maxiter": int(cfg.adjoint_maxiter),
+        "adjoint_rtol": float(cfg.adjoint_rtol),
+        "adjoint_atol": float(cfg.adjoint_atol),
         "total_elapsed_s": float(total_elapsed_s),
         **{name: float(value) for name, value in timing.items()},
         "target_displacement_mean": float(target_norm.mean()),

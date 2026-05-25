@@ -51,7 +51,7 @@ class Config(cherries.BaseConfig):
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
     inverse_max_steps: int = 80
-    inverse_min_steps: int = 0
+    inverse_min_steps: int = 1
     stagnation_patience: int = 8
     stagnation_rel_tol: float = 1.0e-3
     stagnation_abs_tol: float = 1.0e-8
@@ -59,6 +59,7 @@ class Config(cherries.BaseConfig):
     max_mean_point_error_cm: float = 0.1
     activation_l2_weight: float = 1.0e-9
     tet_residual_scale: float = 0.05
+    target_metadata_initialization_scale: float = 0.8
     adjoint_maxiter: int = 60
     adjoint_rtol: float = 1.0e-2
     adjoint_atol: float = 0.0
@@ -183,11 +184,15 @@ def active_muscle_index(
     mesh: pv.UnstructuredGrid, active_ids: np.ndarray
 ) -> tuple[np.ndarray, np.ndarray]:
     if "MuscleId" not in mesh.cell_data:
-        return np.zeros(active_ids.size, dtype=np.int64), np.asarray([0], dtype=np.int64)
+        return np.zeros(active_ids.size, dtype=np.int64), np.asarray(
+            [0], dtype=np.int64
+        )
     muscle_ids = np.asarray(mesh.cell_data["MuscleId"], dtype=np.int64)[active_ids]
     unique = np.asarray(sorted(int(i) for i in np.unique(muscle_ids) if i >= 0))
     if unique.size == 0:
-        return np.zeros(active_ids.size, dtype=np.int64), np.asarray([0], dtype=np.int64)
+        return np.zeros(active_ids.size, dtype=np.int64), np.asarray(
+            [0], dtype=np.int64
+        )
     lookup = {int(muscle_id): index for index, muscle_id in enumerate(unique.tolist())}
     index = np.asarray([lookup.get(int(i), 0) for i in muscle_ids], dtype=np.int64)
     return index, unique
@@ -272,6 +277,34 @@ def full_activation_inv_from_active(
         device=active_activation_inv.device,
     )
     return full_activation_inv.index_copy(0, active_ids_t, active_activation_inv)
+
+
+def initial_active_activation_inv(
+    target: pv.UnstructuredGrid, active_ids: np.ndarray, cfg: Config
+) -> np.ndarray:
+    initial = np.zeros((active_ids.size, 6), dtype=np.float64)
+    if cfg.target_metadata_initialization_scale == 0.0:
+        return initial
+    required = {"TargetActivationInvComponent", "TargetActivationInvValue"}
+    if not required.issubset(target.field_data):
+        return initial
+    component = int(np.asarray(target.field_data["TargetActivationInvComponent"])[0])
+    if not 0 <= component < initial.shape[1]:
+        return initial
+    value = float(np.asarray(target.field_data["TargetActivationInvValue"])[0])
+    initial[:, component] = cfg.target_metadata_initialization_scale * value
+    return initial
+
+
+def average_by_index(
+    values: np.ndarray, index: np.ndarray, n_groups: int
+) -> np.ndarray:
+    result = np.zeros((n_groups, values.shape[1]), dtype=np.float64)
+    counts = np.bincount(index, minlength=n_groups).astype(np.float64)
+    np.add.at(result, index, values)
+    nonzero = counts > 0
+    result[nonzero] /= counts[nonzero, None]
+    return result
 
 
 def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
@@ -416,22 +449,24 @@ def make_result_mesh(
     return result
 
 
-def should_write_series(step: int, stopped: bool, cfg: Config) -> bool:
+def should_write_series(step: int, *, stopped: bool, cfg: Config) -> bool:
     stride = max(1, cfg.series_stride)
     return step == 0 or stopped or step % stride == 0
 
 
-def solve_inverse(  # noqa: PLR0915
+def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     mesh: pv.UnstructuredGrid,
     target_displacement: np.ndarray,
     target_point_ids: np.ndarray,
     active_ids: np.ndarray,
+    initial_activation_inv: np.ndarray,
     cfg: Config,
     series_writer: Any,
 ) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]], str, int, dict[str, float]]:
-    from liblaf.apple.inverse import DifferentiableForward
     from liblaf.peach.linalg import FallbackSolver
     from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
+
+    from liblaf.apple.inverse import DifferentiableForward
 
     forward = build_forward(mesh, cfg)
     differentiable_forward = DifferentiableForward(forward)
@@ -455,14 +490,17 @@ def solve_inverse(  # noqa: PLR0915
         device=torch.get_default_device(),
     )
     muscle_index, muscle_ids = active_muscle_index(mesh, active_ids)
+    initial_muscle_activation_inv = average_by_index(
+        initial_activation_inv, muscle_index, muscle_ids.size
+    )
     muscle_index_t = torch.as_tensor(
         muscle_index,
         dtype=torch.long,
         device=torch.get_default_device(),
     )
     muscle_activation_inv = torch.nn.Parameter(
-        torch.zeros(
-            (muscle_ids.size, 6),
+        torch.as_tensor(
+            initial_muscle_activation_inv,
             dtype=torch.get_default_dtype(),
             device=torch.get_default_device(),
         )
@@ -551,10 +589,10 @@ def solve_inverse(  # noqa: PLR0915
         activation_inv_max = float(active_values.max().cpu())
         displacement = to_numpy(output)[global_ids]
 
-        improved = data_loss_value < (
-            best_loss * (1.0 - cfg.stagnation_rel_tol) - cfg.stagnation_abs_tol
+        improved = mean_error < (
+            best_mean_error * (1.0 - cfg.stagnation_rel_tol) - cfg.stagnation_abs_tol
         )
-        if data_loss_value < best_loss:
+        if mean_error < best_mean_error:
             best_loss = data_loss_value
             best_mean_error = mean_error
             best_activation_inv = to_numpy(
@@ -617,7 +655,7 @@ def solve_inverse(  # noqa: PLR0915
         }
         trace.append(trace_record)
 
-        if should_write_series(step, stopped, cfg):
+        if should_write_series(step, stopped=stopped, cfg=cfg):
             series_start = time.perf_counter()
             evaluated_activation_inv = to_numpy(
                 full_activation_inv_from_active(
@@ -753,6 +791,9 @@ def summarize(
         "stagnation_patience": int(cfg.stagnation_patience),
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
         "activation_l2_weight": float(cfg.activation_l2_weight),
+        "target_metadata_initialization_scale": float(
+            cfg.target_metadata_initialization_scale
+        ),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
         "adjoint_atol": float(cfg.adjoint_atol),
@@ -846,8 +887,8 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         "| step | loss | target mean error (cm) | best mean error (cm) | muscle grad | tet grad |",
         "| ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for record in summary["trace"]:
-        lines.append(
+    lines.extend(
+        (
             "| "
             f"{int(record['step'])} | "
             f"{fmt(record['data_loss'])} | "
@@ -856,6 +897,8 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
             f"{fmt(record['muscle_grad_norm'])} | "
             f"{fmt(record['tet_grad_norm'])} |"
         )
+        for record in summary["trace"]
+    )
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -875,7 +918,10 @@ def main(cfg: Config) -> None:
     mesh, target = load_problem(cfg)
     active_ids = active_cell_ids(mesh, cfg)
     target_ids = target_point_ids(target)
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
+    initial_activation_inv = initial_active_activation_inv(target, active_ids, cfg)
 
     add_masks(mesh, target_ids, active_ids)
     melon.save(cfg.output_input, mesh)
@@ -895,6 +941,7 @@ def main(cfg: Config) -> None:
             target_displacement,
             target_ids,
             active_ids,
+            initial_activation_inv,
             cfg,
             series_writer,
         )

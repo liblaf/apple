@@ -226,11 +226,30 @@ def pack_activation_matrices_torch(matrices: torch.Tensor) -> torch.Tensor:
 
 
 def activation_inv_to_activation_numpy(activation_inv: np.ndarray) -> np.ndarray:
-    activation_inv_t = torch.as_tensor(
-        activation_inv, dtype=torch.float64, device="cpu"
+    activation_inv = np.asarray(activation_inv, dtype=np.float64)
+    matrices = np.zeros((*activation_inv.shape[:-1], 3, 3), dtype=np.float64)
+    matrices[..., 0, 0] = 1.0 + activation_inv[..., 0]
+    matrices[..., 1, 1] = 1.0 + activation_inv[..., 1]
+    matrices[..., 2, 2] = 1.0 + activation_inv[..., 2]
+    matrices[..., 0, 1] = activation_inv[..., 3]
+    matrices[..., 1, 0] = activation_inv[..., 3]
+    matrices[..., 0, 2] = activation_inv[..., 4]
+    matrices[..., 2, 0] = activation_inv[..., 4]
+    matrices[..., 1, 2] = activation_inv[..., 5]
+    matrices[..., 2, 1] = activation_inv[..., 5]
+    activation = np.linalg.pinv(matrices, rcond=1.0e-8)
+    packed = np.stack(
+        (
+            activation[..., 0, 0] - 1.0,
+            activation[..., 1, 1] - 1.0,
+            activation[..., 2, 2] - 1.0,
+            activation[..., 0, 1],
+            activation[..., 0, 2],
+            activation[..., 1, 2],
+        ),
+        axis=-1,
     )
-    matrices = activation_matrices_torch(activation_inv_t)
-    return pack_activation_matrices_torch(torch.linalg.inv(matrices)).numpy()
+    return np.nan_to_num(packed, nan=0.0, posinf=1.0e6, neginf=-1.0e6)
 
 
 def clamp_activation_inv_(activation_inv: torch.Tensor, cfg: Config) -> None:

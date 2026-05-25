@@ -89,12 +89,10 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.cell_data[ACTIVE_FRACTION] = muscle
     mesh.cell_data[SMAS_STIFFNESS_FRACTION] = smas
     mesh.cell_data["ActivationMask"] = muscle > cfg.active_fraction_tol
-    mesh.cell_data["InverseActiveMask"] = (
-        mesh.cell_data["ActivationMask"].astype(np.int8)
+    mesh.cell_data["InverseActiveMask"] = mesh.cell_data["ActivationMask"].astype(
+        np.int8
     )
-    mesh.cell_data[YOUNG_MODULUS.vtk] = np.full(
-        mesh.n_cells, cfg.E, dtype=np.float64
-    )
+    mesh.cell_data[YOUNG_MODULUS.vtk] = np.full(mesh.n_cells, cfg.E, dtype=np.float64)
     mesh.cell_data[NU.vtk] = np.full(mesh.n_cells, cfg.nu, dtype=np.float64)
     mesh.cell_data[LAMBDA.vtk] = np.full(mesh.n_cells, lambda_, dtype=np.float64)
     mesh.cell_data[MU.vtk] = np.full(mesh.n_cells, mu, dtype=np.float64)
@@ -174,9 +172,12 @@ def add_metadata(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.field_data["NoCollision"] = np.asarray([1])
 
 
-def metric_summary(mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid) -> dict[str, Any]:
+def metric_summary(
+    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid
+) -> dict[str, Any]:
     muscle = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
     smas = np.asarray(mesh.cell_data["SmasFraction"], dtype=np.float64)
+    volume = np.asarray(mesh.cell_data["Volume"], dtype=np.float64)
     target_mask = np.asarray(target.point_data[TARGET_SURFACE_MASK], dtype=bool)
     target_disp = np.asarray(target.point_data["Displacement"], dtype=np.float64)
     target_norm = np.linalg.norm(target_disp[target_mask], axis=1)
@@ -186,12 +187,8 @@ def metric_summary(mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid) -> di
         "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"]).sum()),
         "n_target_surface_points": int(target_mask.sum()),
         "n_fixed_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
-        "muscle_fraction_volume": float(
-            np.sum(muscle * np.asarray(mesh.cell_data["Volume"], dtype=np.float64))
-        ),
-        "smas_fraction_volume": float(
-            np.sum(smas * np.asarray(mesh.cell_data["Volume"], dtype=np.float64))
-        ),
+        "muscle_fraction_volume": float(np.sum(muscle * volume)),
+        "smas_fraction_volume": float(np.sum(smas * volume)),
         "target_displacement_mean": float(target_norm.mean()),
         "target_displacement_rms": float(
             np.linalg.norm(target_disp[target_mask]) / np.sqrt(target_mask.sum())

@@ -1,9 +1,14 @@
+import contextlib
+import io
+import logging
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pydantic_settings as ps
 import pyvista as pv
+import torch
+import warp as wp
 
 from liblaf import cherries, melon
 
@@ -27,15 +32,32 @@ class Config(cherries.BaseConfig):
     output_input: Path = cherries.output(f"{OUTPUT_STEM}-input.vtu")
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
 
+    target_mode: str = "forward"
     expression: str = "Expression003"
     target_scale: float = 1.0
-    target_surface_point_mask: str = "IsSkin"
+    target_surface_point_mask: str = "IsFace"
     fixed_point_mask: str = "IsCranium"
     active_fraction_tol: float = 1.0e-3
 
     E: float = 1.0
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0e2
+    target_activation_inv_component: int = 1
+    target_activation_inv_value: float = 10.0
+    forward_rtol: float = 1.0e-2
+    forward_atol: float = 1.0e-4
+    forward_max_steps: int = 800
+
+
+def configure_runtime() -> None:
+    if not torch.cuda.is_available():
+        msg = "Forward target generation needs CUDA."
+        raise RuntimeError(msg)
+    logging.getLogger("liblaf.apple.forward._forward").setLevel(logging.WARNING)
+    torch.set_default_dtype(torch.float64)
+    torch.set_default_device("cuda")
+    wp.config.mode = "release"
+    wp.init()
 
 
 def require_array(obj: pv.DataSet, association: str, name: str) -> np.ndarray:
@@ -76,8 +98,21 @@ def lame_parameters(E: float, nu: float) -> tuple[float, float]:
     return float(lambda_), float(mu)
 
 
+def active_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
+    muscle = require_array(mesh, "cell", "MuscleFraction").astype(np.float64)
+    return muscle > cfg.active_fraction_tol
+
+
+def zero_activation_fields(mesh: pv.UnstructuredGrid) -> None:
+    from liblaf.apple.common import ACTIVATION, ACTIVATION_INV
+
+    zero = np.zeros((mesh.n_cells, 6), dtype=np.float64)
+    mesh.cell_data[ACTIVATION.vtk] = zero.copy()
+    mesh.cell_data[ACTIVATION_INV.vtk] = zero.copy()
+
+
 def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
-    from liblaf.apple.common import ACTIVATION, ACTIVATION_INV, LAMBDA, MU, NU
+    from liblaf.apple.common import FRACTION, LAMBDA, MU, NU
     from liblaf.apple.common import E as YOUNG_MODULUS
 
     muscle = require_array(mesh, "cell", "MuscleFraction").astype(np.float64)
@@ -88,7 +123,7 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.cell_data[BACKGROUND_FRACTION] = background
     mesh.cell_data[ACTIVE_FRACTION] = muscle
     mesh.cell_data[SMAS_STIFFNESS_FRACTION] = smas
-    mesh.cell_data["ActivationMask"] = muscle > cfg.active_fraction_tol
+    mesh.cell_data["ActivationMask"] = active_mask(mesh, cfg)
     mesh.cell_data["InverseActiveMask"] = mesh.cell_data["ActivationMask"].astype(
         np.int8
     )
@@ -96,8 +131,8 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.cell_data[NU.vtk] = np.full(mesh.n_cells, cfg.nu, dtype=np.float64)
     mesh.cell_data[LAMBDA.vtk] = np.full(mesh.n_cells, lambda_, dtype=np.float64)
     mesh.cell_data[MU.vtk] = np.full(mesh.n_cells, mu, dtype=np.float64)
-    mesh.cell_data[ACTIVATION.vtk] = np.zeros((mesh.n_cells, 6), dtype=np.float64)
-    mesh.cell_data[ACTIVATION_INV.vtk] = np.zeros((mesh.n_cells, 6), dtype=np.float64)
+    mesh.cell_data[FRACTION.vtk] = np.ones(mesh.n_cells, dtype=np.float64)
+    zero_activation_fields(mesh)
 
 
 def add_boundary_conditions(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
@@ -114,6 +149,73 @@ def add_boundary_conditions(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarra
     return fixed
 
 
+def set_material(
+    mesh: pv.UnstructuredGrid,
+    *,
+    E: float,
+    nu: float,
+    fraction: np.ndarray,
+) -> None:
+    from liblaf.apple.common import FRACTION, LAMBDA, MU, NU
+    from liblaf.apple.common import E as YOUNG_MODULUS
+
+    lambda_, mu = lame_parameters(E, nu)
+    mesh.cell_data[YOUNG_MODULUS.vtk] = np.full(mesh.n_cells, E, dtype=np.float64)
+    mesh.cell_data[NU.vtk] = np.full(mesh.n_cells, nu, dtype=np.float64)
+    mesh.cell_data[LAMBDA.vtk] = np.full(mesh.n_cells, lambda_, dtype=np.float64)
+    mesh.cell_data[MU.vtk] = np.full(mesh.n_cells, mu, dtype=np.float64)
+    mesh.cell_data[FRACTION.vtk] = np.asarray(fraction, dtype=np.float64)
+
+
+def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
+    from liblaf.apple.forward import Forward, ModelBuilder
+    from liblaf.apple.warp.fem import StableNeoHookean, StableNeoHookeanActive
+
+    builder = ModelBuilder()
+    builder.add_vertices(mesh)
+    builder.add_fixed(mesh)
+
+    set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[BACKGROUND_FRACTION])
+    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="background"))
+
+    set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[ACTIVE_FRACTION])
+    builder.add_potential(StableNeoHookeanActive.from_pyvista(mesh, name="muscle"))
+
+    set_material(
+        mesh,
+        E=cfg.smas_stiffness_ratio * cfg.E,
+        nu=cfg.nu,
+        fraction=mesh.cell_data[SMAS_STIFFNESS_FRACTION],
+    )
+    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="smas"))
+
+    forward = Forward(builder.finalize())
+    forward.optimizer = forward.default_optimizer(
+        max_steps=cfg.forward_max_steps,
+        atol=cfg.forward_atol,
+        rtol=cfg.forward_rtol,
+    )
+    return forward
+
+
+def forward_target_displacement(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
+    from liblaf.apple.common import ACTIVATION_INV, GLOBAL_POINT_ID
+
+    target_mesh = mesh.copy(deep=True)
+    activation_inv = np.zeros((target_mesh.n_cells, 6), dtype=np.float64)
+    active = np.asarray(target_mesh.cell_data["ActivationMask"], dtype=bool)
+    activation_inv[active, cfg.target_activation_inv_component] = (
+        cfg.target_activation_inv_value
+    )
+    target_mesh.cell_data[ACTIVATION_INV.vtk] = activation_inv
+    forward = build_forward(target_mesh, cfg)
+    with contextlib.redirect_stdout(io.StringIO()):
+        forward.step()
+    global_ids = np.asarray(target_mesh.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64)
+    displacement = forward.state.u.detach().cpu().numpy()[global_ids]
+    return displacement
+
+
 def surface_point_mask(mesh: pv.UnstructuredGrid) -> np.ndarray:
     surface = mesh.extract_surface(algorithm=None)
     point_ids = np.asarray(surface.point_data["vtkOriginalPointIds"], dtype=np.int64)
@@ -124,6 +226,8 @@ def surface_point_mask(mesh: pv.UnstructuredGrid) -> np.ndarray:
 
 def target_surface_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     surface = surface_point_mask(mesh)
+    if not cfg.target_surface_point_mask:
+        return surface
     if cfg.target_surface_point_mask not in mesh.point_data:
         return surface
     named = np.asarray(mesh.point_data[cfg.target_surface_point_mask], dtype=bool)
@@ -133,13 +237,28 @@ def target_surface_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     return surface
 
 
-def add_target_fields(
+def expression_target_displacement(
+    mesh: pv.UnstructuredGrid, cfg: Config, fixed: np.ndarray
+) -> np.ndarray:
+    displacement = require_array(mesh, "point", cfg.expression).astype(np.float64)
+    displacement = cfg.target_scale * displacement
+    displacement[fixed] = 0.0
+    return displacement
+
+
+def make_target_mesh(
     mesh: pv.UnstructuredGrid, cfg: Config, fixed: np.ndarray
 ) -> pv.UnstructuredGrid:
     target = mesh.copy(deep=True)
-    displacement = require_array(target, "point", cfg.expression).astype(np.float64)
-    displacement = cfg.target_scale * displacement
-    displacement[fixed] = 0.0
+    mode = cfg.target_mode.casefold()
+    if mode == "forward":
+        displacement = forward_target_displacement(mesh, cfg)
+        displacement[fixed] = 0.0
+    elif mode == "expression":
+        displacement = expression_target_displacement(target, cfg, fixed)
+    else:
+        msg = f"unknown target_mode: {cfg.target_mode!r}"
+        raise ValueError(msg)
 
     mask = target_surface_mask(target, cfg)
     target.point_data["Displacement"] = displacement
@@ -147,12 +266,20 @@ def add_target_fields(
     target.point_data["TargetPoint"] = target.points + displacement
     target.point_data[TARGET_SURFACE_MASK] = mask.astype(np.int8)
     target.point_data["TargetSurfacePoint"] = mask.astype(np.int8)
+    target.field_data["TargetMode"] = np.asarray([cfg.target_mode])
     target.field_data["TargetExpression"] = np.asarray([cfg.expression])
     target.field_data["TargetScale"] = np.asarray([cfg.target_scale])
     target.field_data["TargetSurfacePointMask"] = np.asarray(
         [cfg.target_surface_point_mask]
     )
     target.field_data["TargetSurfacePointCount"] = np.asarray([int(mask.sum())])
+    target.field_data["TargetActivationInvComponent"] = np.asarray(
+        [cfg.target_activation_inv_component]
+    )
+    target.field_data["TargetActivationInvValue"] = np.asarray(
+        [cfg.target_activation_inv_value]
+    )
+    zero_activation_fields(target)
     return target
 
 
@@ -172,12 +299,9 @@ def add_metadata(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.field_data["NoCollision"] = np.asarray([1])
 
 
-def metric_summary(
-    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid
-) -> dict[str, Any]:
+def metric_summary(mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid) -> dict[str, Any]:
     muscle = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
     smas = np.asarray(mesh.cell_data["SmasFraction"], dtype=np.float64)
-    volume = np.asarray(mesh.cell_data["Volume"], dtype=np.float64)
     target_mask = np.asarray(target.point_data[TARGET_SURFACE_MASK], dtype=bool)
     target_disp = np.asarray(target.point_data["Displacement"], dtype=np.float64)
     target_norm = np.linalg.norm(target_disp[target_mask], axis=1)
@@ -187,8 +311,12 @@ def metric_summary(
         "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"]).sum()),
         "n_target_surface_points": int(target_mask.sum()),
         "n_fixed_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
-        "muscle_fraction_volume": float(np.sum(muscle * volume)),
-        "smas_fraction_volume": float(np.sum(smas * volume)),
+        "muscle_fraction_volume": float(
+            np.sum(muscle * np.asarray(mesh.cell_data["Volume"], dtype=np.float64))
+        ),
+        "smas_fraction_volume": float(
+            np.sum(smas * np.asarray(mesh.cell_data["Volume"], dtype=np.float64))
+        ),
         "target_displacement_mean": float(target_norm.mean()),
         "target_displacement_rms": float(
             np.linalg.norm(target_disp[target_mask]) / np.sqrt(target_mask.sum())
@@ -198,6 +326,9 @@ def metric_summary(
 
 
 def main(cfg: Config) -> None:
+    if cfg.target_mode.casefold() == "forward":
+        configure_runtime()
+
     source = pv.read(cfg.source)
     if not isinstance(source, pv.UnstructuredGrid):
         source = source.cast_to_unstructured_grid()
@@ -206,8 +337,9 @@ def main(cfg: Config) -> None:
     add_material_fields(mesh, cfg)
     fixed = add_boundary_conditions(mesh, cfg)
     add_metadata(mesh, cfg)
-    target = add_target_fields(mesh, cfg, fixed)
+    target = make_target_mesh(mesh, cfg, fixed)
     add_metadata(target, cfg)
+    zero_activation_fields(mesh)
 
     melon.save(cfg.output_input, mesh)
     melon.save(cfg.output_target, target)

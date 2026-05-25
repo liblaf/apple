@@ -46,26 +46,27 @@ class Config(cherries.BaseConfig):
     forward_atol: float = 1.0e-4
     forward_max_steps: int = 600
 
-    inverse_lr: float = 0.5
+    inverse_lr: float = 0.75
     adam_beta1: float = 0.0
-    adam_beta2: float = 0.9
+    adam_beta2: float = 0.8
     adam_eps: float = 1.0e-8
-    inverse_max_steps: int = 200
-    inverse_min_steps: int = 3
-    stagnation_patience: int = 8
+    inverse_max_steps: int = 160
+    inverse_min_steps: int = 4
+    stagnation_patience: int = 10
     stagnation_rel_tol: float = 1.0e-3
     stagnation_abs_tol: float = 1.0e-8
     loss_tol: float = 1.0e-5
-    point_error_rel_tol: float = 2.0e-3
+    point_error_tol: float = 0.1
     activation_l2_weight: float = 1.0e-8
-    adjoint_maxiter: int = 60
+    activation_det_min: float = 1.0e-3
+    activation_det_weight: float = 1.0e-7
+    adjoint_maxiter: int = 80
     adjoint_rtol: float = 1.0e-2
     adjoint_atol: float = 0.0
 
-    activation_inv_residual_scale: float = 1.0
-    activation_inv_diag_min: float = -0.8
-    activation_inv_diag_max: float = 1.5
-    activation_inv_shear_abs_max: float = 0.35
+    activation_diag_min: float = -0.95
+    activation_diag_max: float = 4.0
+    activation_shear_abs_max: float = 0.75
     series_stride: int = 5
 
 
@@ -211,37 +212,35 @@ def pack_activation_matrices_torch(matrices: torch.Tensor) -> torch.Tensor:
     )
 
 
-def activation_inv_to_activation_torch(activation_inv: torch.Tensor) -> torch.Tensor:
-    matrices = activation_matrices_torch(activation_inv)
-    return pack_activation_matrices_torch(torch.linalg.inv(matrices))
+def activation_to_activation_inv_torch(activation: torch.Tensor) -> torch.Tensor:
+    matrices = activation_matrices_torch(activation)
+    inverse = torch.linalg.inv(matrices)
+    return pack_activation_matrices_torch(inverse)
 
 
-def activation_inv_to_activation_numpy(activation_inv: np.ndarray) -> np.ndarray:
-    activation_inv_t = torch.as_tensor(
-        activation_inv, dtype=torch.float64, device="cpu"
+def activation_to_activation_inv_numpy(activation: np.ndarray) -> np.ndarray:
+    activation_t = torch.as_tensor(activation, dtype=torch.float64, device="cpu")
+    return activation_to_activation_inv_torch(activation_t).numpy()
+
+
+def clamp_active_activation_(active_activation: torch.Tensor, cfg: Config) -> None:
+    active_activation[:, :3].clamp_(cfg.activation_diag_min, cfg.activation_diag_max)
+    active_activation[:, 3:].clamp_(
+        -cfg.activation_shear_abs_max, cfg.activation_shear_abs_max
     )
-    return activation_inv_to_activation_torch(activation_inv_t).numpy()
 
 
-def precondition_active_activation_inv(
-    raw_active_activation_inv: torch.Tensor, cfg: Config
+def full_activation_from_active(
+    active_activation: torch.Tensor,
+    active_ids_t: torch.Tensor,
+    n_cells: int,
 ) -> torch.Tensor:
-    if cfg.activation_inv_residual_scale == 1.0:
-        return raw_active_activation_inv
-    active_mean = raw_active_activation_inv.mean(dim=0, keepdim=True)
-    active_residual = raw_active_activation_inv - active_mean
-    return active_mean + cfg.activation_inv_residual_scale * active_residual
-
-
-def clamp_active_activation_inv_(
-    active_activation_inv: torch.Tensor, cfg: Config
-) -> None:
-    active_activation_inv[:, :3].clamp_(
-        cfg.activation_inv_diag_min, cfg.activation_inv_diag_max
+    full_activation = torch.zeros(
+        (n_cells, 6),
+        dtype=active_activation.dtype,
+        device=active_activation.device,
     )
-    active_activation_inv[:, 3:].clamp_(
-        -cfg.activation_inv_shear_abs_max, cfg.activation_inv_shear_abs_max
-    )
+    return full_activation.index_copy(0, active_ids_t, active_activation)
 
 
 def full_activation_inv_from_active(
@@ -294,11 +293,12 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
 
 def material_tree(
     base_materials: dict[str, dict[str, torch.Tensor]],
-    active_activation_inv: torch.Tensor,
+    active_activation: torch.Tensor,
     active_ids_t: torch.Tensor,
     n_cells: int,
 ) -> dict[str, dict[str, torch.Tensor]]:
     materials = {name: dict(values) for name, values in base_materials.items()}
+    active_activation_inv = activation_to_activation_inv_torch(active_activation)
     materials["muscle"]["activation_inv"] = full_activation_inv_from_active(
         active_activation_inv, active_ids_t, n_cells
     )
@@ -382,6 +382,8 @@ def make_result_mesh(
     active_ids: np.ndarray,
     metrics: dict[str, float | int | bool | str],
 ) -> pv.UnstructuredGrid:
+    from liblaf.apple.common import ACTIVATION, ACTIVATION_INV
+
     result = mesh.copy(deep=True)
     add_point_masks(result, target_point_ids, active_ids)
     error = displacement - target_displacement
@@ -391,6 +393,8 @@ def make_result_mesh(
     result.point_data["DisplacementErrorNorm"] = np.linalg.norm(error, axis=1)
     result.point_data["DeformedPoint"] = result.points + displacement
     result.point_data["TargetPoint"] = result.points + target_displacement
+    result.cell_data[ACTIVATION.vtk] = recovered_activation
+    result.cell_data[ACTIVATION_INV.vtk] = recovered_activation_inv
     result.cell_data["RecoveredActivation"] = recovered_activation
     result.cell_data["RecoveredActivationInv"] = recovered_activation_inv
     result.cell_data["RecoveredActivationNorm"] = np.linalg.norm(
@@ -403,23 +407,36 @@ def make_result_mesh(
     return result
 
 
-def should_write_series(step: int, stopped: bool, cfg: Config) -> bool:
+def should_write_series(
+    step: int, *, improved: bool, stopped: bool, cfg: Config
+) -> bool:
     stride = max(1, cfg.series_stride)
-    return step == 0 or stopped or step % stride == 0
+    return step == 0 or improved or stopped or step % stride == 0
 
 
-def solve_inverse(  # noqa: PLR0915
+def regularization_losses(
+    active_activation: torch.Tensor, cfg: Config
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    activation_l2 = cfg.activation_l2_weight * active_activation.square().mean()
+    matrices = activation_matrices_torch(active_activation)
+    det = torch.linalg.det(matrices)
+    det_penalty = torch.relu(cfg.activation_det_min - det).square().mean()
+    det_loss = cfg.activation_det_weight * det_penalty
+    return activation_l2, det_loss, det
+
+
+def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     mesh: pv.UnstructuredGrid,
     target_displacement: np.ndarray,
     target_point_ids: np.ndarray,
     active_ids: np.ndarray,
-    point_error_tol: float,
     cfg: Config,
     series_writer: Any,
 ) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]], str, int, dict[str, float]]:
-    from liblaf.apple.inverse import DifferentiableForward
     from liblaf.peach.linalg import FallbackSolver
     from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
+
+    from liblaf.apple.inverse import DifferentiableForward
 
     forward = build_forward(mesh, cfg)
     differentiable_forward = DifferentiableForward(forward)
@@ -442,7 +459,7 @@ def solve_inverse(  # noqa: PLR0915
         dtype=torch.long,
         device=torch.get_default_device(),
     )
-    raw_active_activation_inv = torch.nn.Parameter(
+    active_activation = torch.nn.Parameter(
         torch.zeros(
             (active_ids.size, 6),
             dtype=torch.get_default_dtype(),
@@ -450,7 +467,7 @@ def solve_inverse(  # noqa: PLR0915
         )
     )
     optimizer = torch.optim.Adam(
-        [raw_active_activation_inv],
+        [active_activation],
         lr=cfg.inverse_lr,
         betas=(cfg.adam_beta1, cfg.adam_beta2),
         eps=cfg.adam_eps,
@@ -460,7 +477,7 @@ def solve_inverse(  # noqa: PLR0915
     stop_reason = "inverse_max_steps"
     optimizer_steps = 0
     best_displacement: np.ndarray | None = None
-    best_activation_inv: np.ndarray | None = None
+    best_activation: np.ndarray | None = None
     best_surface_mean_error = math.inf
     best_loss = math.inf
     no_improve_steps = 0
@@ -475,11 +492,8 @@ def solve_inverse(  # noqa: PLR0915
     for step in range(cfg.inverse_max_steps + 1):
         step_start = time.perf_counter()
         optimizer.zero_grad()
-        active_activation_inv = precondition_active_activation_inv(
-            raw_active_activation_inv, cfg
-        )
         materials = material_tree(
-            base_materials, active_activation_inv, active_ids_t, mesh.n_cells
+            base_materials, active_activation, active_ids_t, mesh.n_cells
         )
 
         forward_start = time.perf_counter()
@@ -490,16 +504,16 @@ def solve_inverse(  # noqa: PLR0915
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
         data_loss = residual.square().mean()
-        reg_loss = cfg.activation_l2_weight * active_activation_inv.square().mean()
-        loss = data_loss + reg_loss
+        activation_l2, det_loss, det = regularization_losses(active_activation, cfg)
+        loss = data_loss + activation_l2 + det_loss
         loss.backward()
         backward_elapsed = time.perf_counter() - backward_start
         timing["backward_elapsed_s"] += backward_elapsed
 
-        if raw_active_activation_inv.grad is None:
+        if active_activation.grad is None:
             msg = "differentiable forward did not produce activation gradients"
             raise RuntimeError(msg)
-        grad = raw_active_activation_inv.grad.detach()
+        grad = active_activation.grad.detach()
         if not torch.isfinite(grad).all():
             nonfinite = int((~torch.isfinite(grad)).sum().detach().cpu())
             msg = f"non-finite inverse gradient at step {step}: {nonfinite} entries"
@@ -508,31 +522,39 @@ def solve_inverse(  # noqa: PLR0915
         error_stats = point_error_stats(residual.detach())
         data_loss_value = float(data_loss.detach().cpu())
         loss_value = float(loss.detach().cpu())
-        reg_loss_value = float(reg_loss.detach().cpu())
+        activation_l2_value = float(activation_l2.detach().cpu())
+        det_loss_value = float(det_loss.detach().cpu())
         surface_mean_error = float(error_stats["mean"].cpu())
         surface_rms_error = float(error_stats["rms"].cpu())
         surface_max_error = float(error_stats["max"].cpu())
         grad_norm = float(torch.linalg.vector_norm(grad).cpu())
         grad_abs_max = float(grad.abs().max().cpu())
-        active_values = active_activation_inv.detach()
-        activation_inv_rms = float(
+        active_values = active_activation.detach()
+        active_inv_values = activation_to_activation_inv_torch(active_values)
+        activation_rms = float(
             torch.linalg.vector_norm(active_values).cpu()
             / math.sqrt(active_values.numel())
         )
-        activation_inv_min = float(active_values.min().cpu())
-        activation_inv_max = float(active_values.max().cpu())
+        activation_min = float(active_values.min().cpu())
+        activation_max = float(active_values.max().cpu())
+        activation_inv_rms = float(
+            torch.linalg.vector_norm(active_inv_values).cpu()
+            / math.sqrt(active_inv_values.numel())
+        )
+        det_min = float(det.detach().min().cpu())
+        det_mean = float(det.detach().mean().cpu())
+        det_max = float(det.detach().max().cpu())
         displacement = to_numpy(output)[global_ids]
 
-        improved = data_loss_value < (
-            best_loss * (1.0 - cfg.stagnation_rel_tol) - cfg.stagnation_abs_tol
+        improved = surface_mean_error < (
+            best_surface_mean_error * (1.0 - cfg.stagnation_rel_tol)
+            - cfg.stagnation_abs_tol
         )
-        if data_loss_value < best_loss:
-            best_loss = data_loss_value
+        if surface_mean_error < best_surface_mean_error:
             best_surface_mean_error = surface_mean_error
-            best_activation_inv = to_numpy(
-                full_activation_inv_from_active(
-                    active_values, active_ids_t, mesh.n_cells
-                )
+            best_loss = data_loss_value
+            best_activation = to_numpy(
+                full_activation_from_active(active_values, active_ids_t, mesh.n_cells)
             )
             best_displacement = displacement
         if improved or step == 0:
@@ -541,7 +563,7 @@ def solve_inverse(  # noqa: PLR0915
             no_improve_steps += 1
 
         stopped = False
-        if surface_mean_error <= point_error_tol:
+        if surface_mean_error <= cfg.point_error_tol:
             stop_reason = "point_error_tol"
             stopped = True
         elif data_loss_value <= cfg.loss_tol:
@@ -562,25 +584,30 @@ def solve_inverse(  # noqa: PLR0915
             did_optimizer_step = True
             timing["optimizer_elapsed_s"] += time.perf_counter() - optimizer_start
             with torch.no_grad():
-                clamp_active_activation_inv_(raw_active_activation_inv, cfg)
+                clamp_active_activation_(active_activation, cfg)
 
         trace_record = {
             "step": float(step),
             "loss": loss_value,
             "data_loss": data_loss_value,
-            "regularization_loss": reg_loss_value,
-            "surface_mean_error": surface_mean_error,
-            "surface_rms_error": surface_rms_error,
-            "surface_max_error": surface_max_error,
-            "point_error_tol": point_error_tol,
+            "activation_l2_loss": activation_l2_value,
+            "activation_det_loss": det_loss_value,
+            "target_mean_error": surface_mean_error,
+            "target_rms_error": surface_rms_error,
+            "target_max_error": surface_max_error,
+            "point_error_tol": cfg.point_error_tol,
+            "activation_rms": activation_rms,
+            "activation_min": activation_min,
+            "activation_max": activation_max,
             "activation_inv_rms": activation_inv_rms,
-            "activation_inv_min": activation_inv_min,
-            "activation_inv_max": activation_inv_max,
+            "activation_det_min": det_min,
+            "activation_det_mean": det_mean,
+            "activation_det_max": det_max,
             "grad_norm": grad_norm,
             "grad_abs_max": grad_abs_max,
             "optimizer_steps": float(optimizer_steps),
             "best_loss": best_loss,
-            "best_surface_mean_error": best_surface_mean_error,
+            "best_target_mean_error": best_surface_mean_error,
             "no_improve_steps": float(no_improve_steps),
             "stopped": float(stopped),
             "forward_elapsed_s": forward_elapsed,
@@ -588,15 +615,15 @@ def solve_inverse(  # noqa: PLR0915
         }
         trace.append(trace_record)
 
-        if should_write_series(step, stopped, cfg):
+        if should_write_series(step, improved=improved, stopped=stopped, cfg=cfg):
             series_start = time.perf_counter()
+            evaluated_activation = to_numpy(
+                full_activation_from_active(active_values, active_ids_t, mesh.n_cells)
+            )
             evaluated_activation_inv = to_numpy(
                 full_activation_inv_from_active(
-                    active_values, active_ids_t, mesh.n_cells
+                    active_inv_values, active_ids_t, mesh.n_cells
                 )
-            )
-            evaluated_activation = activation_inv_to_activation_numpy(
-                evaluated_activation_inv
             )
             step_mesh = make_result_mesh(
                 mesh,
@@ -611,17 +638,21 @@ def solve_inverse(  # noqa: PLR0915
                     "optimizer_steps": optimizer_steps,
                     "loss": loss_value,
                     "data_loss": data_loss_value,
-                    "surface_mean_error": surface_mean_error,
-                    "surface_rms_error": surface_rms_error,
-                    "surface_max_error": surface_max_error,
-                    "point_error_tol": point_error_tol,
+                    "target_mean_error": surface_mean_error,
+                    "target_rms_error": surface_rms_error,
+                    "target_max_error": surface_max_error,
+                    "point_error_tol": cfg.point_error_tol,
+                    "activation_rms": activation_rms,
+                    "activation_min": activation_min,
+                    "activation_max": activation_max,
                     "activation_inv_rms": activation_inv_rms,
-                    "activation_inv_min": activation_inv_min,
-                    "activation_inv_max": activation_inv_max,
+                    "activation_det_min": det_min,
+                    "activation_det_mean": det_mean,
+                    "activation_det_max": det_max,
                     "grad_norm": grad_norm,
                     "grad_abs_max": grad_abs_max,
                     "best_loss": best_loss,
-                    "best_surface_mean_error": best_surface_mean_error,
+                    "best_target_mean_error": best_surface_mean_error,
                     "stopped": stopped,
                 },
             )
@@ -638,8 +669,10 @@ def solve_inverse(  # noqa: PLR0915
             f"loss={loss_value:.3e}",
             f"data={data_loss_value:.3e}",
             f"mean={surface_mean_error:.3e}",
-            f"tol={point_error_tol:.3e}",
+            f"tol={cfg.point_error_tol:.3e}",
             f"best={best_surface_mean_error:.3e}",
+            f"act={activation_rms:.3e}",
+            f"det_min={det_min:.3e}",
             f"grad={grad_norm:.3e}",
             f"no_improve={no_improve_steps}",
             f"elapsed={step_elapsed:.2f}s",
@@ -648,13 +681,13 @@ def solve_inverse(  # noqa: PLR0915
         if stopped or not did_optimizer_step:
             break
 
-    if best_displacement is None or best_activation_inv is None:
+    if best_displacement is None or best_activation is None:
         msg = "inverse solve did not evaluate any forward states"
         raise RuntimeError(msg)
     timing["inverse_elapsed_s"] = time.perf_counter() - inverse_start
     return (
         best_displacement,
-        best_activation_inv,
+        best_activation,
         trace,
         stop_reason,
         optimizer_steps,
@@ -674,7 +707,6 @@ def summarize(
     stop_reason: str,
     optimizer_steps: int,
     bbox_diagonal: float,
-    point_error_tol: float,
     timing: dict[str, float],
     total_elapsed_s: float,
     cfg: Config,
@@ -686,6 +718,7 @@ def summarize(
     target_norm = np.linalg.norm(target_displacement[target_point_ids], axis=1)
     active_activation = recovered_activation[active_ids]
     active_activation_inv = recovered_activation_inv[active_ids]
+    active_det = np.linalg.det(to_activation_matrices_numpy(active_activation))
     final_loss = float(np.mean(np.square(target_error)))
     target_rms = float(np.linalg.norm(target_error) / math.sqrt(target_point_ids.size))
     all_rms = float(np.linalg.norm(error) / math.sqrt(error.shape[0]))
@@ -701,7 +734,7 @@ def summarize(
         "n_target_points": int(target_point_ids.size),
         "n_active_tets": int(active_ids.size),
         "n_activation_params": int(active_ids.size * 6),
-        "optimized_parameter": "ActivationInv",
+        "optimized_parameter": "Activation",
         "E": float(cfg.E),
         "nu": float(cfg.nu),
         "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
@@ -721,12 +754,16 @@ def summarize(
         ),
         "stop_reason": stop_reason,
         "bbox_diagonal": bbox_diagonal,
-        "point_error_rel_tol": float(cfg.point_error_rel_tol),
-        "point_error_tol": point_error_tol,
+        "point_error_tol": float(cfg.point_error_tol),
         "loss_tol": float(cfg.loss_tol),
         "stagnation_patience": int(cfg.stagnation_patience),
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
         "activation_l2_weight": float(cfg.activation_l2_weight),
+        "activation_det_min": float(cfg.activation_det_min),
+        "activation_det_weight": float(cfg.activation_det_weight),
+        "activation_diag_min": float(cfg.activation_diag_min),
+        "activation_diag_max": float(cfg.activation_diag_max),
+        "activation_shear_abs_max": float(cfg.activation_shear_abs_max),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
         "adjoint_atol": float(cfg.adjoint_atol),
@@ -739,7 +776,7 @@ def summarize(
         ),
         "target_displacement_max": float(target_norm.max()),
         "final_loss": final_loss,
-        "best_loss": float(trace[-1]["best_loss"]),
+        "best_loss": float(min(record["data_loss"] for record in trace)),
         "target_mean_error": float(target_error_norm.mean()),
         "target_rms_error": target_rms,
         "target_max_error": float(target_error_norm.max()),
@@ -758,13 +795,27 @@ def summarize(
             np.linalg.norm(active_activation_inv)
             / math.sqrt(active_activation_inv.size)
         ),
+        "active_activation_det_min": float(active_det.min()),
+        "active_activation_det_mean": float(active_det.mean()),
+        "active_activation_det_max": float(active_det.max()),
         "trace": trace,
     }
-    metrics["passed"] = bool(
-        stop_reason in {"point_error_tol", "loss_tol", "stagnation"}
-        and np.isfinite(metrics["target_mean_error"])
-    )
+    metrics["passed"] = bool(metrics["target_mean_error"] <= cfg.point_error_tol)
     return metrics
+
+
+def to_activation_matrices_numpy(activation: np.ndarray) -> np.ndarray:
+    matrices = np.zeros((*activation.shape[:-1], 3, 3), dtype=np.float64)
+    matrices[..., 0, 0] = 1.0 + activation[..., 0]
+    matrices[..., 1, 1] = 1.0 + activation[..., 1]
+    matrices[..., 2, 2] = 1.0 + activation[..., 2]
+    matrices[..., 0, 1] = activation[..., 3]
+    matrices[..., 1, 0] = activation[..., 3]
+    matrices[..., 0, 2] = activation[..., 4]
+    matrices[..., 2, 0] = activation[..., 4]
+    matrices[..., 1, 2] = activation[..., 5]
+    matrices[..., 2, 1] = activation[..., 5]
+    return matrices
 
 
 def save_json(path: Path, data: dict[str, Any]) -> None:
@@ -787,9 +838,10 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         "",
         f"- stop reason: `{summary['stop_reason']}`",
         f"- passed: `{summary['passed']}`",
-        f"- target mean error: `{fmt(summary['target_mean_error'])}`",
-        f"- target RMS error: `{fmt(summary['target_rms_error'])}`",
-        f"- target max error: `{fmt(summary['target_max_error'])}`",
+        f"- target mean error: `{fmt(summary['target_mean_error'])} cm`",
+        f"- target mean error tolerance: `{fmt(summary['point_error_tol'])} cm`",
+        f"- target RMS error: `{fmt(summary['target_rms_error'])} cm`",
+        f"- target max error: `{fmt(summary['target_max_error'])} cm`",
         f"- final loss: `{fmt(summary['final_loss'])}`",
         f"- optimizer steps: `{summary['optimizer_steps']}`",
         f"- series frames: `{summary['series_frames']}`",
@@ -817,18 +869,21 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         "",
         "## Trace",
         "",
-        "| step | loss | target mean error | best mean error | grad norm |",
-        "| ---: | ---: | ---: | ---: | ---: |",
+        "| step | loss | target mean error | best mean error | activation RMS | grad norm |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for record in summary["trace"]:
-        lines.append(
+    lines.extend(
+        (
             "| "
             f"{int(record['step'])} | "
             f"{fmt(record['data_loss'])} | "
-            f"{fmt(record['surface_mean_error'])} | "
-            f"{fmt(record['best_surface_mean_error'])} | "
+            f"{fmt(record['target_mean_error'])} | "
+            f"{fmt(record['best_target_mean_error'])} | "
+            f"{fmt(record['activation_rms'])} | "
             f"{fmt(record['grad_norm'])} |"
         )
+        for record in summary["trace"]
+    )
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -848,9 +903,10 @@ def main(cfg: Config) -> None:
     mesh, target = load_problem(cfg)
     active_ids = active_cell_ids(mesh, cfg)
     target_ids = target_point_ids(target)
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     bbox_diagonal = float(mesh.length)
-    point_error_tol = cfg.point_error_rel_tol * bbox_diagonal
 
     add_point_masks(mesh, target_ids, active_ids)
     melon.save(cfg.output_input, mesh)
@@ -860,7 +916,7 @@ def main(cfg: Config) -> None:
     with melon.SeriesWriter(cfg.output_series, clear=True) as series_writer:
         (
             displacement,
-            recovered_activation_inv,
+            recovered_activation,
             trace,
             stop_reason,
             optimizer_steps,
@@ -870,11 +926,10 @@ def main(cfg: Config) -> None:
             target_displacement,
             target_ids,
             active_ids,
-            point_error_tol,
             cfg,
             series_writer,
         )
-    recovered_activation = activation_inv_to_activation_numpy(recovered_activation_inv)
+    recovered_activation_inv = activation_to_activation_inv_numpy(recovered_activation)
     total_elapsed_s = time.perf_counter() - total_start
     summary = summarize(
         inverse_mesh,
@@ -888,7 +943,6 @@ def main(cfg: Config) -> None:
         stop_reason,
         optimizer_steps,
         bbox_diagonal,
-        point_error_tol,
         timing,
         total_elapsed_s,
         cfg,
@@ -911,6 +965,7 @@ def main(cfg: Config) -> None:
     print(
         "inverse result:",
         f"stop={summary['stop_reason']}",
+        f"passed={summary['passed']}",
         f"target_mean_error={summary['target_mean_error']:.3e}",
         f"target_rms_error={summary['target_rms_error']:.3e}",
         f"loss={summary['final_loss']:.3e}",
@@ -920,6 +975,12 @@ def main(cfg: Config) -> None:
     print(f"saved: {cfg.output_series}")
     print(f"saved: {cfg.output_summary}")
     print(f"saved: {cfg.report}")
+    if not summary["passed"]:
+        msg = (
+            "inverse solve did not reach the required target mean error "
+            f"({summary['target_mean_error']:.6g} cm > {cfg.point_error_tol:.6g} cm)"
+        )
+        raise RuntimeError(msg)
 
 
 if __name__ == "__main__":

@@ -43,7 +43,7 @@ class Config(cherries.BaseConfig):
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0e2
     target_activation_inv_component: int = 1
-    target_activation_inv_value: float = 10.0
+    target_activation_inv_value: float = 4.0
     forward_rtol: float = 1.0e-2
     forward_atol: float = 1.0e-4
     forward_max_steps: int = 800

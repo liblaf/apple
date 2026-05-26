@@ -57,7 +57,7 @@ class Config(cherries.BaseConfig):
     require_forward_convergence: bool = True
     require_adjoint_convergence: bool = True
 
-    inverse_lr: float = 0.03
+    inverse_lr: float = 0.02
     adam_beta1: float = 0.5
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8

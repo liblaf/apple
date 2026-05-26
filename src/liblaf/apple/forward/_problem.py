@@ -41,7 +41,6 @@ class ForwardProblem(Problem[Model.State]):
     @override
     def fun(self, state: State) -> Scalar:
         output: Scalar = self.model.fun(state)
-        print("fun:", output)
         return output
 
     @method_with_device
@@ -49,7 +48,6 @@ class ForwardProblem(Problem[Model.State]):
     def grad(self, state: State) -> Free:
         grad_full: Full = self.model.grad(state)
         grad_free: Free = self.model.dof_map.to_free_grad(grad_full)
-        print("grad norm:", grad_free.norm())
         return grad_free
 
     @method_with_device

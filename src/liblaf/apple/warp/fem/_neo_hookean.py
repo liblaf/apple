@@ -99,7 +99,7 @@ def hess_quad(
     dPsi_dI2 = F.dtype(0.5) * mu  # float
     dPsi_dI3 = (-mu + la * wp.log(J)) / J  # float
     # d2Psi_dI22 = F.dtype(0.0)  # float
-    d2Psi_dI32 = la  # float
+    d2Psi_dI32 = (la - la * wp.log(J) + mu) / math.square(J)  # float
     h3_quad = func.h3_quad(p, dhdX, g3)  # float
     h5_quad = func.h5_quad(p, dhdX)  # float
     h6_quad = func.h6_quad(p, dhdX, F)  # float

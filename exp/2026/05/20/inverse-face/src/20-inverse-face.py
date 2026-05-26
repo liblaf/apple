@@ -45,14 +45,15 @@ class Config(cherries.BaseConfig):
     inverse_active_fraction_mode: str = "all"
     target_point_mask: str = "IsFace"
 
-    forward_rtol: float = 1.0e-2
-    forward_atol: float = 1.0e-4
-    forward_max_steps: int = 800
+    forward_rtol: float = 5.0e-4
+    forward_atol: float | None = None
+    forward_atol_first_residual_ratio: float = 0.5
+    forward_max_steps: int = 5000
     require_forward_convergence: bool = True
     require_adjoint_convergence: bool = True
 
     inverse_lr: float = 0.02
-    adam_beta1: float = 0.0
+    adam_beta1: float = 0.5
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
     inverse_max_steps: int = 120
@@ -76,8 +77,9 @@ class Config(cherries.BaseConfig):
     initial_activation_scale: float = 0.0
     initial_activation_surface_only: bool = False
     adjoint_maxiter: int = 60
-    adjoint_rtol: float = 1.0e-2
-    adjoint_atol: float = 0.0
+    adjoint_rtol: float = 5.0e-4
+    adjoint_atol: float | None = None
+    adjoint_atol_first_forward_residual_ratio: float = 0.5
 
     activation_inv_diag_min: float = -8.0
     activation_inv_diag_max: float = 8.0
@@ -119,6 +121,16 @@ def to_float(value: Any, default: float = math.nan) -> float:
     if torch.is_tensor(value):
         return float(value.detach().cpu())
     return float(value)
+
+
+def resolve_auto_atol(
+    atol: float | None, first_residual: float, ratio: float
+) -> float:
+    if atol is not None:
+        return float(atol)
+    if not math.isfinite(first_residual):
+        return 0.0
+    return float(ratio * first_residual)
 
 
 def require_path(path: Path) -> None:
@@ -358,6 +370,8 @@ def full_activation_inv_from_active(
 
 
 def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
+    from liblaf.peach.optim import Pncg
+
     from liblaf.apple.forward import Forward, ModelBuilder
     from liblaf.apple.warp.fem import StableNeoHookean, StableNeoHookeanActive
 
@@ -380,11 +394,39 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
     builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="smas"))
 
     forward = Forward(builder.finalize())
-    forward.optimizer = forward.default_optimizer(
+
+    class FirstResidualAtolCriteria(Pncg.ConvergenceCriteria):
+        def _configured_atol(self, state: Pncg.ConvergenceState) -> torch.Tensor:
+            atol = resolve_auto_atol(
+                cfg.forward_atol,
+                to_float(state.grad_norm_first, default=0.0),
+                cfg.forward_atol_first_residual_ratio,
+            )
+            return torch.as_tensor(
+                atol,
+                dtype=state.grad_norm.dtype,
+                device=state.grad_norm.device,
+            )
+
+        def primary_success(self, state: Pncg.ConvergenceState) -> torch.Tensor:
+            return state.grad_norm <= (
+                self._configured_atol(state) + self.rtol_primary * state.grad_norm_first
+            )
+
+        def secondary_success(self, state: Pncg.ConvergenceState) -> torch.Tensor:
+            return state.grad_norm <= (
+                self._configured_atol(state)
+                + self.rtol_secondary * state.grad_norm_first
+            )
+
+    criteria = FirstResidualAtolCriteria(
         max_steps=cfg.forward_max_steps,
-        atol=cfg.forward_atol,
-        rtol=cfg.forward_rtol,
+        atol_primary=0.0 if cfg.forward_atol is None else cfg.forward_atol,
+        rtol_primary=cfg.forward_rtol,
+        atol_secondary=0.0 if cfg.forward_atol is None else cfg.forward_atol,
+        rtol_secondary=cfg.forward_rtol,
     )
+    forward.optimizer = Pncg(criteria=criteria, line_search=Pncg.LineSearch())
     return forward
 
 
@@ -460,6 +502,16 @@ def adjoint_solution_metrics(solution: Any) -> dict[str, Any]:
         metrics[f"adjoint_solver_{i}_info"] = int(solver_solution.state.info)
         metrics[f"adjoint_solver_{i}_relative_residual"] = float(relative_residuals[i])
     return metrics
+
+
+def set_adjoint_solver_tolerances(solver: Any, *, rtol: float, atol: float) -> None:
+    for inner_solver in getattr(solver, "solvers", [solver]):
+        if hasattr(inner_solver, "rtol"):
+            inner_solver.rtol = rtol
+        if hasattr(inner_solver, "tol"):
+            inner_solver.tol = rtol
+        if hasattr(inner_solver, "atol"):
+            inner_solver.atol = atol
 
 
 def point_error_stats(residual: torch.Tensor) -> dict[str, torch.Tensor]:
@@ -644,7 +696,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             CupyCG(
                 maxiter=cfg.adjoint_maxiter,
                 rtol=cfg.adjoint_rtol,
-                atol=cfg.adjoint_atol,
+                atol=0.0 if cfg.adjoint_atol is None else cfg.adjoint_atol,
             ),
             CupyMinRes(maxiter=cfg.adjoint_maxiter, tol=cfg.adjoint_rtol),
         ]
@@ -715,12 +767,27 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         forward_metrics = forward_solution_metrics(
             getattr(differentiable_forward, "last_forward_solution", None)
         )
+        forward_metrics["forward_atol"] = resolve_auto_atol(
+            cfg.forward_atol,
+            forward_metrics["forward_grad_norm_first"],
+            cfg.forward_atol_first_residual_ratio,
+        )
         if cfg.require_forward_convergence and not forward_metrics["forward_success"]:
             msg = (
                 f"forward solve did not converge at inverse step {step}: "
                 f"{forward_metrics['forward_result']}"
             )
             raise RuntimeError(msg)
+        dynamic_adjoint_atol = resolve_auto_atol(
+            cfg.adjoint_atol,
+            forward_metrics["forward_grad_norm_first"],
+            cfg.adjoint_atol_first_forward_residual_ratio,
+        )
+        set_adjoint_solver_tolerances(
+            differentiable_forward.adjoint_solver,
+            rtol=cfg.adjoint_rtol,
+            atol=dynamic_adjoint_atol,
+        )
 
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
@@ -747,9 +814,10 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         adjoint_metrics = adjoint_solution_metrics(
             getattr(differentiable_forward, "last_adjoint_solution", None)
         )
+        adjoint_metrics["adjoint_atol"] = dynamic_adjoint_atol
         adjoint_residual_converged = (
             adjoint_metrics["adjoint_relative_residual"] <= cfg.adjoint_rtol
-            or adjoint_metrics["adjoint_absolute_residual"] <= cfg.adjoint_atol
+            or adjoint_metrics["adjoint_absolute_residual"] <= dynamic_adjoint_atol
         )
         adjoint_metrics["adjoint_residual_converged"] = bool(
             adjoint_residual_converged
@@ -1080,6 +1148,16 @@ def summarize(
         for record in trace
         if np.isfinite(float(record.get("forward_steps", math.nan)))
     ]
+    forward_atols = [
+        float(record["forward_atol"])
+        for record in trace
+        if np.isfinite(float(record.get("forward_atol", math.nan)))
+    ]
+    adjoint_atols = [
+        float(record["adjoint_atol"])
+        for record in trace
+        if np.isfinite(float(record.get("adjoint_atol", math.nan)))
+    ]
     metrics: dict[str, Any] = {
         "input": str(cfg.input),
         "target": str(cfg.target),
@@ -1103,7 +1181,12 @@ def summarize(
         "adam_beta2": float(cfg.adam_beta2),
         "adam_eps": float(cfg.adam_eps),
         "forward_rtol": float(cfg.forward_rtol),
-        "forward_atol": float(cfg.forward_atol),
+        "forward_atol": (
+            None if cfg.forward_atol is None else float(cfg.forward_atol)
+        ),
+        "forward_atol_first_residual_ratio": float(
+            cfg.forward_atol_first_residual_ratio
+        ),
         "forward_max_steps": int(cfg.forward_max_steps),
         "require_forward_convergence": bool(cfg.require_forward_convergence),
         "require_adjoint_convergence": bool(cfg.require_adjoint_convergence),
@@ -1135,7 +1218,12 @@ def summarize(
         "initial_activation_surface_only": bool(cfg.initial_activation_surface_only),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
-        "adjoint_atol": float(cfg.adjoint_atol),
+        "adjoint_atol": (
+            None if cfg.adjoint_atol is None else float(cfg.adjoint_atol)
+        ),
+        "adjoint_atol_first_forward_residual_ratio": float(
+            cfg.adjoint_atol_first_forward_residual_ratio
+        ),
         "total_elapsed_s": float(total_elapsed_s),
         **{name: float(value) for name, value in timing.items()},
         "target_displacement_mean": float(target_norm.mean()),
@@ -1154,8 +1242,10 @@ def summarize(
         "forward_all_success": forward_failures == 0,
         "forward_failures": int(forward_failures),
         "forward_max_steps_used": float(max(forward_steps, default=math.nan)),
+        "forward_max_atol_used": float(max(forward_atols, default=math.nan)),
         "adjoint_all_success": adjoint_failures == 0,
         "adjoint_failures": int(adjoint_failures),
+        "adjoint_max_atol_used": float(max(adjoint_atols, default=math.nan)),
         "adjoint_max_relative_residual": float(
             max(adjoint_relative_residuals, default=math.nan)
         ),
@@ -1197,6 +1287,13 @@ def fmt(value: Any, precision: int = 6) -> str:
     if isinstance(value, float):
         return f"{value:.{precision}g}"
     return str(value)
+
+
+def fmt_auto_atol(summary: dict[str, Any], name: str, ratio_name: str) -> str:
+    value = summary[name]
+    if value is not None:
+        return fmt(value)
+    return f"{fmt(summary[ratio_name])} * first forward residual"
 
 
 def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
@@ -1248,9 +1345,9 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         f"- Adam: `lr={summary['inverse_lr']}`, "
         f"`betas=({summary['adam_beta1']}, {summary['adam_beta2']})`",
         f"- forward tolerance: `rtol={summary['forward_rtol']}`, "
-        f"`atol={summary['forward_atol']}`",
+        f"`atol={fmt_auto_atol(summary, 'forward_atol', 'forward_atol_first_residual_ratio')}`",
         f"- adjoint tolerance: `rtol={summary['adjoint_rtol']}`, "
-        f"`atol={summary['adjoint_atol']}`",
+        f"`atol={fmt_auto_atol(summary, 'adjoint_atol', 'adjoint_atol_first_forward_residual_ratio')}`",
         "",
         "## Trace",
         "",

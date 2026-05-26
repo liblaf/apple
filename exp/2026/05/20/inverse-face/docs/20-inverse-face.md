@@ -4,18 +4,18 @@
 
 - stop reason: `step_safety_limit`
 - passed: `False`
-- best step: `3`
-- target mean error: `0.208801 cm`
-- target RMS error: `0.306573 cm`
-- target max error: `0.980093 cm`
+- best step: `0`
+- target mean error: `0.208805 cm`
+- target RMS error: `0.306575 cm`
+- target max error: `0.980094 cm`
 - required max error: `< 0.2 cm`
-- final loss: `0.0313289`
-- best objective loss: `0.0313289`
-- lowest objective loss: `0.0313289`
-- optimizer steps: `3`
+- final loss: `0.0313294`
+- best objective loss: `0.0313294`
+- lowest objective loss: `0.0313294`
+- optimizer steps: `0`
 - series frames: `1`
 - forward converged: `True` (0 failures)
-- adjoint converged: `True` (0 failures, max relative residual `5.65749`)
+- adjoint converged: `True` (0 failures, max relative residual `0.803894`)
 
 ## Problem
 
@@ -38,15 +38,12 @@
 - optimized field: `per active muscle tetrahedron ActivationInv, 6 DoF`
 - best metric: `loss`
 - stagnation metric: `loss`
-- Adam: `lr=0.01`, `betas=(0.0, 0.9)`
+- Adam: `lr=0.02`, `betas=(0.0, 0.9)`
 - forward tolerance: `rtol=0.01`, `atol=0.0001`
-- adjoint tolerance: `rtol=0.01`, `atol=0.0`
+- adjoint tolerance: `rtol=0.0001`, `atol=0.0`
 
 ## Trace
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: |
-| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 1.3337e-06 | primary_success/1 | 5.65749 |
-| 1 | 0.0313292 | 0.208804 | 0.980091 | 0.980091 | 1.37173e-06 | primary_success/19 | 5.65749 |
-| 2 | 0.0313291 | 0.208802 | 0.980091 | 0.980091 | 1.41832e-06 | primary_success/24 | 5.65749 |
-| 3 | 0.0313289 | 0.208801 | 0.980093 | 0.980093 | 1.4734e-06 | primary_success/29 | 5.65748 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 1.13611e-06 | primary_success/1 | 0.803894 |

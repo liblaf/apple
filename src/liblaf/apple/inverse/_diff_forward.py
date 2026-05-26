@@ -73,11 +73,17 @@ class _AdjointProblem:
     def rmatvec(self, p_free: Free) -> Free:
         return self.matvec(p_free)
 
-    def preconditioner(self, p_free: Free) -> Free:
+    def precondition(self, p_free: Free) -> Free:
         return self._preconditioner * p_free
 
+    def rprecondition(self, p_free: Free) -> Free:
+        return self.precondition(p_free)
+
+    def preconditioner(self, p_free: Free) -> Free:
+        return self.precondition(p_free)
+
     def rpreconditioner(self, p_free: Free) -> Free:
-        return self.preconditioner(p_free)
+        return self.rprecondition(p_free)
 
 
 class FunctionCtx(torch.autograd.function.FunctionCtx):

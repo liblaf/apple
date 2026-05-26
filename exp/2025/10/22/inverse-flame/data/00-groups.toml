@@ -324,7 +324,6 @@ Muscles = [
 Skin = ["Eyelash001", "skin_Cross_section", "Skin001", "Object001"]
 Salivary = ["Salivary_gland001", "Salivary_duct001"]
 
-
 cranium = [
   "Atlanto_occipital_capsule001",
   "C01_Atlas001",

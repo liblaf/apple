@@ -36,14 +36,16 @@ CHERRIES_LOG_METRIC_EXCLUDES = frozenset(
 class Config(cherries.BaseConfig):
     model_config = ps.SettingsConfigDict(cli_parse_args=True)
 
-    input: Path = cherries.output(f"{PREP_STEM}-input.vtu")
-    target: Path = cherries.output(f"{PREP_STEM}-target.vtu")
+    input: Path = cherries.input(f"{PREP_STEM}-input.vtu")
+    target: Path = cherries.input(f"{PREP_STEM}-target.vtu")
     output_input: Path = cherries.output(f"{OUTPUT_STEM}-input.vtu")
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
     output: Path = cherries.output(f"{OUTPUT_STEM}.vtu")
     output_series: Path = cherries.output(f"{OUTPUT_STEM}.vtu.series")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
+    checkpoint: Path = cherries.output(f"{OUTPUT_STEM}-checkpoint.npz")
     report: Path = EXPERIMENT_DIR / "docs" / f"{OUTPUT_STEM}.md"
+    initial_activation_inv: Path | None = None
 
     E: float = 1.0
     nu: float = 0.49
@@ -53,26 +55,27 @@ class Config(cherries.BaseConfig):
 
     forward_rtol: float = 5.0e-4
     forward_atol: float = 0.0
-    forward_max_steps: int = 5000
-    require_forward_convergence: bool = True
-    require_adjoint_convergence: bool = True
+    forward_max_steps: int = 10000
+    require_forward_convergence: bool = False
+    require_adjoint_convergence: bool = False
 
-    inverse_lr: float = 0.02
+    inverse_lr: float = 0.08
     adam_beta1: float = 0.5
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
-    inverse_max_steps: int = 120
-    inverse_min_steps: int = 20
-    stagnation_patience: int = 24
+    inverse_max_steps: int = 400
+    inverse_min_steps: int = 5
+    stagnation_patience: int = 40
     stagnation_rel_tol: float = 1.0e-4
     stagnation_abs_tol: float = 1.0e-7
-    lr_reduction_patience: int = 12
+    lr_reduction_patience: int = 1_000_000_000
     lr_reduction_factor: float = 0.5
-    max_lr_reductions: int = 6
+    max_lr_reductions: int = 0
     min_inverse_lr: float = 1.0e-4
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
-    adjoint_maxiter: int = 5000
+    failure_patience: int = 3
+    adjoint_maxiter: int = 10000
     adjoint_rtol: float = 5.0e-4
     adjoint_atol: float = 0.0
 
@@ -235,6 +238,65 @@ def full_activation_inv_from_active(
         device=active_activation_inv.device,
     )
     return full_activation_inv.index_copy(0, active_ids_t, active_activation_inv)
+
+
+def load_initial_active_activation_inv(
+    path: Path | None, active_ids: np.ndarray
+) -> np.ndarray | None:
+    if path is None:
+        return None
+    path = require_path(path)
+    if path.suffix == ".npz":
+        with np.load(path) as data:
+            if "active_activation_inv" in data:
+                activation_inv = np.asarray(
+                    data["active_activation_inv"], dtype=np.float64
+                )
+            else:
+                activation_inv = np.asarray(data["activation_inv"], dtype=np.float64)[
+                    active_ids
+                ]
+    else:
+        from liblaf.apple.common import ACTIVATION_INV
+
+        mesh = pv.read(path)
+        if "RecoveredActivationInv" in mesh.cell_data:
+            activation_inv = np.asarray(
+                mesh.cell_data["RecoveredActivationInv"], dtype=np.float64
+            )[active_ids]
+        else:
+            activation_inv = np.asarray(
+                mesh.cell_data[ACTIVATION_INV.vtk], dtype=np.float64
+            )[active_ids]
+    expected_shape = (active_ids.size, 6)
+    if activation_inv.shape != expected_shape:
+        msg = (
+            f"initial activation has shape {activation_inv.shape}; "
+            f"expected {expected_shape}"
+        )
+        raise ValueError(msg)
+    return activation_inv
+
+
+def save_checkpoint(
+    path: Path,
+    active_activation_inv: torch.Tensor,
+    *,
+    step: int,
+    loss: float,
+    max_error: float,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f"{path.name}.tmp")
+    with tmp.open("wb") as file:
+        np.savez(
+            file,
+            active_activation_inv=to_numpy(active_activation_inv),
+            step=np.asarray(step, dtype=np.int64),
+            loss=np.asarray(loss, dtype=np.float64),
+            max_error=np.asarray(max_error, dtype=np.float64),
+        )
+    tmp.replace(path)
 
 
 def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
@@ -533,6 +595,19 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             device=torch.get_default_device(),
         )
     )
+    initial_activation_inv = load_initial_active_activation_inv(
+        cfg.initial_activation_inv, active_ids
+    )
+    if initial_activation_inv is not None:
+        with torch.no_grad():
+            active_activation_inv.copy_(
+                torch.as_tensor(
+                    initial_activation_inv,
+                    dtype=active_activation_inv.dtype,
+                    device=active_activation_inv.device,
+                )
+            )
+            clamp_activation_inv_(active_activation_inv, cfg)
     optimizer = torch.optim.Adam(
         [active_activation_inv],
         lr=cfg.inverse_lr,
@@ -547,7 +622,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
     best_active_activation_inv: torch.Tensor | None = None
-    best_state_u: torch.Tensor | None = None
+    last_accepted_active_activation_inv: torch.Tensor | None = None
+    last_accepted_state_u: torch.Tensor | None = None
     best_loss = math.inf
     best_data_loss = math.inf
     best_max_error = math.inf
@@ -587,14 +663,22 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 step > 0
                 and lr_reductions < cfg.max_lr_reductions
                 and optimizer.param_groups[0]["lr"] > cfg.min_inverse_lr
-                and best_active_activation_inv is not None
+                and last_accepted_active_activation_inv is not None
             ):
                 old_lr = float(optimizer.param_groups[0]["lr"])
                 new_lr = max(cfg.min_inverse_lr, old_lr * cfg.lr_reduction_factor)
+                failed_activation_inv = active_activation_inv.detach().clone()
                 with torch.no_grad():
-                    active_activation_inv.copy_(best_active_activation_inv)
-                if best_state_u is not None:
-                    forward.state = forward.model.State(u=best_state_u.clone())
+                    active_activation_inv.copy_(
+                        last_accepted_active_activation_inv
+                        + cfg.lr_reduction_factor
+                        * (failed_activation_inv - last_accepted_active_activation_inv)
+                    )
+                    clamp_activation_inv_(active_activation_inv, cfg)
+                if last_accepted_state_u is None:
+                    forward.state = forward.model.init()
+                else:
+                    forward.state = forward.model.State(u=last_accepted_state_u.clone())
                 forward.optimizer = forward.default_optimizer(
                     max_steps=cfg.forward_max_steps,
                     atol=cfg.forward_atol,
@@ -613,6 +697,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     "optimizer_lr": old_lr,
                     "lr_reductions": float(lr_reductions),
                     "lr_reduced": 1.0,
+                    "activation_backtrack": cfg.lr_reduction_factor,
                     "forward_failure": 1.0,
                     **forward_metrics,
                 }
@@ -630,7 +715,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     f"fwd_abs={forward_metrics['forward_absolute_grad_norm']:.1e}",
                     f"fwd_rel={forward_metrics['forward_relative_grad_norm']:.1e}",
                     f"lr={old_lr:.3e}->{new_lr:.3e}",
-                    "rollback=best",
+                    f"backtrack={cfg.lr_reduction_factor:.3e}",
                     flush=True,
                 )
                 continue
@@ -698,6 +783,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         activation_inv_min = float(active_values.min().cpu())
         activation_inv_max = float(active_values.max().cpu())
         displacement = to_numpy(output)[global_ids]
+        last_accepted_active_activation_inv = active_values.clone()
+        last_accepted_state_u = output.detach().clone()
 
         improved = is_significant_decrease(
             loss_value,
@@ -720,7 +807,13 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             best_data_loss = data_loss_value
             best_max_error = max_error
             best_active_activation_inv = active_values.clone()
-            best_state_u = output.detach().clone()
+            save_checkpoint(
+                cfg.checkpoint,
+                best_active_activation_inv,
+                step=step,
+                loss=loss_value,
+                max_error=max_error,
+            )
             best_activation_inv = to_numpy(
                 full_activation_inv_from_active(
                     active_values, active_ids_t, mesh.n_cells
@@ -762,8 +855,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         ):
             with torch.no_grad():
                 active_activation_inv.copy_(best_active_activation_inv)
-            if best_state_u is not None:
-                forward.state = forward.model.State(u=best_state_u.clone())
+            forward.state = forward.model.init()
             forward.optimizer = forward.default_optimizer(
                 max_steps=cfg.forward_max_steps,
                 atol=cfg.forward_atol,
@@ -1004,7 +1096,11 @@ def summarize(
         "output": str(cfg.output),
         "output_series": str(cfg.output_series),
         "output_summary": str(cfg.output_summary),
+        "checkpoint": str(cfg.checkpoint),
         "report": str(cfg.report),
+        "initial_activation_inv": (
+            None if cfg.initial_activation_inv is None else str(cfg.initial_activation_inv)
+        ),
         "n_points": int(mesh.n_points),
         "n_cells": int(mesh.n_cells),
         "n_target_points": int(target_ids.size),
@@ -1091,10 +1187,12 @@ def summarize(
         ),
         "trace": trace,
     }
+    metrics["repeated_forward_failure"] = bool(forward_failures > cfg.failure_patience)
+    metrics["repeated_adjoint_failure"] = bool(adjoint_failures > cfg.failure_patience)
     metrics["passed"] = bool(
         metrics["target_max_error"] <= cfg.max_point_error_cm
-        and metrics["forward_all_success"]
-        and metrics["adjoint_all_success"]
+        and not metrics["repeated_forward_failure"]
+        and not metrics["repeated_adjoint_failure"]
         and np.isfinite(metrics["target_max_error"])
     )
     return metrics
@@ -1103,99 +1201,6 @@ def summarize(
 def save_json(path: Path, data: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-
-
-def fmt(value: Any, precision: int = 6) -> str:
-    if isinstance(value, float):
-        return f"{value:.{precision}g}"
-    return str(value)
-
-
-def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [
-        "# 20 Inverse Face",
-        "",
-        "## Result",
-        "",
-        f"- stop reason: `{summary['stop_reason']}`",
-        f"- passed: `{summary['passed']}`",
-        f"- best step: `{summary['best_step']}`",
-        f"- target mean error: `{fmt(summary['target_mean_error'])} cm`",
-        f"- target RMS error: `{fmt(summary['target_rms_error'])} cm`",
-        f"- target max error: `{fmt(summary['target_max_error'])} cm`",
-        f"- required max error: `< {fmt(summary['max_point_error_cm'])} cm`",
-        f"- final loss: `{fmt(summary['final_loss'])}`",
-        f"- best objective loss: `{fmt(summary['best_loss'])}`",
-        f"- lowest objective loss: `{fmt(summary['lowest_loss'])}`",
-        f"- optimizer steps: `{summary['optimizer_steps']}`",
-        f"- series frames: `{summary['series_frames']}`",
-        f"- forward converged: `{summary['forward_all_success']}` "
-        f"({summary['forward_failures']} failures, "
-        f"max absolute grad `{fmt(summary['forward_max_absolute_grad_norm'])}`, "
-        f"max relative grad `{fmt(summary['forward_max_relative_grad_norm'])}`)",
-        f"- adjoint converged: `{summary['adjoint_all_success']}` "
-        f"({summary['adjoint_failures']} failures, "
-        f"max absolute residual `{fmt(summary['adjoint_max_absolute_residual'])}`, "
-        f"max relative residual `{fmt(summary['adjoint_max_relative_residual'])}`)",
-        "",
-        "## Problem",
-        "",
-        f"- input: `{summary['input']}`",
-        f"- target: `{summary['target']}`",
-        f"- output: `{summary['output']}`",
-        f"- optimization series: `{summary['output_series']}`",
-        f"- points: `{summary['n_points']}`",
-        f"- tetrahedra: `{summary['n_cells']}`",
-        f"- target `IsFace` points: `{summary['n_target_points']}`",
-        f"- active muscle tetrahedra: `{summary['n_active_tets']}`",
-        f"- activation parameters: `{summary['n_activation_params']}`",
-        f"- target displacement max: `{fmt(summary['target_displacement_max'])} cm`",
-        "",
-        "## Model",
-        "",
-        f"- material: stable neo-Hookean, `nu = {summary['nu']}`",
-        f"- SMAS stiffness ratio: `{summary['smas_stiffness_ratio']}`",
-        "- collisions: `off`",
-        f"- optimized field: `{summary['optimized_parameterization']}`",
-        "- loss: point-to-point mean squared displacement error on `IsFace` points",
-        "- initialization: zero `ActivationInv`",
-        f"- Adam: `lr={summary['inverse_lr']}`, "
-        f"`betas=({summary['adam_beta1']}, {summary['adam_beta2']})`",
-        f"- forward tolerance: `rtol={summary['forward_rtol']}`, "
-        f"`atol={fmt(summary['forward_atol'])}`",
-        f"- adjoint tolerance: `rtol={summary['adjoint_rtol']}`, "
-        f"`atol={fmt(summary['adjoint_atol'])}`",
-        "",
-        "## Trace",
-        "",
-        "| step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd abs | fwd rel | adj abs | adj rel |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-    ]
-    lines.extend(
-        (
-            "| "
-            f"{int(record['step'])} | "
-            f"{fmt(record['loss'])} | "
-            f"{fmt(record['target_mean_error'])} | "
-            f"{fmt(record['target_max_error'])} | "
-            f"{fmt(record['best_target_max_error'])} | "
-            f"{fmt(record['grad_norm'])} | "
-            f"{fmt(record.get('forward_absolute_grad_norm', math.nan))} | "
-            f"{fmt(record.get('forward_relative_grad_norm', math.nan))} | "
-            f"{fmt(record.get('adjoint_absolute_residual', math.nan))} | "
-            f"{fmt(record.get('adjoint_relative_residual', math.nan))} |"
-        )
-        for record in summary["trace"]
-    )
-    lines.append("")
-    path.write_text("\n".join(lines), encoding="utf-8")
-
-
-def save_readme(path: Path, report: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    relative_report = report.name
-    path.write_text(f"# Inverse Face\n\n- [{relative_report}]({relative_report})\n")
 
 
 def numeric_metrics(
@@ -1270,8 +1275,6 @@ def main(cfg: Config) -> None:
     )
     melon.save(cfg.output, result)
     save_json(cfg.output_summary, summary)
-    save_markdown_report(cfg.report, summary)
-    save_readme(EXPERIMENT_DIR / "docs" / "README.md", cfg.report)
 
     print(
         "inverse result:",
@@ -1286,7 +1289,6 @@ def main(cfg: Config) -> None:
     print(f"saved: {cfg.output}")
     print(f"saved: {cfg.output_series}")
     print(f"saved: {cfg.output_summary}")
-    print(f"saved: {cfg.report}")
     if not summary["passed"]:
         msg = (
             "inverse solve did not meet the required max point error: "

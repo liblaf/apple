@@ -3,9 +3,9 @@ from collections.abc import Sequence
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, Bool, Float
+from liblaf.apple.jax import sim as sim_jax
 
 from liblaf import cherries, melon
-from liblaf.apple.jax import sim as sim_jax
 
 
 class Config(cherries.BaseConfig):

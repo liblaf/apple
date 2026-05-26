@@ -15,7 +15,7 @@
 - optimizer steps: `0`
 - series frames: `1`
 - forward converged: `True` (0 failures)
-- adjoint converged: `False` (1 failures, max relative residual `0.197496`)
+- adjoint converged: `True` (0 failures, max relative residual `0.000499625`)
 
 ## Problem
 
@@ -46,4 +46,4 @@
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: |
-| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 1.77096e-05 | primary_success/1 | 0.197496 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 3.27307e-05 | primary_success/1 | 0.000499625 |

@@ -9,7 +9,7 @@ from liblaf import cherries, melon
 
 SOURCE = Path(
     "/home/liblaf/github/liblaf/melon/exp/2025/04/30/"
-    "human-head-anatomy/data/41-expression-3152k.vtu"
+    "human-head-anatomy/data/41-expression-515k.vtu"
 )
 OUTPUT_STEM = "10-inverse-face"
 IN_FACE_CONVEX = "InFaceConvex"
@@ -158,7 +158,9 @@ def make_target_mesh(
     return target
 
 
-def add_metadata(mesh: pv.UnstructuredGrid, cfg: Config, selected_cell_data: str) -> None:
+def add_metadata(
+    mesh: pv.UnstructuredGrid, cfg: Config, selected_cell_data: str
+) -> None:
     from liblaf.apple.common import FIXED_MASK
 
     active = np.asarray(mesh.cell_data["ActivationMask"], dtype=bool)

@@ -747,7 +747,17 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         adjoint_metrics = adjoint_solution_metrics(
             getattr(differentiable_forward, "last_adjoint_solution", None)
         )
-        if cfg.require_adjoint_convergence and not adjoint_metrics["adjoint_success"]:
+        adjoint_residual_converged = (
+            adjoint_metrics["adjoint_relative_residual"] <= cfg.adjoint_rtol
+            or adjoint_metrics["adjoint_absolute_residual"] <= cfg.adjoint_atol
+        )
+        adjoint_metrics["adjoint_residual_converged"] = bool(
+            adjoint_residual_converged
+        )
+        adjoint_metrics["adjoint_converged"] = bool(
+            adjoint_metrics["adjoint_success"] and adjoint_residual_converged
+        )
+        if cfg.require_adjoint_convergence and not adjoint_metrics["adjoint_converged"]:
             msg = (
                 f"adjoint solve did not converge at inverse step {step}: "
                 f"{adjoint_metrics['adjoint_result']} "
@@ -976,7 +986,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     "forward_success": forward_metrics["forward_success"],
                     "forward_steps": forward_metrics["forward_steps"],
                     "forward_grad_norm": forward_metrics["forward_grad_norm"],
-                    "adjoint_success": adjoint_metrics["adjoint_success"],
+                    "adjoint_converged": adjoint_metrics["adjoint_converged"],
                     "adjoint_relative_residual": adjoint_metrics[
                         "adjoint_relative_residual"
                     ],
@@ -1058,7 +1068,7 @@ def summarize(
         1 for record in trace if not bool(record.get("forward_success", False))
     )
     adjoint_failures = sum(
-        1 for record in trace if not bool(record.get("adjoint_success", False))
+        1 for record in trace if not bool(record.get("adjoint_converged", False))
     )
     adjoint_relative_residuals = [
         float(record["adjoint_relative_residual"])

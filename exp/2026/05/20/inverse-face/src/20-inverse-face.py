@@ -41,6 +41,7 @@ class Config(cherries.BaseConfig):
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0e2
     active_fraction_tol: float = 1.0e-3
+    inverse_active_fraction_floor: float = 0.0
     target_point_mask: str = "IsFace"
 
     forward_rtol: float = 1.0e-2
@@ -171,6 +172,19 @@ def active_cell_ids(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
         msg = "no active muscle tetrahedra selected"
         raise ValueError(msg)
     return ids
+
+
+def apply_inverse_active_fraction_floor(
+    mesh: pv.UnstructuredGrid, cfg: Config
+) -> None:
+    if cfg.inverse_active_fraction_floor <= 0.0:
+        return
+    active_fraction = np.asarray(mesh.cell_data[ACTIVE_FRACTION], dtype=np.float64)
+    active_fraction = np.maximum(active_fraction, cfg.inverse_active_fraction_floor)
+    mesh.cell_data[ACTIVE_FRACTION] = active_fraction
+    mesh.cell_data["ActivationMask"] = (
+        active_fraction > cfg.active_fraction_tol
+    ).astype(np.int8)
 
 
 def target_point_ids(target: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
@@ -787,6 +801,7 @@ def summarize(
         "E": float(cfg.E),
         "nu": float(cfg.nu),
         "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
+        "inverse_active_fraction_floor": float(cfg.inverse_active_fraction_floor),
         "inverse_lr": float(cfg.inverse_lr),
         "adam_beta1": float(cfg.adam_beta1),
         "adam_beta2": float(cfg.adam_beta2),
@@ -943,6 +958,8 @@ def main(cfg: Config) -> None:
     configure_runtime()
 
     mesh, target = load_problem(cfg)
+    apply_inverse_active_fraction_floor(mesh, cfg)
+    apply_inverse_active_fraction_floor(target, cfg)
     active_ids = active_cell_ids(mesh, cfg)
     target_ids = target_point_ids(target, cfg)
     target_displacement = np.asarray(

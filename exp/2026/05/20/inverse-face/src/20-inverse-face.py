@@ -42,6 +42,7 @@ class Config(cherries.BaseConfig):
     smas_stiffness_ratio: float = 1.0e2
     active_fraction_tol: float = 1.0e-3
     inverse_active_fraction_floor: float = 0.0
+    inverse_active_fraction_mode: str = "all"
     target_point_mask: str = "IsFace"
 
     forward_rtol: float = 1.0e-2
@@ -175,12 +176,25 @@ def active_cell_ids(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
 
 
 def apply_inverse_active_fraction_floor(
-    mesh: pv.UnstructuredGrid, cfg: Config
+    mesh: pv.UnstructuredGrid, cfg: Config, target_ids: np.ndarray
 ) -> None:
     if cfg.inverse_active_fraction_floor <= 0.0:
         return
     active_fraction = np.asarray(mesh.cell_data[ACTIVE_FRACTION], dtype=np.float64)
-    active_fraction = np.maximum(active_fraction, cfg.inverse_active_fraction_floor)
+    mode = cfg.inverse_active_fraction_mode.casefold()
+    if mode == "all":
+        cell_mask = np.ones(mesh.n_cells, dtype=bool)
+    elif mode in {"target-adjacent", "face-adjacent"}:
+        cells = np.asarray(mesh.cells, dtype=np.int64).reshape(mesh.n_cells, 5)[:, 1:]
+        point_mask = np.zeros(mesh.n_points, dtype=bool)
+        point_mask[target_ids] = True
+        cell_mask = point_mask[cells].any(axis=1)
+    else:
+        msg = f"unknown inverse_active_fraction_mode: {cfg.inverse_active_fraction_mode!r}"
+        raise ValueError(msg)
+    active_fraction[cell_mask] = np.maximum(
+        active_fraction[cell_mask], cfg.inverse_active_fraction_floor
+    )
     mesh.cell_data[ACTIVE_FRACTION] = active_fraction
     mesh.cell_data["ActivationMask"] = (
         active_fraction > cfg.active_fraction_tol
@@ -802,6 +816,7 @@ def summarize(
         "nu": float(cfg.nu),
         "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
         "inverse_active_fraction_floor": float(cfg.inverse_active_fraction_floor),
+        "inverse_active_fraction_mode": cfg.inverse_active_fraction_mode,
         "inverse_lr": float(cfg.inverse_lr),
         "adam_beta1": float(cfg.adam_beta1),
         "adam_beta2": float(cfg.adam_beta2),
@@ -958,10 +973,10 @@ def main(cfg: Config) -> None:
     configure_runtime()
 
     mesh, target = load_problem(cfg)
-    apply_inverse_active_fraction_floor(mesh, cfg)
-    apply_inverse_active_fraction_floor(target, cfg)
-    active_ids = active_cell_ids(mesh, cfg)
     target_ids = target_point_ids(target, cfg)
+    apply_inverse_active_fraction_floor(mesh, cfg, target_ids)
+    apply_inverse_active_fraction_floor(target, cfg, target_ids)
+    active_ids = active_cell_ids(mesh, cfg)
     target_displacement = np.asarray(
         target.point_data["Displacement"], dtype=np.float64
     )

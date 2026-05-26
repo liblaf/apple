@@ -10,12 +10,12 @@
 - target max error: `0.980094 cm`
 - required max error: `< 0.2 cm`
 - final loss: `0.0313294`
-- best objective loss: `3.13123`
-- lowest objective loss: `3.13123`
+- best objective loss: `0.0313294`
+- lowest objective loss: `0.0313294`
 - optimizer steps: `0`
 - series frames: `1`
 - forward converged: `True` (0 failures, max absolute grad `0`, max relative grad `0`)
-- adjoint converged: `True` (0 failures, max absolute residual `0.00379244`, max relative residual `0.000486138`)
+- adjoint converged: `True` (0 failures, max absolute residual `7.57721e-07`, max relative residual `0.000491585`)
 
 ## Problem
 
@@ -36,8 +36,8 @@
 - SMAS stiffness ratio: `100.0`
 - collisions: `off`
 - optimized field: `per active muscle tetrahedron ActivationInv, 6 DoF`
-- best metric: `target_max_error`
-- stagnation metric: `loss`
+- loss: point-to-point mean squared displacement error on `IsFace` points
+- initialization: zero `ActivationInv`
 - Adam: `lr=0.02`, `betas=(0.5, 0.9)`
 - forward tolerance: `rtol=0.0005`, `atol=0`
 - adjoint tolerance: `rtol=0.0005`, `atol=0.5 * first forward residual`
@@ -46,4 +46,4 @@
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd abs | fwd rel | adj abs | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | 3.13123 | 0.208805 | 0.980094 | 0.980094 | 0.0109458 | 0 | 0 | 0.00379244 | 0.000486138 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 3.27307e-05 | 0 | 0 | 7.57721e-07 | 0.000491585 |

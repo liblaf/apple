@@ -16,6 +16,8 @@ import warp as wp
 
 from liblaf import cherries, melon
 
+logger = logging.getLogger(__name__)
+
 PREP_STEM = "10-inverse-face"
 OUTPUT_STEM = "20-inverse-face"
 TARGET_SURFACE_MASK = "TargetSurfaceMask"
@@ -33,6 +35,7 @@ class Config(cherries.BaseConfig):
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
     output: Path = cherries.output(f"{OUTPUT_STEM}.vtu")
     output_series: Path = cherries.output(f"{OUTPUT_STEM}.vtu.series")
+    output_snapshot: Path = cherries.output(f"{OUTPUT_STEM}.png")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
     checkpoint: Path = cherries.output(f"{OUTPUT_STEM}-checkpoint.npz")
     initial_activation_inv: Path | None = None
@@ -62,6 +65,8 @@ class Config(cherries.BaseConfig):
     adjoint_maxiter: int = 10000
     adjoint_rtol: float = 5.0e-4
     adjoint_atol: float = 0.0
+    activation_smooth_weight: float = 5.0e-2
+    activation_l2_weight: float = 0.1
 
     activation_inv_diag_min: float = -8.0
     activation_inv_diag_max: float = 8.0
@@ -183,6 +188,34 @@ def active_cell_ids(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     return ids
 
 
+def active_face_adjacency(
+    mesh: pv.UnstructuredGrid, active_ids: np.ndarray
+) -> np.ndarray:
+    faces: dict[tuple[int, int, int], int] = {}
+    pairs: list[tuple[int, int]] = []
+    cells = np.asarray(mesh.cells, dtype=np.int64).reshape(mesh.n_cells, -1)
+    if cells.shape[1] != 5 or np.any(cells[:, 0] != 4):
+        msg = "smooth activation regularization expects tetrahedral cells"
+        raise ValueError(msg)
+    for local_id, cell_id in enumerate(active_ids):
+        tet = cells[cell_id, 1:]
+        tet_faces = (
+            tuple(sorted((int(tet[0]), int(tet[1]), int(tet[2])))),
+            tuple(sorted((int(tet[0]), int(tet[1]), int(tet[3])))),
+            tuple(sorted((int(tet[0]), int(tet[2]), int(tet[3])))),
+            tuple(sorted((int(tet[1]), int(tet[2]), int(tet[3])))),
+        )
+        for face in tet_faces:
+            neighbor = faces.get(face)
+            if neighbor is None:
+                faces[face] = local_id
+            else:
+                pairs.append((neighbor, local_id))
+    if not pairs:
+        return np.empty((0, 2), dtype=np.int64)
+    return np.asarray(pairs, dtype=np.int64)
+
+
 def target_point_ids(target: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     if cfg.target_point_mask in target.point_data:
         mask = np.asarray(target.point_data[cfg.target_point_mask], dtype=bool)
@@ -261,10 +294,40 @@ def load_initial_active_activation_inv(
     return activation_inv
 
 
+def load_initial_displacement(
+    path: Path | None, mesh: pv.UnstructuredGrid
+) -> np.ndarray | None:
+    if path is None:
+        return None
+    require_path(path)
+    displacement: np.ndarray | None = None
+    if path.suffix == ".npz":
+        with np.load(path) as data:
+            if "displacement" in data:
+                displacement = np.asarray(data["displacement"], dtype=np.float64)
+    else:
+        state_mesh = pv.read(path)
+        if "Displacement" in state_mesh.point_data:
+            displacement = np.asarray(
+                state_mesh.point_data["Displacement"], dtype=np.float64
+            )
+    if displacement is None:
+        return None
+    expected_shape = (mesh.n_points, 3)
+    if displacement.shape != expected_shape:
+        msg = (
+            f"initial displacement has shape {displacement.shape}; "
+            f"expected {expected_shape}"
+        )
+        raise ValueError(msg)
+    return displacement
+
+
 def save_checkpoint(
     path: Path,
     active_activation_inv: torch.Tensor,
     *,
+    displacement: np.ndarray,
     step: int,
     loss: float,
     max_error: float,
@@ -275,6 +338,7 @@ def save_checkpoint(
         np.savez(
             file,
             active_activation_inv=to_numpy(active_activation_inv),
+            displacement=np.asarray(displacement, dtype=np.float64),
             step=np.asarray(step, dtype=np.int64),
             loss=np.asarray(loss, dtype=np.float64),
             max_error=np.asarray(max_error, dtype=np.float64),
@@ -402,6 +466,18 @@ def point_error_stats(residual: torch.Tensor) -> dict[str, torch.Tensor]:
     }
 
 
+def activation_smoothness_loss(
+    active_activation_inv: torch.Tensor, smooth_pairs_t: torch.Tensor
+) -> torch.Tensor:
+    if smooth_pairs_t.numel() == 0:
+        return active_activation_inv.sum() * 0.0
+    diff = (
+        active_activation_inv[smooth_pairs_t[:, 0]]
+        - active_activation_inv[smooth_pairs_t[:, 1]]
+    )
+    return diff.square().mean()
+
+
 def is_significant_decrease(
     value: float, best: float, *, rel_tol: float, abs_tol: float
 ) -> bool:
@@ -498,6 +574,41 @@ def make_result_mesh(
     return result
 
 
+def save_snapshot(path: Path, mesh: pv.UnstructuredGrid) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    view = mesh.copy(deep=True)
+    if "DeformedPoint" in view.point_data:
+        view.points = np.asarray(view.point_data["DeformedPoint"], dtype=np.float64)
+
+    plotter = pv.Plotter(off_screen=True, shape=(1, 2), window_size=(1800, 900))
+    plotter.subplot(0, 0)
+    surface = view.extract_surface()
+    plotter.add_mesh(
+        surface,
+        scalars="DisplacementErrorNorm",
+        cmap="viridis",
+        show_edges=False,
+    )
+    plotter.add_text("surface error (cm)", font_size=12)
+    plotter.view_xy()
+    plotter.camera.zoom(1.25)
+
+    plotter.subplot(0, 1)
+    clipped = view.clip(normal="z", origin=view.center)
+    plotter.add_mesh(
+        clipped,
+        scalars="RecoveredActivationInvNorm",
+        cmap="magma",
+        show_edges=False,
+    )
+    plotter.add_text("activation_inv norm", font_size=12)
+    plotter.view_xy()
+    plotter.camera.zoom(1.25)
+
+    plotter.screenshot(path)
+    plotter.close()
+
+
 def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     mesh: pv.UnstructuredGrid,
     target_displacement: np.ndarray,
@@ -553,6 +664,12 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         dtype=torch.long,
         device=torch.get_default_device(),
     )
+    smooth_pairs = active_face_adjacency(mesh, active_ids)
+    smooth_pairs_t = torch.as_tensor(
+        smooth_pairs,
+        dtype=torch.long,
+        device=torch.get_default_device(),
+    )
     active_activation_inv = torch.nn.Parameter(
         torch.zeros(
             (active_ids.size, 6),
@@ -573,6 +690,16 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 )
             )
             clamp_activation_inv_(active_activation_inv, cfg)
+    initial_displacement = load_initial_displacement(cfg.initial_activation_inv, mesh)
+    if initial_displacement is not None:
+        with torch.no_grad():
+            forward.state.u.copy_(
+                torch.as_tensor(
+                    initial_displacement,
+                    dtype=forward.state.u.dtype,
+                    device=forward.state.u.device,
+                )
+            )
     optimizer = torch.optim.Adam(
         [active_activation_inv],
         lr=cfg.inverse_lr,
@@ -619,7 +746,16 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
 
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
-        loss = residual.square().mean()
+        point_error_norm = torch.linalg.vector_norm(residual, dim=1)
+        mse_loss = residual.square().mean()
+        data_loss = mse_loss
+        smooth_loss = activation_smoothness_loss(active_activation_inv, smooth_pairs_t)
+        activation_l2_loss = active_activation_inv.square().mean()
+        activation_l2_penalty = cfg.activation_l2_weight * activation_l2_loss
+        regularization_loss = (
+            cfg.activation_smooth_weight * smooth_loss + activation_l2_penalty
+        )
+        loss = data_loss + regularization_loss
         loss.backward()
         backward_elapsed = time.perf_counter() - backward_start
         timing["time/backward_s"] += backward_elapsed
@@ -642,6 +778,12 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
 
         error_stats = point_error_stats(residual.detach())
         loss_value = float(loss.detach().cpu())
+        data_loss_value = float(data_loss.detach().cpu())
+        mse_loss_value = float(mse_loss.detach().cpu())
+        smooth_loss_value = float(smooth_loss.detach().cpu())
+        activation_l2_loss_value = float(activation_l2_loss.detach().cpu())
+        activation_l2_penalty_value = float(activation_l2_penalty.detach().cpu())
+        regularization_loss_value = float(regularization_loss.detach().cpu())
         mean_error = float(error_stats["mean"].cpu())
         rms_error = float(error_stats["rms"].cpu())
         max_error = float(error_stats["max"].cpu())
@@ -657,8 +799,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         displacement = to_numpy(output)[global_ids]
 
         improved = is_significant_decrease(
-            loss_value,
-            best_loss,
+            max_error,
+            best_max_error,
             rel_tol=cfg.stagnation_rel_tol,
             abs_tol=cfg.stagnation_abs_tol,
         )
@@ -678,6 +820,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             save_checkpoint(
                 cfg.checkpoint,
                 best_active_activation_inv,
+                displacement=displacement,
                 step=step,
                 loss=loss_value,
                 max_error=max_error,
@@ -710,6 +853,15 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         trace_record = {
             "step": float(step),
             "loss/total": loss_value,
+            "loss/data": data_loss_value,
+            "loss/mse": mse_loss_value,
+            "loss/smooth": smooth_loss_value,
+            "loss/activation_l2": activation_l2_loss_value,
+            "loss/activation_l2_penalty": activation_l2_penalty_value,
+            "loss/regularization": regularization_loss_value,
+            "regularization/activation_smooth_weight": cfg.activation_smooth_weight,
+            "regularization/activation_l2_weight": cfg.activation_l2_weight,
+            "regularization/activation_smooth_pairs": float(smooth_pairs.shape[0]),
             "target/error_mean": mean_error,
             "target/error_rms": rms_error,
             "target/error_max": max_error,
@@ -765,6 +917,10 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "inverse step:",
             f"{step:03d}",
             f"loss={loss_value:.3e}",
+            f"data={data_loss_value:.3e}",
+            f"mse={mse_loss_value:.3e}",
+            f"l2={activation_l2_penalty_value:.3e}",
+            f"smooth={smooth_loss_value:.3e}",
             f"mean={mean_error:.3e}cm",
             f"rms={rms_error:.3e}cm",
             f"max={max_error:.3e}cm",
@@ -830,6 +986,7 @@ def summarize(
     target_norm = np.linalg.norm(target_displacement[target_ids], axis=1)
     active_activation_inv = recovered_activation_inv[active_ids]
     final_loss = float(np.mean(np.square(target_error)))
+    best_record = trace[best_step]
     target_rms = float(np.linalg.norm(target_error) / math.sqrt(target_ids.size))
     all_rms = float(np.linalg.norm(error) / math.sqrt(error.shape[0]))
     forward_failures = sum(
@@ -881,8 +1038,21 @@ def summarize(
             np.linalg.norm(target_displacement[target_ids]) / math.sqrt(target_ids.size)
         ),
         "target/displacement_max": float(target_norm.max()),
-        "loss/final": final_loss,
-        "best/loss": float(trace[best_step]["loss/total"]),
+        "loss/final": float(best_record["loss/total"]),
+        "loss/data": final_loss,
+        "loss/data_objective": float(best_record.get("loss/data", final_loss)),
+        "loss/smooth": float(best_record.get("loss/smooth", 0.0)),
+        "loss/activation_l2": float(best_record.get("loss/activation_l2", 0.0)),
+        "loss/activation_l2_penalty": float(
+            best_record.get("loss/activation_l2_penalty", 0.0)
+        ),
+        "loss/regularization": float(best_record.get("loss/regularization", 0.0)),
+        "regularization/activation_smooth_weight": cfg.activation_smooth_weight,
+        "regularization/activation_l2_weight": cfg.activation_l2_weight,
+        "regularization/activation_smooth_pairs": int(
+            best_record.get("regularization/activation_smooth_pairs", 0)
+        ),
+        "best/loss": float(best_record["loss/total"]),
         "lowest/loss": float(min(record["loss/total"] for record in trace)),
         "lowest/target_error_max": float(
             min(record["target/error_max"] for record in trace)
@@ -1003,6 +1173,13 @@ def main(cfg: Config) -> None:
         numeric_metrics(summary),
     )
     melon.save(cfg.output, result)
+    try:
+        save_snapshot(cfg.output_snapshot, result)
+        print(f"saved: {cfg.output_snapshot}")
+    except (OSError, RuntimeError, ValueError):
+        logger.warning(
+            "failed to save snapshot: %s", cfg.output_snapshot, exc_info=True
+        )
     save_json(cfg.output_summary, summary)
     cherries.log_metrics(numeric_metrics(summary, exclude={"trace"}))
 

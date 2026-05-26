@@ -47,8 +47,7 @@ class Config(cherries.BaseConfig):
     target_point_mask: str = "IsFace"
 
     forward_rtol: float = 5.0e-4
-    forward_atol: float | None = None
-    forward_atol_first_residual_ratio: float = 0.5
+    forward_atol: float = 0.0
     forward_max_steps: int = 5000
     require_forward_convergence: bool = True
     require_adjoint_convergence: bool = True
@@ -123,6 +122,14 @@ def to_float(value: Any, default: float = math.nan) -> float:
     if torch.is_tensor(value):
         return float(value.detach().cpu())
     return float(value)
+
+
+def relative_value(numerator: float, denominator: float) -> float:
+    if not math.isfinite(numerator) or not math.isfinite(denominator):
+        return math.nan
+    if denominator == 0.0:
+        return 0.0 if numerator == 0.0 else math.inf
+    return numerator / denominator
 
 
 def resolve_auto_atol(
@@ -374,8 +381,6 @@ def full_activation_inv_from_active(
 
 
 def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
-    from liblaf.peach.optim import Pncg
-
     from liblaf.apple.forward import Forward, ModelBuilder
     from liblaf.apple.warp.fem import StableNeoHookean, StableNeoHookeanActive
 
@@ -398,39 +403,11 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
     builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="smas"))
 
     forward = Forward(builder.finalize())
-
-    class FirstResidualAtolCriteria(Pncg.ConvergenceCriteria):
-        def _configured_atol(self, state: Pncg.ConvergenceState) -> torch.Tensor:
-            atol = resolve_auto_atol(
-                cfg.forward_atol,
-                to_float(state.grad_norm_first, default=0.0),
-                cfg.forward_atol_first_residual_ratio,
-            )
-            return torch.as_tensor(
-                atol,
-                dtype=state.grad_norm.dtype,
-                device=state.grad_norm.device,
-            )
-
-        def primary_success(self, state: Pncg.ConvergenceState) -> torch.Tensor:
-            return state.grad_norm <= (
-                self._configured_atol(state) + self.rtol_primary * state.grad_norm_first
-            )
-
-        def secondary_success(self, state: Pncg.ConvergenceState) -> torch.Tensor:
-            return state.grad_norm <= (
-                self._configured_atol(state)
-                + self.rtol_secondary * state.grad_norm_first
-            )
-
-    criteria = FirstResidualAtolCriteria(
+    forward.optimizer = forward.default_optimizer(
         max_steps=cfg.forward_max_steps,
-        atol_primary=0.0 if cfg.forward_atol is None else cfg.forward_atol,
-        rtol_primary=cfg.forward_rtol,
-        atol_secondary=0.0 if cfg.forward_atol is None else cfg.forward_atol,
-        rtol_secondary=cfg.forward_rtol,
+        atol=cfg.forward_atol,
+        rtol=cfg.forward_rtol,
     )
-    forward.optimizer = Pncg(criteria=criteria, line_search=Pncg.LineSearch())
     return forward
 
 
@@ -454,6 +431,8 @@ def forward_solution_metrics(solution: Any) -> dict[str, Any]:
             "forward_success": False,
             "forward_steps": math.nan,
             "forward_grad_norm": math.nan,
+            "forward_absolute_grad_norm": math.nan,
+            "forward_relative_grad_norm": math.nan,
             "forward_grad_norm_first": math.nan,
             "forward_line_search_ok": False,
             "forward_line_search_steps": math.nan,
@@ -461,12 +440,16 @@ def forward_solution_metrics(solution: Any) -> dict[str, Any]:
         }
     convergence_state = solution.state.convergence_state
     line_search_state = solution.state.line_search_state
+    grad_norm = to_float(convergence_state.grad_norm)
+    grad_norm_first = to_float(convergence_state.grad_norm_first)
     return {
         "forward_result": str(solution.result),
         "forward_success": bool(solution.success),
         "forward_steps": int(convergence_state.step),
-        "forward_grad_norm": to_float(convergence_state.grad_norm),
-        "forward_grad_norm_first": to_float(convergence_state.grad_norm_first),
+        "forward_grad_norm": grad_norm,
+        "forward_absolute_grad_norm": grad_norm,
+        "forward_relative_grad_norm": relative_value(grad_norm, grad_norm_first),
+        "forward_grad_norm_first": grad_norm_first,
         "forward_line_search_ok": bool(line_search_state.ok),
         "forward_line_search_steps": int(line_search_state.step),
         "forward_stagnation_count": int(convergence_state.stagnation_count),
@@ -504,6 +487,9 @@ def adjoint_solution_metrics(solution: Any) -> dict[str, Any]:
             else int(solver_solution.state.step)
         )
         metrics[f"adjoint_solver_{i}_info"] = int(solver_solution.state.info)
+        metrics[f"adjoint_solver_{i}_absolute_residual"] = float(
+            absolute_residuals[i]
+        )
         metrics[f"adjoint_solver_{i}_relative_residual"] = float(relative_residuals[i])
     return metrics
 
@@ -794,11 +780,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         forward_metrics = forward_solution_metrics(
             getattr(differentiable_forward, "last_forward_solution", None)
         )
-        forward_metrics["forward_atol"] = resolve_auto_atol(
-            cfg.forward_atol,
-            forward_metrics["forward_grad_norm_first"],
-            cfg.forward_atol_first_residual_ratio,
-        )
+        forward_metrics["forward_atol"] = cfg.forward_atol
         if cfg.require_forward_convergence and not forward_metrics["forward_success"]:
             msg = (
                 f"forward solve did not converge at inverse step {step}: "
@@ -1080,8 +1062,16 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     "lowest_target_max_error": lowest_max_error,
                     "forward_success": forward_metrics["forward_success"],
                     "forward_steps": forward_metrics["forward_steps"],
-                    "forward_grad_norm": forward_metrics["forward_grad_norm"],
+                    "forward_absolute_grad_norm": forward_metrics[
+                        "forward_absolute_grad_norm"
+                    ],
+                    "forward_relative_grad_norm": forward_metrics[
+                        "forward_relative_grad_norm"
+                    ],
                     "adjoint_converged": adjoint_metrics["adjoint_converged"],
+                    "adjoint_absolute_residual": adjoint_metrics[
+                        "adjoint_absolute_residual"
+                    ],
                     "adjoint_relative_residual": adjoint_metrics[
                         "adjoint_relative_residual"
                     ],
@@ -1107,8 +1097,12 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"grad={grad_norm:.3e}",
             f"fwd={forward_metrics['forward_result']}/"
             f"{forward_metrics['forward_steps']}",
+            f"fwd_abs={forward_metrics['forward_absolute_grad_norm']:.1e}",
+            f"fwd_rel={forward_metrics['forward_relative_grad_norm']:.1e}",
             f"adj={adjoint_metrics['adjoint_result']}/"
-            f"{adjoint_metrics['adjoint_relative_residual']:.1e}",
+            f"{adjoint_metrics['adjoint_best_solver']}",
+            f"adj_abs={adjoint_metrics['adjoint_absolute_residual']:.1e}",
+            f"adj_rel={adjoint_metrics['adjoint_relative_residual']:.1e}",
             f"lr={float(optimizer.param_groups[0]['lr']):.3e}",
             f"lr_cuts={lr_reductions}",
             f"no_improve={no_improve_steps}",
@@ -1170,10 +1164,25 @@ def summarize(
         for record in trace
         if np.isfinite(float(record.get("adjoint_relative_residual", math.nan)))
     ]
+    adjoint_absolute_residuals = [
+        float(record["adjoint_absolute_residual"])
+        for record in trace
+        if np.isfinite(float(record.get("adjoint_absolute_residual", math.nan)))
+    ]
     forward_steps = [
         float(record["forward_steps"])
         for record in trace
         if np.isfinite(float(record.get("forward_steps", math.nan)))
+    ]
+    forward_absolute_grad_norms = [
+        float(record["forward_absolute_grad_norm"])
+        for record in trace
+        if np.isfinite(float(record.get("forward_absolute_grad_norm", math.nan)))
+    ]
+    forward_relative_grad_norms = [
+        float(record["forward_relative_grad_norm"])
+        for record in trace
+        if np.isfinite(float(record.get("forward_relative_grad_norm", math.nan)))
     ]
     forward_atols = [
         float(record["forward_atol"])
@@ -1208,12 +1217,7 @@ def summarize(
         "adam_beta2": float(cfg.adam_beta2),
         "adam_eps": float(cfg.adam_eps),
         "forward_rtol": float(cfg.forward_rtol),
-        "forward_atol": (
-            None if cfg.forward_atol is None else float(cfg.forward_atol)
-        ),
-        "forward_atol_first_residual_ratio": float(
-            cfg.forward_atol_first_residual_ratio
-        ),
+        "forward_atol": float(cfg.forward_atol),
         "forward_max_steps": int(cfg.forward_max_steps),
         "require_forward_convergence": bool(cfg.require_forward_convergence),
         "require_adjoint_convergence": bool(cfg.require_adjoint_convergence),
@@ -1275,9 +1279,18 @@ def summarize(
         "forward_failures": int(forward_failures),
         "forward_max_steps_used": float(max(forward_steps, default=math.nan)),
         "forward_max_atol_used": float(max(forward_atols, default=math.nan)),
+        "forward_max_absolute_grad_norm": float(
+            max(forward_absolute_grad_norms, default=math.nan)
+        ),
+        "forward_max_relative_grad_norm": float(
+            max(forward_relative_grad_norms, default=math.nan)
+        ),
         "adjoint_all_success": adjoint_failures == 0,
         "adjoint_failures": int(adjoint_failures),
         "adjoint_max_atol_used": float(max(adjoint_atols, default=math.nan)),
+        "adjoint_max_absolute_residual": float(
+            max(adjoint_absolute_residuals, default=math.nan)
+        ),
         "adjoint_max_relative_residual": float(
             max(adjoint_relative_residuals, default=math.nan)
         ),
@@ -1348,9 +1361,12 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         f"- optimizer steps: `{summary['optimizer_steps']}`",
         f"- series frames: `{summary['series_frames']}`",
         f"- forward converged: `{summary['forward_all_success']}` "
-        f"({summary['forward_failures']} failures)",
+        f"({summary['forward_failures']} failures, "
+        f"max absolute grad `{fmt(summary['forward_max_absolute_grad_norm'])}`, "
+        f"max relative grad `{fmt(summary['forward_max_relative_grad_norm'])}`)",
         f"- adjoint converged: `{summary['adjoint_all_success']}` "
         f"({summary['adjoint_failures']} failures, "
+        f"max absolute residual `{fmt(summary['adjoint_max_absolute_residual'])}`, "
         f"max relative residual `{fmt(summary['adjoint_max_relative_residual'])}`)",
         "",
         "## Problem",
@@ -1377,14 +1393,14 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         f"- Adam: `lr={summary['inverse_lr']}`, "
         f"`betas=({summary['adam_beta1']}, {summary['adam_beta2']})`",
         f"- forward tolerance: `rtol={summary['forward_rtol']}`, "
-        f"`atol={fmt_auto_atol(summary, 'forward_atol', 'forward_atol_first_residual_ratio')}`",
+        f"`atol={fmt(summary['forward_atol'])}`",
         f"- adjoint tolerance: `rtol={summary['adjoint_rtol']}`, "
         f"`atol={fmt_auto_atol(summary, 'adjoint_atol', 'adjoint_atol_first_forward_residual_ratio')}`",
         "",
         "## Trace",
         "",
-        "| step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd | adj rel |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: |",
+        "| step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd abs | fwd rel | adj abs | adj rel |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     lines.extend(
         (
@@ -1395,7 +1411,9 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
             f"{fmt(record['target_max_error'])} | "
             f"{fmt(record['best_target_max_error'])} | "
             f"{fmt(record['grad_norm'])} | "
-            f"{record.get('forward_result', 'n/a')}/{fmt(record.get('forward_steps', math.nan))} | "
+            f"{fmt(record.get('forward_absolute_grad_norm', math.nan))} | "
+            f"{fmt(record.get('forward_relative_grad_norm', math.nan))} | "
+            f"{fmt(record.get('adjoint_absolute_residual', math.nan))} | "
             f"{fmt(record.get('adjoint_relative_residual', math.nan))} |"
         )
         for record in summary["trace"]

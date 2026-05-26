@@ -306,6 +306,8 @@ def initial_active_activation_inv(
     active_ids: np.ndarray,
     cfg: Config,
 ) -> np.ndarray:
+    if cfg.initial_activation_scale == 0.0:
+        return np.zeros((active_ids.size, 6), dtype=np.float64)
     cells = np.asarray(mesh.cells, dtype=np.int64).reshape(mesh.n_cells, 5)[:, 1:]
     active_cells = cells[active_ids]
     rest = np.asarray(mesh.points, dtype=np.float64)

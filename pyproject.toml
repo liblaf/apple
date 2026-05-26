@@ -36,7 +36,7 @@ dependencies = [
   "optree>=0.19.1",
   "pyvista>=0.47",
   "torch>=2.11.0",
-  "warp-lang>=1.13",
+  "warp-lang>=1.13"
 ]
 dynamic = ["version"]
 
@@ -57,7 +57,7 @@ dev = [
   "liblaf-grapes>=9",
   "pygame>=2.6.1",
   "sympy>=1",
-  "viztracer>=1",
+  "viztracer>=1"
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
 docs = [
@@ -76,7 +76,7 @@ test = [
   "pytest-codspeed>=4.5.0",
   "pytest-cov>=7",
   "pytest-randomly>=4",
-  { include-group = "dev" },
+  { include-group = "dev" }
 ]
 typing = [
   "ipctk-stubs>=1",
@@ -159,3 +159,4 @@ url = "https://liblaf.github.io/mirrors-ipc-toolkit/simple/"
 [tool.uv.sources]
 ipctk = { index = "ipctk" }
 ipctk-stubs = { index = "ipctk" }
+liblaf-cherries = { editable = true, path = "../cherries" }

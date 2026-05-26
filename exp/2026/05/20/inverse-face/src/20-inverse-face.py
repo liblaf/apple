@@ -69,7 +69,7 @@ class Config(cherries.BaseConfig):
     activation_inv_diag_min: float = -8.0
     activation_inv_diag_max: float = 8.0
     activation_inv_shear_abs_max: float = 3.0
-    series_stride: int = 1
+    series_stride: int = 5
 
 
 def configure_runtime() -> None:
@@ -387,8 +387,9 @@ def make_result_mesh(
 def should_write_series(
     step: int, *, stopped: bool, improved: bool, cfg: Config
 ) -> bool:
+    _ = improved
     stride = max(1, cfg.series_stride)
-    return step == 0 or stopped or improved or step % stride == 0
+    return step == 0 or stopped or step % stride == 0
 
 
 def solve_inverse(  # noqa: C901, PLR0912, PLR0915

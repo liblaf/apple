@@ -309,9 +309,12 @@ def initial_active_activation_inv(
         axis=-1,
     )
     deformation = Ds @ np.linalg.inv(Dm)
-    activation_inv_matrix = np.linalg.pinv(deformation, rcond=1.0e-8)
-    activation_inv_matrix = 0.5 * (
-        activation_inv_matrix + np.swapaxes(activation_inv_matrix, -1, -2)
+    right_cauchy_green = np.swapaxes(deformation, -1, -2) @ deformation
+    eigvals, eigvecs = np.linalg.eigh(right_cauchy_green)
+    eigvals = np.clip(eigvals, 1.0e-8, None)
+    activation_inv_matrix = (
+        eigvecs
+        @ (np.reciprocal(np.sqrt(eigvals))[..., None] * np.swapaxes(eigvecs, -1, -2))
     )
     activation_inv = np.stack(
         (

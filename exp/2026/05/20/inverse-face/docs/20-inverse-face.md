@@ -2,16 +2,16 @@
 
 ## Result
 
-- stop reason: `stagnation`
+- stop reason: `step_safety_limit`
 - passed: `False`
 - best step: `0`
-- target mean error: `0.208805 cm`
-- target RMS error: `0.306575 cm`
+- target mean error: `0.208763 cm`
+- target RMS error: `0.306504 cm`
 - target max error: `0.980094 cm`
 - required max error: `< 0.2 cm`
-- final loss: `0.0313294`
-- optimizer steps: `8`
-- series frames: `2`
+- final loss: `0.031315`
+- optimizer steps: `0`
+- series frames: `1`
 
 ## Problem
 
@@ -32,18 +32,10 @@
 - SMAS stiffness ratio: `100.0`
 - collisions: `off`
 - optimized field: `per active muscle tetrahedron ActivationInv, 6 DoF`
-- Adam: `lr=3.0`, `betas=(0.0, 0.5)`
+- Adam: `lr=0.1`, `betas=(0.0, 0.9)`
 
 ## Trace
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | 0.511301 | 0.208805 | 0.980094 | 0.980094 | 3.25892e-05 |
-| 1 | 0.482269 | 0.206785 | 1.01749 | 0.980094 | 0.00627529 |
-| 2 | 0.509762 | 0.21878 | 1.00947 | 0.980094 | 0.023654 |
-| 3 | 0.529696 | 0.227534 | 1.04741 | 0.980094 | 0.0963381 |
-| 4 | 0.546939 | 0.234314 | 1.0306 | 0.980094 | 0.0490803 |
-| 5 | 0.54989 | 0.238002 | 1.03109 | 0.980094 | 0.0423305 |
-| 6 | 0.541504 | 0.238898 | 1.08 | 0.980094 | 0.053173 |
-| 7 | 0.536252 | 0.239361 | 1.06412 | 0.980094 | 0.0485482 |
-| 8 | 0.556958 | 0.244248 | 1.10288 | 0.980094 | 0.035495 |
+| 0 | 3.13118 | 0.208763 | 0.980094 | 0.980094 | 0.00347541 |

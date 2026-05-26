@@ -24,6 +24,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 class DifferentiableForward:
     __wrapped__: Forward
     adjoint_solver: LinearSolver = attrs.field(factory=FallbackSolver)
+    last_adjoint_solution: LinearSolver.Solution | None = None
 
     @property
     def model(self) -> Model:
@@ -38,7 +39,15 @@ class DifferentiableForward:
         problem: _AdjointProblem = _AdjointProblem(
             b=-u_grad, model=self.model, model_state=self.state
         )
-        solution: LinearSolver.Solution = self.adjoint_solver.solve(problem, problem.b)
+        if (
+            self.last_adjoint_solution is not None
+            and self.last_adjoint_solution.success
+        ):
+            params: Free = self.last_adjoint_solution.params
+        else:
+            params: Free = torch.zeros_like(u_grad)
+        solution: LinearSolver.Solution = self.adjoint_solver.solve(problem, params)
+        self.last_adjoint_solution = solution
         logger.info(solution)
         return solution
 

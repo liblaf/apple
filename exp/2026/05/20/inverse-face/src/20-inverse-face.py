@@ -63,6 +63,7 @@ class Config(cherries.BaseConfig):
     over_tolerance_weight: float = 1.0
     p_norm_weight: float = 0.05
     p_norm: float = 8.0
+    initial_activation_scale: float = 1.0
     adjoint_maxiter: int = 60
     adjoint_rtol: float = 1.0e-2
     adjoint_atol: float = 0.0
@@ -224,6 +225,69 @@ def clamp_activation_inv_(activation_inv: torch.Tensor, cfg: Config) -> None:
     activation_inv[:, 3:].clamp_(
         -cfg.activation_inv_shear_abs_max, cfg.activation_inv_shear_abs_max
     )
+
+
+def clamp_activation_inv_numpy(activation_inv: np.ndarray, cfg: Config) -> np.ndarray:
+    result = np.asarray(activation_inv, dtype=np.float64).copy()
+    result[:, :3] = np.clip(
+        result[:, :3], cfg.activation_inv_diag_min, cfg.activation_inv_diag_max
+    )
+    result[:, 3:] = np.clip(
+        result[:, 3:],
+        -cfg.activation_inv_shear_abs_max,
+        cfg.activation_inv_shear_abs_max,
+    )
+    return result
+
+
+def initial_active_activation_inv(
+    mesh: pv.UnstructuredGrid,
+    target_displacement: np.ndarray,
+    active_ids: np.ndarray,
+    cfg: Config,
+) -> np.ndarray:
+    cells = np.asarray(mesh.cells, dtype=np.int64).reshape(mesh.n_cells, 5)[:, 1:]
+    active_cells = cells[active_ids]
+    rest = np.asarray(mesh.points, dtype=np.float64)
+    target = rest + np.asarray(target_displacement, dtype=np.float64)
+
+    X0 = rest[active_cells[:, 0]]
+    x0 = target[active_cells[:, 0]]
+    Dm = np.stack(
+        (
+            rest[active_cells[:, 1]] - X0,
+            rest[active_cells[:, 2]] - X0,
+            rest[active_cells[:, 3]] - X0,
+        ),
+        axis=-1,
+    )
+    Ds = np.stack(
+        (
+            target[active_cells[:, 1]] - x0,
+            target[active_cells[:, 2]] - x0,
+            target[active_cells[:, 3]] - x0,
+        ),
+        axis=-1,
+    )
+    deformation = Ds @ np.linalg.inv(Dm)
+    activation_inv_matrix = np.linalg.pinv(deformation, rcond=1.0e-8)
+    activation_inv_matrix = 0.5 * (
+        activation_inv_matrix + np.swapaxes(activation_inv_matrix, -1, -2)
+    )
+    activation_inv = np.stack(
+        (
+            activation_inv_matrix[:, 0, 0] - 1.0,
+            activation_inv_matrix[:, 1, 1] - 1.0,
+            activation_inv_matrix[:, 2, 2] - 1.0,
+            activation_inv_matrix[:, 0, 1],
+            activation_inv_matrix[:, 0, 2],
+            activation_inv_matrix[:, 1, 2],
+        ),
+        axis=-1,
+    )
+    activation_inv = cfg.initial_activation_scale * activation_inv
+    activation_inv = np.nan_to_num(activation_inv, nan=0.0, posinf=0.0, neginf=0.0)
+    return clamp_activation_inv_numpy(activation_inv, cfg)
 
 
 def full_activation_inv_from_active(
@@ -398,6 +462,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     target_displacement: np.ndarray,
     target_ids: np.ndarray,
     active_ids: np.ndarray,
+    initial_activation_inv: np.ndarray,
     cfg: Config,
     series_writer: Any,
 ) -> tuple[
@@ -436,8 +501,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         device=torch.get_default_device(),
     )
     active_activation_inv = torch.nn.Parameter(
-        torch.zeros(
-            (active_ids.size, 6),
+        torch.as_tensor(
+            initial_activation_inv,
             dtype=torch.get_default_dtype(),
             device=torch.get_default_device(),
         )
@@ -747,6 +812,7 @@ def summarize(
         "over_tolerance_weight": float(cfg.over_tolerance_weight),
         "p_norm_weight": float(cfg.p_norm_weight),
         "p_norm": float(cfg.p_norm),
+        "initial_activation_scale": float(cfg.initial_activation_scale),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
         "adjoint_atol": float(cfg.adjoint_atol),
@@ -882,6 +948,9 @@ def main(cfg: Config) -> None:
     target_displacement = np.asarray(
         target.point_data["Displacement"], dtype=np.float64
     )
+    initial_activation_inv = initial_active_activation_inv(
+        mesh, target_displacement, active_ids, cfg
+    )
 
     add_masks(mesh, target_ids, active_ids)
     melon.save(cfg.output_input, mesh)
@@ -902,6 +971,7 @@ def main(cfg: Config) -> None:
             target_displacement,
             target_ids,
             active_ids,
+            initial_activation_inv,
             cfg,
             series_writer,
         )

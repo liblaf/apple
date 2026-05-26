@@ -47,7 +47,7 @@ class Config(cherries.BaseConfig):
     forward_atol: float = 1.0e-4
     forward_max_steps: int = 800
 
-    inverse_lr: float = 0.1
+    inverse_lr: float = 0.5
     adam_beta1: float = 0.0
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
@@ -59,8 +59,9 @@ class Config(cherries.BaseConfig):
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
     activation_l2_weight: float = 1.0e-9
-    max_error_weight: float = 10.0
-    p_norm_weight: float = 0.25
+    max_error_weight: float = 5.0
+    over_tolerance_weight: float = 1.0
+    p_norm_weight: float = 0.05
     p_norm: float = 8.0
     adjoint_maxiter: int = 60
     adjoint_rtol: float = 1.0e-2
@@ -481,12 +482,18 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         residual = output[point_global_ids_t] - target[point_ids_t]
         point_error = torch.linalg.vector_norm(residual, dim=1)
         data_loss = residual.square().mean()
-        max_error_loss = torch.relu(point_error - cfg.max_point_error_cm).square().mean()
+        max_error_loss = torch.relu(
+            point_error.max() - cfg.max_point_error_cm
+        ).square()
+        over_tolerance_loss = (
+            torch.relu(point_error - cfg.max_point_error_cm).square().mean()
+        )
         p_norm_loss = point_error.pow(cfg.p_norm).mean().pow(2.0 / cfg.p_norm)
         reg_loss = cfg.activation_l2_weight * active_activation_inv.square().mean()
         loss = (
             data_loss
             + cfg.max_error_weight * max_error_loss
+            + cfg.over_tolerance_weight * over_tolerance_loss
             + cfg.p_norm_weight * p_norm_loss
             + reg_loss
         )
@@ -508,6 +515,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         loss_value = float(loss.detach().cpu())
         reg_loss_value = float(reg_loss.detach().cpu())
         max_error_loss_value = float(max_error_loss.detach().cpu())
+        over_tolerance_loss_value = float(over_tolerance_loss.detach().cpu())
         p_norm_loss_value = float(p_norm_loss.detach().cpu())
         mean_error = float(error_stats["mean"].cpu())
         rms_error = float(error_stats["rms"].cpu())
@@ -572,6 +580,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "loss": loss_value,
             "data_loss": data_loss_value,
             "max_error_loss": max_error_loss_value,
+            "over_tolerance_loss": over_tolerance_loss_value,
             "p_norm_loss": p_norm_loss_value,
             "regularization_loss": reg_loss_value,
             "target_mean_error": mean_error,
@@ -735,6 +744,7 @@ def summarize(
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
         "activation_l2_weight": float(cfg.activation_l2_weight),
         "max_error_weight": float(cfg.max_error_weight),
+        "over_tolerance_weight": float(cfg.over_tolerance_weight),
         "p_norm_weight": float(cfg.p_norm_weight),
         "p_norm": float(cfg.p_norm),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),

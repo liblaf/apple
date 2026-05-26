@@ -58,6 +58,10 @@ class Config(cherries.BaseConfig):
     stagnation_patience: int = 8
     stagnation_rel_tol: float = 5.0e-4
     stagnation_abs_tol: float = 1.0e-4
+    lr_reduction_patience: int = 4
+    lr_reduction_factor: float = 0.5
+    max_lr_reductions: int = 6
+    min_inverse_lr: float = 1.0e-3
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
     activation_l2_weight: float = 1.0e-9
@@ -548,9 +552,11 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     best_step = 0
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
+    best_active_activation_inv: torch.Tensor | None = None
     best_max_error = math.inf
     best_loss = math.inf
     no_improve_steps = 0
+    lr_reductions = 0
     timing = {
         "inverse_elapsed_s": 0.0,
         "forward_elapsed_s": 0.0,
@@ -633,6 +639,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             best_step = step
             best_loss = data_loss_value
             best_max_error = max_error
+            best_active_activation_inv = active_values.clone()
             best_activation_inv = to_numpy(
                 full_activation_inv_from_active(
                     active_values, active_ids_t, mesh.n_cells
@@ -654,12 +661,40 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         elif (
             step >= cfg.inverse_min_steps
             and no_improve_steps >= cfg.stagnation_patience
+            and (
+                lr_reductions >= cfg.max_lr_reductions
+                or optimizer.param_groups[0]["lr"] <= cfg.min_inverse_lr
+            )
         ):
             stop_reason = "stagnation"
             stopped = True
 
         did_optimizer_step = False
-        if not stopped and optimizer_steps < cfg.inverse_max_steps:
+        lr_reduced = False
+        if (
+            not stopped
+            and step >= cfg.inverse_min_steps
+            and no_improve_steps >= cfg.lr_reduction_patience
+            and lr_reductions < cfg.max_lr_reductions
+            and optimizer.param_groups[0]["lr"] > cfg.min_inverse_lr
+            and best_active_activation_inv is not None
+        ):
+            with torch.no_grad():
+                active_activation_inv.copy_(best_active_activation_inv)
+            new_lr = max(
+                cfg.min_inverse_lr,
+                float(optimizer.param_groups[0]["lr"]) * cfg.lr_reduction_factor,
+            )
+            optimizer = torch.optim.Adam(
+                [active_activation_inv],
+                lr=new_lr,
+                betas=(cfg.adam_beta1, cfg.adam_beta2),
+                eps=cfg.adam_eps,
+            )
+            lr_reductions += 1
+            no_improve_steps = 0
+            lr_reduced = True
+        if not stopped and not lr_reduced and optimizer_steps < cfg.inverse_max_steps:
             optimizer_start = time.perf_counter()
             optimizer.step()
             optimizer_steps += 1
@@ -686,6 +721,9 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "grad_norm": grad_norm,
             "grad_abs_max": grad_abs_max,
             "optimizer_steps": float(optimizer_steps),
+            "inverse_lr": float(optimizer.param_groups[0]["lr"]),
+            "lr_reductions": float(lr_reductions),
+            "lr_reduced": float(lr_reduced),
             "best_step": float(best_step),
             "best_loss": best_loss,
             "best_target_max_error": best_max_error,
@@ -751,11 +789,13 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"tol={cfg.max_point_error_cm:.3e}cm",
             f"best_max={best_max_error:.3e}cm",
             f"grad={grad_norm:.3e}",
+            f"lr={float(optimizer.param_groups[0]['lr']):.3e}",
+            f"lr_cuts={lr_reductions}",
             f"no_improve={no_improve_steps}",
             f"elapsed={step_elapsed:.2f}s",
             flush=True,
         )
-        if stopped or not did_optimizer_step:
+        if stopped or not (did_optimizer_step or lr_reduced):
             break
 
     if best_displacement is None or best_activation_inv is None:
@@ -837,6 +877,10 @@ def summarize(
         "loss_tol": float(cfg.loss_tol),
         "stagnation_patience": int(cfg.stagnation_patience),
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
+        "lr_reduction_patience": int(cfg.lr_reduction_patience),
+        "lr_reduction_factor": float(cfg.lr_reduction_factor),
+        "max_lr_reductions": int(cfg.max_lr_reductions),
+        "min_inverse_lr": float(cfg.min_inverse_lr),
         "activation_l2_weight": float(cfg.activation_l2_weight),
         "max_error_weight": float(cfg.max_error_weight),
         "over_tolerance_weight": float(cfg.over_tolerance_weight),

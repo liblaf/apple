@@ -553,6 +553,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
     best_active_activation_inv: torch.Tensor | None = None
+    best_state_u: torch.Tensor | None = None
     best_max_error = math.inf
     best_loss = math.inf
     no_improve_steps = 0
@@ -640,6 +641,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             best_loss = data_loss_value
             best_max_error = max_error
             best_active_activation_inv = active_values.clone()
+            best_state_u = output.detach().clone()
             best_activation_inv = to_numpy(
                 full_activation_inv_from_active(
                     active_values, active_ids_t, mesh.n_cells
@@ -681,6 +683,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         ):
             with torch.no_grad():
                 active_activation_inv.copy_(best_active_activation_inv)
+            if best_state_u is not None:
+                forward.state = forward.model.State(u=best_state_u.clone())
             new_lr = max(
                 cfg.min_inverse_lr,
                 float(optimizer.param_groups[0]["lr"]) * cfg.lr_reduction_factor,

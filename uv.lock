@@ -2091,7 +2091,7 @@ dev = [
     { name = "icecream", specifier = ">=2.1.10" },
     { name = "ipykernel", specifier = ">=7" },
     { name = "jax", extras = ["cuda13"], specifier = ">=0.10.0" },
-    { name = "liblaf-cherries", editable = "../cherries" },
+    { name = "liblaf-cherries", specifier = ">=1" },
     { name = "liblaf-grapes", specifier = ">=9" },
     { name = "pygame", specifier = ">=2.6.1" },
     { name = "sympy", specifier = ">=1" },
@@ -2119,7 +2119,7 @@ test = [
     { name = "icecream", specifier = ">=2.1.10" },
     { name = "ipykernel", specifier = ">=7" },
     { name = "jax", extras = ["cuda13"], specifier = ">=0.10.0" },
-    { name = "liblaf-cherries", editable = "../cherries" },
+    { name = "liblaf-cherries", specifier = ">=1" },
     { name = "liblaf-grapes", specifier = ">=9" },
     { name = "pygame", specifier = ">=2.6.1" },
     { name = "pytest", specifier = ">=9" },
@@ -2138,7 +2138,8 @@ typing = [
 
 [[package]]
 name = "liblaf-cherries"
-source = { editable = "../cherries" }
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "autoregistry" },
@@ -2152,51 +2153,10 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "toolz" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "attrs", specifier = ">=26" },
-    { name = "autoregistry", specifier = ">=1.2.1" },
-    { name = "comet-ml", specifier = ">=3.40" },
-    { name = "environs", specifier = ">=14" },
-    { name = "gitpython", specifier = ">=3.1" },
-    { name = "giturlparse", specifier = ">=0.14" },
-    { name = "liblaf-logging", specifier = ">=0.1.0" },
-    { name = "msgspec", extras = ["yaml"], specifier = ">=0.21.1" },
-    { name = "pydantic", specifier = ">=2" },
-    { name = "pydantic-settings", specifier = ">=2" },
-    { name = "toolz", specifier = ">=1.1" },
+sdist = { url = "https://files.pythonhosted.org/packages/1d/20/ca386629089ed5b2e6d255fd7cfd18da68e07bc5dfc73ffd72c118f910e3/liblaf_cherries-2.0.1.tar.gz", hash = "sha256:30f49b624cf4869058a69e28a2ce62271c249522f34b2bd7338dfd00bba8bac8", size = 18976, upload-time = "2026-05-26T13:41:55.534Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/79/100d2b131c32da0be4b66509dfab3ded996579e12b9af8ff37c43510ae90/liblaf_cherries-2.0.1-py3-none-any.whl", hash = "sha256:c1e1635ae7bab5c138eb9f7a17c443e994b7b1c9d4164b24fed10e1fe7efb7da", size = 31084, upload-time = "2026-05-26T13:41:53.845Z" },
 ]
-
-[package.metadata.requires-dev]
-build = [
-    { name = "check-wheel-contents", specifier = ">=0.6" },
-    { name = "hatch", specifier = ">=1" },
-    { name = "twine", specifier = ">=6" },
-]
-docs = [
-    { name = "griffe-fieldz", specifier = ">=0.5" },
-    { name = "griffe-inherited-docstrings", specifier = ">=1" },
-    { name = "griffe-pydantic", specifier = ">=1" },
-    { name = "griffe-warnings-deprecated", specifier = ">=1" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=1" },
-    { name = "zensical", specifier = ">=0.0.30" },
-]
-lint = [
-    { name = "import-linter", extras = ["ui"], specifier = ">=2" },
-    { name = "ruff", specifier = ">=0.15" },
-]
-nox = [
-    { name = "liblaf-nox-recipes", specifier = ">=0.1" },
-    { name = "nox", specifier = ">=2026" },
-    { name = "nox-uv", specifier = ">=0.7" },
-]
-test = [
-    { name = "pytest", specifier = ">=9" },
-    { name = "pytest-cov", specifier = ">=7" },
-    { name = "pytest-randomly", specifier = ">=4" },
-]
-typing = [{ name = "toolz-stubs", specifier = ">=0.4" }]
 
 [[package]]
 name = "liblaf-conf"
@@ -2247,7 +2207,7 @@ wheels = [
 
 [[package]]
 name = "liblaf-logging"
-version = "0.1.1"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -2256,9 +2216,9 @@ dependencies = [
     { name = "packaging" },
     { name = "rich" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e6/70/aadf6226733e73f9d35ef711b5687599f1a9b10abc0b260be8dbe5bfde51/liblaf_logging-0.1.1.tar.gz", hash = "sha256:58f46bed71de135bb2893cf8e5c0e66b98058387f61a756e5d385c57911b259b", size = 16529, upload-time = "2026-05-26T09:59:19.73Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/03/45fad6b08cb70e14f4f672a73740dd61442452595aac5c5d31c9c5570ef9/liblaf_logging-0.1.2.tar.gz", hash = "sha256:7c6ec09a15be6fe4b7b3f9453cbdcc460a320b51f14a498a451af5c9313bf55d", size = 16644, upload-time = "2026-05-26T13:11:37.653Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5d/47/2037a9af21f26fcdf576f2d846a0dd17f81b9c4ab456eac55bf45a094db7/liblaf_logging-0.1.1-py3-none-any.whl", hash = "sha256:b066c9b876a1c059f60ec85eb6b3c850ae1b7ab2e470962e215c5ede5dca14f0", size = 24914, upload-time = "2026-05-26T09:59:17.977Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/27/0a3632fd22362264a250aeaac884c501354f415743b02060802c426361e6/liblaf_logging-0.1.2-py3-none-any.whl", hash = "sha256:62886ddd85af289961c492f5b21238e34dddfc1512d5b5862acbc2a0cfd25f98", size = 25119, upload-time = "2026-05-26T13:11:36.38Z" },
 ]
 
 [[package]]

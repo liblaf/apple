@@ -159,4 +159,3 @@ url = "https://liblaf.github.io/mirrors-ipc-toolkit/simple/"
 [tool.uv.sources]
 ipctk = { index = "ipctk" }
 ipctk-stubs = { index = "ipctk" }
-liblaf-cherries = { editable = true, path = "../cherries" }

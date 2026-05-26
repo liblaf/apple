@@ -16,21 +16,12 @@ import warp as wp
 
 from liblaf import cherries, melon
 
-EXPERIMENT_DIR = Path(__file__).resolve().parents[1]
 PREP_STEM = "10-inverse-face"
 OUTPUT_STEM = "20-inverse-face"
 TARGET_SURFACE_MASK = "TargetSurfaceMask"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
 SMAS_STIFFNESS_FRACTION = "SmasStiffnessFraction"
-CHERRIES_LOG_METRIC_EXCLUDES = frozenset(
-    {
-        "step",
-        "max_point_error_cm",
-        "forward_atol",
-        "adjoint_atol",
-    }
-)
 
 
 class Config(cherries.BaseConfig):
@@ -44,7 +35,6 @@ class Config(cherries.BaseConfig):
     output_series: Path = cherries.output(f"{OUTPUT_STEM}.vtu.series")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
     checkpoint: Path = cherries.output(f"{OUTPUT_STEM}-checkpoint.npz")
-    report: Path = EXPERIMENT_DIR / "docs" / f"{OUTPUT_STEM}.md"
     initial_activation_inv: Path | None = None
 
     E: float = 1.0
@@ -56,10 +46,8 @@ class Config(cherries.BaseConfig):
     forward_rtol: float = 5.0e-4
     forward_atol: float = 0.0
     forward_max_steps: int = 10000
-    require_forward_convergence: bool = False
-    require_adjoint_convergence: bool = False
 
-    inverse_lr: float = 0.08
+    inverse_lr: float = 0.03
     adam_beta1: float = 0.5
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
@@ -68,10 +56,6 @@ class Config(cherries.BaseConfig):
     stagnation_patience: int = 40
     stagnation_rel_tol: float = 1.0e-4
     stagnation_abs_tol: float = 1.0e-7
-    lr_reduction_patience: int = 1_000_000_000
-    lr_reduction_factor: float = 0.5
-    max_lr_reductions: int = 0
-    min_inverse_lr: float = 1.0e-4
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
     failure_patience: int = 3
@@ -82,7 +66,6 @@ class Config(cherries.BaseConfig):
     activation_inv_diag_min: float = -8.0
     activation_inv_diag_max: float = 8.0
     activation_inv_shear_abs_max: float = 3.0
-    series_stride: int = 5
 
 
 def configure_runtime() -> None:
@@ -245,7 +228,7 @@ def load_initial_active_activation_inv(
 ) -> np.ndarray | None:
     if path is None:
         return None
-    path = require_path(path)
+    require_path(path)
     if path.suffix == ".npz":
         with np.load(path) as data:
             if "active_activation_inv" in data:
@@ -406,9 +389,7 @@ def adjoint_solution_metrics(solution: Any) -> dict[str, Any]:
             else int(solver_solution.state.step)
         )
         metrics[f"adjoint_solver_{i}_info"] = int(solver_solution.state.info)
-        metrics[f"adjoint_solver_{i}_absolute_residual"] = float(
-            absolute_residuals[i]
-        )
+        metrics[f"adjoint_solver_{i}_absolute_residual"] = float(absolute_residuals[i])
         metrics[f"adjoint_solver_{i}_relative_residual"] = float(relative_residuals[i])
     return metrics
 
@@ -474,7 +455,50 @@ def add_metric_fields(
     for name, value in metrics.items():
         if isinstance(value, str):
             continue
-        mesh.field_data[name] = np.asarray([value])
+        mesh.field_data[group_metric_name(name)] = np.asarray([value])
+
+
+def group_metric_name(name: str) -> str:
+    exact = {
+        "loss": "loss/total",
+        "data_loss": "loss/data",
+        "final_loss": "loss/final",
+        "no_improve_steps": "stagnation/no_improve_steps",
+        "step_elapsed_s": "step/elapsed_s",
+        "backward_elapsed_s": "backward/elapsed_s",
+        "series_frames": "series/frames",
+        "n_points": "mesh/n_points",
+        "n_cells": "mesh/n_cells",
+        "n_target_points": "target/n_points",
+        "n_active_tets": "activation/n_active_tets",
+        "n_activation_params": "activation/n_params",
+    }
+    if name in exact:
+        return exact[name]
+    replacements = (
+        ("target_", "target/"),
+        ("activation_inv_", "activation_inv/"),
+        ("active_activation_inv_", "active_activation_inv/"),
+        ("forward_", "forward/"),
+        ("adjoint_", "adjoint/"),
+        ("optimizer_", "optimizer/"),
+        ("best_", "best/"),
+        ("lowest_", "lowest/"),
+        ("grad_", "grad/"),
+        ("inverse_", "inverse/"),
+        ("all_", "all/"),
+        ("series_", "series/"),
+        ("total_", "total/"),
+        ("repeated_", "repeated/"),
+    )
+    for prefix, grouped_prefix in replacements:
+        if name.startswith(prefix):
+            return grouped_prefix + name.removeprefix(prefix)
+    return name
+
+
+def group_metrics(metrics: dict[str, int | float]) -> dict[str, int | float]:
+    return {group_metric_name(name): value for name, value in metrics.items()}
 
 
 def add_masks(
@@ -526,11 +550,6 @@ def make_result_mesh(
     )
     add_metric_fields(result, metrics)
     return result
-
-
-def should_write_series(step: int, *, stopped: bool, cfg: Config) -> bool:
-    stride = max(1, cfg.series_stride)
-    return step == 0 or stopped or step % stride == 0
 
 
 def solve_inverse(  # noqa: C901, PLR0912, PLR0915
@@ -622,8 +641,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
     best_active_activation_inv: torch.Tensor | None = None
-    last_accepted_active_activation_inv: torch.Tensor | None = None
-    last_accepted_state_u: torch.Tensor | None = None
     best_loss = math.inf
     best_data_loss = math.inf
     best_max_error = math.inf
@@ -634,7 +651,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     lowest_data_loss_step = 0
     lowest_max_error_step = 0
     no_improve_steps = 0
-    lr_reductions = 0
     timing = {
         "inverse_elapsed_s": 0.0,
         "forward_elapsed_s": 0.0,
@@ -657,73 +673,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         forward_metrics = forward_solution_metrics(
             getattr(differentiable_forward, "last_forward_solution", None)
         )
-        forward_metrics["forward_atol"] = cfg.forward_atol
-        if cfg.require_forward_convergence and not forward_metrics["forward_success"]:
-            if (
-                step > 0
-                and lr_reductions < cfg.max_lr_reductions
-                and optimizer.param_groups[0]["lr"] > cfg.min_inverse_lr
-                and last_accepted_active_activation_inv is not None
-            ):
-                old_lr = float(optimizer.param_groups[0]["lr"])
-                new_lr = max(cfg.min_inverse_lr, old_lr * cfg.lr_reduction_factor)
-                failed_activation_inv = active_activation_inv.detach().clone()
-                with torch.no_grad():
-                    active_activation_inv.copy_(
-                        last_accepted_active_activation_inv
-                        + cfg.lr_reduction_factor
-                        * (failed_activation_inv - last_accepted_active_activation_inv)
-                    )
-                    clamp_activation_inv_(active_activation_inv, cfg)
-                if last_accepted_state_u is None:
-                    forward.state = forward.model.init()
-                else:
-                    forward.state = forward.model.State(u=last_accepted_state_u.clone())
-                forward.optimizer = forward.default_optimizer(
-                    max_steps=cfg.forward_max_steps,
-                    atol=cfg.forward_atol,
-                    rtol=cfg.forward_rtol,
-                )
-                optimizer = torch.optim.Adam(
-                    [active_activation_inv],
-                    lr=new_lr,
-                    betas=(cfg.adam_beta1, cfg.adam_beta2),
-                    eps=cfg.adam_eps,
-                )
-                lr_reductions += 1
-                no_improve_steps = 0
-                failure_record = {
-                    "optimizer_steps": float(optimizer_steps),
-                    "optimizer_lr": old_lr,
-                    "lr_reductions": float(lr_reductions),
-                    "lr_reduced": 1.0,
-                    "activation_backtrack": cfg.lr_reduction_factor,
-                    "forward_failure": 1.0,
-                    **forward_metrics,
-                }
-                cherries.set_step(step)
-                cherries.log_metrics(
-                    numeric_metrics(
-                        failure_record, exclude=CHERRIES_LOG_METRIC_EXCLUDES
-                    )
-                )
-                print(
-                    "inverse step:",
-                    f"{step:03d}",
-                    f"forward={forward_metrics['forward_result']}/"
-                    f"{forward_metrics['forward_steps']}",
-                    f"fwd_abs={forward_metrics['forward_absolute_grad_norm']:.1e}",
-                    f"fwd_rel={forward_metrics['forward_relative_grad_norm']:.1e}",
-                    f"lr={old_lr:.3e}->{new_lr:.3e}",
-                    f"backtrack={cfg.lr_reduction_factor:.3e}",
-                    flush=True,
-                )
-                continue
-            msg = (
-                f"forward solve did not converge at inverse step {step}: "
-                f"{forward_metrics['forward_result']}"
-            )
-            raise RuntimeError(msg)
         set_adjoint_solver_tolerances(
             differentiable_forward.adjoint_solver,
             rtol=cfg.adjoint_rtol,
@@ -740,23 +689,13 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         adjoint_metrics = adjoint_solution_metrics(
             getattr(differentiable_forward, "last_adjoint_solution", None)
         )
-        adjoint_metrics["adjoint_atol"] = cfg.adjoint_atol
         adjoint_residual_converged = (
             adjoint_metrics["adjoint_relative_residual"] <= cfg.adjoint_rtol
         )
-        adjoint_metrics["adjoint_residual_converged"] = bool(
-            adjoint_residual_converged
-        )
+        adjoint_metrics["adjoint_residual_converged"] = bool(adjoint_residual_converged)
         adjoint_metrics["adjoint_converged"] = bool(
             adjoint_metrics["adjoint_success"] and adjoint_residual_converged
         )
-        if cfg.require_adjoint_convergence and not adjoint_metrics["adjoint_converged"]:
-            msg = (
-                f"adjoint solve did not converge at inverse step {step}: "
-                f"{adjoint_metrics['adjoint_result']} "
-                f"(relative residual {adjoint_metrics['adjoint_relative_residual']:.3e})"
-            )
-            raise RuntimeError(msg)
 
         grad = active_activation_inv.grad
         if grad is None:
@@ -783,8 +722,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         activation_inv_min = float(active_values.min().cpu())
         activation_inv_max = float(active_values.max().cpu())
         displacement = to_numpy(output)[global_ids]
-        last_accepted_active_activation_inv = active_values.clone()
-        last_accepted_state_u = output.detach().clone()
 
         improved = is_significant_decrease(
             loss_value,
@@ -801,7 +738,9 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         if max_error < lowest_max_error:
             lowest_max_error = max_error
             lowest_max_error_step = step
-        if loss_value < best_loss:
+        if max_error < best_max_error or (
+            math.isclose(max_error, best_max_error) and loss_value < best_loss
+        ):
             best_step = step
             best_loss = loss_value
             best_data_loss = data_loss_value
@@ -835,46 +774,12 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         elif (
             step >= cfg.inverse_min_steps
             and no_improve_steps >= cfg.stagnation_patience
-            and (
-                lr_reductions >= cfg.max_lr_reductions
-                or optimizer.param_groups[0]["lr"] <= cfg.min_inverse_lr
-            )
         ):
             stop_reason = "stagnation"
             stopped = True
 
         did_optimizer_step = False
-        lr_reduced = False
-        if (
-            not stopped
-            and step >= cfg.inverse_min_steps
-            and no_improve_steps >= cfg.lr_reduction_patience
-            and lr_reductions < cfg.max_lr_reductions
-            and optimizer.param_groups[0]["lr"] > cfg.min_inverse_lr
-            and best_active_activation_inv is not None
-        ):
-            with torch.no_grad():
-                active_activation_inv.copy_(best_active_activation_inv)
-            forward.state = forward.model.init()
-            forward.optimizer = forward.default_optimizer(
-                max_steps=cfg.forward_max_steps,
-                atol=cfg.forward_atol,
-                rtol=cfg.forward_rtol,
-            )
-            new_lr = max(
-                cfg.min_inverse_lr,
-                float(optimizer.param_groups[0]["lr"]) * cfg.lr_reduction_factor,
-            )
-            optimizer = torch.optim.Adam(
-                [active_activation_inv],
-                lr=new_lr,
-                betas=(cfg.adam_beta1, cfg.adam_beta2),
-                eps=cfg.adam_eps,
-            )
-            lr_reductions += 1
-            no_improve_steps = 0
-            lr_reduced = True
-        if not stopped and not lr_reduced and optimizer_steps < cfg.inverse_max_steps:
+        if not stopped and optimizer_steps < cfg.inverse_max_steps:
             optimizer_start = time.perf_counter()
             optimizer.step()
             optimizer_steps += 1
@@ -890,7 +795,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "target_mean_error": mean_error,
             "target_rms_error": rms_error,
             "target_max_error": max_error,
-            "max_point_error_cm": cfg.max_point_error_cm,
             "activation_inv_rms": activation_inv_rms,
             "activation_inv_min": activation_inv_min,
             "activation_inv_max": activation_inv_max,
@@ -898,8 +802,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "grad_abs_max": grad_abs_max,
             "optimizer_steps": float(optimizer_steps),
             "optimizer_lr": float(optimizer.param_groups[0]["lr"]),
-            "lr_reductions": float(lr_reductions),
-            "lr_reduced": float(lr_reduced),
             "best_step": float(best_step),
             "best_loss": best_loss,
             "best_data_loss": best_data_loss,
@@ -919,69 +821,65 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         }
         trace.append(trace_record)
 
-        if should_write_series(step, stopped=stopped, cfg=cfg):
-            series_start = time.perf_counter()
-            evaluated_activation_inv = to_numpy(
-                full_activation_inv_from_active(
-                    active_values, active_ids_t, mesh.n_cells
-                )
-            )
-            step_mesh = make_result_mesh(
-                mesh,
-                target_displacement,
-                displacement,
-                evaluated_activation_inv,
-                target_ids,
-                active_ids,
-                {
-                    "inverse_step": step,
-                    "optimizer_steps": optimizer_steps,
-                    "loss": loss_value,
-                    "data_loss": data_loss_value,
-                    "target_mean_error": mean_error,
-                    "target_rms_error": rms_error,
-                    "target_max_error": max_error,
-                    "max_point_error_cm": cfg.max_point_error_cm,
-                    "activation_inv_rms": activation_inv_rms,
-                    "activation_inv_min": activation_inv_min,
-                    "activation_inv_max": activation_inv_max,
-                    "grad_norm": grad_norm,
-                    "grad_abs_max": grad_abs_max,
-                    "best_step": best_step,
-                    "best_loss": best_loss,
-                    "best_data_loss": best_data_loss,
-                    "best_target_max_error": best_max_error,
-                    "lowest_loss": lowest_loss,
-                    "lowest_data_loss": lowest_data_loss,
-                    "lowest_target_max_error": lowest_max_error,
-                    "forward_success": forward_metrics["forward_success"],
-                    "forward_steps": forward_metrics["forward_steps"],
-                    "forward_absolute_grad_norm": forward_metrics[
-                        "forward_absolute_grad_norm"
-                    ],
-                    "forward_relative_grad_norm": forward_metrics[
-                        "forward_relative_grad_norm"
-                    ],
-                    "adjoint_converged": adjoint_metrics["adjoint_converged"],
-                    "adjoint_absolute_residual": adjoint_metrics[
-                        "adjoint_absolute_residual"
-                    ],
-                    "adjoint_relative_residual": adjoint_metrics[
-                        "adjoint_relative_residual"
-                    ],
-                    "stopped": stopped,
-                },
-            )
-            series_writer.append(step_mesh, time=float(step))
-            series_elapsed = time.perf_counter() - series_start
-            timing["series_elapsed_s"] += series_elapsed
-            trace_record["series_elapsed_s"] = series_elapsed
+        series_start = time.perf_counter()
+        evaluated_activation_inv = to_numpy(
+            full_activation_inv_from_active(active_values, active_ids_t, mesh.n_cells)
+        )
+        step_mesh = make_result_mesh(
+            mesh,
+            target_displacement,
+            displacement,
+            evaluated_activation_inv,
+            target_ids,
+            active_ids,
+            {
+                "inverse_step": step,
+                "optimizer_steps": optimizer_steps,
+                "loss": loss_value,
+                "data_loss": data_loss_value,
+                "target_mean_error": mean_error,
+                "target_rms_error": rms_error,
+                "target_max_error": max_error,
+                "activation_inv_rms": activation_inv_rms,
+                "activation_inv_min": activation_inv_min,
+                "activation_inv_max": activation_inv_max,
+                "grad_norm": grad_norm,
+                "grad_abs_max": grad_abs_max,
+                "best_step": best_step,
+                "best_loss": best_loss,
+                "best_data_loss": best_data_loss,
+                "best_target_max_error": best_max_error,
+                "lowest_loss": lowest_loss,
+                "lowest_data_loss": lowest_data_loss,
+                "lowest_target_max_error": lowest_max_error,
+                "forward_success": forward_metrics["forward_success"],
+                "forward_steps": forward_metrics["forward_steps"],
+                "forward_absolute_grad_norm": forward_metrics[
+                    "forward_absolute_grad_norm"
+                ],
+                "forward_relative_grad_norm": forward_metrics[
+                    "forward_relative_grad_norm"
+                ],
+                "adjoint_converged": adjoint_metrics["adjoint_converged"],
+                "adjoint_absolute_residual": adjoint_metrics[
+                    "adjoint_absolute_residual"
+                ],
+                "adjoint_relative_residual": adjoint_metrics[
+                    "adjoint_relative_residual"
+                ],
+                "stopped": stopped,
+            },
+        )
+        series_writer.append(step_mesh, time=float(step))
+        series_elapsed = time.perf_counter() - series_start
+        timing["series_elapsed_s"] += series_elapsed
+        trace_record["series_elapsed_s"] = series_elapsed
 
         step_elapsed = time.perf_counter() - step_start
         trace_record["step_elapsed_s"] = step_elapsed
         cherries.set_step(step)
         cherries.log_metrics(
-            numeric_metrics(trace_record, exclude=CHERRIES_LOG_METRIC_EXCLUDES)
+            group_metrics(numeric_metrics(trace_record, exclude={"step"}))
         )
         print(
             "inverse step:",
@@ -1002,12 +900,11 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"adj_abs={adjoint_metrics['adjoint_absolute_residual']:.1e}",
             f"adj_rel={adjoint_metrics['adjoint_relative_residual']:.1e}",
             f"lr={float(optimizer.param_groups[0]['lr']):.3e}",
-            f"lr_cuts={lr_reductions}",
             f"no_improve={no_improve_steps}",
             f"elapsed={step_elapsed:.2f}s",
             flush=True,
         )
-        if stopped or not (did_optimizer_step or lr_reduced):
+        if stopped or not did_optimizer_step:
             break
 
     if best_displacement is None or best_activation_inv is None:
@@ -1080,65 +977,19 @@ def summarize(
         for record in trace
         if np.isfinite(float(record.get("forward_relative_grad_norm", math.nan)))
     ]
-    forward_atols = [
-        float(record["forward_atol"])
-        for record in trace
-        if np.isfinite(float(record.get("forward_atol", math.nan)))
-    ]
-    adjoint_atols = [
-        float(record["adjoint_atol"])
-        for record in trace
-        if np.isfinite(float(record.get("adjoint_atol", math.nan)))
-    ]
     metrics: dict[str, Any] = {
-        "input": str(cfg.input),
-        "target": str(cfg.target),
-        "output": str(cfg.output),
-        "output_series": str(cfg.output_series),
-        "output_summary": str(cfg.output_summary),
-        "checkpoint": str(cfg.checkpoint),
-        "report": str(cfg.report),
-        "initial_activation_inv": (
-            None if cfg.initial_activation_inv is None else str(cfg.initial_activation_inv)
-        ),
         "n_points": int(mesh.n_points),
         "n_cells": int(mesh.n_cells),
         "n_target_points": int(target_ids.size),
         "n_active_tets": int(active_ids.size),
         "n_activation_params": int(active_ids.size * 6),
         "optimized_parameterization": "per active muscle tetrahedron ActivationInv, 6 DoF",
-        "E": float(cfg.E),
-        "nu": float(cfg.nu),
-        "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
-        "inverse_lr": float(cfg.inverse_lr),
-        "adam_beta1": float(cfg.adam_beta1),
-        "adam_beta2": float(cfg.adam_beta2),
-        "adam_eps": float(cfg.adam_eps),
-        "forward_rtol": float(cfg.forward_rtol),
-        "forward_atol": float(cfg.forward_atol),
-        "forward_max_steps": int(cfg.forward_max_steps),
-        "require_forward_convergence": bool(cfg.require_forward_convergence),
-        "require_adjoint_convergence": bool(cfg.require_adjoint_convergence),
-        "inverse_max_steps": int(cfg.inverse_max_steps),
-        "inverse_min_steps": int(cfg.inverse_min_steps),
         "optimizer_steps": int(optimizer_steps),
         "best_step": int(best_step),
-        "series_stride": int(cfg.series_stride),
         "series_frames": int(
             sum(1 for record in trace if "series_elapsed_s" in record)
         ),
         "stop_reason": stop_reason,
-        "max_point_error_cm": float(cfg.max_point_error_cm),
-        "loss_tol": float(cfg.loss_tol),
-        "stagnation_patience": int(cfg.stagnation_patience),
-        "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
-        "lr_reduction_patience": int(cfg.lr_reduction_patience),
-        "lr_reduction_factor": float(cfg.lr_reduction_factor),
-        "max_lr_reductions": int(cfg.max_lr_reductions),
-        "min_inverse_lr": float(cfg.min_inverse_lr),
-        "adjoint_maxiter": int(cfg.adjoint_maxiter),
-        "adjoint_rtol": float(cfg.adjoint_rtol),
-        "adjoint_atol": float(cfg.adjoint_atol),
         "total_elapsed_s": float(total_elapsed_s),
         **{name: float(value) for name, value in timing.items()},
         "target_displacement_mean": float(target_norm.mean()),
@@ -1157,7 +1008,6 @@ def summarize(
         "forward_all_success": forward_failures == 0,
         "forward_failures": int(forward_failures),
         "forward_max_steps_used": float(max(forward_steps, default=math.nan)),
-        "forward_max_atol_used": float(max(forward_atols, default=math.nan)),
         "forward_max_absolute_grad_norm": float(
             max(forward_absolute_grad_norms, default=math.nan)
         ),
@@ -1166,7 +1016,6 @@ def summarize(
         ),
         "adjoint_all_success": adjoint_failures == 0,
         "adjoint_failures": int(adjoint_failures),
-        "adjoint_max_atol_used": float(max(adjoint_atols, default=math.nan)),
         "adjoint_max_absolute_residual": float(
             max(adjoint_absolute_residuals, default=math.nan)
         ),
@@ -1275,6 +1124,7 @@ def main(cfg: Config) -> None:
     )
     melon.save(cfg.output, result)
     save_json(cfg.output_summary, summary)
+    cherries.log_metrics(group_metrics(numeric_metrics(summary, exclude={"trace"})))
 
     print(
         "inverse result:",

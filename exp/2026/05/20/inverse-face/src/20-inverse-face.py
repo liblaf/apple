@@ -70,6 +70,7 @@ class Config(cherries.BaseConfig):
     p_norm_weight: float = 0.05
     p_norm: float = 8.0
     initial_activation_scale: float = 1.0
+    initial_activation_surface_only: bool = True
     adjoint_maxiter: int = 60
     adjoint_rtol: float = 1.0e-2
     adjoint_atol: float = 0.0
@@ -275,13 +276,19 @@ def clamp_activation_inv_numpy(activation_inv: np.ndarray, cfg: Config) -> np.nd
 def initial_active_activation_inv(
     mesh: pv.UnstructuredGrid,
     target_displacement: np.ndarray,
+    target_ids: np.ndarray,
     active_ids: np.ndarray,
     cfg: Config,
 ) -> np.ndarray:
     cells = np.asarray(mesh.cells, dtype=np.int64).reshape(mesh.n_cells, 5)[:, 1:]
     active_cells = cells[active_ids]
     rest = np.asarray(mesh.points, dtype=np.float64)
-    target = rest + np.asarray(target_displacement, dtype=np.float64)
+    displacement = np.asarray(target_displacement, dtype=np.float64)
+    if cfg.initial_activation_surface_only:
+        surface_displacement = np.zeros_like(displacement)
+        surface_displacement[target_ids] = displacement[target_ids]
+        displacement = surface_displacement
+    target = rest + displacement
 
     X0 = rest[active_cells[:, 0]]
     x0 = target[active_cells[:, 0]]
@@ -685,6 +692,11 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 active_activation_inv.copy_(best_active_activation_inv)
             if best_state_u is not None:
                 forward.state = forward.model.State(u=best_state_u.clone())
+            forward.optimizer = forward.default_optimizer(
+                max_steps=cfg.forward_max_steps,
+                atol=cfg.forward_atol,
+                rtol=cfg.forward_rtol,
+            )
             new_lr = max(
                 cfg.min_inverse_lr,
                 float(optimizer.param_groups[0]["lr"]) * cfg.lr_reduction_factor,
@@ -891,6 +903,7 @@ def summarize(
         "p_norm_weight": float(cfg.p_norm_weight),
         "p_norm": float(cfg.p_norm),
         "initial_activation_scale": float(cfg.initial_activation_scale),
+        "initial_activation_surface_only": bool(cfg.initial_activation_surface_only),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
         "adjoint_atol": float(cfg.adjoint_atol),
@@ -1029,7 +1042,7 @@ def main(cfg: Config) -> None:
         target.point_data["Displacement"], dtype=np.float64
     )
     initial_activation_inv = initial_active_activation_inv(
-        mesh, target_displacement, active_ids, cfg
+        mesh, target_displacement, target_ids, active_ids, cfg
     )
 
     add_masks(mesh, target_ids, active_ids)

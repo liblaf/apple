@@ -48,14 +48,14 @@ class Config(cherries.BaseConfig):
     forward_max_steps: int = 10000
 
     inverse_lr: float = 0.03
-    adam_beta1: float = 0.5
+    adam_beta1: float = 0.3
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
-    inverse_max_steps: int = 400
-    inverse_min_steps: int = 5
-    stagnation_patience: int = 40
-    stagnation_rel_tol: float = 1.0e-4
-    stagnation_abs_tol: float = 1.0e-7
+    inverse_max_steps: int = 1000
+    inverse_min_steps: int = 80
+    stagnation_patience: int = 250
+    stagnation_rel_tol: float = 1.0e-5
+    stagnation_abs_tol: float = 1.0e-8
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
     failure_patience: int = 3
@@ -329,79 +329,68 @@ def material_tree(
 def forward_solution_metrics(solution: Any) -> dict[str, Any]:
     if solution is None:
         return {
-            "forward_result": "missing",
-            "forward_success": False,
-            "forward_steps": math.nan,
-            "forward_grad_norm": math.nan,
-            "forward_absolute_grad_norm": math.nan,
-            "forward_relative_grad_norm": math.nan,
-            "forward_grad_norm_first": math.nan,
-            "forward_line_search_ok": False,
-            "forward_line_search_steps": math.nan,
-            "forward_stagnation_count": math.nan,
+            "forward/result": "missing",
+            "forward/success": False,
+            "forward/steps": math.nan,
+            "forward/grad_norm": math.nan,
+            "forward/relative_grad_norm": math.nan,
+            "forward/grad_norm_first": math.nan,
+            "forward/line_search_ok": False,
+            "forward/line_search_steps": math.nan,
+            "forward/stagnation_count": math.nan,
         }
     convergence_state = solution.state.convergence_state
     line_search_state = solution.state.line_search_state
     grad_norm = to_float(convergence_state.grad_norm)
     grad_norm_first = to_float(convergence_state.grad_norm_first)
     return {
-        "forward_result": str(solution.result),
-        "forward_success": bool(solution.success),
-        "forward_steps": int(convergence_state.step),
-        "forward_grad_norm": grad_norm,
-        "forward_absolute_grad_norm": grad_norm,
-        "forward_relative_grad_norm": relative_value(grad_norm, grad_norm_first),
-        "forward_grad_norm_first": grad_norm_first,
-        "forward_line_search_ok": bool(line_search_state.ok),
-        "forward_line_search_steps": int(line_search_state.step),
-        "forward_stagnation_count": int(convergence_state.stagnation_count),
+        "forward/result": str(solution.result),
+        "forward/success": bool(solution.success),
+        "forward/steps": int(convergence_state.step),
+        "forward/grad_norm": grad_norm,
+        "forward/relative_grad_norm": relative_value(grad_norm, grad_norm_first),
+        "forward/grad_norm_first": grad_norm_first,
+        "forward/line_search_ok": bool(line_search_state.ok),
+        "forward/line_search_steps": int(line_search_state.step),
+        "forward/stagnation_count": int(convergence_state.stagnation_count),
     }
 
 
 def adjoint_solution_metrics(solution: Any) -> dict[str, Any]:
     if solution is None:
         return {
-            "adjoint_result": "missing",
-            "adjoint_success": False,
-            "adjoint_solver_count": 0,
-            "adjoint_best_solver": -1,
-            "adjoint_absolute_residual": math.nan,
-            "adjoint_relative_residual": math.nan,
+            "adjoint/result": "missing",
+            "adjoint/success": False,
+            "adjoint/solver_count": 0,
+            "adjoint/best_solver": -1,
+            "adjoint/absolute_residual": math.nan,
+            "adjoint/relative_residual": math.nan,
         }
     state = solution.state
     best_index = int(state.best_index.detach().cpu())
     absolute_residuals = to_numpy(state.absolute_residuals)
     relative_residuals = to_numpy(state.relative_residuals)
     metrics: dict[str, Any] = {
-        "adjoint_result": str(solution.result),
-        "adjoint_success": bool(solution.success),
-        "adjoint_solver_count": len(state.solutions),
-        "adjoint_best_solver": best_index,
-        "adjoint_absolute_residual": float(absolute_residuals[best_index]),
-        "adjoint_relative_residual": float(relative_residuals[best_index]),
+        "adjoint/result": str(solution.result),
+        "adjoint/success": bool(solution.success),
+        "adjoint/solver_count": len(state.solutions),
+        "adjoint/best_solver": best_index,
+        "adjoint/absolute_residual": float(absolute_residuals[best_index]),
+        "adjoint/relative_residual": float(relative_residuals[best_index]),
     }
     for i, solver_solution in enumerate(state.solutions):
-        metrics[f"adjoint_solver_{i}_result"] = str(solver_solution.result)
-        metrics[f"adjoint_solver_{i}_success"] = bool(solver_solution.success)
-        metrics[f"adjoint_solver_{i}_steps"] = (
+        prefix = f"adjoint/solver_{i}"
+        metrics[f"{prefix}/result"] = str(solver_solution.result)
+        metrics[f"{prefix}/success"] = bool(solver_solution.success)
+        metrics[f"{prefix}/steps"] = (
             -1
             if solver_solution.state.step is None
             else int(solver_solution.state.step)
         )
-        metrics[f"adjoint_solver_{i}_info"] = int(solver_solution.state.info)
-        metrics[f"adjoint_solver_{i}_absolute_residual"] = float(absolute_residuals[i])
-        metrics[f"adjoint_solver_{i}_relative_residual"] = float(relative_residuals[i])
+        metrics[f"{prefix}/info"] = int(solver_solution.state.info)
+        metrics[f"{prefix}/absolute_residual"] = float(absolute_residuals[i])
+        metrics[f"{prefix}/relative_residual"] = float(relative_residuals[i])
     return metrics
-
-
-def set_adjoint_solver_tolerances(solver: Any, *, rtol: float, atol: float) -> None:
-    for inner_solver in getattr(solver, "solvers", [solver]):
-        if hasattr(inner_solver, "rtol"):
-            inner_solver.rtol = rtol
-        if hasattr(inner_solver, "tol"):
-            inner_solver.tol = rtol
-        if hasattr(inner_solver, "atol"):
-            inner_solver.atol = atol
 
 
 def point_error_stats(residual: torch.Tensor) -> dict[str, torch.Tensor]:
@@ -455,50 +444,7 @@ def add_metric_fields(
     for name, value in metrics.items():
         if isinstance(value, str):
             continue
-        mesh.field_data[group_metric_name(name)] = np.asarray([value])
-
-
-def group_metric_name(name: str) -> str:
-    exact = {
-        "loss": "loss/total",
-        "data_loss": "loss/data",
-        "final_loss": "loss/final",
-        "no_improve_steps": "stagnation/no_improve_steps",
-        "step_elapsed_s": "step/elapsed_s",
-        "backward_elapsed_s": "backward/elapsed_s",
-        "series_frames": "series/frames",
-        "n_points": "mesh/n_points",
-        "n_cells": "mesh/n_cells",
-        "n_target_points": "target/n_points",
-        "n_active_tets": "activation/n_active_tets",
-        "n_activation_params": "activation/n_params",
-    }
-    if name in exact:
-        return exact[name]
-    replacements = (
-        ("target_", "target/"),
-        ("activation_inv_", "activation_inv/"),
-        ("active_activation_inv_", "active_activation_inv/"),
-        ("forward_", "forward/"),
-        ("adjoint_", "adjoint/"),
-        ("optimizer_", "optimizer/"),
-        ("best_", "best/"),
-        ("lowest_", "lowest/"),
-        ("grad_", "grad/"),
-        ("inverse_", "inverse/"),
-        ("all_", "all/"),
-        ("series_", "series/"),
-        ("total_", "total/"),
-        ("repeated_", "repeated/"),
-    )
-    for prefix, grouped_prefix in replacements:
-        if name.startswith(prefix):
-            return grouped_prefix + name.removeprefix(prefix)
-    return name
-
-
-def group_metrics(metrics: dict[str, int | float]) -> dict[str, int | float]:
-    return {group_metric_name(name): value for name, value in metrics.items()}
+        mesh.field_data[name] = np.asarray([value])
 
 
 def add_masks(
@@ -642,21 +588,18 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     best_activation_inv: np.ndarray | None = None
     best_active_activation_inv: torch.Tensor | None = None
     best_loss = math.inf
-    best_data_loss = math.inf
     best_max_error = math.inf
     lowest_loss = math.inf
-    lowest_data_loss = math.inf
     lowest_max_error = math.inf
     lowest_loss_step = 0
-    lowest_data_loss_step = 0
     lowest_max_error_step = 0
     no_improve_steps = 0
     timing = {
-        "inverse_elapsed_s": 0.0,
-        "forward_elapsed_s": 0.0,
-        "backward_elapsed_s": 0.0,
-        "optimizer_elapsed_s": 0.0,
-        "series_elapsed_s": 0.0,
+        "time/inverse_s": 0.0,
+        "time/forward_s": 0.0,
+        "time/backward_s": 0.0,
+        "time/optimizer_s": 0.0,
+        "time/series_s": 0.0,
     }
     inverse_start = time.perf_counter()
     for step in range(cfg.inverse_max_steps + 1):
@@ -669,33 +612,24 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         forward_start = time.perf_counter()
         output = forward_quiet(differentiable_forward, materials)
         forward_elapsed = time.perf_counter() - forward_start
-        timing["forward_elapsed_s"] += forward_elapsed
+        timing["time/forward_s"] += forward_elapsed
         forward_metrics = forward_solution_metrics(
             getattr(differentiable_forward, "last_forward_solution", None)
-        )
-        set_adjoint_solver_tolerances(
-            differentiable_forward.adjoint_solver,
-            rtol=cfg.adjoint_rtol,
-            atol=cfg.adjoint_atol,
         )
 
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
-        data_loss = residual.square().mean()
-        loss = data_loss
+        loss = residual.square().mean()
         loss.backward()
         backward_elapsed = time.perf_counter() - backward_start
-        timing["backward_elapsed_s"] += backward_elapsed
+        timing["time/backward_s"] += backward_elapsed
         adjoint_metrics = adjoint_solution_metrics(
             getattr(differentiable_forward, "last_adjoint_solution", None)
         )
         adjoint_residual_converged = (
-            adjoint_metrics["adjoint_relative_residual"] <= cfg.adjoint_rtol
+            adjoint_metrics["adjoint/relative_residual"] <= cfg.adjoint_rtol
         )
-        adjoint_metrics["adjoint_residual_converged"] = bool(adjoint_residual_converged)
-        adjoint_metrics["adjoint_converged"] = bool(
-            adjoint_metrics["adjoint_success"] and adjoint_residual_converged
-        )
+        adjoint_metrics["adjoint/residual_converged"] = bool(adjoint_residual_converged)
 
         grad = active_activation_inv.grad
         if grad is None:
@@ -707,7 +641,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             raise FloatingPointError(msg)
 
         error_stats = point_error_stats(residual.detach())
-        data_loss_value = float(data_loss.detach().cpu())
         loss_value = float(loss.detach().cpu())
         mean_error = float(error_stats["mean"].cpu())
         rms_error = float(error_stats["rms"].cpu())
@@ -732,9 +665,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         if loss_value < lowest_loss:
             lowest_loss = loss_value
             lowest_loss_step = step
-        if data_loss_value < lowest_data_loss:
-            lowest_data_loss = data_loss_value
-            lowest_data_loss_step = step
         if max_error < lowest_max_error:
             lowest_max_error = max_error
             lowest_max_error_step = step
@@ -743,7 +673,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         ):
             best_step = step
             best_loss = loss_value
-            best_data_loss = data_loss_value
             best_max_error = max_error
             best_active_activation_inv = active_values.clone()
             save_checkpoint(
@@ -778,44 +707,30 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             stop_reason = "stagnation"
             stopped = True
 
-        did_optimizer_step = False
-        if not stopped and optimizer_steps < cfg.inverse_max_steps:
-            optimizer_start = time.perf_counter()
-            optimizer.step()
-            optimizer_steps += 1
-            did_optimizer_step = True
-            timing["optimizer_elapsed_s"] += time.perf_counter() - optimizer_start
-            with torch.no_grad():
-                clamp_activation_inv_(active_activation_inv, cfg)
-
         trace_record = {
             "step": float(step),
-            "loss": loss_value,
-            "data_loss": data_loss_value,
-            "target_mean_error": mean_error,
-            "target_rms_error": rms_error,
-            "target_max_error": max_error,
-            "activation_inv_rms": activation_inv_rms,
-            "activation_inv_min": activation_inv_min,
-            "activation_inv_max": activation_inv_max,
-            "grad_norm": grad_norm,
-            "grad_abs_max": grad_abs_max,
-            "optimizer_steps": float(optimizer_steps),
-            "optimizer_lr": float(optimizer.param_groups[0]["lr"]),
-            "best_step": float(best_step),
-            "best_loss": best_loss,
-            "best_data_loss": best_data_loss,
-            "best_target_max_error": best_max_error,
-            "lowest_loss": lowest_loss,
-            "lowest_loss_step": float(lowest_loss_step),
-            "lowest_data_loss": lowest_data_loss,
-            "lowest_data_loss_step": float(lowest_data_loss_step),
-            "lowest_target_max_error": lowest_max_error,
-            "lowest_target_max_error_step": float(lowest_max_error_step),
-            "no_improve_steps": float(no_improve_steps),
+            "loss/total": loss_value,
+            "target/error_mean": mean_error,
+            "target/error_rms": rms_error,
+            "target/error_max": max_error,
+            "activation_inv/rms": activation_inv_rms,
+            "activation_inv/min": activation_inv_min,
+            "activation_inv/max": activation_inv_max,
+            "grad/norm": grad_norm,
+            "grad/abs_max": grad_abs_max,
+            "optimizer/steps": float(optimizer_steps),
+            "optimizer/lr": float(optimizer.param_groups[0]["lr"]),
+            "best/step": float(best_step),
+            "best/loss": best_loss,
+            "best/target_error_max": best_max_error,
+            "lowest/loss": lowest_loss,
+            "lowest/loss_step": float(lowest_loss_step),
+            "lowest/target_error_max": lowest_max_error,
+            "lowest/target_error_max_step": float(lowest_max_error_step),
+            "stagnation/no_improve_steps": float(no_improve_steps),
             "stopped": float(stopped),
-            "forward_elapsed_s": forward_elapsed,
-            "backward_elapsed_s": backward_elapsed,
+            "time/forward_s": forward_elapsed,
+            "time/backward_s": backward_elapsed,
             **forward_metrics,
             **adjoint_metrics,
         }
@@ -833,54 +748,19 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             target_ids,
             active_ids,
             {
-                "inverse_step": step,
-                "optimizer_steps": optimizer_steps,
-                "loss": loss_value,
-                "data_loss": data_loss_value,
-                "target_mean_error": mean_error,
-                "target_rms_error": rms_error,
-                "target_max_error": max_error,
-                "activation_inv_rms": activation_inv_rms,
-                "activation_inv_min": activation_inv_min,
-                "activation_inv_max": activation_inv_max,
-                "grad_norm": grad_norm,
-                "grad_abs_max": grad_abs_max,
-                "best_step": best_step,
-                "best_loss": best_loss,
-                "best_data_loss": best_data_loss,
-                "best_target_max_error": best_max_error,
-                "lowest_loss": lowest_loss,
-                "lowest_data_loss": lowest_data_loss,
-                "lowest_target_max_error": lowest_max_error,
-                "forward_success": forward_metrics["forward_success"],
-                "forward_steps": forward_metrics["forward_steps"],
-                "forward_absolute_grad_norm": forward_metrics[
-                    "forward_absolute_grad_norm"
-                ],
-                "forward_relative_grad_norm": forward_metrics[
-                    "forward_relative_grad_norm"
-                ],
-                "adjoint_converged": adjoint_metrics["adjoint_converged"],
-                "adjoint_absolute_residual": adjoint_metrics[
-                    "adjoint_absolute_residual"
-                ],
-                "adjoint_relative_residual": adjoint_metrics[
-                    "adjoint_relative_residual"
-                ],
-                "stopped": stopped,
+                "inverse/step": step,
+                **numeric_metrics(trace_record, exclude={"step"}),
             },
         )
         series_writer.append(step_mesh, time=float(step))
         series_elapsed = time.perf_counter() - series_start
-        timing["series_elapsed_s"] += series_elapsed
-        trace_record["series_elapsed_s"] = series_elapsed
+        timing["time/series_s"] += series_elapsed
+        trace_record["time/series_s"] = series_elapsed
 
         step_elapsed = time.perf_counter() - step_start
-        trace_record["step_elapsed_s"] = step_elapsed
+        trace_record["time/step_s"] = step_elapsed
         cherries.set_step(step)
-        cherries.log_metrics(
-            group_metrics(numeric_metrics(trace_record, exclude={"step"}))
-        )
+        cherries.log_metrics(numeric_metrics(trace_record, exclude={"step"}))
         print(
             "inverse step:",
             f"{step:03d}",
@@ -891,26 +771,32 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"tol={cfg.max_point_error_cm:.3e}cm",
             f"best_max={best_max_error:.3e}cm",
             f"grad={grad_norm:.3e}",
-            f"fwd={forward_metrics['forward_result']}/"
-            f"{forward_metrics['forward_steps']}",
-            f"fwd_abs={forward_metrics['forward_absolute_grad_norm']:.1e}",
-            f"fwd_rel={forward_metrics['forward_relative_grad_norm']:.1e}",
-            f"adj={adjoint_metrics['adjoint_result']}/"
-            f"{adjoint_metrics['adjoint_best_solver']}",
-            f"adj_abs={adjoint_metrics['adjoint_absolute_residual']:.1e}",
-            f"adj_rel={adjoint_metrics['adjoint_relative_residual']:.1e}",
+            f"fwd={forward_metrics['forward/result']}/"
+            f"{forward_metrics['forward/steps']}",
+            f"fwd_grad={forward_metrics['forward/grad_norm']:.1e}",
+            f"fwd_rel={forward_metrics['forward/relative_grad_norm']:.1e}",
+            f"adj={adjoint_metrics['adjoint/result']}/"
+            f"{adjoint_metrics['adjoint/best_solver']}",
+            f"adj_abs={adjoint_metrics['adjoint/absolute_residual']:.1e}",
+            f"adj_rel={adjoint_metrics['adjoint/relative_residual']:.1e}",
             f"lr={float(optimizer.param_groups[0]['lr']):.3e}",
             f"no_improve={no_improve_steps}",
             f"elapsed={step_elapsed:.2f}s",
             flush=True,
         )
-        if stopped or not did_optimizer_step:
+        if stopped or optimizer_steps >= cfg.inverse_max_steps:
             break
+        optimizer_start = time.perf_counter()
+        optimizer.step()
+        optimizer_steps += 1
+        timing["time/optimizer_s"] += time.perf_counter() - optimizer_start
+        with torch.no_grad():
+            clamp_activation_inv_(active_activation_inv, cfg)
 
     if best_displacement is None or best_activation_inv is None:
         msg = "inverse solve did not evaluate any forward states"
         raise RuntimeError(msg)
-    timing["inverse_elapsed_s"] = time.perf_counter() - inverse_start
+    timing["time/inverse_s"] = time.perf_counter() - inverse_start
     return (
         best_displacement,
         best_activation_inv,
@@ -947,102 +833,96 @@ def summarize(
     target_rms = float(np.linalg.norm(target_error) / math.sqrt(target_ids.size))
     all_rms = float(np.linalg.norm(error) / math.sqrt(error.shape[0]))
     forward_failures = sum(
-        1 for record in trace if not bool(record.get("forward_success", False))
+        1 for record in trace if not bool(record.get("forward/success", False))
     )
     adjoint_failures = sum(
-        1 for record in trace if not bool(record.get("adjoint_converged", False))
+        1 for record in trace if not bool(record.get("adjoint/success", False))
     )
     adjoint_relative_residuals = [
-        float(record["adjoint_relative_residual"])
+        float(record["adjoint/relative_residual"])
         for record in trace
-        if np.isfinite(float(record.get("adjoint_relative_residual", math.nan)))
+        if np.isfinite(float(record.get("adjoint/relative_residual", math.nan)))
     ]
     adjoint_absolute_residuals = [
-        float(record["adjoint_absolute_residual"])
+        float(record["adjoint/absolute_residual"])
         for record in trace
-        if np.isfinite(float(record.get("adjoint_absolute_residual", math.nan)))
+        if np.isfinite(float(record.get("adjoint/absolute_residual", math.nan)))
     ]
     forward_steps = [
-        float(record["forward_steps"])
+        float(record["forward/steps"])
         for record in trace
-        if np.isfinite(float(record.get("forward_steps", math.nan)))
+        if np.isfinite(float(record.get("forward/steps", math.nan)))
     ]
-    forward_absolute_grad_norms = [
-        float(record["forward_absolute_grad_norm"])
+    forward_grad_norms = [
+        float(record["forward/grad_norm"])
         for record in trace
-        if np.isfinite(float(record.get("forward_absolute_grad_norm", math.nan)))
+        if np.isfinite(float(record.get("forward/grad_norm", math.nan)))
     ]
     forward_relative_grad_norms = [
-        float(record["forward_relative_grad_norm"])
+        float(record["forward/relative_grad_norm"])
         for record in trace
-        if np.isfinite(float(record.get("forward_relative_grad_norm", math.nan)))
+        if np.isfinite(float(record.get("forward/relative_grad_norm", math.nan)))
     ]
     metrics: dict[str, Any] = {
-        "n_points": int(mesh.n_points),
-        "n_cells": int(mesh.n_cells),
-        "n_target_points": int(target_ids.size),
-        "n_active_tets": int(active_ids.size),
-        "n_activation_params": int(active_ids.size * 6),
+        "mesh/n_points": int(mesh.n_points),
+        "mesh/n_cells": int(mesh.n_cells),
+        "target/n_points": int(target_ids.size),
+        "activation/n_active_tets": int(active_ids.size),
+        "activation/n_params": int(active_ids.size * 6),
         "optimized_parameterization": "per active muscle tetrahedron ActivationInv, 6 DoF",
-        "optimizer_steps": int(optimizer_steps),
-        "best_step": int(best_step),
-        "series_frames": int(
-            sum(1 for record in trace if "series_elapsed_s" in record)
-        ),
+        "optimizer/steps": int(optimizer_steps),
+        "best/step": int(best_step),
+        "series/frames": int(sum(1 for record in trace if "time/series_s" in record)),
         "stop_reason": stop_reason,
-        "total_elapsed_s": float(total_elapsed_s),
+        "time/total_s": float(total_elapsed_s),
         **{name: float(value) for name, value in timing.items()},
-        "target_displacement_mean": float(target_norm.mean()),
-        "target_displacement_rms": float(
+        "target/displacement_mean": float(target_norm.mean()),
+        "target/displacement_rms": float(
             np.linalg.norm(target_displacement[target_ids]) / math.sqrt(target_ids.size)
         ),
-        "target_displacement_max": float(target_norm.max()),
-        "final_loss": final_loss,
-        "best_loss": float(trace[best_step]["loss"]),
-        "best_data_loss": float(trace[best_step]["data_loss"]),
-        "lowest_loss": float(min(record["loss"] for record in trace)),
-        "lowest_data_loss": float(min(record["data_loss"] for record in trace)),
-        "lowest_target_max_error": float(
-            min(record["target_max_error"] for record in trace)
+        "target/displacement_max": float(target_norm.max()),
+        "loss/final": final_loss,
+        "best/loss": float(trace[best_step]["loss/total"]),
+        "lowest/loss": float(min(record["loss/total"] for record in trace)),
+        "lowest/target_error_max": float(
+            min(record["target/error_max"] for record in trace)
         ),
-        "forward_all_success": forward_failures == 0,
-        "forward_failures": int(forward_failures),
-        "forward_max_steps_used": float(max(forward_steps, default=math.nan)),
-        "forward_max_absolute_grad_norm": float(
-            max(forward_absolute_grad_norms, default=math.nan)
-        ),
-        "forward_max_relative_grad_norm": float(
+        "forward/all_success": forward_failures == 0,
+        "forward/failures": int(forward_failures),
+        "forward/max_steps_used": float(max(forward_steps, default=math.nan)),
+        "forward/max_grad_norm": float(max(forward_grad_norms, default=math.nan)),
+        "forward/max_relative_grad_norm": float(
             max(forward_relative_grad_norms, default=math.nan)
         ),
-        "adjoint_all_success": adjoint_failures == 0,
-        "adjoint_failures": int(adjoint_failures),
-        "adjoint_max_absolute_residual": float(
+        "adjoint/all_success": adjoint_failures == 0,
+        "adjoint/failures": int(adjoint_failures),
+        "adjoint/max_absolute_residual": float(
             max(adjoint_absolute_residuals, default=math.nan)
         ),
-        "adjoint_max_relative_residual": float(
+        "adjoint/max_relative_residual": float(
             max(adjoint_relative_residuals, default=math.nan)
         ),
-        "target_mean_error": float(target_error_norm.mean()),
-        "target_rms_error": target_rms,
-        "target_max_error": float(target_error_norm.max()),
-        "all_rms_error": all_rms,
-        "all_max_error": float(error_norm.max()),
-        "active_activation_inv_mean": active_activation_inv.mean(axis=0).tolist(),
-        "active_activation_inv_min": active_activation_inv.min(axis=0).tolist(),
-        "active_activation_inv_max": active_activation_inv.max(axis=0).tolist(),
-        "active_activation_inv_rms": float(
+        "target/error_mean": float(target_error_norm.mean()),
+        "target/error_rms": target_rms,
+        "target/error_max": float(target_error_norm.max()),
+        "all/error_rms": all_rms,
+        "all/error_max": float(error_norm.max()),
+        "active_activation_inv/mean": active_activation_inv.mean(axis=0).tolist(),
+        "active_activation_inv/min": active_activation_inv.min(axis=0).tolist(),
+        "active_activation_inv/max": active_activation_inv.max(axis=0).tolist(),
+        "active_activation_inv/rms": float(
             np.linalg.norm(active_activation_inv)
             / math.sqrt(active_activation_inv.size)
         ),
         "trace": trace,
     }
-    metrics["repeated_forward_failure"] = bool(forward_failures > cfg.failure_patience)
-    metrics["repeated_adjoint_failure"] = bool(adjoint_failures > cfg.failure_patience)
+    metrics["repeated/forward_failure"] = bool(forward_failures > cfg.failure_patience)
+    metrics["repeated/adjoint_failure"] = bool(adjoint_failures > cfg.failure_patience)
     metrics["passed"] = bool(
-        metrics["target_max_error"] <= cfg.max_point_error_cm
-        and not metrics["repeated_forward_failure"]
-        and not metrics["repeated_adjoint_failure"]
-        and np.isfinite(metrics["target_max_error"])
+        metrics["target/error_max"] <= cfg.max_point_error_cm
+        and not metrics["repeated/forward_failure"]
+        and not metrics["repeated/adjoint_failure"]
+        and np.isfinite(metrics["target/error_max"])
     )
     return metrics
 
@@ -1124,17 +1004,17 @@ def main(cfg: Config) -> None:
     )
     melon.save(cfg.output, result)
     save_json(cfg.output_summary, summary)
-    cherries.log_metrics(group_metrics(numeric_metrics(summary, exclude={"trace"})))
+    cherries.log_metrics(numeric_metrics(summary, exclude={"trace"}))
 
     print(
         "inverse result:",
         f"stop={summary['stop_reason']}",
-        f"best_step={summary['best_step']}",
-        f"target_mean_error={summary['target_mean_error']:.3e}cm",
-        f"target_rms_error={summary['target_rms_error']:.3e}cm",
-        f"target_max_error={summary['target_max_error']:.3e}cm",
-        f"loss={summary['final_loss']:.3e}",
-        f"steps={summary['optimizer_steps']}",
+        f"best_step={summary['best/step']}",
+        f"target_mean_error={summary['target/error_mean']:.3e}cm",
+        f"target_rms_error={summary['target/error_rms']:.3e}cm",
+        f"target_max_error={summary['target/error_max']:.3e}cm",
+        f"loss={summary['loss/final']:.3e}",
+        f"steps={summary['optimizer/steps']}",
     )
     print(f"saved: {cfg.output}")
     print(f"saved: {cfg.output_series}")
@@ -1142,7 +1022,7 @@ def main(cfg: Config) -> None:
     if not summary["passed"]:
         msg = (
             "inverse solve did not meet the required max point error: "
-            f"{summary['target_max_error']:.6g} cm > "
+            f"{summary['target/error_max']:.6g} cm > "
             f"{cfg.max_point_error_cm:.6g} cm"
         )
         raise RuntimeError(msg)

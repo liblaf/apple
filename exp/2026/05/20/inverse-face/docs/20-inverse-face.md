@@ -15,7 +15,7 @@
 - optimizer steps: `0`
 - series frames: `1`
 - forward converged: `True` (0 failures)
-- adjoint converged: `False` (1 failures, max relative residual `0.364878`)
+- adjoint converged: `False` (1 failures, max relative residual `0.369482`)
 
 ## Problem
 
@@ -38,12 +38,12 @@
 - optimized field: `per active muscle tetrahedron ActivationInv, 6 DoF`
 - best metric: `loss`
 - stagnation metric: `loss`
-- Adam: `lr=0.02`, `betas=(0.0, 0.9)`
-- forward tolerance: `rtol=0.01`, `atol=0.0001`
-- adjoint tolerance: `rtol=1e-06`, `atol=0.0`
+- Adam: `lr=0.02`, `betas=(0.5, 0.9)`
+- forward tolerance: `rtol=0.0005`, `atol=0.5 * first forward residual`
+- adjoint tolerance: `rtol=0.0005`, `atol=0.5 * first forward residual`
 
 ## Trace
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: |
-| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 1.32706e-05 | primary_success/1 | 0.364878 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 3.12065e-05 | primary_success/1 | 0.369482 |

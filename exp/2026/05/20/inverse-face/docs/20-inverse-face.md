@@ -4,18 +4,18 @@
 
 - stop reason: `step_safety_limit`
 - passed: `False`
-- best step: `3`
-- target mean error: `0.207053 cm`
-- target RMS error: `0.302144 cm`
-- target max error: `0.967076 cm`
+- best step: `1`
+- target mean error: `0.208178 cm`
+- target RMS error: `0.30549 cm`
+- target max error: `0.977046 cm`
 - required max error: `< 0.2 cm`
-- final loss: `0.0304303`
-- best objective loss: `0.0304303`
-- lowest objective loss: `0.0304303`
-- optimizer steps: `3`
+- final loss: `0.031108`
+- best objective loss: `0.031108`
+- lowest objective loss: `0.031108`
+- optimizer steps: `1`
 - series frames: `1`
-- forward converged: `True` (0 failures, max absolute grad `0.00125896`, max relative grad `0.000493867`)
-- adjoint converged: `True` (0 failures, max absolute residual `0.00798412`, max relative residual `5.25579`)
+- forward converged: `True` (0 failures, max absolute grad `0.000634444`, max relative grad `0.000495205`)
+- adjoint converged: `True` (0 failures, max absolute residual `7.53116e-07`, max relative residual `0.000490332`)
 
 ## Problem
 
@@ -38,15 +38,13 @@
 - optimized field: `per active muscle tetrahedron ActivationInv, 6 DoF`
 - loss: point-to-point mean squared displacement error on `IsFace` points
 - initialization: zero `ActivationInv`
-- Adam: `lr=0.03`, `betas=(0.5, 0.9)`
+- Adam: `lr=0.02`, `betas=(0.5, 0.9)`
 - forward tolerance: `rtol=0.0005`, `atol=0`
-- adjoint tolerance: `rtol=0.0005`, `atol=0.5 * first forward residual`
+- adjoint tolerance: `rtol=0.0005`, `atol=0`
 
 ## Trace
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd abs | fwd rel | adj abs | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 3.27307e-05 | 0 | 0 | 7.52966e-07 | 0.000488499 |
-| 1 | 0.0309992 | 0.207944 | 0.975502 | 0.975502 | 3.35943e-05 | 0.000949354 | 0.000493867 | 0.00623568 | 4.06699 |
-| 2 | 0.0307027 | 0.207437 | 0.97121 | 0.97121 | 3.6178e-05 | 0.00109852 | 0.000491885 | 0.00604682 | 3.96281 |
-| 3 | 0.0304303 | 0.207053 | 0.967076 | 0.967076 | 3.88128e-05 | 0.00125896 | 0.00048563 | 0.00798412 | 5.25579 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 3.27307e-05 | 0 | 0 | 7.5059e-07 | 0.000486958 |
+| 1 | 0.031108 | 0.208178 | 0.977046 | 0.977046 | 3.21157e-05 | 0.000634444 | 0.000495205 | 7.53116e-07 | 0.000490332 |

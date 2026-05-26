@@ -100,7 +100,6 @@ class Collision:
             min_distance=self.min_distance,
             narrow_phase_ccd=self.narrow_phase_ccd,
         )
-        print("CCD alpha:", alpha)
         return torch.as_tensor(alpha)
 
     def update(self, state: State, u: Full) -> None:

@@ -77,7 +77,7 @@ class Config(cherries.BaseConfig):
     p_norm: float = 8.0
     initial_activation_scale: float = 0.0
     initial_activation_surface_only: bool = False
-    adjoint_maxiter: int = 60
+    adjoint_maxiter: int = 5000
     adjoint_rtol: float = 5.0e-4
     adjoint_atol: float | None = None
     adjoint_atol_first_forward_residual_ratio: float = 0.5

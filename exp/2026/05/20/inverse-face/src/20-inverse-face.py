@@ -35,38 +35,40 @@ class Config(cherries.BaseConfig):
     output: Path = cherries.output(f"{OUTPUT_STEM}.vtu")
     output_series: Path = cherries.output(f"{OUTPUT_STEM}.vtu.series")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
-    report: Path = EXPERIMENT_DIR / "docs" / "README.md"
+    report: Path = EXPERIMENT_DIR / "docs" / f"{OUTPUT_STEM}.md"
 
     E: float = 1.0
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0e2
     active_fraction_tol: float = 1.0e-3
+    target_point_mask: str = "IsFace"
 
     forward_rtol: float = 1.0e-2
     forward_atol: float = 1.0e-4
     forward_max_steps: int = 800
 
-    inverse_lr: float = 0.3
+    inverse_lr: float = 0.1
     adam_beta1: float = 0.0
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
     inverse_max_steps: int = 80
     inverse_min_steps: int = 1
     stagnation_patience: int = 8
-    stagnation_rel_tol: float = 1.0e-3
-    stagnation_abs_tol: float = 1.0e-8
-    loss_tol: float = 1.0e-5
-    max_mean_point_error_cm: float = 0.1
+    stagnation_rel_tol: float = 5.0e-4
+    stagnation_abs_tol: float = 1.0e-4
+    loss_tol: float = 1.0e-7
+    max_point_error_cm: float = 0.2
     activation_l2_weight: float = 1.0e-9
-    tet_residual_scale: float = 0.05
-    target_metadata_initialization_scale: float = 0.8
+    max_error_weight: float = 10.0
+    p_norm_weight: float = 0.25
+    p_norm: float = 8.0
     adjoint_maxiter: int = 60
     adjoint_rtol: float = 1.0e-2
     adjoint_atol: float = 0.0
 
-    activation_inv_diag_min: float = -20.0
-    activation_inv_diag_max: float = 20.0
-    activation_inv_shear_abs_max: float = 5.0
+    activation_inv_diag_min: float = -8.0
+    activation_inv_diag_max: float = 8.0
+    activation_inv_shear_abs_max: float = 3.0
     series_stride: int = 1
 
 
@@ -169,65 +171,22 @@ def active_cell_ids(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     return ids
 
 
-def target_point_ids(target: pv.UnstructuredGrid) -> np.ndarray:
-    if TARGET_SURFACE_MASK in target.point_data:
+def target_point_ids(target: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
+    if cfg.target_point_mask in target.point_data:
+        mask = np.asarray(target.point_data[cfg.target_point_mask], dtype=bool)
+    elif TARGET_SURFACE_MASK in target.point_data:
         mask = np.asarray(target.point_data[TARGET_SURFACE_MASK], dtype=bool)
-        ids = np.flatnonzero(mask)
-        if ids.size > 0:
-            return ids.astype(np.int64)
-    surface = target.extract_surface(algorithm=None)
-    ids = np.asarray(surface.point_data["vtkOriginalPointIds"], dtype=np.int64)
-    return np.unique(ids)
-
-
-def active_muscle_index(
-    mesh: pv.UnstructuredGrid, active_ids: np.ndarray
-) -> tuple[np.ndarray, np.ndarray]:
-    if "MuscleId" not in mesh.cell_data:
-        return np.zeros(active_ids.size, dtype=np.int64), np.asarray(
-            [0], dtype=np.int64
+    else:
+        msg = (
+            f"target has neither point_data[{cfg.target_point_mask!r}] nor "
+            f"point_data[{TARGET_SURFACE_MASK!r}]"
         )
-    muscle_ids = np.asarray(mesh.cell_data["MuscleId"], dtype=np.int64)[active_ids]
-    unique = np.asarray(sorted(int(i) for i in np.unique(muscle_ids) if i >= 0))
-    if unique.size == 0:
-        return np.zeros(active_ids.size, dtype=np.int64), np.asarray(
-            [0], dtype=np.int64
-        )
-    lookup = {int(muscle_id): index for index, muscle_id in enumerate(unique.tolist())}
-    index = np.asarray([lookup.get(int(i), 0) for i in muscle_ids], dtype=np.int64)
-    return index, unique
-
-
-def activation_matrices_torch(activation: torch.Tensor) -> torch.Tensor:
-    matrices = torch.zeros(
-        (*activation.shape[:-1], 3, 3),
-        dtype=activation.dtype,
-        device=activation.device,
-    )
-    matrices[..., 0, 0] = 1.0 + activation[..., 0]
-    matrices[..., 1, 1] = 1.0 + activation[..., 1]
-    matrices[..., 2, 2] = 1.0 + activation[..., 2]
-    matrices[..., 0, 1] = activation[..., 3]
-    matrices[..., 1, 0] = activation[..., 3]
-    matrices[..., 0, 2] = activation[..., 4]
-    matrices[..., 2, 0] = activation[..., 4]
-    matrices[..., 1, 2] = activation[..., 5]
-    matrices[..., 2, 1] = activation[..., 5]
-    return matrices
-
-
-def pack_activation_matrices_torch(matrices: torch.Tensor) -> torch.Tensor:
-    return torch.stack(
-        (
-            matrices[..., 0, 0] - 1.0,
-            matrices[..., 1, 1] - 1.0,
-            matrices[..., 2, 2] - 1.0,
-            matrices[..., 0, 1],
-            matrices[..., 0, 2],
-            matrices[..., 1, 2],
-        ),
-        dim=-1,
-    )
+        raise KeyError(msg)
+    ids = np.flatnonzero(mask)
+    if ids.size == 0:
+        msg = "target point mask selected no points"
+        raise ValueError(msg)
+    return ids.astype(np.int64)
 
 
 def activation_inv_to_activation_numpy(activation_inv: np.ndarray) -> np.ndarray:
@@ -277,34 +236,6 @@ def full_activation_inv_from_active(
         device=active_activation_inv.device,
     )
     return full_activation_inv.index_copy(0, active_ids_t, active_activation_inv)
-
-
-def initial_active_activation_inv(
-    target: pv.UnstructuredGrid, active_ids: np.ndarray, cfg: Config
-) -> np.ndarray:
-    initial = np.zeros((active_ids.size, 6), dtype=np.float64)
-    if cfg.target_metadata_initialization_scale == 0.0:
-        return initial
-    required = {"TargetActivationInvComponent", "TargetActivationInvValue"}
-    if not required.issubset(target.field_data):
-        return initial
-    component = int(np.asarray(target.field_data["TargetActivationInvComponent"])[0])
-    if not 0 <= component < initial.shape[1]:
-        return initial
-    value = float(np.asarray(target.field_data["TargetActivationInvValue"])[0])
-    initial[:, component] = cfg.target_metadata_initialization_scale * value
-    return initial
-
-
-def average_by_index(
-    values: np.ndarray, index: np.ndarray, n_groups: int
-) -> np.ndarray:
-    result = np.zeros((n_groups, values.shape[1]), dtype=np.float64)
-    counts = np.bincount(index, minlength=n_groups).astype(np.float64)
-    np.add.at(result, index, values)
-    nonzero = counts > 0
-    result[nonzero] /= counts[nonzero, None]
-    return result
 
 
 def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
@@ -397,10 +328,10 @@ def add_metric_fields(
 
 
 def add_masks(
-    mesh: pv.UnstructuredGrid, target_point_ids: np.ndarray, active_ids: np.ndarray
+    mesh: pv.UnstructuredGrid, target_ids: np.ndarray, active_ids: np.ndarray
 ) -> None:
     target_mask = np.zeros(mesh.n_points, dtype=np.int8)
-    target_mask[target_point_ids] = 1
+    target_mask[target_ids] = 1
     active_mask = np.zeros(mesh.n_cells, dtype=np.int8)
     active_mask[active_ids] = 1
     mesh.point_data[TARGET_SURFACE_MASK] = target_mask
@@ -408,10 +339,10 @@ def add_masks(
 
 
 def make_target_mesh(
-    target: pv.UnstructuredGrid, target_point_ids: np.ndarray, active_ids: np.ndarray
+    target: pv.UnstructuredGrid, target_ids: np.ndarray, active_ids: np.ndarray
 ) -> pv.UnstructuredGrid:
     result = target.copy(deep=True)
-    add_masks(result, target_point_ids, active_ids)
+    add_masks(result, target_ids, active_ids)
     displacement = np.asarray(result.point_data["Displacement"], dtype=np.float64)
     result.point_data["TargetDisplacement"] = displacement
     result.point_data["TargetPoint"] = result.points + displacement
@@ -424,12 +355,14 @@ def make_result_mesh(
     displacement: np.ndarray,
     recovered_activation: np.ndarray,
     recovered_activation_inv: np.ndarray,
-    target_point_ids: np.ndarray,
+    target_ids: np.ndarray,
     active_ids: np.ndarray,
     metrics: dict[str, float | int | bool | str],
 ) -> pv.UnstructuredGrid:
+    from liblaf.apple.common import ACTIVATION, ACTIVATION_INV
+
     result = mesh.copy(deep=True)
-    add_masks(result, target_point_ids, active_ids)
+    add_masks(result, target_ids, active_ids)
     error = displacement - target_displacement
     result.point_data["Displacement"] = displacement
     result.point_data["TargetDisplacement"] = target_displacement
@@ -437,6 +370,8 @@ def make_result_mesh(
     result.point_data["DisplacementErrorNorm"] = np.linalg.norm(error, axis=1)
     result.point_data["DeformedPoint"] = result.points + displacement
     result.point_data["TargetPoint"] = result.points + target_displacement
+    result.cell_data[ACTIVATION.vtk] = recovered_activation
+    result.cell_data[ACTIVATION_INV.vtk] = recovered_activation_inv
     result.cell_data["RecoveredActivation"] = recovered_activation
     result.cell_data["RecoveredActivationInv"] = recovered_activation_inv
     result.cell_data["RecoveredActivationNorm"] = np.linalg.norm(
@@ -449,20 +384,29 @@ def make_result_mesh(
     return result
 
 
-def should_write_series(step: int, *, stopped: bool, cfg: Config) -> bool:
+def should_write_series(
+    step: int, *, stopped: bool, improved: bool, cfg: Config
+) -> bool:
     stride = max(1, cfg.series_stride)
-    return step == 0 or stopped or step % stride == 0
+    return step == 0 or stopped or improved or step % stride == 0
 
 
 def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     mesh: pv.UnstructuredGrid,
     target_displacement: np.ndarray,
-    target_point_ids: np.ndarray,
+    target_ids: np.ndarray,
     active_ids: np.ndarray,
-    initial_activation_inv: np.ndarray,
     cfg: Config,
     series_writer: Any,
-) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]], str, int, dict[str, float]]:
+) -> tuple[
+    np.ndarray,
+    np.ndarray,
+    list[dict[str, float]],
+    str,
+    int,
+    int,
+    dict[str, float],
+]:
     from liblaf.peach.linalg import FallbackSolver
     from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
 
@@ -482,30 +426,14 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     )
     base_materials = forward.model.get_materials()
     global_ids, target, point_ids_t, point_global_ids_t = inverse_tensors(
-        mesh, target_displacement, target_point_ids
+        mesh, target_displacement, target_ids
     )
     active_ids_t = torch.as_tensor(
         active_ids,
         dtype=torch.long,
         device=torch.get_default_device(),
     )
-    muscle_index, muscle_ids = active_muscle_index(mesh, active_ids)
-    initial_muscle_activation_inv = average_by_index(
-        initial_activation_inv, muscle_index, muscle_ids.size
-    )
-    muscle_index_t = torch.as_tensor(
-        muscle_index,
-        dtype=torch.long,
-        device=torch.get_default_device(),
-    )
-    muscle_activation_inv = torch.nn.Parameter(
-        torch.as_tensor(
-            initial_muscle_activation_inv,
-            dtype=torch.get_default_dtype(),
-            device=torch.get_default_device(),
-        )
-    )
-    tet_residual_activation_inv = torch.nn.Parameter(
+    active_activation_inv = torch.nn.Parameter(
         torch.zeros(
             (active_ids.size, 6),
             dtype=torch.get_default_dtype(),
@@ -513,18 +441,19 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         )
     )
     optimizer = torch.optim.Adam(
-        [muscle_activation_inv, tet_residual_activation_inv],
+        [active_activation_inv],
         lr=cfg.inverse_lr,
         betas=(cfg.adam_beta1, cfg.adam_beta2),
         eps=cfg.adam_eps,
     )
 
     trace: list[dict[str, float]] = []
-    stop_reason = "inverse_max_steps"
+    stop_reason = "step_safety_limit"
     optimizer_steps = 0
+    best_step = 0
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
-    best_mean_error = math.inf
+    best_max_error = math.inf
     best_loss = math.inf
     no_improve_steps = 0
     timing = {
@@ -538,10 +467,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     for step in range(cfg.inverse_max_steps + 1):
         step_start = time.perf_counter()
         optimizer.zero_grad()
-        active_activation_inv = (
-            muscle_activation_inv[muscle_index_t]
-            + cfg.tet_residual_scale * tet_residual_activation_inv
-        )
         materials = material_tree(
             base_materials, active_activation_inv, active_ids_t, mesh.n_cells
         )
@@ -553,33 +478,41 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
 
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
+        point_error = torch.linalg.vector_norm(residual, dim=1)
         data_loss = residual.square().mean()
+        max_error_loss = torch.relu(point_error - cfg.max_point_error_cm).square().mean()
+        p_norm_loss = point_error.pow(cfg.p_norm).mean().pow(2.0 / cfg.p_norm)
         reg_loss = cfg.activation_l2_weight * active_activation_inv.square().mean()
-        loss = data_loss + reg_loss
+        loss = (
+            data_loss
+            + cfg.max_error_weight * max_error_loss
+            + cfg.p_norm_weight * p_norm_loss
+            + reg_loss
+        )
         loss.backward()
         backward_elapsed = time.perf_counter() - backward_start
         timing["backward_elapsed_s"] += backward_elapsed
 
-        grads = [
-            muscle_activation_inv.grad,
-            tet_residual_activation_inv.grad,
-        ]
-        if any(grad is None for grad in grads):
+        grad = active_activation_inv.grad
+        if grad is None:
             msg = "differentiable forward did not produce activation gradients"
             raise RuntimeError(msg)
-        if any(not torch.isfinite(grad).all() for grad in grads if grad is not None):
-            msg = f"non-finite inverse gradient at step {step}"
+        if not torch.isfinite(grad).all():
+            nonfinite = int((~torch.isfinite(grad)).sum().detach().cpu())
+            msg = f"non-finite inverse gradient at step {step}: {nonfinite} entries"
             raise FloatingPointError(msg)
 
         error_stats = point_error_stats(residual.detach())
         data_loss_value = float(data_loss.detach().cpu())
         loss_value = float(loss.detach().cpu())
         reg_loss_value = float(reg_loss.detach().cpu())
+        max_error_loss_value = float(max_error_loss.detach().cpu())
+        p_norm_loss_value = float(p_norm_loss.detach().cpu())
         mean_error = float(error_stats["mean"].cpu())
         rms_error = float(error_stats["rms"].cpu())
         max_error = float(error_stats["max"].cpu())
-        muscle_grad_norm = float(torch.linalg.vector_norm(grads[0]).cpu())
-        tet_grad_norm = float(torch.linalg.vector_norm(grads[1]).cpu())
+        grad_norm = float(torch.linalg.vector_norm(grad).cpu())
+        grad_abs_max = float(grad.abs().max().cpu())
         active_values = active_activation_inv.detach()
         activation_inv_rms = float(
             torch.linalg.vector_norm(active_values).cpu()
@@ -589,12 +522,15 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         activation_inv_max = float(active_values.max().cpu())
         displacement = to_numpy(output)[global_ids]
 
-        improved = mean_error < (
-            best_mean_error * (1.0 - cfg.stagnation_rel_tol) - cfg.stagnation_abs_tol
+        improvement_threshold = max(
+            best_max_error * (1.0 - cfg.stagnation_rel_tol),
+            best_max_error - cfg.stagnation_abs_tol,
         )
-        if mean_error < best_mean_error:
+        improved = max_error < improvement_threshold
+        if max_error < best_max_error:
+            best_step = step
             best_loss = data_loss_value
-            best_mean_error = mean_error
+            best_max_error = max_error
             best_activation_inv = to_numpy(
                 full_activation_inv_from_active(
                     active_values, active_ids_t, mesh.n_cells
@@ -607,10 +543,10 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             no_improve_steps += 1
 
         stopped = False
-        if step >= cfg.inverse_min_steps and mean_error <= cfg.max_mean_point_error_cm:
-            stop_reason = "mean_point_error_tol"
+        if step >= cfg.inverse_min_steps and max_error <= cfg.max_point_error_cm:
+            stop_reason = "max_point_error_tol"
             stopped = True
-        elif data_loss_value <= cfg.loss_tol:
+        elif loss_value <= cfg.loss_tol:
             stop_reason = "loss_tol"
             stopped = True
         elif (
@@ -628,26 +564,28 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             did_optimizer_step = True
             timing["optimizer_elapsed_s"] += time.perf_counter() - optimizer_start
             with torch.no_grad():
-                clamp_activation_inv_(muscle_activation_inv, cfg)
-                clamp_activation_inv_(tet_residual_activation_inv, cfg)
+                clamp_activation_inv_(active_activation_inv, cfg)
 
         trace_record = {
             "step": float(step),
             "loss": loss_value,
             "data_loss": data_loss_value,
+            "max_error_loss": max_error_loss_value,
+            "p_norm_loss": p_norm_loss_value,
             "regularization_loss": reg_loss_value,
             "target_mean_error": mean_error,
             "target_rms_error": rms_error,
             "target_max_error": max_error,
-            "max_mean_point_error_cm": cfg.max_mean_point_error_cm,
+            "max_point_error_cm": cfg.max_point_error_cm,
             "activation_inv_rms": activation_inv_rms,
             "activation_inv_min": activation_inv_min,
             "activation_inv_max": activation_inv_max,
-            "muscle_grad_norm": muscle_grad_norm,
-            "tet_grad_norm": tet_grad_norm,
+            "grad_norm": grad_norm,
+            "grad_abs_max": grad_abs_max,
             "optimizer_steps": float(optimizer_steps),
+            "best_step": float(best_step),
             "best_loss": best_loss,
-            "best_target_mean_error": best_mean_error,
+            "best_target_max_error": best_max_error,
             "no_improve_steps": float(no_improve_steps),
             "stopped": float(stopped),
             "forward_elapsed_s": forward_elapsed,
@@ -655,7 +593,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         }
         trace.append(trace_record)
 
-        if should_write_series(step, stopped=stopped, cfg=cfg):
+        if should_write_series(step, stopped=stopped, improved=improved, cfg=cfg):
             series_start = time.perf_counter()
             evaluated_activation_inv = to_numpy(
                 full_activation_inv_from_active(
@@ -671,7 +609,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 displacement,
                 evaluated_activation,
                 evaluated_activation_inv,
-                target_point_ids,
+                target_ids,
                 active_ids,
                 {
                     "inverse_step": step,
@@ -681,14 +619,15 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     "target_mean_error": mean_error,
                     "target_rms_error": rms_error,
                     "target_max_error": max_error,
-                    "max_mean_point_error_cm": cfg.max_mean_point_error_cm,
+                    "max_point_error_cm": cfg.max_point_error_cm,
                     "activation_inv_rms": activation_inv_rms,
                     "activation_inv_min": activation_inv_min,
                     "activation_inv_max": activation_inv_max,
-                    "muscle_grad_norm": muscle_grad_norm,
-                    "tet_grad_norm": tet_grad_norm,
+                    "grad_norm": grad_norm,
+                    "grad_abs_max": grad_abs_max,
+                    "best_step": best_step,
                     "best_loss": best_loss,
-                    "best_target_mean_error": best_mean_error,
+                    "best_target_max_error": best_max_error,
                     "stopped": stopped,
                 },
             )
@@ -704,10 +643,11 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"{step:03d}",
             f"loss={loss_value:.3e}",
             f"mean={mean_error:.3e}cm",
-            f"tol={cfg.max_mean_point_error_cm:.3e}cm",
-            f"best={best_mean_error:.3e}cm",
-            f"grad_m={muscle_grad_norm:.3e}",
-            f"grad_t={tet_grad_norm:.3e}",
+            f"rms={rms_error:.3e}cm",
+            f"max={max_error:.3e}cm",
+            f"tol={cfg.max_point_error_cm:.3e}cm",
+            f"best_max={best_max_error:.3e}cm",
+            f"grad={grad_norm:.3e}",
             f"no_improve={no_improve_steps}",
             f"elapsed={step_elapsed:.2f}s",
             flush=True,
@@ -725,6 +665,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         trace,
         stop_reason,
         optimizer_steps,
+        best_step,
         timing,
     )
 
@@ -735,24 +676,25 @@ def summarize(
     displacement: np.ndarray,
     recovered_activation: np.ndarray,
     recovered_activation_inv: np.ndarray,
-    target_point_ids: np.ndarray,
+    target_ids: np.ndarray,
     active_ids: np.ndarray,
     trace: list[dict[str, float]],
     stop_reason: str,
     optimizer_steps: int,
+    best_step: int,
     timing: dict[str, float],
     total_elapsed_s: float,
     cfg: Config,
 ) -> dict[str, Any]:
     error = displacement - target_displacement
     error_norm = np.linalg.norm(error, axis=1)
-    target_error = error[target_point_ids]
+    target_error = error[target_ids]
     target_error_norm = np.linalg.norm(target_error, axis=1)
-    target_norm = np.linalg.norm(target_displacement[target_point_ids], axis=1)
+    target_norm = np.linalg.norm(target_displacement[target_ids], axis=1)
     active_activation = recovered_activation[active_ids]
     active_activation_inv = recovered_activation_inv[active_ids]
     final_loss = float(np.mean(np.square(target_error)))
-    target_rms = float(np.linalg.norm(target_error) / math.sqrt(target_point_ids.size))
+    target_rms = float(np.linalg.norm(target_error) / math.sqrt(target_ids.size))
     all_rms = float(np.linalg.norm(error) / math.sqrt(error.shape[0]))
     metrics: dict[str, Any] = {
         "input": str(cfg.input),
@@ -763,10 +705,10 @@ def summarize(
         "report": str(cfg.report),
         "n_points": int(mesh.n_points),
         "n_cells": int(mesh.n_cells),
-        "n_target_points": int(target_point_ids.size),
+        "n_target_points": int(target_ids.size),
         "n_active_tets": int(active_ids.size),
-        "n_activation_params_written": int(active_ids.size * 6),
-        "optimized_parameterization": "muscle mean plus tet residual ActivationInv",
+        "n_activation_params": int(active_ids.size * 6),
+        "optimized_parameterization": "per active muscle tetrahedron ActivationInv, 6 DoF",
         "E": float(cfg.E),
         "nu": float(cfg.nu),
         "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
@@ -774,26 +716,26 @@ def summarize(
         "adam_beta1": float(cfg.adam_beta1),
         "adam_beta2": float(cfg.adam_beta2),
         "adam_eps": float(cfg.adam_eps),
-        "tet_residual_scale": float(cfg.tet_residual_scale),
         "forward_rtol": float(cfg.forward_rtol),
         "forward_atol": float(cfg.forward_atol),
         "forward_max_steps": int(cfg.forward_max_steps),
         "inverse_max_steps": int(cfg.inverse_max_steps),
         "inverse_min_steps": int(cfg.inverse_min_steps),
         "optimizer_steps": int(optimizer_steps),
+        "best_step": int(best_step),
         "series_stride": int(cfg.series_stride),
         "series_frames": int(
             sum(1 for record in trace if "series_elapsed_s" in record)
         ),
         "stop_reason": stop_reason,
-        "max_mean_point_error_cm": float(cfg.max_mean_point_error_cm),
+        "max_point_error_cm": float(cfg.max_point_error_cm),
         "loss_tol": float(cfg.loss_tol),
         "stagnation_patience": int(cfg.stagnation_patience),
         "stagnation_rel_tol": float(cfg.stagnation_rel_tol),
         "activation_l2_weight": float(cfg.activation_l2_weight),
-        "target_metadata_initialization_scale": float(
-            cfg.target_metadata_initialization_scale
-        ),
+        "max_error_weight": float(cfg.max_error_weight),
+        "p_norm_weight": float(cfg.p_norm_weight),
+        "p_norm": float(cfg.p_norm),
         "adjoint_maxiter": int(cfg.adjoint_maxiter),
         "adjoint_rtol": float(cfg.adjoint_rtol),
         "adjoint_atol": float(cfg.adjoint_atol),
@@ -801,12 +743,11 @@ def summarize(
         **{name: float(value) for name, value in timing.items()},
         "target_displacement_mean": float(target_norm.mean()),
         "target_displacement_rms": float(
-            np.linalg.norm(target_displacement[target_point_ids])
-            / math.sqrt(target_point_ids.size)
+            np.linalg.norm(target_displacement[target_ids]) / math.sqrt(target_ids.size)
         ),
         "target_displacement_max": float(target_norm.max()),
         "final_loss": final_loss,
-        "best_loss": float(trace[-1]["best_loss"]),
+        "best_loss": float(trace[best_step]["data_loss"]),
         "target_mean_error": float(target_error_norm.mean()),
         "target_rms_error": target_rms,
         "target_max_error": float(target_error_norm.max()),
@@ -828,8 +769,8 @@ def summarize(
         "trace": trace,
     }
     metrics["passed"] = bool(
-        metrics["target_mean_error"] <= cfg.max_mean_point_error_cm
-        and np.isfinite(metrics["target_mean_error"])
+        metrics["target_max_error"] <= cfg.max_point_error_cm
+        and np.isfinite(metrics["target_max_error"])
     )
     return metrics
 
@@ -848,15 +789,17 @@ def fmt(value: Any, precision: int = 6) -> str:
 def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# Inverse Face",
+        "# 20 Inverse Face",
         "",
         "## Result",
         "",
         f"- stop reason: `{summary['stop_reason']}`",
         f"- passed: `{summary['passed']}`",
+        f"- best step: `{summary['best_step']}`",
         f"- target mean error: `{fmt(summary['target_mean_error'])} cm`",
         f"- target RMS error: `{fmt(summary['target_rms_error'])} cm`",
         f"- target max error: `{fmt(summary['target_max_error'])} cm`",
+        f"- required max error: `< {fmt(summary['max_point_error_cm'])} cm`",
         f"- final loss: `{fmt(summary['final_loss'])}`",
         f"- optimizer steps: `{summary['optimizer_steps']}`",
         f"- series frames: `{summary['series_frames']}`",
@@ -869,9 +812,10 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         f"- optimization series: `{summary['output_series']}`",
         f"- points: `{summary['n_points']}`",
         f"- tetrahedra: `{summary['n_cells']}`",
-        f"- target surface points: `{summary['n_target_points']}`",
+        f"- target `IsFace` points: `{summary['n_target_points']}`",
         f"- active muscle tetrahedra: `{summary['n_active_tets']}`",
-        f"- activation values written: `{summary['n_activation_params_written']}`",
+        f"- activation parameters: `{summary['n_activation_params']}`",
+        f"- target displacement max: `{fmt(summary['target_displacement_max'])} cm`",
         "",
         "## Model",
         "",
@@ -884,23 +828,29 @@ def save_markdown_report(path: Path, summary: dict[str, Any]) -> None:
         "",
         "## Trace",
         "",
-        "| step | loss | target mean error (cm) | best mean error (cm) | muscle grad | tet grad |",
+        "| step | loss | mean error (cm) | max error (cm) | best max (cm) | grad |",
         "| ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     lines.extend(
         (
             "| "
             f"{int(record['step'])} | "
-            f"{fmt(record['data_loss'])} | "
+            f"{fmt(record['loss'])} | "
             f"{fmt(record['target_mean_error'])} | "
-            f"{fmt(record['best_target_mean_error'])} | "
-            f"{fmt(record['muscle_grad_norm'])} | "
-            f"{fmt(record['tet_grad_norm'])} |"
+            f"{fmt(record['target_max_error'])} | "
+            f"{fmt(record['best_target_max_error'])} | "
+            f"{fmt(record['grad_norm'])} |"
         )
         for record in summary["trace"]
     )
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def save_readme(path: Path, report: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    relative_report = report.name
+    path.write_text(f"# Inverse Face\n\n- [{relative_report}]({relative_report})\n")
 
 
 def numeric_metrics(summary: dict[str, Any]) -> dict[str, int | float | bool]:
@@ -917,11 +867,10 @@ def main(cfg: Config) -> None:
 
     mesh, target = load_problem(cfg)
     active_ids = active_cell_ids(mesh, cfg)
-    target_ids = target_point_ids(target)
+    target_ids = target_point_ids(target, cfg)
     target_displacement = np.asarray(
         target.point_data["Displacement"], dtype=np.float64
     )
-    initial_activation_inv = initial_active_activation_inv(target, active_ids, cfg)
 
     add_masks(mesh, target_ids, active_ids)
     melon.save(cfg.output_input, mesh)
@@ -935,13 +884,13 @@ def main(cfg: Config) -> None:
             trace,
             stop_reason,
             optimizer_steps,
+            best_step,
             timing,
         ) = solve_inverse(
             inverse_mesh,
             target_displacement,
             target_ids,
             active_ids,
-            initial_activation_inv,
             cfg,
             series_writer,
         )
@@ -958,6 +907,7 @@ def main(cfg: Config) -> None:
         trace,
         stop_reason,
         optimizer_steps,
+        best_step,
         timing,
         total_elapsed_s,
         cfg,
@@ -975,13 +925,16 @@ def main(cfg: Config) -> None:
     melon.save(cfg.output, result)
     save_json(cfg.output_summary, summary)
     save_markdown_report(cfg.report, summary)
+    save_readme(EXPERIMENT_DIR / "docs" / "README.md", cfg.report)
     cherries.log_metrics(numeric_metrics(summary))
 
     print(
         "inverse result:",
         f"stop={summary['stop_reason']}",
+        f"best_step={summary['best_step']}",
         f"target_mean_error={summary['target_mean_error']:.3e}cm",
         f"target_rms_error={summary['target_rms_error']:.3e}cm",
+        f"target_max_error={summary['target_max_error']:.3e}cm",
         f"loss={summary['final_loss']:.3e}",
         f"steps={summary['optimizer_steps']}",
     )
@@ -991,9 +944,9 @@ def main(cfg: Config) -> None:
     print(f"saved: {cfg.report}")
     if not summary["passed"]:
         msg = (
-            "inverse solve did not meet the required mean point error: "
-            f"{summary['target_mean_error']:.6g} cm > "
-            f"{cfg.max_mean_point_error_cm:.6g} cm"
+            "inverse solve did not meet the required max point error: "
+            f"{summary['target_max_error']:.6g} cm > "
+            f"{cfg.max_point_error_cm:.6g} cm"
         )
         raise RuntimeError(msg)
 

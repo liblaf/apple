@@ -27,6 +27,10 @@ class DifferentiableForward:
     last_adjoint_solution: LinearSolver.Solution | None = None
 
     @property
+    def last_solution(self) -> Optimizer.Solution | None:
+        return self.__wrapped__.last_solution
+
+    @property
     def model(self) -> Model:
         return self.__wrapped__.model
 

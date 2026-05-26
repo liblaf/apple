@@ -46,6 +46,8 @@ class Forward:
         default=attrs.Factory(_default_state, takes_self=True)
     )
 
+    last_solution: Optimizer.Solution | None = None
+
     @property
     def free(self) -> Free:
         return self.model.dof_map.to_free(self.state.u)
@@ -58,5 +60,6 @@ class Forward:
         solution: Optimizer.Solution = self.optimizer.minimize(
             self.problem, self.state, self.free
         )
+        self.last_solution = solution
         logger.info(solution)
         return solution

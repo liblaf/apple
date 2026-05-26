@@ -5,17 +5,17 @@
 - stop reason: `step_safety_limit`
 - passed: `False`
 - best step: `0`
-- target mean error: `0.208797 cm`
-- target RMS error: `0.306557 cm`
+- target mean error: `0.208805 cm`
+- target RMS error: `0.306575 cm`
 - target max error: `0.980094 cm`
 - required max error: `< 0.2 cm`
-- final loss: `0.0313258`
-- best objective loss: `0.0313258`
-- lowest objective loss: `0.0313258`
+- final loss: `0.0313294`
+- best objective loss: `0.0313294`
+- lowest objective loss: `0.0313294`
 - optimizer steps: `0`
 - series frames: `1`
 - forward converged: `True` (0 failures)
-- adjoint converged: `True` (0 failures, max relative residual `19.3622`)
+- adjoint converged: `True` (0 failures, max relative residual `7.17929`)
 
 ## Problem
 
@@ -46,4 +46,4 @@
 
 | step | loss | mean error (cm) | max error (cm) | best max (cm) | grad | fwd | adj rel |
 | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: |
-| 0 | 0.0313258 | 0.208797 | 0.980094 | 0.980094 | 0.000159996 | primary_success/2 | 19.3622 |
+| 0 | 0.0313294 | 0.208805 | 0.980094 | 0.980094 | 8.42816e-07 | primary_success/2 | 7.17929 |

@@ -8,6 +8,7 @@ import warnings
 from pathlib import Path
 from typing import Any
 
+import attrs
 import numpy as np
 import pydantic_settings as ps
 import pyvista as pv
@@ -80,6 +81,7 @@ class Config(cherries.BaseConfig):
     adjoint_rtol: float = 5.0e-4
     adjoint_atol: float | None = None
     adjoint_atol_first_forward_residual_ratio: float = 0.5
+    adjoint_gmres_restart: int | None = 50
 
     activation_inv_diag_min: float = -8.0
     activation_inv_diag_max: float = 8.0
@@ -671,10 +673,27 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
     int,
     dict[str, float],
 ]:
+    from cupyx.scipy.sparse import linalg as cupy_linalg
     from liblaf.peach.linalg import FallbackSolver
-    from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
+    from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes, CupySolver
 
     from liblaf.apple.inverse import DifferentiableForward
+
+    @attrs.define(kw_only=True)
+    class CupyGMRES(CupySolver):
+        rtol: float = 1.0e-5
+        atol: float = 0.0
+        restart: int | None = None
+
+        def _options(self, problem: Any) -> dict[str, Any]:
+            options = super()._options(problem)
+            options.update(
+                {"atol": self.atol, "restart": self.restart, "rtol": self.rtol}
+            )
+            return options
+
+        def _wrapped(self, *args: Any, **kwargs: Any) -> tuple[Any, int]:
+            return cupy_linalg.gmres(*args, **kwargs)
 
     class RecordingDifferentiableForward(DifferentiableForward):
         __slots__ = ("last_adjoint_solution", "last_forward_solution")
@@ -697,6 +716,12 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 maxiter=cfg.adjoint_maxiter,
                 rtol=cfg.adjoint_rtol,
                 atol=0.0 if cfg.adjoint_atol is None else cfg.adjoint_atol,
+            ),
+            CupyGMRES(
+                maxiter=cfg.adjoint_maxiter,
+                rtol=cfg.adjoint_rtol,
+                atol=0.0 if cfg.adjoint_atol is None else cfg.adjoint_atol,
+                restart=cfg.adjoint_gmres_restart,
             ),
             CupyMinRes(maxiter=cfg.adjoint_maxiter, tol=cfg.adjoint_rtol),
         ]
@@ -1223,6 +1248,11 @@ def summarize(
         ),
         "adjoint_atol_first_forward_residual_ratio": float(
             cfg.adjoint_atol_first_forward_residual_ratio
+        ),
+        "adjoint_gmres_restart": (
+            None
+            if cfg.adjoint_gmres_restart is None
+            else int(cfg.adjoint_gmres_restart)
         ),
         "total_elapsed_s": float(total_elapsed_s),
         **{name: float(value) for name, value in timing.items()},

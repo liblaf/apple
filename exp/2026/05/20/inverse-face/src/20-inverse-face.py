@@ -23,6 +23,14 @@ TARGET_SURFACE_MASK = "TargetSurfaceMask"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
 SMAS_STIFFNESS_FRACTION = "SmasStiffnessFraction"
+CHERRIES_LOG_METRIC_EXCLUDES = frozenset(
+    {
+        "step",
+        "max_point_error_cm",
+        "forward_atol",
+        "adjoint_atol",
+    }
+)
 
 
 class Config(cherries.BaseConfig):
@@ -763,7 +771,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "grad_norm": grad_norm,
             "grad_abs_max": grad_abs_max,
             "optimizer_steps": float(optimizer_steps),
-            "inverse_lr": float(optimizer.param_groups[0]["lr"]),
+            "optimizer_lr": float(optimizer.param_groups[0]["lr"]),
             "lr_reductions": float(lr_reductions),
             "lr_reduced": float(lr_reduced),
             "best_step": float(best_step),
@@ -846,7 +854,9 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         step_elapsed = time.perf_counter() - step_start
         trace_record["step_elapsed_s"] = step_elapsed
         cherries.set_step(step)
-        cherries.log_metrics(numeric_metrics(trace_record))
+        cherries.log_metrics(
+            numeric_metrics(trace_record, exclude=CHERRIES_LOG_METRIC_EXCLUDES)
+        )
         print(
             "inverse step:",
             f"{step:03d}",
@@ -1166,11 +1176,15 @@ def save_readme(path: Path, report: Path) -> None:
     path.write_text(f"# Inverse Face\n\n- [{relative_report}]({relative_report})\n")
 
 
-def numeric_metrics(summary: dict[str, Any]) -> dict[str, int | float | bool]:
+def numeric_metrics(
+    summary: dict[str, Any], *, exclude: frozenset[str] = frozenset()
+) -> dict[str, int | float]:
     return {
         name: value
         for name, value in summary.items()
-        if isinstance(value, int | float | bool)
+        if name not in exclude
+        and isinstance(value, int | float)
+        and not isinstance(value, bool)
     }
 
 

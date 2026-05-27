@@ -575,9 +575,31 @@ Live finding:
 - Step `100` reached max face error `0.481329 cm`.
 - Step `111` reached max face error `0.472677 cm`.
 - Step `120` reached max face error `0.468968 cm`.
-- Activation RMS is decreasing slowly under L2 `0.1` while the data term still
-  improves, so the branch is numerically healthy but still far above the
-  required `0.2 cm` max error.
+- Step `130` reached max face error `0.463290 cm`.
+- After step `130`, learning rate `0.03` was too hot: max error bounced as high
+  as `0.722327 cm` by step `156`, and the branch was stopped manually at step
+  `159`.
+- Checkpoint saved:
+  `data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr003-beta105-checkpoint.npz`.
+- Next attempt: continue from the best checkpoint with the same regularization
+  but lower learning rate.
+
+### Fresh MSE-Only, Smooth 0.1, Activation L2 0.1, Learning Rate 0.01 Continuation
+
+Command:
+
+```bash
+env -u DEBUG CHERRIES_NAME='inverse face 515k fresh smooth 0.1 l2 0.1 mse only lr 0.01 beta1 0.5 cont' CHERRIES_TAGS='inverse-face,inverse,515k,continue,smooth,w01,l2,reg01,mseonly,nomax,nohinge,lr001,beta105,beta209,stable-neo-hookean,adam' uv run python src/20-inverse-face.py --initial-activation-inv data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr003-beta105-checkpoint.npz --activation-smooth-weight 0.1 --activation-l2-weight 0.1 --inverse-lr 0.01 --adam-beta1 0.5 --adam-beta2 0.9 --inverse-max-steps 3000 --inverse-min-steps 80 --stagnation-patience 300 --stagnation-rel-tol 1e-5 --stagnation-abs-tol 1e-8 --output data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr001-beta105-cont.vtu --output-series data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr001-beta105-cont.vtu.series --output-summary data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr001-beta105-cont-summary.json --output-snapshot data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr001-beta105-cont.png --checkpoint data/20-inverse-face-fresh-smooth-w01-l2-01-mseonly-lr001-beta105-cont-checkpoint.npz
+```
+
+Finding:
+
+- Restart step `0` reproduced the checkpoint as max face error
+  `0.463373 cm`.
+- Learning rate `0.01` was still too hot after resetting Adam moments: step `7`
+  jumped to max face error `0.805593 cm`.
+- Stopped manually at step `13`; no improvement over the restart checkpoint.
+- Next attempt: use a smaller learning rate and no first-moment momentum.
 
 ### Fresh MSE-Only Run With Activation Size Regularization
 

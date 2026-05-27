@@ -554,6 +554,114 @@ Early finding:
 - Started from the max-loss `1.0`, learning-rate `0.003` best checkpoint at
   step `214`, max face error `0.29779184496091793 cm`.
 
+### Fresh Default Loose Regularization, Accidental `nu=0.49` Run
+
+Closeout:
+
+- Stopped an already-running default command after user reminder to stop the
+  current experiment process:
+
+```bash
+uv run python src/20-inverse-face.py
+```
+
+- Cherries summary reported `nu: 0.49`, `curr_step: 208`, and
+  `KeyboardInterrupt`.
+- Best state before interruption was step `200`, with
+  `target/error_max = 0.35109303190226854 cm`, still above the `0.2 cm`
+  target.
+- This was not the requested `nu=0.4` run.
+
+### Fresh Default Loose Regularization, `nu=0.4`
+
+Command:
+
+```bash
+env -u DEBUG CHERRIES_NAME='inverse face 515k fresh default loose regularization nu 0.4' CHERRIES_TAGS='inverse-face,inverse,515k,fresh,default,loose-reg,smooth1e-3,l2-1e-5,mseonly,nu04,stable-neo-hookean,adam' uv run python src/20-inverse-face.py --nu 0.4 --activation-smooth-weight 1e-3 --activation-l2-weight 1e-5 --output data/20-inverse-face-fresh-default-nu04-rerun.vtu --output-series data/20-inverse-face-fresh-default-nu04-rerun.vtu.series --output-summary data/20-inverse-face-fresh-default-nu04-rerun-summary.json --output-snapshot data/20-inverse-face-fresh-default-nu04-rerun.png --checkpoint data/20-inverse-face-fresh-default-nu04-rerun-checkpoint.npz
+```
+
+Live notes:
+
+- Comet: `https://www.comet.com/liblaf/apple/23d85dd5358b4f2f9f42b0cef0017545`.
+- Stopped manually on 2026-05-27 after the optimizer entered a long shallow
+  shelf. The process handled `KeyboardInterrupt`, but the interrupt landed
+  while copying outputs, so `data/20-inverse-face-fresh-default-nu04-rerun-summary.json`
+  and `data/20-inverse-face-fresh-default-nu04-rerun.png` were not written.
+- Cherries/Comet summary in `logs/20-inverse-face.log` recorded `328` metric
+  samples and `optimizer/steps` up to `327`.
+- Best max face error was step `324`:
+  `target/error_max = 0.4603619062333822 cm`, still above the `0.2 cm`
+  pointwise target.
+- The lowest total loss was also step `324`:
+  `loss/total = 0.0057474382096649596`,
+  `target/error_mean = 0.0906020683878675 cm`, and
+  `target/error_rms = 0.1258400976186747 cm`.
+- The run kept reducing MSE/RMS after earlier shelves, but the max-error
+  staircase was very slow: after step `324`, the live run reached at least
+  `27` non-improving steps before it was stopped.
+- Checkpoint and VTU series were saved:
+  `data/20-inverse-face-fresh-default-nu04-rerun-checkpoint.npz` and
+  `data/20-inverse-face-fresh-default-nu04-rerun.vtu.series`.
+
+### Fresh Default Loose Regularization, `nu=0.375`
+
+Command:
+
+```bash
+env -u DEBUG CHERRIES_NAME='inverse face 515k fresh default loose regularization nu 0.375' CHERRIES_TAGS='inverse-face,inverse,515k,fresh,default,loose-reg,smooth1e-3,l2-1e-5,mseonly,nu0375,stable-neo-hookean,adam' uv run python src/20-inverse-face.py --nu 0.375 --activation-smooth-weight 1e-3 --activation-l2-weight 1e-5 --output data/20-inverse-face-fresh-default-nu0375.vtu --output-series data/20-inverse-face-fresh-default-nu0375.vtu.series --output-summary data/20-inverse-face-fresh-default-nu0375-summary.json --output-snapshot data/20-inverse-face-fresh-default-nu0375.png --checkpoint data/20-inverse-face-fresh-default-nu0375-checkpoint.npz
+```
+
+Live notes:
+
+- Comet: `https://www.comet.com/liblaf/apple/c2f9b869093c477abb555e5476e2f754`.
+- Fresh start step `0` matches the earlier fresh runs:
+  `target/error_mean = 0.2500759838629745 cm`,
+  `target/error_rms = 0.35147863579652416 cm`, and
+  `target/error_max = 0.9656781194874481 cm`.
+- Early progress is normal: step `10` reached
+  `target/error_max = 0.9423155072140774 cm` with all forward and adjoint
+  solves reporting success.
+- The run had an early dry patch after step `20`
+  (`target/error_max = 0.877246130216194 cm`), then resumed improving around
+  step `61`.
+- Current live progress is step `79` with
+  `target/error_max = 0.7759395136262917 cm`, `target/error_mean =
+  0.16867956408540374 cm`, and `target/error_rms = 0.22052748404784828 cm`.
+- Step `97` crossed below `0.7 cm` max face error:
+  `target/error_max = 0.6992675990624785 cm`.
+- Step `126` reached `target/error_max = 0.6298428423689807 cm`,
+  `target/error_mean = 0.14142920647260027 cm`, and
+  `target/error_rms = 0.18763610007667475 cm`. The run is still live; nearby
+  steps are beginning to wobble, so the next signal is whether this becomes a
+  true max-error shelf or another short dry patch.
+- Step `150` crossed below `0.6 cm` with
+  `target/error_max = 0.5996634468320773 cm`.
+- Step `170` reached `target/error_max = 0.5774083923764838 cm`,
+  `target/error_mean = 0.12707229143628335 cm`, and
+  `target/error_rms = 0.17061565032845089 cm`. Forward solves are getting
+  spiky, but the max-error best continues to refresh.
+- Step `214` dropped to `target/error_max = 0.5102887271165794 cm`.
+- Step `233` crossed below `0.5 cm` with
+  `target/error_max = 0.4999389626514133 cm`; step `235` nudged this to
+  `0.49958696788443735 cm`.
+- Step `250` reached `target/error_max = 0.49257221440148596 cm`,
+  `target/error_mean = 0.10940653406254428 cm`, and
+  `target/error_rms = 0.1495033121910798 cm`.
+- Step `266` improved the best max face error to
+  `0.4865470749991766 cm`.
+- Step `268` briefly regressed to `target/error_max =
+  0.5661781196766581 cm`, while the MSE kept trending down. The branch
+  recovered instead of forming a true shelf.
+- Step `292` reached `target/error_max = 0.4809306105672998 cm`,
+  `target/error_mean = 0.1073586196065674 cm`, and
+  `target/error_rms = 0.14512996245624957 cm`.
+- Step `330` improved the live best to `target/error_max =
+  0.46720904631332744 cm`, with `target/error_mean =
+  0.09970887614080504 cm` and `target/error_rms =
+  0.1372095178952743 cm`. This remains above the stopped `nu=0.4` best
+  (`0.4603619062333822 cm`), but the stagnation counter is still resetting
+  frequently, so the run remains active.
+
 ### Fresh MSE-Only, Smooth 0.1, Activation L2 0.1, Learning Rate 0.03
 
 Command:

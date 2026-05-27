@@ -658,9 +658,59 @@ Live notes:
 - Step `330` improved the live best to `target/error_max =
   0.46720904631332744 cm`, with `target/error_mean =
   0.09970887614080504 cm` and `target/error_rms =
-  0.1372095178952743 cm`. This remains above the stopped `nu=0.4` best
-  (`0.4603619062333822 cm`), but the stagnation counter is still resetting
-  frequently, so the run remains active.
+  0.1372095178952743 cm`.
+- Step `353` crossed below the stopped `nu=0.4` best
+  (`0.4603619062333822 cm`), reaching `target/error_max =
+  0.4602303202697452 cm`.
+- Step `355` improved to `target/error_max = 0.45984014053588657 cm`.
+  After that, MSE continued to decrease while max error drifted upward; the
+  branch entered another max-error shelf.
+- The manual interrupt landed after step `384`, which made the final best max
+  face error `0.4591510196731495 cm`, with `target/error_mean =
+  0.09401097878087904 cm`, `target/error_rms = 0.1304629717147086 cm`, and
+  `loss/total = 0.006200665280763128`. This is only a small improvement over
+  `nu=0.4`, but it is the best fresh loose-regularization default run so far.
+- The interrupt occurred while writing VTU/summary outputs, so
+  `data/20-inverse-face-fresh-default-nu0375-summary.json` and
+  `data/20-inverse-face-fresh-default-nu0375.png` are missing. The checkpoint
+  and VTU series were saved:
+  `data/20-inverse-face-fresh-default-nu0375-checkpoint.npz` and
+  `data/20-inverse-face-fresh-default-nu0375.vtu.series`.
+
+### Fresh Default Loose Regularization, `nu=0.375`, SMAS Stiffness Ratio `1`
+
+Command:
+
+```bash
+env -u DEBUG CHERRIES_NAME='inverse face 515k fresh default loose regularization nu 0.375 smas stiffness 1' CHERRIES_TAGS='inverse-face,inverse,515k,fresh,default,loose-reg,smooth1e-3,l2-1e-5,mseonly,nu0375,smas1,stable-neo-hookean,adam' uv run python src/20-inverse-face.py --nu 0.375 --smas-stiffness-ratio 1 --activation-smooth-weight 1e-3 --activation-l2-weight 1e-5 --output data/20-inverse-face-fresh-default-nu0375-smas1.vtu --output-series data/20-inverse-face-fresh-default-nu0375-smas1.vtu.series --output-summary data/20-inverse-face-fresh-default-nu0375-smas1-summary.json --output-snapshot data/20-inverse-face-fresh-default-nu0375-smas1.png --checkpoint data/20-inverse-face-fresh-default-nu0375-smas1-checkpoint.npz
+```
+
+Live notes:
+
+- Comet: `https://www.comet.com/liblaf/apple/4684d9226980479e94efbea8d94a8ef6`.
+- Fresh start step `0` matches the other fresh runs:
+  `target/error_mean = 0.2500759838629745 cm`,
+  `target/error_rms = 0.35147863579652416 cm`, and
+  `target/error_max = 0.9656781194874481 cm`.
+- Softer SMAS makes the early forward solves much cheaper than the default
+  stiffness-ratio `100` run. Step `1` used `304` forward iterations, and step
+  `12` used `219`.
+- Step `12` crossed below `0.7 cm` max face error:
+  `target/error_max = 0.6891643087643502 cm`, `target/error_mean =
+  0.14596453782505894 cm`, and `target/error_rms =
+  0.21071519756262408 cm`.
+- Step `42` crossed below `0.5 cm` max face error:
+  `target/error_max = 0.4971824076384605 cm`.
+- Step `70` beat the previous fresh loose-regularization `nu=0.375`,
+  stiffness-ratio `100` best (`0.4591510196731495 cm`), reaching
+  `target/error_max = 0.4573950611427739 cm`.
+- Step `87` reached `target/error_max = 0.4369594859635636 cm`,
+  `target/error_mean = 0.04814492898109974 cm`, and
+  `target/error_rms = 0.07402067924551854 cm`.
+- Step `125` crossed below `0.4 cm` max face error:
+  `target/error_max = 0.3999400952449619 cm`,
+  `target/error_mean = 0.03999377078388108 cm`, and
+  `target/error_rms = 0.062292166427294016 cm`.
 
 ### Fresh MSE-Only, Smooth 0.1, Activation L2 0.1, Learning Rate 0.03
 

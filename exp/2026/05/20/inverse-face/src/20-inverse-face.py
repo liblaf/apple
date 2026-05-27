@@ -65,8 +65,8 @@ class Config(cherries.BaseConfig):
     adjoint_maxiter: int = 10000
     adjoint_rtol: float = 5.0e-4
     adjoint_atol: float = 0.0
-    activation_smooth_weight: float = 5.0e-2
-    activation_l2_weight: float = 0.1
+    activation_smooth_weight: float = 1e-3
+    activation_l2_weight: float = 1e-5
 
 
 def configure_runtime() -> None:

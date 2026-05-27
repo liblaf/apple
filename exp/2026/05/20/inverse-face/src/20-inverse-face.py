@@ -68,10 +68,6 @@ class Config(cherries.BaseConfig):
     activation_smooth_weight: float = 5.0e-2
     activation_l2_weight: float = 0.1
 
-    activation_inv_diag_min: float = -8.0
-    activation_inv_diag_max: float = 8.0
-    activation_inv_shear_abs_max: float = 3.0
-
 
 def configure_runtime() -> None:
     if not torch.cuda.is_available():
@@ -232,15 +228,6 @@ def target_point_ids(target: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
         msg = "target point mask selected no points"
         raise ValueError(msg)
     return ids.astype(np.int64)
-
-
-def clamp_activation_inv_(activation_inv: torch.Tensor, cfg: Config) -> None:
-    activation_inv[:, :3].clamp_(
-        cfg.activation_inv_diag_min, cfg.activation_inv_diag_max
-    )
-    activation_inv[:, 3:].clamp_(
-        -cfg.activation_inv_shear_abs_max, cfg.activation_inv_shear_abs_max
-    )
 
 
 def full_activation_inv_from_active(
@@ -689,7 +676,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                     device=active_activation_inv.device,
                 )
             )
-            clamp_activation_inv_(active_activation_inv, cfg)
     initial_displacement = load_initial_displacement(cfg.initial_activation_inv, mesh)
     if initial_displacement is not None:
         with torch.no_grad():
@@ -946,8 +932,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         optimizer.step()
         optimizer_steps += 1
         timing["time/optimizer_s"] += time.perf_counter() - optimizer_start
-        with torch.no_grad():
-            clamp_activation_inv_(active_activation_inv, cfg)
 
     if best_displacement is None or best_activation_inv is None:
         msg = "inverse solve did not evaluate any forward states"

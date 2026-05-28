@@ -151,18 +151,27 @@ def zero_activation_fields(mesh: pv.UnstructuredGrid) -> None:
     mesh.cell_data[ACTIVATION_INV.vtk] = zero.copy()
 
 
+def disjoint_fractions(
+    muscle: np.ndarray, smas: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    muscle_fraction = np.clip(muscle, 0.0, 1.0)
+    smas_fraction = np.clip(smas - muscle_fraction, 0.0, 1.0)
+    background_fraction = np.clip(1.0 - np.maximum(smas, muscle_fraction), 0.0, 1.0)
+    return background_fraction, muscle_fraction, smas_fraction
+
+
 def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     from liblaf.apple.common import FRACTION, LAMBDA, MU, NU
     from liblaf.apple.common import E as YOUNG_MODULUS
 
     muscle = require_array(mesh, "cell", "MuscleFraction").astype(np.float64)
     smas = require_array(mesh, "cell", "SmasFraction").astype(np.float64)
-    background = np.clip(1.0 - muscle - smas, 0.0, 1.0)
+    background, muscle, smas_stiffness = disjoint_fractions(muscle, smas)
     lambda_, mu = lame_parameters(cfg.E, cfg.nu)
 
     mesh.cell_data[BACKGROUND_FRACTION] = background
     mesh.cell_data[ACTIVE_FRACTION] = muscle
-    mesh.cell_data[SMAS_STIFFNESS_FRACTION] = smas
+    mesh.cell_data[SMAS_STIFFNESS_FRACTION] = smas_stiffness
     mesh.cell_data["ActivationMask"] = active_mask(mesh, cfg).astype(np.int8)
     mesh.cell_data["InverseActiveMask"] = mesh.cell_data["ActivationMask"]
     mesh.cell_data[YOUNG_MODULUS.vtk] = np.full(mesh.n_cells, cfg.E, dtype=np.float64)
@@ -385,7 +394,12 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
     set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[BACKGROUND_FRACTION])
     builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="background"))
 
-    set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[ACTIVE_FRACTION])
+    set_material(
+        mesh,
+        E=cfg.smas_stiffness_ratio * cfg.E,
+        nu=cfg.nu,
+        fraction=mesh.cell_data[ACTIVE_FRACTION],
+    )
     builder.add_potential(StableNeoHookeanActive.from_pyvista(mesh, name="muscle"))
 
     set_material(

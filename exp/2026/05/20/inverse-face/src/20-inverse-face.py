@@ -344,7 +344,12 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
     set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[BACKGROUND_FRACTION])
     builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="background"))
 
-    set_material(mesh, E=cfg.E, nu=cfg.nu, fraction=mesh.cell_data[ACTIVE_FRACTION])
+    set_material(
+        mesh,
+        E=cfg.smas_stiffness_ratio * cfg.E,
+        nu=cfg.nu,
+        fraction=mesh.cell_data[ACTIVE_FRACTION],
+    )
     builder.add_potential(StableNeoHookeanActive.from_pyvista(mesh, name="muscle"))
 
     set_material(
@@ -732,7 +737,6 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
 
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
-        point_error_norm = torch.linalg.vector_norm(residual, dim=1)
         mse_loss = residual.square().mean()
         data_loss = mse_loss
         smooth_loss = activation_smoothness_loss(active_activation_inv, smooth_pairs_t)

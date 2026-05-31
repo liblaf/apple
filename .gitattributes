@@ -17,4 +17,5 @@
 *.vtu filter=lfs diff=lfs merge=lfs -text
 # Misc
 *.pvsm filter=lfs diff=lfs merge=lfs -text
+*.npz filter=lfs diff=lfs merge=lfs -text
 *.vtkhdf filter=lfs diff=lfs merge=lfs -text

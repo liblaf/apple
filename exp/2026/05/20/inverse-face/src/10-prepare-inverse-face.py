@@ -299,7 +299,9 @@ def add_metadata(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.field_data["NoCollision"] = np.asarray([1])
 
 
-def metric_summary(mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid) -> dict[str, Any]:
+def metric_summary(
+    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid
+) -> dict[str, Any]:
     muscle = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
     smas = np.asarray(mesh.cell_data["SmasFraction"], dtype=np.float64)
     target_mask = np.asarray(target.point_data[TARGET_SURFACE_MASK], dtype=bool)

@@ -554,6 +554,60 @@ Early finding:
 - Started from the max-loss `1.0`, learning-rate `0.003` best checkpoint at
   step `214`, max face error `0.29779184496091793 cm`.
 
+## 2026-06-02 05:10 CST
+
+Correction after re-audit:
+
+- The previous default prep path was wrong for the current goal: it pointed at
+  `41-expression-515k.vtu`. The corrected prep script now defaults to
+  `/home/liblaf/github/liblaf/melon/exp/2025/04/30/human-head-anatomy/data/41-expression-3152k.vtu`.
+- The previous fixed boundary only used `IsCranium`. The corrected prep script
+  fixes both `IsCranium` and `IsMandible`.
+- New outputs use `3152k` stems to avoid confusing them with the older 515k
+  artifacts:
+  - `data/10-inverse-face-3152k-input.vtu`
+  - `data/10-inverse-face-3152k-target.vtu`
+  - `data/20-inverse-face-3152k.*`
+- Material fraction validation on the new prep output:
+  - fat: `1 - max(smas, muscle)`, formula residual `0`
+  - muscle: `muscle`, formula residual `0`
+  - passive SMAS: `max(smas - muscle, 0)`, formula residual `0`
+  - per-tet fraction sum range: `0.9999999999999999` to `1.0`
+- The muscle and passive SMAS layers both use stiffness ratio `100` in
+  `build_forward`; the fat layer uses `E = 1`, and all layers use `nu = 0.49`.
+- Prepared 3152k problem size:
+  - points: `225052`
+  - tets: `1127541`
+  - active muscle tets: `283391`
+  - activation parameters: `1700346`
+  - target `IsFace` points: `17582`
+  - fixed points: `26189` (`18902` cranium, `7287` mandible)
+  - target max displacement: `0.9800935666165747 cm`
+- Prep Comet run:
+  `https://www.comet.com/liblaf/apple/e6bfa5ba32934a6e8ce743eba83999ca`.
+- Comet's final git-patch/environment phase again spent several minutes in
+  Git LFS and ended with a warning, after the files and metrics were written.
+  For the main inverse run, keep Comet enabled but set
+  `COMET_AUTO_LOG_GIT_PATCH=false`.
+
+Smoke command:
+
+```bash
+DEBUG=1 CHERRIES_NAME='inverse face 3152k smoke' CHERRIES_TAGS='inverse-face,inverse,3152k,smoke' uv run python src/20-inverse-face.py --inverse-max-steps 0 --inverse-min-steps 0 --max-point-error-cm 2.0 --output tmp/20-inverse-face-3152k-smoke.vtu --output-series tmp/20-inverse-face-3152k-smoke.vtu.series --output-summary tmp/20-inverse-face-3152k-smoke-summary.json --output-snapshot tmp/20-inverse-face-3152k-smoke.png --checkpoint tmp/20-inverse-face-3152k-smoke-checkpoint.npz
+```
+
+Smoke result:
+
+- Forward solve: success in `1` step.
+- Adjoint solve: CG success, relative residual `0.0004982207802387532`.
+- Zero-activation target max error: `0.9800935666165747 cm`.
+- Target RMS error: `0.3065750187102841 cm`.
+- Smooth neighbor pairs: `517605`.
+- Series frame written under `tmp/20-inverse-face-3152k-smoke.vtu.series`.
+- Rest-shape check passed: output mesh points match
+  `data/10-inverse-face-3152k-input.vtu`, with `Displacement` point data storing
+  the vertex displacement.
+
 ### Fresh MSE-Only, Smooth 0.1, Activation L2 0.1, Learning Rate 0.03
 
 Command:

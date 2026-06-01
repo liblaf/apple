@@ -827,7 +827,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             no_improve_steps += 1
 
         stopped = False
-        if step >= cfg.inverse_min_steps and max_error <= cfg.max_point_error_cm:
+        if step >= cfg.inverse_min_steps and best_max_error <= cfg.max_point_error_cm:
             stop_reason = "max_point_error_tol"
             stopped = True
         elif loss_value <= cfg.loss_tol:

@@ -18,8 +18,8 @@ from liblaf import cherries, melon
 
 logger = logging.getLogger(__name__)
 
-PREP_STEM = "10-inverse-face"
-OUTPUT_STEM = "20-inverse-face"
+PREP_STEM = "10-inverse-face-3152k"
+OUTPUT_STEM = "20-inverse-face-3152k"
 TARGET_SURFACE_MASK = "TargetSurfaceMask"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
@@ -1026,6 +1026,7 @@ def summarize(
             np.linalg.norm(target_displacement[target_ids]) / math.sqrt(target_ids.size)
         ),
         "target/displacement_max": float(target_norm.max()),
+        "tolerance/max_point_error_cm": float(cfg.max_point_error_cm),
         "loss/final": float(best_record["loss/total"]),
         "loss/data": final_loss,
         "loss/data_objective": float(best_record.get("loss/data", final_loss)),
@@ -1065,6 +1066,8 @@ def summarize(
         "target/error_max": float(target_error_norm.max()),
         "all/error_rms": all_rms,
         "all/error_max": float(error_norm.max()),
+        "output/rest_shape": True,
+        "output/displacement_point_data": "Displacement",
         "active_activation_inv/mean": active_activation_inv.mean(axis=0).tolist(),
         "active_activation_inv/min": active_activation_inv.min(axis=0).tolist(),
         "active_activation_inv/max": active_activation_inv.max(axis=0).tolist(),

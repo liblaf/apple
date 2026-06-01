@@ -9,9 +9,9 @@ from liblaf import cherries, melon
 
 SOURCE = Path(
     "/home/liblaf/github/liblaf/melon/exp/2025/04/30/"
-    "human-head-anatomy/data/41-expression-515k.vtu"
+    "human-head-anatomy/data/41-expression-3152k.vtu"
 )
-OUTPUT_STEM = "10-inverse-face"
+OUTPUT_STEM = "10-inverse-face-3152k"
 IN_FACE_CONVEX = "InFaceConvex"
 IN_FACE_CONTEXT_TYPO = "InFaceContex"
 TARGET_SURFACE_MASK = "TargetSurfaceMask"
@@ -30,7 +30,7 @@ class Config(cherries.BaseConfig):
     expression: str = "Expression000"
     target_scale: float = 1.0
     target_point_mask: str = "IsFace"
-    fixed_point_mask: str = "IsCranium"
+    fixed_point_masks: tuple[str, ...] = ("IsCranium", "IsMandible")
     active_fraction_tol: float = 1.0e-3
 
     E: float = 1.0
@@ -123,18 +123,34 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     zero_activation_fields(mesh)
 
 
-def add_boundary_conditions(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
+def fixed_point_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> tuple[np.ndarray, dict[str, int]]:
+    fixed = np.zeros(mesh.n_points, dtype=bool)
+    counts: dict[str, int] = {}
+    for name in cfg.fixed_point_masks:
+        mask = require_array(mesh, "point", name).astype(bool)
+        fixed |= mask
+        counts[name] = int(mask.sum())
+        mesh.point_data[f"Fixed{name.removeprefix('Is')}"] = mask.astype(np.int8)
+    if not np.any(fixed):
+        msg = f"fixed point masks selected no points: {cfg.fixed_point_masks}"
+        raise ValueError(msg)
+    return fixed, counts
+
+
+def add_boundary_conditions(
+    mesh: pv.UnstructuredGrid, cfg: Config
+) -> tuple[np.ndarray, dict[str, int]]:
     from liblaf.apple.common import FIXED_MASK, FIXED_VALUE
 
-    fixed = require_array(mesh, "point", cfg.fixed_point_mask).astype(bool)
+    fixed, counts = fixed_point_mask(mesh, cfg)
     fixed_mask = np.zeros((mesh.n_points, 3), dtype=bool)
     fixed_value = np.zeros((mesh.n_points, 3), dtype=np.float64)
     fixed_mask[fixed, :] = True
 
     mesh.point_data[FIXED_MASK.vtk] = fixed_mask
     mesh.point_data[FIXED_VALUE.vtk] = fixed_value
-    mesh.point_data["FixedCranium"] = fixed.astype(np.int8)
-    return fixed
+    mesh.point_data["FixedBoundary"] = fixed.astype(np.int8)
+    return fixed, counts
 
 
 def target_point_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
@@ -168,7 +184,10 @@ def make_target_mesh(
 
 
 def add_metadata(
-    mesh: pv.UnstructuredGrid, cfg: Config, selected_cell_data: str
+    mesh: pv.UnstructuredGrid,
+    cfg: Config,
+    selected_cell_data: str,
+    fixed_counts: dict[str, int],
 ) -> None:
     from liblaf.apple.common import FIXED_MASK
 
@@ -182,6 +201,9 @@ def add_metadata(
     mesh.field_data["ActiveFractionTol"] = np.asarray([cfg.active_fraction_tol])
     mesh.field_data["ActiveTetCount"] = np.asarray([int(active.sum())])
     mesh.field_data["FixedPointCount"] = np.asarray([int(fixed.sum())])
+    mesh.field_data["FixedPointMasks"] = np.asarray(list(cfg.fixed_point_masks))
+    for name, count in fixed_counts.items():
+        mesh.field_data[f"{name}FixedPointCount"] = np.asarray([count])
     mesh.field_data["NoCollision"] = np.asarray([1])
 
 
@@ -199,7 +221,9 @@ def metric_summary(
         "n_cells": int(mesh.n_cells),
         "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"]).sum()),
         "n_target_points": int(target_mask.sum()),
-        "n_fixed_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
+        "n_fixed_points": int(np.asarray(mesh.point_data["FixedBoundary"]).sum()),
+        "n_fixed_cranium_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
+        "n_fixed_mandible_points": int(np.asarray(mesh.point_data["FixedMandible"]).sum()),
         "muscle_fraction_volume": float(np.sum(muscle * volume)),
         "smas_fraction_volume": float(np.sum(smas * volume)),
         "target_displacement_mean": float(target_norm.mean()),
@@ -217,10 +241,10 @@ def main(cfg: Config) -> None:
 
     mesh, selected_cell_data = extract_face_mesh(source)
     add_material_fields(mesh, cfg)
-    fixed = add_boundary_conditions(mesh, cfg)
-    add_metadata(mesh, cfg, selected_cell_data)
+    fixed, fixed_counts = add_boundary_conditions(mesh, cfg)
+    add_metadata(mesh, cfg, selected_cell_data, fixed_counts)
     target = make_target_mesh(mesh, cfg, fixed)
-    add_metadata(target, cfg, selected_cell_data)
+    add_metadata(target, cfg, selected_cell_data, fixed_counts)
     zero_activation_fields(mesh)
 
     melon.save(cfg.output_input, mesh)

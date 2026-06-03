@@ -38,6 +38,7 @@ class Config(cherries.BaseConfig):
     E: float = 1.0
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0
+    use_smas: bool = True
 
     activation_local: tuple[float, float, float, float, float, float] = (
         -0.87,
@@ -216,13 +217,14 @@ def build_forward(mesh: pv.UnstructuredGrid, cfg: Config):
     )
     builder.add_potential(StableNeoHookeanActive.from_pyvista(mesh, name="muscle"))
 
-    set_material(
-        mesh,
-        E=cfg.smas_stiffness_ratio * cfg.E,
-        nu=cfg.nu,
-        fraction=mesh.cell_data[SMAS_STIFFNESS_FRACTION],
-    )
-    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="smas"))
+    if cfg.use_smas:
+        set_material(
+            mesh,
+            E=cfg.smas_stiffness_ratio * cfg.E,
+            nu=cfg.nu,
+            fraction=mesh.cell_data[SMAS_STIFFNESS_FRACTION],
+        )
+        builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="smas"))
 
     forward = Forward(builder.finalize())
     forward.optimizer = forward.default_optimizer(
@@ -323,6 +325,7 @@ def summarize(
         "E": float(cfg.E),
         "nu": float(cfg.nu),
         "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
+        "smas/enabled": bool(cfg.use_smas),
         **forward_metrics,
     }
     for name in ("IsFace", "IsSkin", "IsLipTop", "IsLipBottom"):

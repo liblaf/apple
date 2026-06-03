@@ -17,3 +17,7 @@
 - The stronger probe converged with PNCG `primary_success` in 735 steps. It produced face RMS 0.125168 cm, face max 0.818799 cm, lip-top RMS 0.226329 cm, lip-top max 0.447926 cm, and lip-bottom RMS 0.123693 cm.
 - Visual snapshot `data/20-forward-face-3152k-a087.png` shows localized cheek/lip lift. It is visibly smaller than the full `Expression000` expression but no longer tiny, so selected this activation as the proper forward deformation.
 - Updated `src/20-forward-face.py` so the selected activation is the default for the canonical `20-forward-face-3152k.*` run.
+- Ran the final canonical Cherries command without CLI overrides. It converged with PNCG `primary_success` in 619 steps and wrote `data/20-forward-face-3152k.vtu`, `data/20-forward-face-3152k.png`, and `data/20-forward-face-3152k-summary.json`.
+- Final metrics: face RMS 0.126191 cm, face max 0.826099 cm, lip-top RMS 0.229352 cm, lip-top max 0.456870 cm, lip-bottom RMS 0.123553 cm, lip-bottom max 0.394535 cm.
+- Comet printed final URL `https://www.comet.com/liblaf/apple/9e4c4457d5004d40b4b497940bd9496e`, but shutdown warned that online logging failed. Local artifacts are the trusted evidence.
+- Wrote final report `docs/10-forward-face-3152k.md`.

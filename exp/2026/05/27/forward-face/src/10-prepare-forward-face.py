@@ -26,6 +26,7 @@ class Config(cherries.BaseConfig):
     source: Path = cherries.input(SOURCE)
     output_input: Path = cherries.output(f"{OUTPUT_STEM}-input.vtu")
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
+    output_stem: str = OUTPUT_STEM
 
     expression: str = "Expression000"
     target_scale: float = 1.0
@@ -37,6 +38,7 @@ class Config(cherries.BaseConfig):
     E: float = 1.0
     nu: float = 0.49
     smas_stiffness_ratio: float = 1.0
+    use_smas: bool = True
 
 
 def require_array(obj: pv.DataSet, association: str, name: str) -> np.ndarray:
@@ -112,6 +114,9 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     muscle = require_array(mesh, "cell", "MuscleFraction").astype(np.float64)
     smas = require_array(mesh, "cell", "SmasFraction").astype(np.float64)
     background, muscle, smas_stiffness = disjoint_fractions(muscle, smas)
+    if not cfg.use_smas:
+        background = np.clip(1.0 - muscle, 0.0, 1.0)
+        smas_stiffness = np.zeros_like(muscle)
     lambda_, mu = lame_parameters(cfg.E, cfg.nu)
     activation_mask = zygomaticus_major_mask(mesh, cfg)
 
@@ -200,6 +205,7 @@ def add_metadata(
     mesh.field_data["E"] = np.asarray([cfg.E])
     mesh.field_data["Nu"] = np.asarray([cfg.nu])
     mesh.field_data["SmasStiffnessRatio"] = np.asarray([cfg.smas_stiffness_ratio])
+    mesh.field_data["UseSmas"] = np.asarray([int(cfg.use_smas)])
     mesh.field_data["ActivationMuscleIds"] = np.asarray(cfg.activation_muscle_ids)
     mesh.field_data["ActiveFractionTol"] = np.asarray([cfg.active_fraction_tol])
     mesh.field_data["ActivationTetCount"] = np.asarray([int(active.sum())])
@@ -215,6 +221,9 @@ def metric_summary(
 ) -> dict[str, Any]:
     muscle = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
     smas = np.asarray(mesh.cell_data["SmasFraction"], dtype=np.float64)
+    smas_stiffness = np.asarray(
+        mesh.cell_data[SMAS_STIFFNESS_FRACTION], dtype=np.float64
+    )
     volume = np.asarray(mesh.cell_data["Volume"], dtype=np.float64)
     target_mask = np.asarray(target.point_data[TARGET_SURFACE_MASK], dtype=bool)
     target_disp = np.asarray(target.point_data["Displacement"], dtype=np.float64)
@@ -231,6 +240,7 @@ def metric_summary(
         "fixed/n_mandible_points": int(np.asarray(mesh.point_data["FixedMandible"]).sum()),
         "volume/muscle_fraction": float(np.sum(muscle * volume)),
         "volume/smas_fraction": float(np.sum(smas * volume)),
+        "volume/smas_stiffness_fraction": float(np.sum(smas_stiffness * volume)),
         "volume/activation_fraction": float(np.sum(muscle[active] * volume[active])),
         "target/displacement_mean": float(target_norm.mean()),
         "target/displacement_rms": float(
@@ -240,7 +250,26 @@ def metric_summary(
     }
 
 
+def output_paths(cfg: Config) -> tuple[Path, Path]:
+    if cfg.output_stem == OUTPUT_STEM:
+        return cfg.output_input, cfg.output_target
+    base = cfg.output_input.parent
+    return (
+        base / f"{cfg.output_stem}-input.vtu",
+        base / f"{cfg.output_stem}-target.vtu",
+    )
+
+
+def log_dynamic_outputs(cfg: Config, paths: tuple[Path, Path]) -> None:
+    if cfg.output_stem == OUTPUT_STEM:
+        return
+    for path in paths:
+        if path.exists():
+            cherries.log_output(path)
+
+
 def main(cfg: Config) -> None:
+    output_input, output_target = output_paths(cfg)
     source = pv.read(cfg.source)
     if not isinstance(source, pv.UnstructuredGrid):
         source = source.cast_to_unstructured_grid()
@@ -252,13 +281,14 @@ def main(cfg: Config) -> None:
     target = make_target_mesh(mesh, cfg, fixed)
     add_metadata(target, cfg, selected_cell_data, fixed_counts)
 
-    melon.save(cfg.output_input, mesh)
-    melon.save(cfg.output_target, target)
+    melon.save(output_input, mesh)
+    melon.save(output_target, target)
+    log_dynamic_outputs(cfg, (output_input, output_target))
     summary = metric_summary(mesh, target)
     cherries.log_metrics(summary)
     print(summary)
-    print(f"saved: {cfg.output_input}")
-    print(f"saved: {cfg.output_target}")
+    print(f"saved: {output_input}")
+    print(f"saved: {output_target}")
 
 
 if __name__ == "__main__":

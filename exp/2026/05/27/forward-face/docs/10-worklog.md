@@ -21,3 +21,12 @@
 - Final metrics: face RMS 0.126191 cm, face max 0.826099 cm, lip-top RMS 0.229352 cm, lip-top max 0.456870 cm, lip-bottom RMS 0.123553 cm, lip-bottom max 0.394535 cm.
 - Comet printed final URL `https://www.comet.com/liblaf/apple/9e4c4457d5004d40b4b497940bd9496e`, but shutdown warned that online logging failed. Local artifacts are the trusted evidence.
 - Wrote final report `docs/10-forward-face-3152k.md`.
+- Follow-up request: run the same selected activation on the 515k mesh without SMAS.
+- Added script options `--output-stem` and `--use-smas false`. In prep, no-SMAS mode sets `BackgroundFraction = 1 - MuscleFraction` and `SmasStiffnessFraction = 0`; in forward, no-SMAS mode skips the SMAS potential.
+- Ran 515k no-SMAS prep from `42-expression-muscle-orientation-515k.vtu` with output stem `10-forward-face-515k-nosmas`. It produced 58651 points, 253876 tetrahedra, 420 Zygomaticus-major activation tetrahedra, 6787 face target points, and zero SMAS stiffness volume.
+- Ran 515k no-SMAS forward with the same activation `(-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)` and output stem `20-forward-face-515k-nosmas`.
+- 515k no-SMAS forward metrics: PNCG `primary_success` in 322 steps, face RMS 0.071006 cm, face max 0.599423 cm, lip-top RMS 0.096671 cm, lip-top max 0.257022 cm, lip-bottom RMS 0.052231 cm, lip-bottom max 0.184981 cm.
+- Verified `data/20-forward-face-515k-nosmas.vtu` keeps rest coordinates, has required displacement/activation arrays, has 420 active tets, has zero inactive activation, and has zero SMAS stiffness fraction.
+- Wrote follow-up report `docs/20-forward-face-515k-nosmas.md`.
+- Follow-up request: use the 515k mesh and the previous forward solution as the target deformation, then run inverse physics to recover the muscle activation.
+- Added `src/30-inverse-face-515k.py`. This recovery script reads `data/10-forward-face-515k-nosmas-input.vtu`, uses `data/20-forward-face-515k-nosmas.vtu` as the target, disables SMAS, and optimizes one six-component local `ActivationInv` delta for the active Zygomaticus-major tetrahedra.

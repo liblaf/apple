@@ -30,3 +30,4 @@
 - Wrote follow-up report `docs/20-forward-face-515k-nosmas.md`.
 - Follow-up request: use the 515k mesh and the previous forward solution as the target deformation, then run inverse physics to recover the muscle activation.
 - Added `src/30-inverse-face-515k.py`. This recovery script reads `data/10-forward-face-515k-nosmas-input.vtu`, uses `data/20-forward-face-515k-nosmas.vtu` as the target, disables SMAS, and optimizes one six-component local `ActivationInv` delta for the active Zygomaticus-major tetrahedra.
+- The first inverse attempt wrote the input/target meshes and a best checkpoint but did not yet write a `.vtu.series`; stopped that attempt and patched `src/30-inverse-face-515k.py` so every evaluated inverse step is appended to `data/30-inverse-face-515k-nosmas.vtu.series` for ParaView timeline inspection.

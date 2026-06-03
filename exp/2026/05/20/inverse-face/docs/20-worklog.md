@@ -1,7 +1,77 @@
 # 20 Inverse Face Worklog
 
 This file records the live experiment decisions and findings while the inverse
-solve is still in progress. The final report remains `20-inverse-face.md`.
+solve is still in progress. The 3152k final report is
+`30-inverse-face-3152k.md`.
+
+## 2026-06-02 07:05 CST
+
+- Re-audited the 3152k preparation after the fraction/stiffness correction.
+- The active input is from:
+  `/home/liblaf/github/liblaf/melon/exp/2025/04/30/human-head-anatomy/data/41-expression-3152k.vtu`.
+- The extracted problem uses `InFaceConvex` tetrahedra:
+  - points: `225052`
+  - tetrahedra: `1127541`
+  - active muscle tetrahedra: `283391`
+  - activation parameters: `1700346`
+  - target `IsFace` points: `17582`
+- Fixed masks include both cranium and mandible:
+  - `FixedCranium`: `18902` points
+  - `FixedMandible`: `7287` points
+  - `FixedBoundary`: `26189` points
+- Direct validation of the prepared fractions:
+  - `BackgroundFraction = 1 - max(SmasFraction, MuscleFraction)`, max abs
+    difference `0.0`
+  - `ActiveFraction = MuscleFraction`, max abs difference `0.0`
+  - `SmasStiffnessFraction = max(SmasFraction - MuscleFraction, 0)`, max abs
+    difference `0.0`
+  - fraction sum range: `0.9999999999999999` to `1.0`
+- Long Adam run:
+  - command name: `inverse face 3152k smas100 fresh`
+  - Comet: `https://www.comet.com/liblaf/apple/8047b10f59b643cba772f95915fea744`
+  - learning rate `0.03`, beta1 `0.3`, beta2 `0.9`
+  - smooth weight `0.001`, L2 weight `1e-5`
+  - 69 optimization frames were written to
+    `data/20-inverse-face-3152k.vtu.series`
+  - best checkpoint reached max `IsFace` point error
+    `0.17138371517410103 cm` at step `58`
+  - after that, the hot Adam tail wandered upward; by step `68` the current
+    max error was `0.33222075820257746 cm`, while the saved best remained
+    below tolerance
+  - the run was interrupted after preserving the best checkpoint because the
+    old stop condition watched only the current sample, even though the script
+    reports the saved best state
+- Corrected the stop condition in `src/20-inverse-face.py` so
+  `max_point_error_tol` uses `best_max_error` after `inverse_min_steps`.
+- Final checkpoint verification run:
+  - command name: `inverse face 3152k smas100 best checkpoint finalize`
+  - Comet: `https://www.comet.com/liblaf/apple/93f9113c7c3945818164f70a5ca7be3a`
+  - initial activation/displacement:
+    `data/20-inverse-face-3152k-checkpoint.npz`
+  - result VTU: `data/20-inverse-face-3152k.vtu`
+  - summary: `data/20-inverse-face-3152k-summary.json`
+  - snapshot: `data/20-inverse-face-3152k.png`
+  - final one-frame verification series:
+    `data/20-inverse-face-3152k-final.vtu.series`
+  - final checkpoint:
+    `data/20-inverse-face-3152k-final-checkpoint.npz`
+- Final summary:
+  - `passed`: `true`
+  - stop reason: `max_point_error_tol`
+  - max `IsFace` point error: `0.16911033770519793 cm`
+  - RMS `IsFace` point error: `0.04456696389586918 cm`
+  - mean `IsFace` point error: `0.03671051553123811 cm`
+  - forward failures: `0`
+  - adjoint failures: `0`
+  - forward relative residual: `0.0004894121081861133`
+  - adjoint relative residual: `0.0004112733191146554`
+- Direct VTU audit:
+  - final mesh points match the prepared rest-shape points
+  - final result has `Displacement` point data with shape `(225052, 3)`
+  - final result has `ActivationInv`/`RecoveredActivationInv` cell data with
+    shape `(1127541, 6)`
+  - recomputed `IsFace` max error matches the summary:
+    `0.16911033770519793 cm`
 
 ## 2026-05-26
 

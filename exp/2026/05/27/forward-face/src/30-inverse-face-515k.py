@@ -35,6 +35,7 @@ class Config(cherries.BaseConfig):
     output_input: Path = cherries.output(f"{OUTPUT_STEM}-input.vtu")
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
     output: Path = cherries.output(f"{OUTPUT_STEM}.vtu")
+    output_series: Path = cherries.output(f"{OUTPUT_STEM}.vtu.series")
     output_snapshot: Path = cherries.output(f"{OUTPUT_STEM}.png")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
     checkpoint: Path = cherries.output(f"{OUTPUT_STEM}-checkpoint.npz")
@@ -632,6 +633,7 @@ def solve_inverse(  # noqa: C901, PLR0915
     target_ids: np.ndarray,
     active_ids: np.ndarray,
     cfg: Config,
+    series_writer: Any,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[dict[str, Any]], dict[str, Any]]:
     from liblaf.peach.linalg import FallbackSolver
     from liblaf.peach.linalg.cupy import CupyCG, CupyMinRes
@@ -830,10 +832,36 @@ def solve_inverse(  # noqa: C901, PLR0915
             "stopped": float(stopped),
             "time/forward_s": forward_elapsed,
             "time/backward_s": backward_elapsed,
-            "time/step_s": time.perf_counter() - step_start,
             **forward_metrics,
             **adjoint_metrics,
         }
+
+        series_start = time.perf_counter()
+        series_activation, series_activation_inv, series_local_activation_delta = (
+            full_activation_fields_from_local(
+                mesh,
+                active_ids,
+                current_local_activation_inv_delta,
+            )
+        )
+        step_mesh = make_result_mesh(
+            mesh,
+            target,
+            displacement,
+            series_activation,
+            series_activation_inv,
+            series_local_activation_delta,
+            current_local_activation_inv_delta,
+            target_ids,
+            active_ids,
+            {
+                "inverse/step": step,
+                **numeric_metrics(record, exclude=frozenset({"step"})),
+            },
+        )
+        series_writer.append(step_mesh, time=float(step))
+        record["time/series_s"] = time.perf_counter() - series_start
+        record["time/step_s"] = time.perf_counter() - step_start
         trace.append(record)
         cherries.set_step(step)
         cherries.log_metrics(numeric_metrics(record, exclude=frozenset({"step"})))
@@ -992,13 +1020,22 @@ def main(cfg: Config) -> None:
     melon.save(cfg.output_input, mesh)
     melon.save(cfg.output_target, make_target_mesh(target, target_ids, active_ids))
 
-    (
-        displacement,
-        _activation_inv,
-        recovered_local_activation_inv_delta,
-        trace,
-        final,
-    ) = solve_inverse(mesh.copy(deep=True), target, target_ids, active_ids, cfg)
+    inverse_mesh = mesh.copy(deep=True)
+    with melon.SeriesWriter(cfg.output_series, clear=True) as series_writer:
+        (
+            displacement,
+            _activation_inv,
+            recovered_local_activation_inv_delta,
+            trace,
+            final,
+        ) = solve_inverse(
+            inverse_mesh,
+            target,
+            target_ids,
+            active_ids,
+            cfg,
+            series_writer,
+        )
     _, local_activation_inv_delta = local_deltas_from_activation_inv(
         recovered_local_activation_inv_delta
     )
@@ -1056,6 +1093,7 @@ def main(cfg: Config) -> None:
         f"{summary['local_activation_delta/yz']:.3f})",
     )
     print(f"saved: {cfg.output}")
+    print(f"saved: {cfg.output_series}")
     print(f"saved: {cfg.output_summary}")
     if cfg.require_success and not summary["passed"]:
         msg = (

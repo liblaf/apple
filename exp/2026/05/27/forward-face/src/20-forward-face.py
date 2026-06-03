@@ -33,6 +33,7 @@ class Config(cherries.BaseConfig):
     output: Path = cherries.output(f"{OUTPUT_STEM}.vtu")
     output_snapshot: Path = cherries.output(f"{OUTPUT_STEM}.png")
     output_summary: Path = cherries.output(f"{OUTPUT_STEM}-summary.json")
+    output_stem: str = OUTPUT_STEM
 
     E: float = 1.0
     nu: float = 0.49
@@ -308,6 +309,7 @@ def summarize(
     metrics: dict[str, Any] = {
         "mesh/n_points": int(mesh.n_points),
         "mesh/n_cells": int(mesh.n_cells),
+        "output/stem": cfg.output_stem,
         "activation/local_xx": float(cfg.activation_local[0]),
         "activation/local_yy": float(cfg.activation_local[1]),
         "activation/local_zz": float(cfg.activation_local[2]),
@@ -406,11 +408,40 @@ def save_json(path: Path, data: dict[str, Any]) -> None:
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
+def output_paths(cfg: Config) -> tuple[Path, Path, Path, Path]:
+    if cfg.output_stem == OUTPUT_STEM:
+        return cfg.output_input, cfg.output, cfg.output_snapshot, cfg.output_summary
+    base = cfg.output.parent
+    return (
+        base / f"{cfg.output_stem}-input.vtu",
+        base / f"{cfg.output_stem}.vtu",
+        base / f"{cfg.output_stem}.png",
+        base / f"{cfg.output_stem}-summary.json",
+    )
+
+
+def log_dynamic_outputs(cfg: Config, paths: tuple[Path, Path, Path, Path]) -> None:
+    if cfg.output_stem == OUTPUT_STEM:
+        return
+    for path in paths:
+        if path.exists():
+            cherries.log_output(path)
+
+
+def numeric_metrics(data: dict[str, Any]) -> dict[str, float | int | bool]:
+    return {
+        name: value
+        for name, value in data.items()
+        if isinstance(value, (bool, int, float))
+    }
+
+
 def main(cfg: Config) -> None:
     configure_runtime()
+    output_input, output, output_snapshot, output_summary = output_paths(cfg)
     mesh, target = load_problem(cfg)
     activation_inv = apply_activation(mesh, cfg)
-    melon.save(cfg.output_input, mesh)
+    melon.save(output_input, mesh)
 
     start = time.perf_counter()
     forward = build_forward(mesh, cfg)
@@ -429,17 +460,18 @@ def main(cfg: Config) -> None:
     )
     result = make_result_mesh(mesh, target, displacement, summary)
 
-    melon.save(cfg.output, result)
+    melon.save(output, result)
     try:
-        save_snapshot(cfg.output_snapshot, result)
+        save_snapshot(output_snapshot, result)
     except (OSError, RuntimeError, ValueError):
-        logger.warning("failed to save snapshot: %s", cfg.output_snapshot, exc_info=True)
-    save_json(cfg.output_summary, summary)
-    cherries.log_metrics(summary)
+        logger.warning("failed to save snapshot: %s", output_snapshot, exc_info=True)
+    save_json(output_summary, summary)
+    log_dynamic_outputs(cfg, (output_input, output, output_snapshot, output_summary))
+    cherries.log_metrics(numeric_metrics(summary))
     print(json.dumps(summary, indent=2))
-    print(f"saved: {cfg.output_input}")
-    print(f"saved: {cfg.output}")
-    print(f"saved: {cfg.output_summary}")
+    print(f"saved: {output_input}")
+    print(f"saved: {output}")
+    print(f"saved: {output_summary}")
 
 
 if __name__ == "__main__":

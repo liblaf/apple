@@ -40,9 +40,9 @@ class Config(cherries.BaseConfig):
     smas_stiffness_ratio: float = 1.0
 
     activation_local: tuple[float, float, float, float, float, float] = (
-        -0.5,
-        0.2,
-        0.1,
+        -0.87,
+        0.65,
+        0.65,
         0.0,
         0.0,
         0.0,

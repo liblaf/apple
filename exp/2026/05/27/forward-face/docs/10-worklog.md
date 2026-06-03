@@ -13,3 +13,7 @@
 - Started the first forward solve with activation local delta `(-0.5, 0.2, 0.1, 0.0, 0.0, 0.0)`.
 - First forward solve completed physically, but Cherries marked it failed because the script sent the string metric `forward/result = primary_success` to `cherries.log_metrics()`. Patched the script to log only numeric/bool metrics while keeping strings in the JSON summary.
 - First solve metrics from `data/20-forward-face-3152k-summary.json`: PNCG `primary_success` in 210 steps, face RMS 0.005038 cm, lip-top RMS 0.003319 cm, and face RMS ratio to `Expression000` 0.0164. This is much too small.
+- Ran a stronger probe with activation local delta `(-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)` and output stem `20-forward-face-3152k-a087`.
+- The stronger probe converged with PNCG `primary_success` in 735 steps. It produced face RMS 0.125168 cm, face max 0.818799 cm, lip-top RMS 0.226329 cm, lip-top max 0.447926 cm, and lip-bottom RMS 0.123693 cm.
+- Visual snapshot `data/20-forward-face-3152k-a087.png` shows localized cheek/lip lift. It is visibly smaller than the full `Expression000` expression but no longer tiny, so selected this activation as the proper forward deformation.
+- Updated `src/20-forward-face.py` so the selected activation is the default for the canonical `20-forward-face-3152k.*` run.

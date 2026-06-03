@@ -11,3 +11,5 @@
 - Ran the prep through Cherries as `forward-face 3152k prep`. It produced `data/10-forward-face-3152k-input.vtu` and `data/10-forward-face-3152k-target.vtu`.
 - Prep metrics: 225052 points, 1127541 tetrahedra, 2522 Zygomaticus-major activation tetrahedra, 17582 face target points, 26189 fixed cranium/mandible points, and `Expression000` face target RMS 0.306575 cm.
 - Started the first forward solve with activation local delta `(-0.5, 0.2, 0.1, 0.0, 0.0, 0.0)`.
+- First forward solve completed physically, but Cherries marked it failed because the script sent the string metric `forward/result = primary_success` to `cherries.log_metrics()`. Patched the script to log only numeric/bool metrics while keeping strings in the JSON summary.
+- First solve metrics from `data/20-forward-face-3152k-summary.json`: PNCG `primary_success` in 210 steps, face RMS 0.005038 cm, lip-top RMS 0.003319 cm, and face RMS ratio to `Expression000` 0.0164. This is much too small.

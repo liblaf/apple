@@ -49,11 +49,11 @@ class Config(cherries.BaseConfig):
     forward_atol: float = 0.0
     forward_max_steps: int = 10000
 
-    inverse_lr: float = 0.05
+    inverse_lr: float = 0.08
     adam_beta1: float = 0.3
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
-    inverse_max_steps: int = 250
+    inverse_max_steps: int = 180
     inverse_min_steps: int = 20
     loss_tol: float = 1.0e-9
     max_point_error_cm: float = 5.0e-3
@@ -289,7 +289,17 @@ def pack_symmetric_np(matrices: np.ndarray) -> np.ndarray:
     return packed
 
 
-def activation_inv_from_local(
+def local_deltas_from_activation_inv(
+    local_activation_inv_delta: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    eye = np.eye(3, dtype=np.float64)
+    local_activation_inv = eye + matrix_from_symmetric(local_activation_inv_delta)
+    local_activation = np.linalg.inv(local_activation_inv)
+    local_activation_delta = pack_symmetric_np(local_activation[None, ...] - eye)[0]
+    return local_activation_delta, np.asarray(local_activation_inv_delta, dtype=np.float64)
+
+
+def activation_inv_from_local_delta(
     local_activation_inv_delta: torch.Tensor,
     active_orientation: torch.Tensor,
     active_ids_t: torch.Tensor,
@@ -708,7 +718,7 @@ def solve_inverse(  # noqa: C901, PLR0915
     for step in range(cfg.inverse_max_steps + 1):
         step_start = time.perf_counter()
         optimizer.zero_grad()
-        full_activation_inv = activation_inv_from_local(
+        full_activation_inv = activation_inv_from_local_delta(
             local_activation_inv_delta,
             active_orientation,
             active_ids_t,
@@ -752,7 +762,10 @@ def solve_inverse(  # noqa: C901, PLR0915
         max_error = float(error_stats["max"].detach().cpu())
         grad_norm = float(torch.linalg.vector_norm(grad).detach().cpu())
         grad_abs_max = float(grad.abs().max().detach().cpu())
-        current_local = to_numpy(local_activation_inv_delta)
+        current_local_activation_inv_delta = to_numpy(local_activation_inv_delta)
+        current_local_activation_delta, current_local_activation_inv_delta = (
+            local_deltas_from_activation_inv(current_local_activation_inv_delta)
+        )
         current_activation_inv = to_numpy(full_activation_inv)
         displacement = to_numpy(output)[output_ids]
         improved = max_error < best_max_error or (
@@ -764,10 +777,10 @@ def solve_inverse(  # noqa: C901, PLR0915
             best_max_error = max_error
             best_displacement = displacement
             best_activation_inv = current_activation_inv
-            best_local_activation_inv_delta = current_local
+            best_local_activation_inv_delta = current_local_activation_inv_delta
             save_checkpoint(
                 cfg.checkpoint,
-                local_activation_inv_delta=current_local,
+                local_activation_inv_delta=current_local_activation_inv_delta,
                 activation_inv=current_activation_inv,
                 displacement=displacement,
                 step=step,
@@ -798,13 +811,18 @@ def solve_inverse(  # noqa: C901, PLR0915
             "best/step": float(best_step),
             "best/loss": best_loss,
             "best/target_error_max": best_max_error,
-            "activation_inv/local_xx": float(current_local[0]),
-            "activation_inv/local_yy": float(current_local[1]),
-            "activation_inv/local_zz": float(current_local[2]),
-            "activation_inv/local_xy": float(current_local[3]),
-            "activation_inv/local_xz": float(current_local[4]),
-            "activation_inv/local_yz": float(current_local[5]),
-            "activation_inv/local_norm": float(np.linalg.norm(current_local)),
+            "activation/local_xx": float(current_local_activation_delta[0]),
+            "activation/local_yy": float(current_local_activation_delta[1]),
+            "activation/local_zz": float(current_local_activation_delta[2]),
+            "activation_inv/local_xx": float(current_local_activation_inv_delta[0]),
+            "activation_inv/local_yy": float(current_local_activation_inv_delta[1]),
+            "activation_inv/local_zz": float(current_local_activation_inv_delta[2]),
+            "activation_inv/local_xy": float(current_local_activation_inv_delta[3]),
+            "activation_inv/local_xz": float(current_local_activation_inv_delta[4]),
+            "activation_inv/local_yz": float(current_local_activation_inv_delta[5]),
+            "activation_inv/local_norm": float(
+                np.linalg.norm(current_local_activation_inv_delta)
+            ),
             "grad/norm": grad_norm,
             "grad/abs_max": grad_abs_max,
             "optimizer/steps": float(optimizer_steps),
@@ -826,10 +844,18 @@ def solve_inverse(  # noqa: C901, PLR0915
             f"rms={rms_error:.3e}cm",
             f"max={max_error:.3e}cm",
             f"best_max={best_max_error:.3e}cm",
-            f"act_inv=({current_local[0]:.3f},"
-            f"{current_local[1]:.3f},{current_local[2]:.3f},"
-            f"{current_local[3]:.3f},{current_local[4]:.3f},"
-            f"{current_local[5]:.3f})",
+            f"act=({current_local_activation_delta[0]:.3f},"
+            f"{current_local_activation_delta[1]:.3f},"
+            f"{current_local_activation_delta[2]:.3f},"
+            f"{current_local_activation_delta[3]:.3f},"
+            f"{current_local_activation_delta[4]:.3f},"
+            f"{current_local_activation_delta[5]:.3f})",
+            f"act_inv=({current_local_activation_inv_delta[0]:.3f},"
+            f"{current_local_activation_inv_delta[1]:.3f},"
+            f"{current_local_activation_inv_delta[2]:.3f},"
+            f"{current_local_activation_inv_delta[3]:.3f},"
+            f"{current_local_activation_inv_delta[4]:.3f},"
+            f"{current_local_activation_inv_delta[5]:.3f})",
             f"grad={grad_norm:.3e}",
             f"fwd={forward_metrics['forward/result']}/"
             f"{forward_metrics['forward/steps']}",
@@ -906,7 +932,7 @@ def summarize(
         "all/error_rms": float(np.linalg.norm(error) / math.sqrt(error.shape[0])),
         "all/error_max": float(np.linalg.norm(error, axis=1).max()),
         "tolerance/max_point_error_cm": float(cfg.max_point_error_cm),
-        "activation/parameterization": "single local ActivationInv delta, 6 DoF",
+        "activation/parameterization": "single full local ActivationInv delta, 6 DoF",
         "activation/n_active_tets": int(active_ids.size),
         "activation/n_params": 6,
         "active_activation_inv/rms": float(
@@ -968,11 +994,14 @@ def main(cfg: Config) -> None:
 
     (
         displacement,
-        activation_inv,
-        local_activation_inv_delta,
+        _activation_inv,
+        recovered_local_activation_inv_delta,
         trace,
         final,
     ) = solve_inverse(mesh.copy(deep=True), target, target_ids, active_ids, cfg)
+    _, local_activation_inv_delta = local_deltas_from_activation_inv(
+        recovered_local_activation_inv_delta
+    )
     activation, activation_inv, local_activation_delta = full_activation_fields_from_local(
         mesh,
         active_ids,

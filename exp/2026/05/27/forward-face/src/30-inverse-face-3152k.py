@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 INPUT_STEM = "10-forward-face-3152k-expr001-smas100"
 TARGET_STEM = "20-forward-face-3152k-expr001-smas100"
-OUTPUT_STEM = "30-inverse-face-3152k-expr001-smas100-diag-warm-state"
+OUTPUT_STEM = "30-inverse-face-3152k-expr001-smas100-activation-only"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
 SMAS_STIFFNESS_FRACTION = "SmasStiffnessFraction"
@@ -350,12 +350,9 @@ def full_activation_fields_from_local(
 
 
 def material_tree(
-    base_materials: dict[str, dict[str, torch.Tensor]],
     activation_inv: torch.Tensor,
 ) -> dict[str, dict[str, torch.Tensor]]:
-    materials = {name: dict(values) for name, values in base_materials.items()}
-    materials["muscle"]["activation_inv"] = activation_inv
-    return materials
+    return {"muscle": {"activation_inv": activation_inv}}
 
 
 def forward_solution_metrics(solution: Any) -> dict[str, Any]:
@@ -680,7 +677,6 @@ def solve_inverse(  # noqa: C901, PLR0915
             CupyMinRes(maxiter=cfg.adjoint_maxiter, tol=cfg.adjoint_rtol),
         ]
     )
-    base_materials = forward.model.get_materials()
     output_ids = output_point_ids(mesh)
     output_ids_t = torch.as_tensor(
         output_ids[target_ids],
@@ -744,7 +740,7 @@ def solve_inverse(  # noqa: C901, PLR0915
             active_ids_t,
             mesh.n_cells,
         )
-        materials = material_tree(base_materials, full_activation_inv)
+        materials = material_tree(full_activation_inv)
 
         forward_start = time.perf_counter()
         output = forward_quiet(differentiable_forward, materials)

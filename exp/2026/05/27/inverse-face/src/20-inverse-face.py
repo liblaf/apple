@@ -55,7 +55,7 @@ class Config(cherries.BaseConfig):
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
     inverse_max_steps: int = 1000
-    inverse_min_steps: int = 80
+    inverse_min_steps: int = 0
     stagnation_patience: int = 250
     stagnation_metric: Literal["max_error", "loss"] = "max_error"
     stagnation_rel_tol: float = 1.0e-5
@@ -69,6 +69,8 @@ class Config(cherries.BaseConfig):
     adjoint_atol: float = 0.0
     activation_smooth_weight: float = 1e-3
     activation_l2_weight: float = 1e-5
+    top_error_weight: float = 0.0
+    top_error_fraction: float = 0.01
 
 
 def configure_runtime() -> None:
@@ -740,7 +742,20 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         backward_start = time.perf_counter()
         residual = output[point_global_ids_t] - target[point_ids_t]
         mse_loss = residual.square().mean()
-        data_loss = mse_loss
+        point_error_sq = residual.square().sum(dim=1)
+        top_error_count = max(
+            1,
+            min(
+                residual.shape[0],
+                math.ceil(residual.shape[0] * cfg.top_error_fraction),
+            ),
+        )
+        top_error_loss = (
+            torch.topk(point_error_sq, top_error_count).values.mean()
+            / residual.shape[1]
+        )
+        top_error_penalty = cfg.top_error_weight * top_error_loss
+        data_loss = mse_loss + top_error_penalty
         smooth_loss = activation_smoothness_loss(active_activation_inv, smooth_pairs_t)
         activation_l2_loss = active_activation_inv.square().mean()
         activation_l2_penalty = cfg.activation_l2_weight * activation_l2_loss
@@ -772,6 +787,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         loss_value = float(loss.detach().cpu())
         data_loss_value = float(data_loss.detach().cpu())
         mse_loss_value = float(mse_loss.detach().cpu())
+        top_error_loss_value = float(top_error_loss.detach().cpu())
+        top_error_penalty_value = float(top_error_penalty.detach().cpu())
         smooth_loss_value = float(smooth_loss.detach().cpu())
         activation_l2_loss_value = float(activation_l2_loss.detach().cpu())
         activation_l2_penalty_value = float(activation_l2_penalty.detach().cpu())
@@ -855,6 +872,11 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             "loss/total": loss_value,
             "loss/data": data_loss_value,
             "loss/mse": mse_loss_value,
+            "loss/top_error": top_error_loss_value,
+            "loss/top_error_penalty": top_error_penalty_value,
+            "loss/top_error_weight": cfg.top_error_weight,
+            "loss/top_error_fraction": cfg.top_error_fraction,
+            "loss/top_error_count": float(top_error_count),
             "loss/smooth": smooth_loss_value,
             "loss/activation_l2": activation_l2_loss_value,
             "loss/activation_l2_penalty": activation_l2_penalty_value,
@@ -923,6 +945,7 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
             f"loss={loss_value:.3e}",
             f"data={data_loss_value:.3e}",
             f"mse={mse_loss_value:.3e}",
+            f"top={top_error_penalty_value:.3e}",
             f"l2={activation_l2_penalty_value:.3e}",
             f"smooth={smooth_loss_value:.3e}",
             f"mean={mean_error:.3e}cm",
@@ -1044,6 +1067,13 @@ def summarize(
         "loss/final": float(best_record["loss/total"]),
         "loss/data": final_loss,
         "loss/data_objective": float(best_record.get("loss/data", final_loss)),
+        "loss/top_error": float(best_record.get("loss/top_error", 0.0)),
+        "loss/top_error_penalty": float(
+            best_record.get("loss/top_error_penalty", 0.0)
+        ),
+        "loss/top_error_weight": cfg.top_error_weight,
+        "loss/top_error_fraction": cfg.top_error_fraction,
+        "loss/top_error_count": int(best_record.get("loss/top_error_count", 0)),
         "loss/smooth": float(best_record.get("loss/smooth", 0.0)),
         "loss/activation_l2": float(best_record.get("loss/activation_l2", 0.0)),
         "loss/activation_l2_penalty": float(

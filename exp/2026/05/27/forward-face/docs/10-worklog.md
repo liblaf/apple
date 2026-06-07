@@ -21,6 +21,17 @@
 - Ran a diagonal-only inverse tuning pass with `--inverse-lr 0.16`. It wrote frames through step 28 under `data/30-inverse-face-3152k-expr001-smas100-diag.vtu.d/`, but the best max error only reached about 0.900139 cm.
 - Tried a warm start from the algebraic inverse of the selected local activation. It still missed the target branch at step 0, with max error 1.244191 cm.
 - Directly reran the selected forward activation outside Cherries and found the same activation from a fresh zero displacement does not reproduce the canonical forward output: face RMS difference 0.181373 cm and face max difference 1.024803 cm. This means the forward solve is branch/path dependent enough that inverse verification must also seed the forward state from the target displacement.
+- Tested the target-state seed hypothesis with `forward-face 3152k expr001 smas100 inverse diag warm state selected activation`. It failed: best step 5, face max error 1.256136 cm, face RMS error 0.223782 cm. Seeding the displacement was not the missing piece.
+- Measured the exact target activation field and found it matches the selected forward `ActivationInv` to about 1e-7, so the activation rotation convention was not the issue.
+- Probed the forward path and found the mismatch came from the differentiable inverse resetting the whole material tree each step. Preloading activation in the mesh reproduced the fresh forward rerun within 0.007670 cm face RMS, while resetting all materials shifted the face by 0.127929 cm RMS. Resetting only `muscle.activation_inv` reduced the branch shift to 0.051660 cm RMS.
+- Patched `src/liblaf/apple/inverse/_diff_forward.py` so `DifferentiableForward` returns gradients for the material leaves supplied by the caller, which allows partial material trees.
+- Patched `src/30-inverse-face-3152k.py` to update only `muscle.activation_inv` during inverse optimization instead of re-wrapping baseline material arrays.
+- Reran the selected forward with output stem `20-forward-face-3152k-expr001-smas100-rerun` to confirm the current forward script is reproducible. It converged with PNCG `primary_success` in 1237 steps, face RMS 0.200267 cm, and face max 1.613884 cm. Comet URL: `https://www.comet.com/liblaf/apple/dd2ad712f8d44ec78e34e85233f66fde`; Cherries Git SHA `ea293626752e861c1524a679397b39f268cc1c86`.
+- Ran the final activation-only inverse as `forward-face 3152k expr001 smas100 inverse activation-only warm full`. It passed at step 0 with face RMS error 0.002361 cm, face max error 0.011194 cm, `ActivationInv` RMS error 2.34e-7, and recovered local activation `(-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)`.
+- Successful inverse outputs: `data/30-inverse-face-3152k-expr001-smas100-activation-only.vtu`, `.png`, `-summary.json`, and `.vtu.series`. The series has one frame at time 0 backed by one VTU file.
+- Successful inverse Comet URL: `https://www.comet.com/liblaf/apple/5e82908298164f4b8bd878ea39b12d52`; Cherries Git SHA `6514a11e58de31d1b0e068ec52a2a22e5f33746f`.
+- Verified the successful inverse summary, series manifest, and snapshot. Static checks passed for `src/liblaf/apple/inverse/_diff_forward.py` and `src/30-inverse-face-3152k.py` with `uv run ruff check` and `uv run python -m py_compile`.
+- Rewrote `docs/10-forward-face-3152k.md` to report the current `Expression001`, `-3152k`, SMAS100 forward and inverse results.
 
 ## 2026-06-03
 

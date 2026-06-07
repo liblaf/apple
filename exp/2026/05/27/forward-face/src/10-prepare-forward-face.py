@@ -11,7 +11,7 @@ SOURCE = Path(
     "/home/liblaf/github/liblaf/melon/exp/2025/04/30/"
     "human-head-anatomy/data/42-expression-muscle-orientation-3152k.vtu"
 )
-OUTPUT_STEM = "10-forward-face-3152k"
+OUTPUT_STEM = "10-forward-face-3152k-expr001-smas100"
 IN_FACE_CONVEX = "InFaceConvex"
 IN_FACE_CONTEXT_TYPO = "InFaceContex"
 TARGET_SURFACE_MASK = "TargetSurfaceMask"
@@ -28,7 +28,7 @@ class Config(cherries.BaseConfig):
     output_target: Path = cherries.output(f"{OUTPUT_STEM}-target.vtu")
     output_stem: str = OUTPUT_STEM
 
-    expression: str = "Expression000"
+    expression: str = "Expression001"
     target_scale: float = 1.0
     target_point_mask: str = "IsFace"
     fixed_point_masks: tuple[str, ...] = ("IsCranium", "IsMandible")
@@ -37,7 +37,7 @@ class Config(cherries.BaseConfig):
 
     E: float = 1.0
     nu: float = 0.49
-    smas_stiffness_ratio: float = 1.0
+    smas_stiffness_ratio: float = 1.0e2
     use_smas: bool = True
 
 

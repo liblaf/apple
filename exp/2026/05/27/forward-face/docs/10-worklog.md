@@ -1,5 +1,13 @@
 # Forward Face Worklog
 
+## 2026-06-08
+
+- Resumed the `forward-face` experiment against the current request rather than trusting the older June 3 outputs.
+- Found that the existing scripts and reports used `Expression000` and `smas_stiffness_ratio = 1.0`; the current target contract is `Expression001` with SMAS and muscle stiffness ratio `1e2`.
+- Verified that `/home/liblaf/github/liblaf/melon/exp/2025/04/30/human-head-anatomy/data/42-expression-muscle-orientation-3152k.vtu` contains `Expression001`, `MuscleOrientation`, and `InFaceConvex`.
+- Updated `src/10-prepare-forward-face.py` defaults to write `10-forward-face-3152k-expr001-smas100-*` artifacts from `Expression001` and `smas_stiffness_ratio = 1e2`.
+- Updated `src/20-forward-face.py` defaults to read the new prep artifacts, keep the selected Zygomaticus-major activation family, and solve with muscle plus SMAS stiffness ratio `1e2`.
+
 ## 2026-06-03
 
 - Started a new Cherries experiment group at `exp/2026/05/27/forward-face/`.
@@ -31,3 +39,7 @@
 - Follow-up request: use the 515k mesh and the previous forward solution as the target deformation, then run inverse physics to recover the muscle activation.
 - Added `src/30-inverse-face-515k.py`. This recovery script reads `data/10-forward-face-515k-nosmas-input.vtu`, uses `data/20-forward-face-515k-nosmas.vtu` as the target, disables SMAS, and optimizes one six-component local `ActivationInv` delta for the active Zygomaticus-major tetrahedra.
 - The first inverse attempt wrote the input/target meshes and a best checkpoint but did not yet write a `.vtu.series`; stopped that attempt and patched `src/30-inverse-face-515k.py` so every evaluated inverse step is appended to `data/30-inverse-face-515k-nosmas.vtu.series` for ParaView timeline inspection.
+- Ran the patched inverse command as `forward-face 515k inverse nosmas activation-inv full6 series` with `--max-point-error-cm 0.08`. Comet URL: `https://www.comet.com/liblaf/apple/2a616c45e54b4557ac0f7a2c21f959da`.
+- The inverse solve stopped at step 93 with `max_point_error_tol`, `passed = true`, face RMS error 0.016721 cm, face max error 0.076498 cm, all-point max error 0.085630 cm, and recovered local `ActivationInv` delta `(5.966956, -0.149711, -0.488843, -0.060450, 0.097881, 0.028487)`.
+- Verified `data/30-inverse-face-515k-nosmas.vtu.series` contains 94 frames for times 0 through 93, backed by 94 VTU files under `data/30-inverse-face-515k-nosmas.vtu.d/` totaling about 1.9G.
+- Wrote inverse report `docs/30-inverse-face-515k-nosmas.md`.

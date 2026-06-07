@@ -16,8 +16,8 @@ from liblaf import cherries, melon
 
 logger = logging.getLogger(__name__)
 
-PREP_STEM = "10-forward-face-3152k"
-OUTPUT_STEM = "20-forward-face-3152k"
+PREP_STEM = "10-forward-face-3152k-expr001-smas100"
+OUTPUT_STEM = "20-forward-face-3152k-expr001-smas100"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
 SMAS_STIFFNESS_FRACTION = "SmasStiffnessFraction"
@@ -37,7 +37,7 @@ class Config(cherries.BaseConfig):
 
     E: float = 1.0
     nu: float = 0.49
-    smas_stiffness_ratio: float = 1.0
+    smas_stiffness_ratio: float = 1.0e2
     use_smas: bool = True
 
     activation_local: tuple[float, float, float, float, float, float] = (
@@ -398,7 +398,7 @@ def save_snapshot(path: Path, result: pv.UnstructuredGrid) -> None:
         cmap="viridis",
         show_edges=False,
     )
-    plotter.add_text("Expression000", font_size=12)
+    plotter.add_text("target", font_size=12)
     plotter.view_xy()
     plotter.camera.zoom(1.25)
 

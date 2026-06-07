@@ -10,3 +10,40 @@
   - muscle: `MuscleFraction`, active, `E = 100.0`, `nu = 0.49`
   - SMAS-only: `max(SmasFraction - MuscleFraction, 0)`, passive, `E = 100.0`, `nu = 0.49`
 - The existing `src/20-inverse-face.py` already uses the new `Forward` and `DifferentiableForward` library path, stable neo-Hookean materials, no collision potentials, PNCG for each forward solve with `rtol = 5e-4`, `atol = 0`, and `max_steps = 10000`, and a report-worthy `cherries.main(main)` entrypoint.
+- Ran prep from `exp/2026/05/27/inverse-face`:
+  `CHERRIES_NAME="inverse-face 3152k expression001 prep" CHERRIES_TAGS="inverse-face,3152k,expression001,prep,in-face-convex,smas100" uv run python src/10-prepare-inverse-face.py`.
+- Prep Comet URL: `https://www.comet.com/liblaf/apple/ac93c3f9e1e5418696fe6b609f3e6335`. Cherries created commit `a96ad8a6`.
+- Prep outputs:
+  - `data/10-inverse-face-3152k-input.vtu`, 225,052 points and 1,127,541 tetrahedra
+  - `data/10-inverse-face-3152k-target.vtu`, same topology with `Expression001` stored as `Displacement`
+- Prep validation:
+  - active muscle tets: 283,391
+  - target `IsFace` points: 17,582
+  - fixed cranium points: 18,902
+  - fixed mandible points: 7,287
+  - fixed union points: 26,189
+  - `InFaceConvex` is true for all extracted cells
+  - fraction rule max absolute errors are all 0.0 for background, active muscle, and SMAS-only fields
+  - target face displacement RMS is 0.297261 cm and max is 1.251746 cm
+- The prep computation and Cherries commit completed, but Comet's automatic git patch collection stayed in `git-lfs filter-process`. For the inverse run, disable only Comet git patch and git metadata autologging with `COMET_AUTO_LOG_GIT_PATCH=false` and `COMET_AUTO_LOG_GIT_METADATA=false`; keep Cherries/Comet online and do not use `DEBUG=1`.
+- Started the first inverse probe with `COMET_AUTO_LOG_GIT_PATCH=false COMET_AUTO_LOG_GIT_METADATA=false CHERRIES_NAME="inverse-face 3152k expression001 smas100" CHERRIES_TAGS="inverse-face,3152k,expression001,smas100,in-face-convex,per-tet-activation-inv" uv run python src/20-inverse-face.py`.
+- Probe Comet URL: `https://www.comet.com/liblaf/apple/a8698ff2105944f9a10a5375b9e416a2`.
+- Probe step 0 matched the zero-activation target displacement baseline: target RMS error 0.297261 cm, max error 1.251746 cm, adjoint relative residual 4.9e-4.
+- Probe step 1 improved max error to 0.975705 cm and RMS error to 0.238198 cm. PNCG used 988 steps and reached relative gradient 4.97e-4.
+- Probe step 2 improved max error to 0.794622 cm and RMS error to 0.195529 cm. PNCG used 2,266 steps and reached relative gradient 4.74e-4.
+- Stopped this probe manually because the inherited script had `inverse_min_steps = 80`, which would force many extra steps even after meeting `max_point_error_cm`. Changed the default to `inverse_min_steps = 0` so the run stops as soon as the requested success tolerance is reached.
+- Restarted the inverse run with the simpler stop condition as `inverse-face 3152k expression001 smas100 stop-on-pass`, Comet URL `https://www.comet.com/liblaf/apple/2934e888e39247849996c649ecfa17b4`.
+- The run improved monotonically through step 8:
+  - step 4: max error 0.600282 cm, RMS 0.139303 cm
+  - step 6: max error 0.532705 cm, RMS 0.108130 cm
+  - step 7: max error 0.422717 cm, RMS 0.099172 cm
+  - step 8: best max error 0.422694 cm, RMS 0.092433 cm
+- Steps 9 and 10 bounced above the step-8 max error, ending at max error 0.431137 cm on step 10. The checkpoint preserved the step-8 best state.
+- Stopped the bouncing run manually and copied the best checkpoint to `data/20-inverse-face-3152k-lr003-step8-checkpoint.npz`. Next pass will resume from that checkpoint with a smaller inverse learning rate.
+- Resumed from `data/20-inverse-face-3152k-lr003-step8-checkpoint.npz` with `--inverse-lr 0.01`, Comet URL `https://www.comet.com/liblaf/apple/52af2c0987934d56943e5a62ae98dc7c`.
+- The lower-learning-rate pass improved max error to 0.342422 cm on step 2, with RMS error 0.080495 cm and clean forward/adjoint convergence. Steps 3 and 4 continued reducing RMS but worsened max error to 0.346880 cm and 0.356480 cm.
+- Stopped the lower-learning-rate pass and copied the best checkpoint to `data/20-inverse-face-3152k-lr001-step2-checkpoint.npz`.
+- Patched `src/20-inverse-face.py` to support a configurable top-error loss term over the largest target point errors. This leaves the forward physics unchanged and gives the inverse objective a direct handle on the max-error success criterion.
+- Resumed from `data/20-inverse-face-3152k-lr001-step2-checkpoint.npz` with `--inverse-lr 0.005 --top-error-weight 0.1 --top-error-fraction 0.01`, Comet URL `https://www.comet.com/liblaf/apple/85943cf11fe44aff9c4b1faa16f9b1a5`.
+- The top-1% pass improved max error from 0.357803 cm at resumed step 0 to 0.253235 cm at step 10. Step 11 bounced to 0.304937 cm, so the best checkpoint was copied to `data/20-inverse-face-3152k-top001-step10-checkpoint.npz`.
+- Next pass will focus the top 0.1% target points with a smaller learning rate to push the remaining worst-point error below 0.2 cm.

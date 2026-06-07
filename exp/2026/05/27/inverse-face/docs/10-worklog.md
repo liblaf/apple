@@ -52,3 +52,7 @@
 - Tried a continuation from the step-5 checkpoint with `--inverse-lr 0.0015 --top-error-weight 0.2 --top-error-fraction 0.001`, Comet URL `https://www.comet.com/liblaf/apple/3d8863f3057143f589fb5f7a48778495`.
 - Interrupted that continuation after about 10 minutes without a new inverse metric. The stack was inside the forward PNCG line search with nearly flat slope and no new checkpoint, so the step-5 checkpoint remains the latest verified best state.
 - The `data/20-inverse-face-3152k-top0001-step4-checkpoint.npz` copy was checked and also contains the step-5 state, not an earlier step-4 branch.
+- Returned to the more robust `data/20-inverse-face-3152k-top001-step10-checkpoint.npz` state and resumed with `--inverse-lr 0.0015 --top-error-weight 0.4 --top-error-fraction 0.001`, Comet URL `https://www.comet.com/liblaf/apple/9a27edf2a0844f05adf4142fd2c92cb0`.
+- This stronger top-0.1% pass remained responsive and improved the verified best max error to 0.208305 cm at step 20. Later steps through 25 did not beat that value.
+- Copied the step-20 checkpoint to `data/20-inverse-face-3152k-top0001strong-step20-checkpoint.npz`. It stores step 20, loss 0.006204249, and max error 0.208305 cm.
+- Next pass will resume from the step-20 checkpoint with a narrower top-error fraction to target the last few worst points below the 0.2 cm success threshold.

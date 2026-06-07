@@ -56,3 +56,6 @@
 - This stronger top-0.1% pass remained responsive and improved the verified best max error to 0.208305 cm at step 20. Later steps through 25 did not beat that value.
 - Copied the step-20 checkpoint to `data/20-inverse-face-3152k-top0001strong-step20-checkpoint.npz`. It stores step 20, loss 0.006204249, and max error 0.208305 cm.
 - Next pass will resume from the step-20 checkpoint with a narrower top-error fraction to target the last few worst points below the 0.2 cm success threshold.
+- Tried `--inverse-lr 0.00075 --top-error-weight 1.0 --top-error-fraction 0.00025` from the step-20 checkpoint, Comet URL `https://www.comet.com/liblaf/apple/169beea2f2c948978a09e215d866fb7c`. It did not produce an inverse metric after about 12 minutes.
+- The interrupted stack was again inside a near-flat forward PNCG line search. Since the checkpoint displacement is already near equilibrium and `forward_atol = 0`, the first relative-gradient baseline can become too small for a clean warm-start resume.
+- Wrote `data/20-inverse-face-3152k-top0001strong-step20-activation-only.npz` with the same active activation parameters, step, loss, and max error, but without the displacement field. Next resume will keep the activation state while letting PNCG start from the default displacement state.

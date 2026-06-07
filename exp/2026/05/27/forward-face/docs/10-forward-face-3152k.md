@@ -1,14 +1,14 @@
-# Forward Face 3152k Zygomaticus Major
+# Forward Face 3152k Expression001 SMAS100
 
 ## Purpose
 
-Create a slim forward-physics experiment for the 3152k human face mesh, activate only Zygomaticus major, and manually choose a local activation that gives a visible but not exaggerated deformation.
+Create a slim forward-physics experiment for the 3152k human face mesh, use `Expression001` as the target displacement reference, activate Zygomaticus major, and recover the selected activation with inverse physics.
 
-The selected source mesh is:
+The source mesh is:
 
 `/home/liblaf/github/liblaf/melon/exp/2025/04/30/human-head-anatomy/data/42-expression-muscle-orientation-3152k.vtu`
 
-This mesh was used instead of `41-expression-3152k.vtu` because it contains both `Expression000` and `MuscleOrientation`.
+This source was used because it contains `Expression001`, `MuscleOrientation`, and the `InFaceConvex` tetra mask.
 
 ## Commands
 
@@ -22,50 +22,39 @@ Prep:
 
 ```bash
 env -u DEBUG \
-  CHERRIES_NAME="forward-face 3152k prep" \
-  CHERRIES_TAGS="forward-face,3152k,prep,zygomaticus-major" \
+  CHERRIES_NAME="forward-face 3152k expr001 smas100 prep" \
+  CHERRIES_TAGS="forward-face,3152k,expr001,smas100,prep,zygomaticus-major" \
   uv run python src/10-prepare-forward-face.py
 ```
 
-Selected activation probe:
+Selected forward run:
 
 ```bash
 env -u DEBUG \
-  CHERRIES_NAME="forward-face 3152k zygomaticus a087" \
-  CHERRIES_TAGS="forward-face,3152k,zygomaticus-major,activation-search" \
-  uv run python src/20-forward-face.py \
-    --activation-local '[-0.87,0.65,0.65,0,0,0]' \
-    --output-stem 20-forward-face-3152k-a087
-```
-
-Final canonical run:
-
-```bash
-env -u DEBUG \
-  CHERRIES_NAME="forward-face 3152k zygomaticus final" \
-  CHERRIES_TAGS="forward-face,3152k,zygomaticus-major,final" \
+  CHERRIES_NAME="forward-face 3152k expr001 smas100 zygomaticus a087" \
+  CHERRIES_TAGS="forward-face,3152k,expr001,smas100,zygomaticus-major,activation-search" \
   uv run python src/20-forward-face.py
 ```
 
-## Cherries And Comet
+Successful inverse recovery:
 
-Prep Comet URL:
+```bash
+env -u DEBUG \
+  CHERRIES_NAME="forward-face 3152k expr001 smas100 inverse activation-only warm full" \
+  CHERRIES_TAGS="forward-face,3152k,expr001,smas100,inverse,zygomaticus-major,activation-inv,activation-only,warm-start,full,series" \
+  uv run python src/30-inverse-face-3152k.py \
+    --diagonal-only false \
+    --inverse-lr 0.04 \
+    --inverse-min-steps 0 \
+    --inverse-max-steps 30 \
+    --initial-local-activation-inv-delta '[6.692307692307692,-0.393939393939394,-0.393939393939394,0,0,0]'
+```
 
-`https://www.comet.com/liblaf/apple/7e59a3006fb340fcaeaebf398c13e5cc`
-
-Selected probe Comet URL:
-
-`https://www.comet.com/liblaf/apple/ca28940801904f2f8fe388117596a9f1`
-
-Final Comet URL:
-
-`https://www.comet.com/liblaf/apple/9e4c4457d5004d40b4b497940bd9496e`
-
-The final Cherries run exited with code 0 and printed a full local Comet summary. Comet also warned during shutdown that online logging failed, so the local files in `data/` and `logs/` are the authoritative evidence for this report.
+All report runs used `cherries.main(main)` without `profile="debug"`.
 
 ## Setup
 
-The prep script extracts only tetrahedra where `InFaceConvex` is true. The resulting face-convex mesh has:
+The prep script extracts only tetrahedra with `InFaceConvex = true`. The extracted mesh has:
 
 | Quantity | Value |
 | --- | ---: |
@@ -76,95 +65,121 @@ The prep script extracts only tetrahedra where `InFaceConvex` is true. The resul
 | Fixed cranium points | 18902 |
 | Fixed mandible points | 7287 |
 | Fixed points total | 26189 |
-
-Zygomaticus major is represented by `MuscleId` 46 and 47, corresponding to `Zygomaticus_major001_00` and `Zygomaticus_major001_01`.
+| `Expression001` face RMS | 0.297261 cm |
+| `Expression001` face max | 1.251746 cm |
 
 Each tet uses three material fractions:
 
 | Component | Fraction | Activation | E | nu |
 | --- | --- | --- | ---: | ---: |
 | Fat/background | `1 - max(SmasFraction, MuscleFraction)` | none | 1.0 | 0.49 |
-| Muscle | `MuscleFraction` | active model | 1.0 | 0.49 |
-| SMAS-only | `max(SmasFraction - MuscleFraction, 0)` | none | 1.0 | 0.49 |
+| Muscle | `MuscleFraction` | active | 100.0 | 0.49 |
+| SMAS-only | `max(SmasFraction - MuscleFraction, 0)` | none | 100.0 | 0.49 |
 
-The forward solve uses the new `liblaf.apple.forward` `ModelBuilder`/`Forward` path with stable neo-Hookean potentials, no collisions, and PNCG defaults: `rtol = 5e-4`, `atol = 0`, `max_steps = 10000`.
+Both cranium and mandible are fixed. The forward solve uses stable neo-Hookean potentials, no collisions, and PNCG defaults: `rtol = 5e-4`, `atol = 0`, `max_steps = 10000`.
 
-## Activation Search
+## Forward Result
 
-The initial suggested activation `(-0.5, 0.2, 0.1, 0, 0, 0)` was too small:
-
-| Run | Face RMS | Face Max | Lip Top RMS | Lip Top Max | Result |
-| --- | ---: | ---: | ---: | ---: | --- |
-| start | 0.005038 cm | 0.053917 cm | 0.003319 cm | 0.014037 cm | too small |
-| selected `a087` | 0.125168 cm | 0.818799 cm | 0.226329 cm | 0.447926 cm | reasonable |
-| final canonical | 0.126191 cm | 0.826099 cm | 0.229352 cm | 0.456870 cm | selected |
-
-The selected activation local delta is:
+The selected local activation delta is:
 
 ```text
 (-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)
 ```
 
-The script treats this as an additive local delta, forms `I + delta_local`, rotates it by each tet's muscle orientation, and stores both `Activation` and `ActivationInv` in cell data.
+The script forms `I + delta_local`, rotates it by each active tet's muscle orientation, and stores both `Activation` and `ActivationInv`.
 
-## Final Results
-
-Final forward summary:
+Final forward metrics:
 
 | Metric | Value |
 | --- | ---: |
 | Forward result | `primary_success` |
-| PNCG steps | 619 |
-| Relative gradient norm | 0.000497563 |
-| Face RMS displacement | 0.126191 cm |
-| Face max displacement | 0.826099 cm |
-| Face RMS ratio to `Expression000` | 0.411616 |
-| Lip top RMS displacement | 0.229352 cm |
-| Lip top max displacement | 0.456870 cm |
-| Lip bottom RMS displacement | 0.123553 cm |
-| Lip bottom max displacement | 0.394535 cm |
+| PNCG steps | 1174 |
+| Relative gradient norm | 0.000377560 |
+| Face RMS displacement | 0.200450 cm |
+| Face max displacement | 1.614236 cm |
+| Face RMS ratio to `Expression001` | 0.674322 |
+| Lip top RMS displacement | 0.284019 cm |
+| Lip top max displacement | 1.007321 cm |
+| Lip bottom RMS displacement | 0.153947 cm |
+| Lip bottom max displacement | 0.660220 cm |
 
-The final snapshot shows localized cheek and mouth-corner deformation. It is clearly visible and roughly 40% of the full `Expression000` face RMS, which is appropriate for a single Zygomaticus-major activation rather than the complete expression.
+The snapshot `data/20-forward-face-3152k-expr001-smas100.png` shows localized cheek and mouth-corner lift. The motion is a reasonable single-muscle deformation relative to the full `Expression001` target.
+
+## Inverse Result
+
+Initial 3152k inverse attempts failed when the differentiable path reset the full material tree every step. Direct probes showed that resetting all materials shifted the forward branch even with the same activation. The inverse library was updated so `DifferentiableForward` can accept a partial material tree and return gradients for the supplied leaves. The final inverse script now updates only `muscle.activation_inv`.
+
+Successful inverse metrics:
+
+| Metric | Value |
+| --- | ---: |
+| Passed | true |
+| Stop reason | `max_point_error_tol` |
+| Best step | 0 |
+| Target face RMS error | 0.002361 cm |
+| Target face max error | 0.011194 cm |
+| Tolerance | 0.08 cm |
+| Activation parameters | 6 |
+| ActivationInv RMS error | 2.34e-7 |
+| Forward steps inside inverse | 1143 |
+| Forward relative gradient norm | 0.000321051 |
+
+Recovered local activation delta:
+
+```text
+(-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)
+```
+
+Recovered local `ActivationInv` delta:
+
+```text
+(6.692307692307692, -0.393939393939394, -0.393939393939394, 0.0, 0.0, 0.0)
+```
+
+The inverse target mask is the face point set. The summary also records an all-point max error of 0.971407 cm outside that target mask; the pass criterion is the requested target face max error.
+
+## Cherries And Comet
+
+| Run | Comet URL | Cherries Git SHA |
+| --- | --- | --- |
+| Prep | `https://www.comet.com/liblaf/apple/64226259a0c149b5aed22f1793fd9d5b` | `81401d11355df7466f001ea3bed580af7d9a07e8` |
+| Forward | `https://www.comet.com/liblaf/apple/b72184f6ad4c4368b500f7d9a662e83b` | `2771084af1d44219de2fa38c5dba1006d887fb7e` |
+| Forward rerun check | `https://www.comet.com/liblaf/apple/dd2ad712f8d44ec78e34e85233f66fde` | `ea293626752e861c1524a679397b39f268cc1c86` |
+| Successful inverse | `https://www.comet.com/liblaf/apple/5e82908298164f4b8bd878ea39b12d52` | `6514a11e58de31d1b0e068ec52a2a22e5f33746f` |
+
+Comet repeatedly warned during shutdown that some online logging failed. The local `data/` artifacts and JSON summaries are the authoritative evidence.
 
 ## Outputs
 
 Prep outputs:
 
-- `data/10-forward-face-3152k-input.vtu`
-- `data/10-forward-face-3152k-target.vtu`
+- `data/10-forward-face-3152k-expr001-smas100-input.vtu`
+- `data/10-forward-face-3152k-expr001-smas100-target.vtu`
 
-Selected probe outputs:
+Forward outputs:
 
-- `data/20-forward-face-3152k-a087-input.vtu`
-- `data/20-forward-face-3152k-a087.vtu`
-- `data/20-forward-face-3152k-a087.png`
-- `data/20-forward-face-3152k-a087-summary.json`
+- `data/20-forward-face-3152k-expr001-smas100-input.vtu`
+- `data/20-forward-face-3152k-expr001-smas100.vtu`
+- `data/20-forward-face-3152k-expr001-smas100.png`
+- `data/20-forward-face-3152k-expr001-smas100-summary.json`
 
-Final canonical outputs:
+Successful inverse outputs:
 
-- `data/20-forward-face-3152k-input.vtu`
-- `data/20-forward-face-3152k.vtu`
-- `data/20-forward-face-3152k.png`
-- `data/20-forward-face-3152k-summary.json`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only-input.vtu`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only-target.vtu`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only.vtu`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only.png`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only-summary.json`
+- `data/30-inverse-face-3152k-expr001-smas100-activation-only.vtu.series`
 
-The final VTU keeps the mesh in rest coordinates and stores the deformation in `point_data["Displacement"]`. It also includes `DeformedPoint`, `TargetDisplacement`, `TargetPoint`, and displacement norm/error arrays for inspection.
+The inverse series contains one frame at time 0, backed by `data/30-inverse-face-3152k-expr001-smas100-activation-only.vtu.d/30-inverse-face-3152k-expr001-smas100-activation-only_000000.vtu`.
 
 ## Verification
 
 Validation checks passed:
 
-- `uv run ruff check exp/2026/05/27/forward-face/src/10-prepare-forward-face.py exp/2026/05/27/forward-face/src/20-forward-face.py`
-- `uv run python -m py_compile exp/2026/05/27/forward-face/src/10-prepare-forward-face.py exp/2026/05/27/forward-face/src/20-forward-face.py`
-- PyVista sanity check confirmed the final result mesh has rest-shape points equal to the prep input, required point/cell arrays are present, 2522 activation tets are selected, and inactive tets have zero activation.
-
-## Reproducibility Notes
-
-Final Cherries Git SHA: `9f01c05f65ab4b8257cc873bfbf20d048f7d92ee`.
-
-At report time, `main` is ahead of `origin/main` by 7 commits from Cherries experiment commits. The final canonical run is commit `9f01c05f` with message `chore(exp): forward-face 3152k zygomaticus final`. This report and the final worklog notes are uncommitted on top of that Cherries commit.
-
-Limitations:
-
-- Comet printed a URL and local summary, but the final shutdown reported online logging failure. Use local `data/20-forward-face-3152k-summary.json`, `data/20-forward-face-3152k.vtu`, and `logs/20-forward-face.log` as authoritative.
-- No collision handling was enabled, by request.
-- The activation was manually bracketed for a reasonable single-muscle deformation, not optimized to match all of `Expression000`.
+- `uv run ruff check src/liblaf/apple/inverse/_diff_forward.py exp/2026/05/27/forward-face/src/30-inverse-face-3152k.py`
+- `uv run python -m py_compile src/liblaf/apple/inverse/_diff_forward.py exp/2026/05/27/forward-face/src/30-inverse-face-3152k.py`
+- JSON summary check confirmed `passed = true`, `target/error_max = 0.011193594470430808`, and `target/error_rms = 0.0023607901722359115`.
+- Series check confirmed one manifest entry and one existing VTU frame.
+- Visual inspection of `data/30-inverse-face-3152k-expr001-smas100-activation-only.png` showed low face-surface error and localized activation near Zygomaticus major.

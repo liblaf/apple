@@ -11,6 +11,16 @@
 - Ran prep as `forward-face 3152k expr001 smas100 prep`. It wrote `data/10-forward-face-3152k-expr001-smas100-input.vtu` and `data/10-forward-face-3152k-expr001-smas100-target.vtu`.
 - Prep metrics: 225052 points, 1127541 tetrahedra, 2522 Zygomaticus-major activation tetrahedra, 17582 face target points, 26189 fixed cranium/mandible points, `Expression001` face target RMS 0.297261 cm, and face target max 1.251746 cm.
 - Prep Comet URL: `https://www.comet.com/liblaf/apple/64226259a0c149b5aed22f1793fd9d5b`; Cherries Git SHA `81401d11355df7466f001ea3bed580af7d9a07e8`.
+- Ran the corrected 3152k forward solve as `forward-face 3152k expr001 smas100 zygomaticus a087` with activation local delta `(-0.87, 0.65, 0.65, 0.0, 0.0, 0.0)`.
+- Forward metrics: PNCG `primary_success` in 1174 steps, relative gradient norm 0.00037756, face RMS 0.200450 cm, face max 1.614236 cm, lip-top RMS 0.284019 cm, lip-top max 1.007321 cm, lip-bottom RMS 0.153947 cm, and lip-bottom max 0.660220 cm.
+- The forward snapshot `data/20-forward-face-3152k-expr001-smas100.png` shows localized cheek and mouth-corner lift. This is a reasonable single-muscle deformation against the larger `Expression001` target, so selected it for inverse recovery.
+- Forward Comet URL: `https://www.comet.com/liblaf/apple/b72184f6ad4c4368b500f7d9a662e83b`; Cherries Git SHA `2771084af1d44219de2fa38c5dba1006d887fb7e`.
+- Added `src/30-inverse-face-3152k.py` for 3152k inverse recovery against `data/20-forward-face-3152k-expr001-smas100.vtu`, with per-step `.vtu.series` output.
+- Started full 6-DoF local `ActivationInv` inverse as `forward-face 3152k expr001 smas100 inverse activation-inv series`. It wrote 51 frames through step 50 under `data/30-inverse-face-3152k-expr001-smas100.vtu.d/`.
+- Stopped the full 6-DoF run as a tuning run: best step was 48 with max face error 0.924377 cm and RMS error 0.121873 cm, far above the 0.08 cm success gate. The shears wandered while the selected forward activation is diagonal, so this parameterization was too loose for this target.
+- Ran a diagonal-only inverse tuning pass with `--inverse-lr 0.16`. It wrote frames through step 28 under `data/30-inverse-face-3152k-expr001-smas100-diag.vtu.d/`, but the best max error only reached about 0.900139 cm.
+- Tried a warm start from the algebraic inverse of the selected local activation. It still missed the target branch at step 0, with max error 1.244191 cm.
+- Directly reran the selected forward activation outside Cherries and found the same activation from a fresh zero displacement does not reproduce the canonical forward output: face RMS difference 0.181373 cm and face max difference 1.024803 cm. This means the forward solve is branch/path dependent enough that inverse verification must also seed the forward state from the target displacement.
 
 ## 2026-06-03
 

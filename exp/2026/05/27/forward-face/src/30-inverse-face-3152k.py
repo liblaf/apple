@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 INPUT_STEM = "10-forward-face-3152k-expr001-smas100"
 TARGET_STEM = "20-forward-face-3152k-expr001-smas100"
-OUTPUT_STEM = "30-inverse-face-3152k-expr001-smas100"
+OUTPUT_STEM = "30-inverse-face-3152k-expr001-smas100-diag-warm-state"
 BACKGROUND_FRACTION = "BackgroundFraction"
 ACTIVE_FRACTION = "ActiveFraction"
 SMAS_STIFFNESS_FRACTION = "SmasStiffnessFraction"
@@ -64,6 +64,11 @@ class Config(cherries.BaseConfig):
     adjoint_atol: float = 0.0
     activation_l2_weight: float = 0.0
     require_success: bool = True
+    diagonal_only: bool = True
+    initial_local_activation_inv_delta: (
+        tuple[float, float, float, float, float, float] | None
+    ) = None
+    initialize_state_from_target: bool = False
 
 
 def configure_runtime() -> None:
@@ -653,7 +658,17 @@ def solve_inverse(  # noqa: C901, PLR0915
             self.last_adjoint_solution = solution
             return solution
 
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     forward = build_forward(mesh, cfg)
+    target_t = torch.as_tensor(
+        target_displacement,
+        dtype=torch.get_default_dtype(),
+        device=torch.get_default_device(),
+    )
+    if cfg.initialize_state_from_target:
+        forward.model.update(forward.state, target_t)
     differentiable_forward = RecordingDifferentiableForward(forward)
     differentiable_forward.adjoint_solver = FallbackSolver(
         solvers=[
@@ -677,14 +692,6 @@ def solve_inverse(  # noqa: C901, PLR0915
         dtype=torch.long,
         device=torch.get_default_device(),
     )
-    target_displacement = np.asarray(
-        target.point_data["Displacement"], dtype=np.float64
-    )
-    target_t = torch.as_tensor(
-        target_displacement,
-        dtype=torch.get_default_dtype(),
-        device=torch.get_default_device(),
-    )
     active_ids_t = torch.as_tensor(
         active_ids,
         dtype=torch.long,
@@ -697,8 +704,19 @@ def solve_inverse(  # noqa: C901, PLR0915
         dtype=torch.get_default_dtype(),
         device=torch.get_default_device(),
     )
+    initial_local_activation_inv_delta = np.zeros(6, dtype=np.float64)
+    if cfg.initial_local_activation_inv_delta is not None:
+        initial_local_activation_inv_delta = np.asarray(
+            cfg.initial_local_activation_inv_delta, dtype=np.float64
+        )
+    if cfg.diagonal_only:
+        initial_local_activation_inv_delta[3:] = 0.0
     local_activation_inv_delta = torch.nn.Parameter(
-        torch.zeros(6, dtype=torch.get_default_dtype(), device=torch.get_default_device())
+        torch.as_tensor(
+            initial_local_activation_inv_delta,
+            dtype=torch.get_default_dtype(),
+            device=torch.get_default_device(),
+        ).clone()
     )
     optimizer = torch.optim.Adam(
         [local_activation_inv_delta],
@@ -754,6 +772,8 @@ def solve_inverse(  # noqa: C901, PLR0915
             nonfinite = int((~torch.isfinite(grad)).sum().detach().cpu())
             msg = f"non-finite inverse gradient at step {step}: {nonfinite} entries"
             raise FloatingPointError(msg)
+        if cfg.diagonal_only:
+            grad[3:] = 0.0
 
         error_stats = point_error_stats(residual.detach())
         loss_value = float(loss.detach().cpu())
@@ -960,9 +980,13 @@ def summarize(
         "all/error_rms": float(np.linalg.norm(error) / math.sqrt(error.shape[0])),
         "all/error_max": float(np.linalg.norm(error, axis=1).max()),
         "tolerance/max_point_error_cm": float(cfg.max_point_error_cm),
-        "activation/parameterization": "single full local ActivationInv delta, 6 DoF",
+        "activation/parameterization": (
+            "single diagonal local ActivationInv delta, 3 DoF"
+            if cfg.diagonal_only
+            else "single full local ActivationInv delta, 6 DoF"
+        ),
         "activation/n_active_tets": int(active_ids.size),
-        "activation/n_params": 6,
+        "activation/n_params": 3 if cfg.diagonal_only else 6,
         "active_activation_inv/rms": float(
             np.linalg.norm(active_activation_inv)
             / math.sqrt(active_activation_inv.size)
@@ -986,6 +1010,7 @@ def summarize(
         "local_activation_inv_delta/yz": float(local_activation_inv_delta[5]),
         "E": float(cfg.E),
         "nu": float(cfg.nu),
+        "smas_stiffness_ratio": float(cfg.smas_stiffness_ratio),
         "smas/enabled": bool(cfg.use_smas),
         "time/total_s": float(total_elapsed_s),
         "trace": trace,

@@ -7,6 +7,10 @@
 - Verified that `/home/liblaf/github/liblaf/melon/exp/2025/04/30/human-head-anatomy/data/42-expression-muscle-orientation-3152k.vtu` contains `Expression001`, `MuscleOrientation`, and `InFaceConvex`.
 - Updated `src/10-prepare-forward-face.py` defaults to write `10-forward-face-3152k-expr001-smas100-*` artifacts from `Expression001` and `smas_stiffness_ratio = 1e2`.
 - Updated `src/20-forward-face.py` defaults to read the new prep artifacts, keep the selected Zygomaticus-major activation family, and solve with muscle plus SMAS stiffness ratio `1e2`.
+- Static checks passed for `src/10-prepare-forward-face.py`, `src/20-forward-face.py`, and `src/30-inverse-face-3152k.py` with `uv run ruff check` and `uv run python -m py_compile`.
+- Ran prep as `forward-face 3152k expr001 smas100 prep`. It wrote `data/10-forward-face-3152k-expr001-smas100-input.vtu` and `data/10-forward-face-3152k-expr001-smas100-target.vtu`.
+- Prep metrics: 225052 points, 1127541 tetrahedra, 2522 Zygomaticus-major activation tetrahedra, 17582 face target points, 26189 fixed cranium/mandible points, `Expression001` face target RMS 0.297261 cm, and face target max 1.251746 cm.
+- Prep Comet URL: `https://www.comet.com/liblaf/apple/64226259a0c149b5aed22f1793fd9d5b`; Cherries Git SHA `81401d11355df7466f001ea3bed580af7d9a07e8`.
 
 ## 2026-06-03
 

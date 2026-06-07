@@ -150,11 +150,8 @@ class _DifferentiableForward(Function):
             solution: LinearSolver.Solution = ctx.forward.adjoint_solve(grad_output)
             p: Free = solution.params
             p: Full = ctx.forward.model.dof_map.to_full_grad(p)
-            result_materials: dict[str, dict[str, Tensor]] = (
-                ctx.forward.model.get_materials()
-            )
-            leaves: list[Tensor] = optree.tree_leaves(cast("Any", result_materials))
             ctx.forward.model.mixed_derivative_prod(ctx.forward.state, p)
+            leaves: list[Tensor] = optree.tree_leaves(cast("Any", tmp_materials))
             grads: list[Tensor | None] = [leaf.grad for leaf in leaves]
         finally:
             ctx.forward.model.set_materials(original_materials)

@@ -61,3 +61,11 @@
 - Wrote `data/20-inverse-face-3152k-top0001strong-step20-activation-only.npz` with the same active activation parameters, step, loss, and max error, but without the displacement field. Next resume will keep the activation state while letting PNCG start from the default displacement state.
 - The activation-only run, Comet URL `https://www.comet.com/liblaf/apple/ba2a79d301d148078bc71d23b92e9d89`, emitted a metric but converged to a different forward branch: step 0 max error was 0.874470 cm, so it was stopped.
 - Wrote `data/20-inverse-face-3152k-top0001strong-step20-warm099.npz`, keeping the step-20 activation and using a 0.99-scaled copy of the step-20 displacement. This should keep the solve near the good branch while avoiding an exactly flat relative-gradient warm start.
+- Ran the final warm-start continuation with `--initial-activation-inv data/20-inverse-face-3152k-top0001strong-step20-warm099.npz --inverse-lr 0.00075 --top-error-weight 1.0 --top-error-fraction 0.00025`, Comet URL `https://www.comet.com/liblaf/apple/c26fc5b892984304ae92bfa17cd15df4`.
+- Final run succeeded at step 9 with stop reason `max_point_error_tol`: target max error 0.197071 cm, RMS error 0.058432 cm, mean error 0.034545 cm, with 0 forward failures and 0 adjoint failures.
+- Final artifacts were written to `data/20-inverse-face-3152k.vtu`, `data/20-inverse-face-3152k-summary.json`, `data/20-inverse-face-3152k.png`, and `data/20-inverse-face-3152k.vtu.series` with 10 VTU frames.
+- Wrote the final report at `docs/10-inverse-face-3152k-expression001.md`.
+- Validation passed:
+  - `uv run ruff check exp/2026/05/27/inverse-face/src/10-prepare-inverse-face.py exp/2026/05/27/inverse-face/src/20-inverse-face.py`
+  - `uv run python -m py_compile exp/2026/05/27/inverse-face/src/10-prepare-inverse-face.py exp/2026/05/27/inverse-face/src/20-inverse-face.py`
+  - final `jq` summary check showed `passed: true`, `target/error_max = 0.19707103311134558`, `forward/failures = 0`, and `adjoint/failures = 0`

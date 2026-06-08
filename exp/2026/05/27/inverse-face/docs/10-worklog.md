@@ -69,3 +69,23 @@
   - `uv run ruff check exp/2026/05/27/inverse-face/src/10-prepare-inverse-face.py exp/2026/05/27/inverse-face/src/20-inverse-face.py`
   - `uv run python -m py_compile exp/2026/05/27/inverse-face/src/10-prepare-inverse-face.py exp/2026/05/27/inverse-face/src/20-inverse-face.py`
   - final `jq` summary check showed `passed: true`, `target/error_max = 0.19707103311134558`, `forward/failures = 0`, and `adjoint/failures = 0`
+- User feedback: the optimization stopped too early because the first `max_point_error_cm = 0.2` crossing still had room to improve.
+- Patched `src/20-inverse-face.py` to add `post_success_patience = 20`. The max-error threshold is still the pass condition, but the run now waits for post-success stagnation before using the threshold as a stop reason.
+- The stop logic now records `stagnation/success_reached` and `stagnation/post_success_patience` in the trace. A threshold stop after patience is reported as `max_point_error_tol_stagnation`; setting patience to 0 preserves immediate `max_point_error_tol` behavior.
+- Wrote `data/20-inverse-face-3152k-step9-warm099.npz` from the previous successful checkpoint. It keeps the step-9 activation inverse state and uses a 0.99-scaled displacement warm start to avoid exact flat PNCG resume behavior.
+- Tried to launch the continuation inside the managed sandbox. It failed immediately with the expected CUDA availability guard, so the GPU run was relaunched outside the sandbox.
+- Ran the continuation with `COMET_AUTO_LOG_GIT_PATCH=false COMET_AUTO_LOG_GIT_METADATA=false CHERRIES_NAME="inverse-face 3152k expression001 continue past threshold" CHERRIES_TAGS="inverse-face,3152k,expression001,smas100,in-face-convex,per-tet-activation-inv,resume,post-success-patience" uv run python src/20-inverse-face.py --initial-activation-inv data/20-inverse-face-3152k-step9-warm099.npz --inverse-lr 0.0005 --top-error-weight 1.0 --top-error-fraction 0.00025 --inverse-max-steps 120`.
+- Continuation Comet URL: `https://www.comet.com/liblaf/apple/7c9901d8a3724fa7a57d3a6658d96a65`.
+- The new stop behavior was necessary: after the previous step-9 threshold crossing at 0.197071 cm, the continuation kept finding later improvements at steps 44, 56, 62, 74, 86, 90, 97, 102, 106, 108, and 116.
+- Final continuation reached the step cap with stop reason `step_safety_limit`. The saved best state is step 116 with target max error 0.168029 cm, RMS error 0.055065 cm, mean error 0.032697 cm, 0 forward failures, and 0 adjoint failures.
+- The previous acceptable result had max error 0.197071 cm. The final saved best reduces max face error by 14.74% relative to that early stop.
+- Final continuation artifacts were written to `data/20-inverse-face-3152k.vtu`, `data/20-inverse-face-3152k-summary.json`, `data/20-inverse-face-3152k.png`, `data/20-inverse-face-3152k.vtu.series`, and `data/20-inverse-face-3152k-checkpoint.npz`.
+- The time series now has 121 VTU frames in `data/20-inverse-face-3152k.vtu.d/`.
+- Cherries created commit `eecbfc73` for the continued run and artifacts.
+- Updated the final report at `docs/10-inverse-face-3152k-expression001.md` to make the step-116 result the reported success.
+- Follow-up validation passed:
+  - `jq` summary check showed `passed: true`, `stop_reason = step_safety_limit`, `best/step = 116`, `target/error_max = 0.16802884701296472`, `target/error_rms = 0.05506470541986396`, `forward/failures = 0`, and `adjoint/failures = 0`
+  - `find exp/2026/05/27/inverse-face/data/20-inverse-face-3152k.vtu.d -maxdepth 1 -type f -name '*.vtu' | wc -l` returned 121
+  - `jq` trace check showed final `stagnation/post_success_patience = 20`, final `stagnation/no_improve_steps = 4`, and max no-improve streak 11 before later improvement
+  - `uv run ruff check exp/2026/05/27/inverse-face/src/20-inverse-face.py`
+  - `uv run python -m py_compile exp/2026/05/27/inverse-face/src/20-inverse-face.py`

@@ -63,6 +63,7 @@ class Config(cherries.BaseConfig):
     loss_tol: float = 1.0e-7
     max_point_error_cm: float = 0.2
     stop_on_max_point_error: bool = True
+    post_success_patience: int = 20
     failure_patience: int = 3
     adjoint_maxiter: int = 10000
     adjoint_rtol: float = 5.0e-4
@@ -849,13 +850,21 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
         else:
             no_improve_steps += 1
 
+        success_reached = best_max_error <= cfg.max_point_error_cm
+        post_success_patience_met = no_improve_steps >= cfg.post_success_patience
+
         stopped = False
         if (
             cfg.stop_on_max_point_error
             and step >= cfg.inverse_min_steps
-            and best_max_error <= cfg.max_point_error_cm
+            and success_reached
+            and post_success_patience_met
         ):
-            stop_reason = "max_point_error_tol"
+            stop_reason = (
+                "max_point_error_tol"
+                if cfg.post_success_patience == 0
+                else "max_point_error_tol_stagnation"
+            )
             stopped = True
         elif loss_value <= cfg.loss_tol:
             stop_reason = "loss_tol"
@@ -906,6 +915,8 @@ def solve_inverse(  # noqa: C901, PLR0912, PLR0915
                 lowest_loss if cfg.stagnation_metric == "loss" else best_max_error
             ),
             "stagnation/no_improve_steps": float(no_improve_steps),
+            "stagnation/success_reached": float(success_reached),
+            "stagnation/post_success_patience": float(cfg.post_success_patience),
             "stopped": float(stopped),
             "time/forward_s": forward_elapsed,
             "time/backward_s": backward_elapsed,

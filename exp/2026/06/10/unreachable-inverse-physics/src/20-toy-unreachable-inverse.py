@@ -182,13 +182,16 @@ def tetra_cells(mesh: pv.UnstructuredGrid) -> np.ndarray:
     return np.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=np.int64)
 
 
-def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
+def tetra_signed_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
     p0 = points[tets[:, 0]]
     p1 = points[tets[:, 1]]
     p2 = points[tets[:, 2]]
     p3 = points[tets[:, 3]]
-    signed = np.einsum("ij,ij->i", np.cross(p1 - p0, p2 - p0), p3 - p0) / 6.0
-    return np.abs(signed)
+    return np.einsum("ij,ij->i", np.cross(p1 - p0, p2 - p0), p3 - p0) / 6.0
+
+
+def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
+    return np.abs(tetra_signed_volumes(points, tets))
 
 
 def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
@@ -426,6 +429,8 @@ def geometry_change(
     points = np.asarray(mesh.points, dtype=np.float64)
     deformed = points + displacement
     tets = tetra_cells(mesh)
+    rest_signed_volume = tetra_signed_volumes(points, tets)
+    deformed_signed_volume = tetra_signed_volumes(deformed, tets)
     rest_volume = tetra_volumes(points, tets)
     deformed_volume = tetra_volumes(deformed, tets)
     surface = surface_triangles(mesh)
@@ -434,6 +439,8 @@ def geometry_change(
     target_triangles = np.all(target_mask[surface], axis=1)
     volume0 = float(np.sum(rest_volume))
     volume1 = float(np.sum(deformed_volume))
+    signed_volume0 = float(np.sum(rest_signed_volume))
+    signed_volume1 = float(np.sum(deformed_signed_volume))
     area0 = float(np.sum(rest_area))
     area1 = float(np.sum(deformed_area))
     top_area0 = float(np.sum(rest_area[target_triangles]))
@@ -441,7 +448,12 @@ def geometry_change(
     return {
         "volume/rest": volume0,
         "volume/deformed": volume1,
-        "volume/rel_change": volume1 / volume0 - 1.0,
+        "volume/abs_rel_change": volume1 / volume0 - 1.0,
+        "volume/signed_rest": signed_volume0,
+        "volume/signed_deformed": signed_volume1,
+        "volume/rel_change": signed_volume1 / signed_volume0 - 1.0,
+        "volume/inverted_tets": float(np.sum(deformed_signed_volume <= 0.0)),
+        "volume/inverted_fraction": float(np.mean(deformed_signed_volume <= 0.0)),
         "surface_area/rest": area0,
         "surface_area/deformed": area1,
         "surface_area/rel_change": area1 / area0 - 1.0,
@@ -739,8 +751,8 @@ def format_float(value: Any) -> str:
 
 def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
     lines = [
-        "| case | points | tets | active tets | target volume change | inverse volume change | error RMS | error/target RMS | top y std | top edge RMS |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| case | points | tets | active tets | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | error RMS | error/target RMS | top y std | top edge RMS |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in rows:
         lines.append(
@@ -753,6 +765,8 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                     str(row["n_active_tets"]),
                     format_float(row["target/volume/rel_change"]),
                     format_float(row["inverse/volume/rel_change"]),
+                    format_float(row["target/volume/inverted_fraction"]),
+                    format_float(row["inverse/volume/inverted_fraction"]),
                     format_float(row["final/error_rms"]),
                     format_float(row["final/error_rms_fraction_of_target"]),
                     format_float(row["inverse/top_y/std"]),

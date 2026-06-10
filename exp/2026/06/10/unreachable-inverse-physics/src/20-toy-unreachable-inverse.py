@@ -270,14 +270,14 @@ def add_material_and_boundary_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> 
     x, y, z = centers[:, 0], centers[:, 1], centers[:, 2]
 
     muscle = (
-        (0.0 <= x)
+        (x >= 0.0)
         & (x <= 0.5)
-        & (0.04 <= y)
+        & (y >= 0.04)
         & (y <= 0.06)
-        & (0.4 <= z)
+        & (z >= 0.4)
         & (z <= 0.6)
     ).astype(np.float64)
-    smas = ((0.04 <= y) & (y <= 0.06)).astype(np.float64)
+    smas = ((y >= 0.04) & (y <= 0.06)).astype(np.float64)
     aponeurosis = np.maximum(0.0, smas - muscle)
     fat = np.clip(1.0 - aponeurosis - muscle, 0.0, 1.0)
 
@@ -594,7 +594,7 @@ def summarize_case(
         "inverse_max_steps": int(cfg.inverse_max_steps),
         "inverse_lr": float(cfg.inverse_lr),
         "elapsed_s": float(elapsed_s),
-        "n_evaluations": int(len(trace)),
+        "n_evaluations": len(trace),
         "series_frames": int(series_frames),
         "initial/loss": float(initial_row["loss"]),
         "initial/error_rms": float(initial_row["error_rms"]),
@@ -639,7 +639,7 @@ def summarize_case(
     return summary
 
 
-def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
+def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:  # noqa: PLR0915
     from liblaf.apple.common import GLOBAL_POINT_ID
     from liblaf.apple.inverse import DifferentiableForward
 
@@ -844,8 +844,8 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
         "| case | points | tets | active tets | best step | convergence | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | best error RMS | best error/target RMS | top y std | top edge RMS |",
         "| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for row in rows:
-        lines.append(
+    lines.extend(
+        (
             "| "
             + " | ".join(
                 [
@@ -867,6 +867,8 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
             )
             + " |"
         )
+        for row in rows
+    )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -888,9 +890,7 @@ def selected_cases(cfg: Config) -> list[ToyCase]:
 
 def main(cfg: Config) -> None:
     configure_runtime()
-    rows: list[dict[str, Any]] = []
-    for case in selected_cases(cfg):
-        rows.append(solve_case(case, cfg))
+    rows = [solve_case(case, cfg) for case in selected_cases(cfg)]
     cfg.output_summary.write_text(
         json.dumps({"cases": rows}, indent=2, sort_keys=True), encoding="utf-8"
     )

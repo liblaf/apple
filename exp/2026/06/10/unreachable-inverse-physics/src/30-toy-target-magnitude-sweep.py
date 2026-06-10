@@ -140,8 +140,8 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
         "| case | nu | target y | target volume change | inverse volume change | inverse / target volume | best error RMS | best error / target RMS | top y std | top edge RMS | best step | convergence |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
-    for row in rows:
-        lines.append(
+    lines.extend(
+        (
             "| "
             + " | ".join(
                 [
@@ -161,6 +161,8 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
             )
             + " |"
         )
+        for row in rows
+    )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -204,9 +206,7 @@ def write_summary(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def main(cfg: Config) -> None:
     BASE.configure_runtime()
-    rows: list[dict[str, Any]] = []
-    for case in selected_cases(cfg):
-        rows.append(solve_case(case, cfg))
+    rows = [solve_case(case, cfg) for case in selected_cases(cfg)]
     write_summary(cfg.output_summary, rows)
     write_csv(cfg.output_csv, rows)
     write_table(cfg.output_table, rows)

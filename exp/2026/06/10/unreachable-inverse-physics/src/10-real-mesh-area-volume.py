@@ -90,13 +90,16 @@ def tetra_cells(mesh: pv.UnstructuredGrid) -> np.ndarray:
     return np.asarray(mesh.cells_dict[pv.CellType.TETRA], dtype=np.int64)
 
 
-def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
+def tetra_signed_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
     p0 = points[tets[:, 0]]
     p1 = points[tets[:, 1]]
     p2 = points[tets[:, 2]]
     p3 = points[tets[:, 3]]
-    signed = np.einsum("ij,ij->i", np.cross(p1 - p0, p2 - p0), p3 - p0) / 6.0
-    return np.abs(signed)
+    return np.einsum("ij,ij->i", np.cross(p1 - p0, p2 - p0), p3 - p0) / 6.0
+
+
+def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
+    return np.abs(tetra_signed_volumes(points, tets))
 
 
 def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
@@ -192,9 +195,11 @@ def measure_state(
     rest_volume: np.ndarray,
     surface: np.ndarray,
     rest_surface_area: np.ndarray,
+    rest_signed_volume: np.ndarray,
 ) -> dict[str, Any]:
     points = np.asarray(base.points, dtype=np.float64)
     deformed = points + displacement
+    deformed_signed_volume = tetra_signed_volumes(deformed, tets)
     deformed_volume = tetra_volumes(deformed, tets)
     volume_ratio = deformed_volume / rest_volume
     surface_mask_all = np.all(mask[surface], axis=1)
@@ -203,6 +208,8 @@ def measure_state(
 
     rest_volume_sum = float(np.sum(rest_volume))
     deformed_volume_sum = float(np.sum(deformed_volume))
+    rest_signed_volume_sum = float(np.sum(rest_signed_volume))
+    deformed_signed_volume_sum = float(np.sum(deformed_signed_volume))
     rest_area_sum = float(np.sum(rest_surface_area))
     deformed_area_sum = float(np.sum(deformed_surface_area))
 
@@ -221,7 +228,14 @@ def measure_state(
         "n_mask_points": int(mask.sum()),
         "rest_volume": rest_volume_sum,
         "deformed_volume": deformed_volume_sum,
-        "volume_rel_change": rel_change(deformed_volume_sum, rest_volume_sum),
+        "volume_abs_rel_change": rel_change(deformed_volume_sum, rest_volume_sum),
+        "rest_signed_volume": rest_signed_volume_sum,
+        "deformed_signed_volume": deformed_signed_volume_sum,
+        "volume_rel_change": rel_change(
+            deformed_signed_volume_sum, rest_signed_volume_sum
+        ),
+        "volume_inverted_tets": int(np.sum(deformed_signed_volume <= 0.0)),
+        "volume_inverted_fraction": float(np.mean(deformed_signed_volume <= 0.0)),
         "rest_surface_area": rest_area_sum,
         "deformed_surface_area": deformed_area_sum,
         "surface_area_rel_change": rel_change(deformed_area_sum, rest_area_sum),
@@ -370,6 +384,9 @@ def main(cfg: Config) -> None:
         inverse_displacement = displacement_from(inverse)
         tets = tetra_cells(base)
         rest_volume = tetra_volumes(np.asarray(base.points, dtype=np.float64), tets)
+        rest_signed_volume = tetra_signed_volumes(
+            np.asarray(base.points, dtype=np.float64), tets
+        )
         if np.any(rest_volume <= 0.0):
             msg = f"{case.name} has non-positive rest tetra volume"
             raise ValueError(msg)
@@ -386,6 +403,7 @@ def main(cfg: Config) -> None:
             rest_volume=rest_volume,
             surface=surface,
             rest_surface_area=rest_surface_area,
+            rest_signed_volume=rest_signed_volume,
         )
         inverse_row = measure_state(
             case_name=case.name,
@@ -397,6 +415,7 @@ def main(cfg: Config) -> None:
             rest_volume=rest_volume,
             surface=surface,
             rest_surface_area=rest_surface_area,
+            rest_signed_volume=rest_signed_volume,
         )
         diff_row = error_row(
             case_name=case.name,

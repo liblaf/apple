@@ -32,12 +32,12 @@ Material properties:
 ```bash
 COMET_AUTO_LOG_GIT_PATCH=false \
 COMET_AUTO_LOG_GIT_METADATA=false \
-CHERRIES_NAME="unreachable inverse toy stretch squash signed volume sweep" \
-CHERRIES_TAGS="unreachable-inverse,toy,stretch,squash,resolution-sweep,nu049,signed-volume" \
+CHERRIES_NAME="unreachable inverse toy convergence diagnostics" \
+CHERRIES_TAGS="unreachable-inverse,toy,stretch,squash,resolution-sweep,nu049,convergence" \
 uv run python src/20-toy-unreachable-inverse.py
 ```
 
-Comet run: <https://www.comet.com/liblaf/apple/9cc568edab8340fabbba76355f4535ea>
+Comet run: <https://www.comet.com/liblaf/apple/b099d6b601f6496c8b586cc951e7a6b7>
 
 ## Outputs
 
@@ -45,29 +45,48 @@ Comet run: <https://www.comet.com/liblaf/apple/9cc568edab8340fabbba76355f4535ea>
 - `data/20-toy-unreachable-inverse-cases.csv`
 - `data/20-toy-unreachable-inverse-table.md`
 - one `input.vtu`, `target.vtu`, inverse result `.vtu`, and `.vtu.series` for each stretch/squash and resolution case
-- each inverse series has `36` frames, from step `0` through step `35`
+- each inverse series has `25` frames, from step `0` through step `120` with `series_stride = 5`
+
+The final result `.vtu` for each case stores the best inverse checkpoint, not necessarily the last optimizer iterate. The JSON summary keeps both `best/*` and `final_step/*` metrics.
 
 ## Results
 
-| case | points | tets | active tets | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | error RMS | error / target RMS | top y std | top edge RMS |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `20-toy-stretch-coarse` | 567 | 2304 | 96 | 15.3125% | 3.0031% | 0.0000% | 0.5208% | 0.017551 | 87.7572% | 0.005518 | 0.005204 |
-| `20-toy-squash-coarse` | 567 | 2304 | 96 | -15.3125% | -1.4087% | 12.7604% | 0.0000% | 0.018663 | 93.3135% | 0.003505 | 0.002644 |
-| `20-toy-stretch-medium` | 2475 | 11760 | 224 | 17.2449% | 2.1948% | 0.0000% | 0.3061% | 0.018373 | 91.8658% | 0.004639 | 0.004044 |
-| `20-toy-squash-medium` | 2475 | 11760 | 224 | -17.2449% | -1.8284% | 8.6224% | 0.2381% | 0.018559 | 92.7929% | 0.004613 | 0.003452 |
-| `20-toy-stretch-fine` | 4851 | 24000 | 480 | 18.0500% | 3.1501% | 0.0000% | 0.1250% | 0.017966 | 89.8302% | 0.005667 | 0.004061 |
-| `20-toy-squash-fine` | 4851 | 24000 | 480 | -18.0500% | -1.8727% | 9.0250% | 0.1792% | 0.018551 | 92.7528% | 0.004332 | 0.002912 |
+| case | points | tets | active tets | best step | convergence | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | best error RMS | best error / target RMS | top y std | top edge RMS |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `20-toy-stretch-coarse` | 567 | 2304 | 96 | 111 | not converged, best in last window | 15.3125% | 5.1117% | 0.0000% | 0.9983% | 0.015658 | 78.2894% | 0.007268 | 0.005753 |
+| `20-toy-squash-coarse` | 567 | 2304 | 96 | 120 | not converged, best in last window | -15.3125% | -2.5799% | 12.7604% | 0.1736% | 0.017662 | 88.3114% | 0.004710 | 0.003787 |
+| `20-toy-stretch-medium` | 2475 | 11760 | 224 | 76 | drifted after best | 17.2449% | 4.0500% | 0.0000% | 0.4422% | 0.017263 | 86.3173% | 0.006826 | 0.005179 |
+| `20-toy-squash-medium` | 2475 | 11760 | 224 | 106 | not converged, best in last window | -17.2449% | -2.6361% | 8.6224% | 0.3571% | 0.017936 | 89.6796% | 0.005427 | 0.003954 |
+| `20-toy-stretch-fine` | 4851 | 24000 | 480 | 117 | not converged, best in last window | 18.0500% | 4.9897% | 0.0000% | 0.2500% | 0.016967 | 84.8348% | 0.007509 | 0.004936 |
+| `20-toy-squash-fine` | 4851 | 24000 | 480 | 120 | not converged, best in last window | -18.0500% | -2.7051% | 9.0250% | 0.3083% | 0.017936 | 89.6805% | 0.005241 | 0.003342 |
+
+## Convergence
+
+The inverse solve does not cleanly converge in this rerun. Five of six cases find their best state inside the last 20-step window, and the remaining case drifts after an earlier best checkpoint. The final iterate is worse than the best checkpoint in four cases:
+
+| case | best step | final RMS | best RMS | final loss / best loss | last-window relative improvement |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `20-toy-stretch-coarse` | 111 | 0.016930 | 0.015658 | 1.1675 | 9.9083% |
+| `20-toy-squash-coarse` | 120 | 0.017662 | 0.017662 | 1.0000 | 1.4880% |
+| `20-toy-stretch-medium` | 76 | 0.017404 | 0.017263 | 1.0193 | 4.0142% |
+| `20-toy-squash-medium` | 106 | 0.018270 | 0.017936 | 1.0382 | 0.4605% |
+| `20-toy-stretch-fine` | 117 | 0.017167 | 0.016967 | 1.0237 | 2.5327% |
+| `20-toy-squash-fine` | 120 | 0.017936 | 0.017936 | 1.0000 | 11.6223% |
+
+The previous 35-step run was too short to separate unreachable physics from optimizer progress. The 120-step rerun still leaves large residuals and unstable best-step timing, so the current conclusion is narrower: the target is physically difficult or unreachable for this actuation family, and the inverse optimizer has not settled to a clean stationary solution.
 
 ## Interpretation
 
 The toy targets deliberately prescribe large signed-volume changes on a body whose sides and bottom are fixed. Stretch demands a `+15%` to `+18%` signed-volume increase; squash demands a `-15%` to `-18%` signed-volume decrease. The squash target also creates local inversions in `8.6%` to `12.8%` of tetrahedra.
 
-The inverse solutions do not reproduce those volume changes. Across resolutions, stretch reaches only about `+2.2%` to `+3.2%` signed volume change, and squash reaches only about `-1.4%` to `-1.9%`. The remaining point error is large: the final RMS error is `87.8%` to `93.3%` of the target displacement RMS. This is the expected unreachable-inverse signature.
+The inverse solutions do not reproduce those volume changes. Across resolutions, stretch reaches only about `+4.0%` to `+5.1%` signed volume change, and squash reaches only about `-2.6%` to `-2.7%`. The best residual remains large: `78.3%` to `89.7%` of the target displacement RMS.
 
-The behavior persists from the coarse mesh through the fine mesh, so it is not just a coarse-discretization artifact. The recovered top surface is also spatially uneven: top `y` standard deviation is roughly `0.0035` to `0.0057`, and top-edge RMS roughness is roughly `0.0026` to `0.0052`. Those values are a direct quantitative proxy for the bumpy inverse surface.
+The behavior persists from the coarse mesh through the fine mesh, so it is not just a coarse-discretization artifact. The recovered top surface is also spatially uneven: top `y` standard deviation is roughly `0.0047` to `0.0075`, and top-edge RMS roughness is roughly `0.0033` to `0.0058`. Those values are a direct quantitative proxy for the bumpy inverse surface.
 
 The signed-volume rerun matters for squash. Absolute volume can hide orientation loss because inverted tetrahedra still contribute positive absolute volume. Signed volume shows that the squash target is strongly compressive and locally inverted, while the inverse solution stays much closer to the physically reachable branch.
 
 ## Conclusion
 
-This toy setup reproduces the intended failure mode: with `nu = 0.49`, fixed sides/bottom, and a small active muscle patch, the target top motion is largely unreachable. The inverse optimizer responds with high residual error and spatially uneven displacement rather than a smooth exact match. That makes the high-Poisson, forward-unreachable explanation plausible for the 3152k real-mesh case, especially where the target itself contains signed-volume and local-inversion pathologies.
+This toy setup reproduces the intended failure mode: with `nu = 0.49`, fixed sides/bottom, and a small active muscle patch, the target top motion is largely unreachable. The inverse optimizer responds with high residual error and spatially uneven displacement rather than a smooth exact match.
+
+The convergence diagnostics also show that the inverse solve itself is not fully settled. For report purposes, the saved best checkpoint is the right artifact to inspect, and the nonconvergence should be treated as part of the result rather than hidden behind the final iteration.

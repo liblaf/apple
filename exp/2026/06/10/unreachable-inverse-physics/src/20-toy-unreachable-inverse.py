@@ -196,6 +196,45 @@ def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
     return np.abs(tetra_signed_volumes(points, tets))
 
 
+def rel_change(value: np.ndarray, reference: np.ndarray) -> np.ndarray:
+    return np.divide(
+        value,
+        reference,
+        out=np.full_like(value, np.nan, dtype=np.float64),
+        where=reference != 0.0,
+    ) - 1.0
+
+
+def add_tetra_volume_change_fields(
+    mesh: pv.UnstructuredGrid,
+    target: np.ndarray,
+    displacement: np.ndarray,
+) -> None:
+    points = np.asarray(mesh.points, dtype=np.float64)
+    tets = tetra_cells(mesh)
+    rest_signed = tetra_signed_volumes(points, tets)
+    target_signed = tetra_signed_volumes(points + target, tets)
+    inverse_signed = tetra_signed_volumes(points + displacement, tets)
+    rest_volume = np.abs(rest_signed)
+    target_volume = np.abs(target_signed)
+    inverse_volume = np.abs(inverse_signed)
+
+    mesh.cell_data["VolumeInitial"] = rest_volume
+    mesh.cell_data["VolumeTarget"] = target_volume
+    mesh.cell_data["VolumeInverse"] = inverse_volume
+    mesh.cell_data["VolumeTargetRelChange"] = rel_change(target_volume, rest_volume)
+    mesh.cell_data["VolumeInverseRelChange"] = rel_change(inverse_volume, rest_volume)
+    mesh.cell_data["SignedVolumeInitial"] = rest_signed
+    mesh.cell_data["SignedVolumeTarget"] = target_signed
+    mesh.cell_data["SignedVolumeInverse"] = inverse_signed
+    mesh.cell_data["SignedVolumeTargetRelChange"] = rel_change(
+        target_signed, rest_signed
+    )
+    mesh.cell_data["SignedVolumeInverseRelChange"] = rel_change(
+        inverse_signed, rest_signed
+    )
+
+
 def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
     p0 = points[triangles[:, 0]]
     p1 = points[triangles[:, 1]]
@@ -373,6 +412,7 @@ def make_target_mesh(mesh: pv.UnstructuredGrid, displacement: np.ndarray) -> pv.
     result.point_data["Displacement"] = displacement
     result.point_data["TargetDisplacement"] = displacement
     result.point_data["TargetPoint"] = result.points + displacement
+    add_tetra_volume_change_fields(result, displacement, displacement)
     return result
 
 
@@ -393,6 +433,7 @@ def make_result_mesh(
     result.point_data["DisplacementErrorNorm"] = np.linalg.norm(error, axis=1)
     result.point_data["DeformedPoint"] = result.points + displacement
     result.point_data["TargetPoint"] = result.points + target
+    add_tetra_volume_change_fields(result, target, displacement)
     result.cell_data[ACTIVATION_INV.vtk] = activation_inv
     result.cell_data["RecoveredActivationInv"] = activation_inv
     result.cell_data["RecoveredActivationInvNorm"] = np.linalg.norm(

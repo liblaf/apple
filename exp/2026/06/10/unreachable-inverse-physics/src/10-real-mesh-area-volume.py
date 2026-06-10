@@ -33,7 +33,6 @@ class Config(cherries.BaseConfig):
     output_summary: Path = cherries.output("10-real-mesh-area-volume-summary.json")
     output_csv: Path = cherries.output("10-real-mesh-area-volume.csv")
     output_table: Path = cherries.output("10-real-mesh-area-volume-table.md")
-    output_vtu_dir: Path = cherries.output("10-real-mesh-area-volume-vtu", mkdir=True)
 
 
 def repo_root() -> Path:
@@ -542,7 +541,11 @@ def main(cfg: Config) -> None:
             raise ValueError(msg)
         surface = surface_triangles(base)
         rest_surface_area = triangle_areas(np.asarray(base.points, dtype=np.float64), surface)
-        diagnostic_path = cfg.output_vtu_dir / f"{case.name}-volume-change.vtu"
+        diagnostic_path = (
+            cfg.output_summary.parent
+            / "10-real-mesh-area-volume-vtu"
+            / f"{case.name}-volume-change.vtu"
+        )
         write_diagnostic_vtu(
             path=diagnostic_path,
             case=case,

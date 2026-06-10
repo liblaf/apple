@@ -48,7 +48,8 @@ class Case:
 CASES = (
     Case(
         name="3152k-expression001",
-        input=REPO_ROOT / "exp/2026/05/27/inverse-face/data/10-inverse-face-3152k-input.vtu",
+        input=REPO_ROOT
+        / "exp/2026/05/27/inverse-face/data/10-inverse-face-3152k-input.vtu",
         target=REPO_ROOT
         / "exp/2026/05/27/inverse-face/data/10-inverse-face-3152k-target.vtu",
         inverse=REPO_ROOT
@@ -97,10 +98,20 @@ class SurfaceTrianglePrestrain:
     triangles: Tensor
     inv_metric: Tensor
     area: Tensor
-    preferred_metric_scale: float
-    stiffness: float
+    lambda_: float
+    mu: float
+    prestrain_length_scale: float
 
     def energy(self, u: Full) -> Scalar:
+        i1, j = self.invariants(u)
+        density = (
+            0.5 * self.mu * (i1 - 2.0)
+            - self.mu * (j - 1.0)
+            + 0.5 * self.lambda_ * (j - 1.0).square()
+        )
+        return torch.sum(self.area * density)
+
+    def invariants(self, u: Full) -> tuple[Tensor, Tensor]:
         tri = self.triangles
         x = self.rest_points + u
         p0 = x[tri[:, 0]]
@@ -116,13 +127,11 @@ class SurfaceTrianglePrestrain:
         c01 = inv[:, 0, 0] * g01 + inv[:, 0, 1] * g11
         c10 = inv[:, 1, 0] * g00 + inv[:, 1, 1] * g01
         c11 = inv[:, 1, 0] * g01 + inv[:, 1, 1] * g11
-        s01 = 0.5 * (c01 + c10)
-        strain00 = c00 - self.preferred_metric_scale
-        strain11 = c11 - self.preferred_metric_scale
-        density = 0.5 * self.stiffness * (
-            strain00.square() + strain11.square() + 2.0 * s01.square()
-        )
-        return torch.sum(self.area * density)
+        i1 = c00 + c11
+        det_c = c00 * c11 - c01 * c10
+        tiny = torch.finfo(det_c.dtype).tiny
+        j = torch.sqrt(torch.clamp(det_c, min=tiny))
+        return i1, j
 
     def diagnostics(self, displacement: np.ndarray) -> dict[str, np.ndarray]:
         tri = self.triangles.detach().cpu().numpy()
@@ -130,20 +139,25 @@ class SurfaceTrianglePrestrain:
         deformed = points + displacement
         rest_area = triangle_areas(points, tri)
         deformed_area = triangle_areas(deformed, tri)
-        energy_density = (
-            self._energy_density_numpy(points=points, displacement=displacement)
+        i1, area_stretch = self._invariants_numpy(
+            points=points, displacement=displacement
+        )
+        energy_density = self._energy_density_numpy(
+            points=points, displacement=displacement
         )
         return {
             "SurfacePrestrainRestArea": rest_area,
             "SurfacePrestrainDeformedArea": deformed_area,
             "SurfacePrestrainAreaRelChange": safe_rel_change(deformed_area, rest_area),
+            "SurfacePrestrainI1": i1,
+            "SurfacePrestrainAreaStretch": area_stretch,
             "SurfacePrestrainEnergyDensity": energy_density,
             "SurfacePrestrainEnergy": energy_density * rest_area,
         }
 
-    def _energy_density_numpy(
+    def _invariants_numpy(
         self, *, points: np.ndarray, displacement: np.ndarray
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray]:
         tri = self.triangles.detach().cpu().numpy()
         inv = self.inv_metric.detach().cpu().numpy()
         deformed = points + displacement
@@ -159,11 +173,21 @@ class SurfaceTrianglePrestrain:
         c01 = inv[:, 0, 0] * g01 + inv[:, 0, 1] * g11
         c10 = inv[:, 1, 0] * g00 + inv[:, 1, 1] * g01
         c11 = inv[:, 1, 0] * g01 + inv[:, 1, 1] * g11
-        s01 = 0.5 * (c01 + c10)
-        strain00 = c00 - self.preferred_metric_scale
-        strain11 = c11 - self.preferred_metric_scale
-        return 0.5 * self.stiffness * (
-            strain00 * strain00 + strain11 * strain11 + 2.0 * s01 * s01
+        i1 = c00 + c11
+        det_c = c00 * c11 - c01 * c10
+        area_stretch = np.sqrt(np.maximum(det_c, np.finfo(det_c.dtype).tiny))
+        return i1, area_stretch
+
+    def _energy_density_numpy(
+        self, *, points: np.ndarray, displacement: np.ndarray
+    ) -> np.ndarray:
+        i1, area_stretch = self._invariants_numpy(
+            points=points, displacement=displacement
+        )
+        return (
+            0.5 * self.mu * (i1 - 2.0)
+            - self.mu * (area_stretch - 1.0)
+            + 0.5 * self.lambda_ * np.square(area_stretch - 1.0)
         )
 
 
@@ -288,7 +312,9 @@ def require_array(obj: pv.DataSet, association: str, name: str) -> np.ndarray:
     return np.asarray(data[name])
 
 
-def load_meshes(case: Case) -> tuple[pv.UnstructuredGrid, pv.UnstructuredGrid, pv.UnstructuredGrid]:
+def load_meshes(
+    case: Case,
+) -> tuple[pv.UnstructuredGrid, pv.UnstructuredGrid, pv.UnstructuredGrid]:
     for path in (case.input, case.target, case.inverse):
         require_path(path)
         cherries.log_input(path)
@@ -370,7 +396,9 @@ def build_base_forward(mesh: pv.UnstructuredGrid, case: Case, cfg: Config) -> An
     return builder.finalize()
 
 
-def target_point_ids(mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
+def target_point_ids(
+    mesh: pv.UnstructuredGrid, target: pv.UnstructuredGrid, cfg: Config
+) -> np.ndarray:
     if cfg.target_point_mask in target.point_data:
         mask = np.asarray(target.point_data[cfg.target_point_mask], dtype=bool)
     elif cfg.target_point_mask in mesh.point_data:
@@ -394,7 +422,10 @@ def active_cell_ids(mesh: pv.UnstructuredGrid, cfg: Config) -> np.ndarray:
     if "ActivationMask" in mesh.cell_data:
         mask = np.asarray(mesh.cell_data["ActivationMask"], dtype=bool)
     else:
-        mask = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64) > cfg.active_fraction_tol
+        mask = (
+            np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
+            > cfg.active_fraction_tol
+        )
     ids = np.flatnonzero(mask).astype(np.int64)
     if ids.size == 0:
         msg = "no active tetrahedra selected"
@@ -410,7 +441,9 @@ def recovered_activation_inv(inverse: pv.UnstructuredGrid) -> np.ndarray:
     return np.asarray(inverse.cell_data[ACTIVATION_INV.vtk], dtype=np.float64)
 
 
-def surface_triangles(mesh: pv.UnstructuredGrid, mask_name: str) -> tuple[pv.PolyData, np.ndarray, np.ndarray]:
+def surface_triangles(
+    mesh: pv.UnstructuredGrid, mask_name: str
+) -> tuple[pv.PolyData, np.ndarray, np.ndarray]:
     surface = mesh.extract_surface(algorithm=None).triangulate()
     if "vtkOriginalPointIds" not in surface.point_data:
         msg = "extract_surface did not produce vtkOriginalPointIds"
@@ -454,15 +487,27 @@ def make_surface_prestrain(
     inv[:, 1, 0] = -g01 / det
     inv[:, 1, 1] = g00 / det
     area = triangle_areas(points, triangles)
-    scale = 1.0 / (1.0 + cfg.prestrain) if cfg.tensile_prestrain else 1.0 + cfg.prestrain
-    preferred_metric_scale = scale * scale
+    length_scale = (
+        1.0 / (1.0 + cfg.prestrain) if cfg.tensile_prestrain else 1.0 + cfg.prestrain
+    )
+    inv *= 1.0 / (length_scale * length_scale)
+    lambda_, mu = lame_parameters(cfg.surface_stiffness * cfg.E, cfg.nu)
     return SurfaceTrianglePrestrain(
-        rest_points=torch.as_tensor(points, dtype=torch.get_default_dtype(), device=torch.get_default_device()),
-        triangles=torch.as_tensor(triangles, dtype=torch.long, device=torch.get_default_device()),
-        inv_metric=torch.as_tensor(inv, dtype=torch.get_default_dtype(), device=torch.get_default_device()),
-        area=torch.as_tensor(area, dtype=torch.get_default_dtype(), device=torch.get_default_device()),
-        preferred_metric_scale=float(preferred_metric_scale),
-        stiffness=float(cfg.surface_stiffness),
+        rest_points=torch.as_tensor(
+            points, dtype=torch.get_default_dtype(), device=torch.get_default_device()
+        ),
+        triangles=torch.as_tensor(
+            triangles, dtype=torch.long, device=torch.get_default_device()
+        ),
+        inv_metric=torch.as_tensor(
+            inv, dtype=torch.get_default_dtype(), device=torch.get_default_device()
+        ),
+        area=torch.as_tensor(
+            area, dtype=torch.get_default_dtype(), device=torch.get_default_device()
+        ),
+        lambda_=float(lambda_),
+        mu=float(mu),
+        prestrain_length_scale=float(length_scale),
     )
 
 
@@ -474,15 +519,20 @@ def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
 
 
 def safe_rel_change(value: np.ndarray, reference: np.ndarray) -> np.ndarray:
-    return np.divide(
-        value,
-        reference,
-        out=np.full_like(value, np.nan, dtype=np.float64),
-        where=reference != 0.0,
-    ) - 1.0
+    return (
+        np.divide(
+            value,
+            reference,
+            out=np.full_like(value, np.nan, dtype=np.float64),
+            where=reference != 0.0,
+        )
+        - 1.0
+    )
 
 
-def point_error_stats(displacement: np.ndarray, target: np.ndarray, ids: np.ndarray) -> dict[str, float]:
+def point_error_stats(
+    displacement: np.ndarray, target: np.ndarray, ids: np.ndarray
+) -> dict[str, float]:
     residual = displacement[ids] - target[ids]
     norm = np.linalg.norm(residual, axis=1)
     target_norm = np.linalg.norm(target[ids], axis=1)
@@ -531,14 +581,22 @@ def roughness_metrics(
     np.add.at(neighbor_count, edges[:, 1], 1.0)
     active = neighbor_count > 0.0
     lap = np.zeros_like(displacement)
-    lap[active] = displacement[active] - neighbor_sum[active] / neighbor_count[active, None]
+    lap[active] = (
+        displacement[active] - neighbor_sum[active] / neighbor_count[active, None]
+    )
     lap_norm = np.linalg.norm(lap[active], axis=1)
     return {
         "surface/n_triangles": int(triangles.shape[0]),
         "surface/n_edges": int(edges.shape[0]),
-        "surface/displacement_edge_rms": float(np.linalg.norm(disp_edge_norm) / math.sqrt(edges.shape[0])),
-        "surface/error_edge_rms": float(np.linalg.norm(err_edge_norm) / math.sqrt(edges.shape[0])),
-        "surface/displacement_laplacian_rms": float(np.linalg.norm(lap_norm) / math.sqrt(lap_norm.size)),
+        "surface/displacement_edge_rms": float(
+            np.linalg.norm(disp_edge_norm) / math.sqrt(edges.shape[0])
+        ),
+        "surface/error_edge_rms": float(
+            np.linalg.norm(err_edge_norm) / math.sqrt(edges.shape[0])
+        ),
+        "surface/displacement_laplacian_rms": float(
+            np.linalg.norm(lap_norm) / math.sqrt(lap_norm.size)
+        ),
         "surface/displacement_laplacian_max": float(lap_norm.max()),
     }
 
@@ -573,8 +631,12 @@ def solve_case(case: Case, cfg: Config) -> dict[str, Any]:
     mesh, target, inverse = load_meshes(case)
     target_ids = target_point_ids(mesh, target, cfg)
     active_ids = active_cell_ids(mesh, cfg)
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
-    previous_displacement = np.asarray(inverse.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
+    previous_displacement = np.asarray(
+        inverse.point_data["Displacement"], dtype=np.float64
+    )
     activation_inv = recovered_activation_inv(inverse)
 
     surface, prestrain_triangles, surface_triangle_mask = surface_triangles(
@@ -608,8 +670,12 @@ def solve_case(case: Case, cfg: Config) -> dict[str, Any]:
         solution = forward.step()
     prestrain_displacement = forward.state.u.detach().cpu().numpy()
 
-    previous_error = point_error_stats(previous_displacement, target_displacement, target_ids)
-    prestrain_error = point_error_stats(prestrain_displacement, target_displacement, target_ids)
+    previous_error = point_error_stats(
+        previous_displacement, target_displacement, target_ids
+    )
+    prestrain_error = point_error_stats(
+        prestrain_displacement, target_displacement, target_ids
+    )
     previous_roughness = roughness_metrics(
         previous_displacement, target_displacement, prestrain_triangles
     )
@@ -631,7 +697,9 @@ def solve_case(case: Case, cfg: Config) -> dict[str, Any]:
         "surface/prestrain": float(cfg.prestrain),
         "surface/stiffness": float(cfg.surface_stiffness),
         "surface/tensile_prestrain": bool(cfg.tensile_prestrain),
-        "surface/preferred_metric_scale": float(surface_energy.preferred_metric_scale),
+        "surface/prestrain_length_scale": float(surface_energy.prestrain_length_scale),
+        "surface/lambda": float(surface_energy.lambda_),
+        "surface/mu": float(surface_energy.mu),
         "surface/energy": surface_energy_total,
         "time/total_s": elapsed_s,
         **{f"previous/target/{k}": v for k, v in previous_error.items()},
@@ -651,8 +719,7 @@ def solve_case(case: Case, cfg: Config) -> dict[str, Any]:
         - row["previous/surface/displacement_laplacian_rms"]
     )
     row["delta/surface_error_edge_rms"] = (
-        row["prestrain/surface/error_edge_rms"]
-        - row["previous/surface/error_edge_rms"]
+        row["prestrain/surface/error_edge_rms"] - row["previous/surface/error_edge_rms"]
     )
 
     output = make_result_mesh(
@@ -666,7 +733,9 @@ def solve_case(case: Case, cfg: Config) -> dict[str, Any]:
         metrics=row,
     )
     output_path = cfg.output_summary.parent / f"10-surface-prestrain-{case.name}.vtu"
-    surface_path = cfg.output_summary.parent / f"10-surface-prestrain-{case.name}-surface.vtp"
+    surface_path = (
+        cfg.output_summary.parent / f"10-surface-prestrain-{case.name}-surface.vtp"
+    )
     melon.save(output_path, output)
     save_surface_diagnostic(
         path=surface_path,
@@ -720,9 +789,15 @@ def make_result_mesh(
     result.point_data["PreviousInverseDisplacement"] = previous_displacement
     result.point_data["PrestrainDisplacement"] = prestrain_displacement
     result.point_data["Displacement"] = prestrain_displacement
-    result.point_data["PreviousMinusTarget"] = previous_displacement - target_displacement
-    result.point_data["PrestrainMinusTarget"] = prestrain_displacement - target_displacement
-    result.point_data["PrestrainMinusPrevious"] = prestrain_displacement - previous_displacement
+    result.point_data["PreviousMinusTarget"] = (
+        previous_displacement - target_displacement
+    )
+    result.point_data["PrestrainMinusTarget"] = (
+        prestrain_displacement - target_displacement
+    )
+    result.point_data["PrestrainMinusPrevious"] = (
+        prestrain_displacement - previous_displacement
+    )
     result.point_data["PreviousErrorNorm"] = np.linalg.norm(
         previous_displacement - target_displacement, axis=1
     )
@@ -759,7 +834,9 @@ def save_surface_diagnostic(
     result = surface.copy(deep=True)
     original_ids = np.asarray(result.point_data["vtkOriginalPointIds"], dtype=np.int64)
     result.point_data["TargetDisplacement"] = target_displacement[original_ids]
-    result.point_data["PreviousInverseDisplacement"] = previous_displacement[original_ids]
+    result.point_data["PreviousInverseDisplacement"] = previous_displacement[
+        original_ids
+    ]
     result.point_data["PrestrainDisplacement"] = prestrain_displacement[original_ids]
     result.point_data["PrestrainMinusPrevious"] = (
         prestrain_displacement[original_ids] - previous_displacement[original_ids]

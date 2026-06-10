@@ -95,14 +95,16 @@ class Config(cherries.BaseConfig):
     forward_rtol: float = 5.0e-4
     forward_atol: float = 0.0
     forward_max_steps: int = 5000
-    inverse_max_steps: int = 35
+    inverse_max_steps: int = 120
     inverse_lr: float = 0.04
     adam_beta1: float = 0.3
     adam_beta2: float = 0.9
     adam_eps: float = 1.0e-8
     activation_inv_abs_max: float = 0.8
     activation_l2_weight: float = 1.0e-5
-    series_stride: int = 1
+    series_stride: int = 5
+    convergence_window: int = 20
+    convergence_loss_ratio_tol: float = 0.01
 
 
 def configure_runtime() -> None:
@@ -498,6 +500,7 @@ def summarize_case(
     displacement: np.ndarray,
     activation_inv: np.ndarray,
     trace: list[dict[str, float]],
+    series_frames: int,
     elapsed_s: float,
     cfg: Config,
 ) -> dict[str, Any]:
@@ -510,6 +513,31 @@ def summarize_case(
     target_geo = geometry_change(mesh, target, target_mask)
     inverse_geo = geometry_change(mesh, displacement, target_mask)
     roughness = top_roughness(mesh, displacement)
+    initial_row = trace[0]
+    best_row = min(trace, key=lambda row: row["loss"])
+    final_row = trace[-1]
+    window = trace[-min(cfg.convergence_window, len(trace)) :]
+    window_best = min(window, key=lambda row: row["loss"])
+    window_first = window[0]
+    last_window_rel_improvement = (
+        (window_first["loss"] - window_best["loss"]) / window_first["loss"]
+        if window_first["loss"] > 0.0
+        else math.nan
+    )
+    final_loss_over_best = (
+        final_row["loss"] / best_row["loss"] if best_row["loss"] > 0.0 else math.nan
+    )
+    best_in_last_window = bool(best_row["step"] >= window_first["step"])
+    converged = bool(
+        (not best_in_last_window)
+        and final_loss_over_best <= 1.0 + cfg.convergence_loss_ratio_tol
+    )
+    if best_in_last_window:
+        convergence_status = "not_converged_best_in_last_window"
+    elif final_loss_over_best > 1.0 + cfg.convergence_loss_ratio_tol:
+        convergence_status = "drifted_after_best"
+    else:
+        convergence_status = "plateaued"
     summary: dict[str, Any] = {
         "case": case.stem,
         "mode": case.mode,
@@ -525,16 +553,34 @@ def summarize_case(
         "inverse_max_steps": int(cfg.inverse_max_steps),
         "inverse_lr": float(cfg.inverse_lr),
         "elapsed_s": float(elapsed_s),
-        "series_frames": int(len(trace)),
-        "final/loss": float(trace[-1]["loss"]),
-        "final/error_mean": float(error_norm.mean()),
-        "final/error_rms": float(np.linalg.norm(error[target_mask]) / math.sqrt(target_mask.sum())),
-        "final/error_max": float(error_norm.max()),
-        "final/error_rms_fraction_of_target": float(
+        "n_evaluations": int(len(trace)),
+        "series_frames": int(series_frames),
+        "initial/loss": float(initial_row["loss"]),
+        "initial/error_rms": float(initial_row["error_rms"]),
+        "initial/error_max": float(initial_row["error_max"]),
+        "best/step": float(best_row["step"]),
+        "best/loss": float(best_row["loss"]),
+        "best/data_loss": float(best_row["data_loss"]),
+        "best/reg_loss": float(best_row["reg_loss"]),
+        "best/error_mean": float(error_norm.mean()),
+        "best/error_rms": float(
+            np.linalg.norm(error[target_mask]) / math.sqrt(target_mask.sum())
+        ),
+        "best/error_max": float(error_norm.max()),
+        "best/error_rms_fraction_of_target": float(
             np.linalg.norm(error[target_mask]) / np.linalg.norm(target[target_mask])
         )
         if np.linalg.norm(target[target_mask]) > 0.0
         else math.nan,
+        "final_step/step": float(final_row["step"]),
+        "final_step/loss": float(final_row["loss"]),
+        "final_step/error_rms": float(final_row["error_rms"]),
+        "final_step/error_max": float(final_row["error_max"]),
+        "convergence/converged": converged,
+        "convergence/status": convergence_status,
+        "convergence/best_in_last_window": best_in_last_window,
+        "convergence/final_loss_over_best_loss": float(final_loss_over_best),
+        "convergence/last_window_rel_improvement": float(last_window_rel_improvement),
         "target/displacement_rms": float(
             np.linalg.norm(target[target_mask]) / math.sqrt(target_mask.sum())
         ),
@@ -612,6 +658,7 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
     trace: list[dict[str, float]] = []
+    series_frames = 0
     with melon.SeriesWriter(series_path, clear=True) as series_writer:
         for step in range(cfg.inverse_max_steps + 1):
             cherries.set_step(len(trace))
@@ -642,10 +689,6 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
                 )
             )
             loss_value = float(loss.detach().cpu())
-            if loss_value < best_loss:
-                best_loss = loss_value
-                best_displacement = displacement
-                best_activation_inv = full_activation_inv
             row = {
                 "step": float(step),
                 "loss": loss_value,
@@ -661,6 +704,10 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
                 "activation_inv_max_abs": float(active_clamped.detach().abs().max().cpu()),
                 "grad_norm": float(torch.linalg.vector_norm(grad).cpu()),
             }
+            if loss_value < best_loss:
+                best_loss = loss_value
+                best_displacement = displacement
+                best_activation_inv = full_activation_inv
             trace.append(row)
             if step % cfg.series_stride == 0 or step == cfg.inverse_max_steps:
                 step_mesh = make_result_mesh(
@@ -671,6 +718,7 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
                     row,
                 )
                 series_writer.append(step_mesh, time=float(step))
+                series_frames += 1
             cherries.log_metrics(
                 {
                     f"{case.stem}/loss": row["loss"],
@@ -706,6 +754,7 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:
         displacement=best_displacement,
         activation_inv=best_activation_inv,
         trace=trace,
+        series_frames=series_frames,
         elapsed_s=elapsed,
         cfg=cfg,
     )
@@ -751,8 +800,8 @@ def format_float(value: Any) -> str:
 
 def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
     lines = [
-        "| case | points | tets | active tets | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | error RMS | error/target RMS | top y std | top edge RMS |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| case | points | tets | active tets | best step | convergence | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | best error RMS | best error/target RMS | top y std | top edge RMS |",
+        "| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in rows:
         lines.append(
@@ -763,12 +812,14 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                     str(row["n_points"]),
                     str(row["n_tets"]),
                     str(row["n_active_tets"]),
+                    format_float(row["best/step"]),
+                    str(row["convergence/status"]),
                     format_float(row["target/volume/rel_change"]),
                     format_float(row["inverse/volume/rel_change"]),
                     format_float(row["target/volume/inverted_fraction"]),
                     format_float(row["inverse/volume/inverted_fraction"]),
-                    format_float(row["final/error_rms"]),
-                    format_float(row["final/error_rms_fraction_of_target"]),
+                    format_float(row["best/error_rms"]),
+                    format_float(row["best/error_rms_fraction_of_target"]),
                     format_float(row["inverse/top_y/std"]),
                     format_float(row["inverse/top_y/edge_rms"]),
                 ]

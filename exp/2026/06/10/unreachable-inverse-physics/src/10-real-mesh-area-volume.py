@@ -24,6 +24,7 @@ class Case:
     target_path: Path
     inverse_path: Path
     target_mask: str
+    target_volume_is_physical: bool
 
 
 class Config(cherries.BaseConfig):
@@ -32,6 +33,7 @@ class Config(cherries.BaseConfig):
     output_summary: Path = cherries.output("10-real-mesh-area-volume-summary.json")
     output_csv: Path = cherries.output("10-real-mesh-area-volume.csv")
     output_table: Path = cherries.output("10-real-mesh-area-volume-table.md")
+    output_vtu_dir: Path = cherries.output("10-real-mesh-area-volume-vtu", mkdir=True)
 
 
 def repo_root() -> Path:
@@ -53,7 +55,8 @@ def cases(root: Path) -> list[Case]:
             / "exp/2026/05/27/inverse-face/data/10-inverse-face-3152k-target.vtu",
             inverse_path=root
             / "exp/2026/05/27/inverse-face/data/20-inverse-face-3152k.vtu",
-            target_mask="TargetSurfaceMask",
+            target_mask="IsFace",
+            target_volume_is_physical=False,
         ),
         Case(
             name="515k-nosmas",
@@ -64,6 +67,7 @@ def cases(root: Path) -> list[Case]:
             inverse_path=root
             / "exp/2026/05/27/forward-face/data/30-inverse-face-515k-nosmas.vtu",
             target_mask="IsFace",
+            target_volume_is_physical=True,
         ),
     ]
 
@@ -100,6 +104,30 @@ def tetra_signed_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
 
 def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
     return np.abs(tetra_signed_volumes(points, tets))
+
+
+def volume_arrays(
+    *,
+    points: np.ndarray,
+    displacement: np.ndarray,
+    tets: np.ndarray,
+    rest_signed_volume: np.ndarray,
+    rest_volume: np.ndarray,
+) -> dict[str, np.ndarray]:
+    deformed = points + displacement
+    deformed_signed = tetra_signed_volumes(deformed, tets)
+    deformed_abs = np.abs(deformed_signed)
+    signed_delta = deformed_signed - rest_signed_volume
+    abs_delta = deformed_abs - rest_volume
+    return {
+        "SignedVolume": deformed_signed,
+        "SignedVolumeDelta": signed_delta,
+        "SignedVolumeRelChange": signed_delta / rest_signed_volume,
+        "AbsVolume": deformed_abs,
+        "AbsVolumeDelta": abs_delta,
+        "AbsVolumeRelChange": abs_delta / rest_volume,
+        "Inverted": (deformed_signed <= 0.0).astype(np.int8),
+    }
 
 
 def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
@@ -169,6 +197,32 @@ def displacement_from(mesh: pv.UnstructuredGrid, *, preferred: str = "Displaceme
     raise KeyError(msg)
 
 
+def restrict_displacement(displacement: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    result = np.zeros_like(displacement)
+    result[mask] = displacement[mask]
+    return result
+
+
+def displacement_stats(
+    displacement: np.ndarray, mask: np.ndarray, prefix: str
+) -> dict[str, float]:
+    outside = ~mask
+    values = np.linalg.norm(displacement, axis=1)
+    row: dict[str, float] = {
+        f"{prefix}/inside_nonzero_points": float(np.sum((values > 1.0e-12) & mask)),
+        f"{prefix}/outside_nonzero_points": float(np.sum((values > 1.0e-12) & outside)),
+    }
+    if np.any(outside):
+        row[f"{prefix}/outside_rms"] = float(
+            np.linalg.norm(displacement[outside]) / math.sqrt(int(outside.sum()))
+        )
+        row[f"{prefix}/outside_max"] = float(values[outside].max())
+    else:
+        row[f"{prefix}/outside_rms"] = math.nan
+        row[f"{prefix}/outside_max"] = math.nan
+    return row
+
+
 def validate_same_topology(
     base: pv.UnstructuredGrid, other: pv.UnstructuredGrid, path: Path
 ) -> None:
@@ -196,6 +250,8 @@ def measure_state(
     surface: np.ndarray,
     rest_surface_area: np.ndarray,
     rest_signed_volume: np.ndarray,
+    volume_is_physical: bool,
+    volume_scope: str,
 ) -> dict[str, Any]:
     points = np.asarray(base.points, dtype=np.float64)
     deformed = points + displacement
@@ -223,6 +279,8 @@ def measure_state(
     row: dict[str, Any] = {
         "case": case_name,
         "state": state,
+        "volume_is_physical": volume_is_physical,
+        "volume_scope": volume_scope,
         "n_points": int(base.n_points),
         "n_tets": int(tets.shape[0]),
         "n_mask_points": int(mask.sum()),
@@ -266,6 +324,84 @@ def measure_state(
     }
     row.update(quantiles(volume_ratio - 1.0, "cell_volume_rel_change"))
     return row
+
+
+def add_volume_prefix(
+    mesh: pv.UnstructuredGrid,
+    prefix: str,
+    arrays: dict[str, np.ndarray],
+) -> None:
+    for name, values in arrays.items():
+        mesh.cell_data[f"{prefix}{name}"] = values
+
+
+def write_diagnostic_vtu(
+    *,
+    path: Path,
+    case: Case,
+    base: pv.UnstructuredGrid,
+    mask: np.ndarray,
+    target_raw: np.ndarray,
+    target_face_only: np.ndarray,
+    inverse: np.ndarray,
+    tets: np.ndarray,
+    rest_signed_volume: np.ndarray,
+    rest_volume: np.ndarray,
+) -> None:
+    points = np.asarray(base.points, dtype=np.float64)
+    result = base.copy(deep=True)
+    mask_count = np.sum(mask[tets], axis=1).astype(np.int8)
+    result.point_data["TargetValidPoint"] = mask.astype(np.int8)
+    result.point_data["TargetRawDisplacement"] = target_raw
+    result.point_data["TargetFaceOnlyDisplacement"] = target_face_only
+    result.point_data["InverseDisplacement"] = inverse
+    result.point_data["InverseMinusTargetOnValidPoints"] = inverse - target_face_only
+    result.cell_data["TargetValidPointCount"] = mask_count
+    result.cell_data["TargetValidTetAny"] = (mask_count > 0).astype(np.int8)
+    result.cell_data["TargetValidTetAll"] = (mask_count == 4).astype(np.int8)
+    result.cell_data["TargetValidTetFraction"] = mask_count.astype(np.float64) / 4.0
+    result.cell_data["RestSignedVolume"] = rest_signed_volume
+    result.cell_data["RestAbsVolume"] = rest_volume
+    add_volume_prefix(
+        result,
+        "TargetRaw",
+        volume_arrays(
+            points=points,
+            displacement=target_raw,
+            tets=tets,
+            rest_signed_volume=rest_signed_volume,
+            rest_volume=rest_volume,
+        ),
+    )
+    add_volume_prefix(
+        result,
+        "TargetFaceOnly",
+        volume_arrays(
+            points=points,
+            displacement=target_face_only,
+            tets=tets,
+            rest_signed_volume=rest_signed_volume,
+            rest_volume=rest_volume,
+        ),
+    )
+    add_volume_prefix(
+        result,
+        "Inverse",
+        volume_arrays(
+            points=points,
+            displacement=inverse,
+            tets=tets,
+            rest_signed_volume=rest_signed_volume,
+            rest_volume=rest_volume,
+        ),
+    )
+    result.field_data["TargetVolumeIsPhysical"] = np.asarray(
+        [int(case.target_volume_is_physical)]
+    )
+    result.field_data["TargetMaskName"] = np.asarray([case.target_mask])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    result.save(path)
+    cherries.log_output(path)
 
 
 def error_row(
@@ -334,13 +470,18 @@ def format_float(value: Any) -> str:
 
 
 def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
-    metric_rows = [row for row in rows if row.get("state") in {"target", "inverse"}]
+    metric_rows = [
+        row
+        for row in rows
+        if row.get("state")
+        in {"target", "target-face-only-diagnostic", "inverse"}
+    ]
     error_rows = {
         row["case"]: row for row in rows if row.get("state") == "inverse-minus-target"
     }
     lines = [
-        "| case | state | volume change | boundary area change | mask area change | mask disp RMS | mask error RMS | mask error/target RMS |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| case | state | volume scope | physical volume? | signed volume change | abs volume change | inverted tets | mask area change | mask disp RMS | mask error RMS | mask error/target RMS |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in metric_rows:
         err = error_rows.get(row["case"], {})
@@ -350,8 +491,11 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                 [
                     str(row["case"]),
                     str(row["state"]),
+                    str(row["volume_scope"]),
+                    str(bool(row["volume_is_physical"])),
                     format_float(row["volume_rel_change"]),
-                    format_float(row["surface_area_rel_change"]),
+                    format_float(row["volume_abs_rel_change"]),
+                    format_float(row["volume_inverted_fraction"]),
                     format_float(row["mask_area_all_rel_change"]),
                     format_float(row["mask_displacement_rms"]),
                     format_float(err.get("mask_error_rms")),
@@ -380,7 +524,13 @@ def main(cfg: Config) -> None:
         if not np.any(mask):
             msg = f"{case.name} selected no points with {case.target_mask}"
             raise ValueError(msg)
-        target_displacement = displacement_from(target)
+        target_displacement_raw = displacement_from(target)
+        target_displacement_face_only = restrict_displacement(target_displacement_raw, mask)
+        target_displacement_for_volume = (
+            target_displacement_raw
+            if case.target_volume_is_physical
+            else target_displacement_face_only
+        )
         inverse_displacement = displacement_from(inverse)
         tets = tetra_cells(base)
         rest_volume = tetra_volumes(np.asarray(base.points, dtype=np.float64), tets)
@@ -392,18 +542,38 @@ def main(cfg: Config) -> None:
             raise ValueError(msg)
         surface = surface_triangles(base)
         rest_surface_area = triangle_areas(np.asarray(base.points, dtype=np.float64), surface)
+        diagnostic_path = cfg.output_vtu_dir / f"{case.name}-volume-change.vtu"
+        write_diagnostic_vtu(
+            path=diagnostic_path,
+            case=case,
+            base=base,
+            mask=mask,
+            target_raw=target_displacement_raw,
+            target_face_only=target_displacement_face_only,
+            inverse=inverse_displacement,
+            tets=tets,
+            rest_signed_volume=rest_signed_volume,
+            rest_volume=rest_volume,
+        )
 
         target_row = measure_state(
             case_name=case.name,
-            state="target",
+            state="target"
+            if case.target_volume_is_physical
+            else "target-face-only-diagnostic",
             base=base,
-            displacement=target_displacement,
+            displacement=target_displacement_for_volume,
             mask=mask,
             tets=tets,
             rest_volume=rest_volume,
             surface=surface,
             rest_surface_area=rest_surface_area,
             rest_signed_volume=rest_signed_volume,
+            volume_is_physical=case.target_volume_is_physical,
+            volume_scope="full-field" if case.target_volume_is_physical else "IsFace-only",
+        )
+        target_row.update(
+            displacement_stats(target_displacement_raw, mask, "target_raw_displacement")
         )
         inverse_row = measure_state(
             case_name=case.name,
@@ -416,10 +586,12 @@ def main(cfg: Config) -> None:
             surface=surface,
             rest_surface_area=rest_surface_area,
             rest_signed_volume=rest_signed_volume,
+            volume_is_physical=True,
+            volume_scope="forward-solved-full-field",
         )
         diff_row = error_row(
             case_name=case.name,
-            target_displacement=target_displacement,
+            target_displacement=target_displacement_raw,
             inverse_displacement=inverse_displacement,
             mask=mask,
         )
@@ -440,9 +612,10 @@ def main(cfg: Config) -> None:
             "mask_error_rms_fraction_of_target"
         ]
         logger.info(
-            "%s target volume change %.6g, inverse %.6g, error fraction %.6g",
+            "%s target volume change %.6g (%s), inverse %.6g, error fraction %.6g",
             case.name,
             target_row["volume_rel_change"],
+            target_row["volume_scope"],
             inverse_row["volume_rel_change"],
             diff_row["mask_error_rms_fraction_of_target"],
         )

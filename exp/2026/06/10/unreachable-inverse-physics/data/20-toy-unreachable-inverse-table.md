@@ -1,8 +1,8 @@
-| case | points | tets | active tets | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | error RMS | error/target RMS | top y std | top edge RMS |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 20-toy-stretch-coarse | 567 | 2304 | 96 | 0.153125 | 0.0300308 | 0 | 0.00520833 | 0.0175514 | 0.877572 | 0.00551805 | 0.00520439 |
-| 20-toy-squash-coarse | 567 | 2304 | 96 | -0.153125 | -0.0140868 | 0.127604 | 0 | 0.0186627 | 0.933135 | 0.00350528 | 0.00264441 |
-| 20-toy-stretch-medium | 2475 | 11760 | 224 | 0.172449 | 0.021948 | 0 | 0.00306122 | 0.0183732 | 0.918658 | 0.00463875 | 0.00404378 |
-| 20-toy-squash-medium | 2475 | 11760 | 224 | -0.172449 | -0.0182838 | 0.0862245 | 0.00238095 | 0.0185586 | 0.927929 | 0.00461259 | 0.00345223 |
-| 20-toy-stretch-fine | 4851 | 24000 | 480 | 0.1805 | 0.0315011 | 0 | 0.00125 | 0.017966 | 0.898302 | 0.00566704 | 0.00406088 |
-| 20-toy-squash-fine | 4851 | 24000 | 480 | -0.1805 | -0.0187271 | 0.09025 | 0.00179167 | 0.0185506 | 0.927528 | 0.00433151 | 0.00291217 |
+| case | points | tets | active tets | best step | convergence | target signed volume change | inverse signed volume change | target inverted tets | inverse inverted tets | best error RMS | best error/target RMS | top y std | top edge RMS |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20-toy-stretch-coarse | 567 | 2304 | 96 | 111 | not_converged_best_in_last_window | 0.153125 | 0.0511174 | 0 | 0.00998264 | 0.0156579 | 0.782894 | 0.0072678 | 0.00575292 |
+| 20-toy-squash-coarse | 567 | 2304 | 96 | 120 | not_converged_best_in_last_window | -0.153125 | -0.0257994 | 0.127604 | 0.00173611 | 0.0176623 | 0.883114 | 0.00470951 | 0.00378748 |
+| 20-toy-stretch-medium | 2475 | 11760 | 224 | 76 | drifted_after_best | 0.172449 | 0.0404998 | 0 | 0.00442177 | 0.0172635 | 0.863173 | 0.00682601 | 0.00517889 |
+| 20-toy-squash-medium | 2475 | 11760 | 224 | 106 | not_converged_best_in_last_window | -0.172449 | -0.0263606 | 0.0862245 | 0.00357143 | 0.0179359 | 0.896796 | 0.00542674 | 0.00395421 |
+| 20-toy-stretch-fine | 4851 | 24000 | 480 | 117 | not_converged_best_in_last_window | 0.1805 | 0.0498966 | 0 | 0.0025 | 0.016967 | 0.848348 | 0.00750853 | 0.00493626 |
+| 20-toy-squash-fine | 4851 | 24000 | 480 | 120 | not_converged_best_in_last_window | -0.1805 | -0.0270508 | 0.09025 | 0.00308333 | 0.0179361 | 0.896805 | 0.00524086 | 0.00334211 |

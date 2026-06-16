@@ -37,15 +37,15 @@ def get_activation_inv(region: Region, annotation: ArrayAnnotation) -> wp.array:
         A[:, 1, 1] = 1.0 + activation[:, 1]
         A[:, 2, 2] = 1.0 + activation[:, 2]
         A[:, 0, 1] = A[:, 1, 0] = activation[:, 3]
-        A[:, 0, 2] = A[:, 2, 0] = activation[:, 4]
-        A[:, 1, 2] = A[:, 2, 1] = activation[:, 5]
+        A[:, 1, 2] = A[:, 2, 1] = activation[:, 4]
+        A[:, 0, 2] = A[:, 2, 0] = activation[:, 5]
         A_inv: Float[np.ndarray, "c 3 3"] = np.linalg.inv(A)
         activation_inv: Float[np.ndarray, "c 6"] = np.zeros((region.mesh.n_cells, 6))
         activation_inv[:, 0] = A_inv[:, 0, 0] - 1.0
         activation_inv[:, 1] = A_inv[:, 1, 1] - 1.0
         activation_inv[:, 2] = A_inv[:, 2, 2] - 1.0
         activation_inv[:, 3] = A_inv[:, 0, 1]
-        activation_inv[:, 4] = A_inv[:, 0, 2]
-        activation_inv[:, 5] = A_inv[:, 1, 2]
+        activation_inv[:, 4] = A_inv[:, 1, 2]
+        activation_inv[:, 5] = A_inv[:, 0, 2]
         return wp.from_numpy(activation_inv, annotation.dtype)
     return wp.zeros((region.mesh.n_cells,), annotation.dtype)

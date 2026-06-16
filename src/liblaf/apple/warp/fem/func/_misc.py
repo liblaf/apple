@@ -47,9 +47,9 @@ def lambdas(sigma: vec3, *, clamp: bool = True) -> vec3:
 @no_type_check
 def make_activation_mat33(activation: vec6) -> mat33:
     return wp.identity(3, activation.dtype) + wp.matrix_from_rows(
-        wp.vector(activation[0], activation[3], activation[4]),
-        wp.vector(activation[3], activation[1], activation[5]),
-        wp.vector(activation[4], activation[5], activation[2]),
+        wp.vector(activation[0], activation[3], activation[5]),
+        wp.vector(activation[3], activation[1], activation[4]),
+        wp.vector(activation[5], activation[4], activation[2]),
     )
 
 

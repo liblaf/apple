@@ -106,12 +106,15 @@ def quantiles(values: np.ndarray, prefix: str) -> dict[str, float]:
 
 
 def rel_change(new: np.ndarray, old: np.ndarray) -> np.ndarray:
-    return np.divide(
-        new,
-        old,
-        out=np.full_like(new, np.nan, dtype=np.float64),
-        where=old != 0.0,
-    ) - 1.0
+    return (
+        np.divide(
+            new,
+            old,
+            out=np.full_like(new, np.nan, dtype=np.float64),
+            where=old != 0.0,
+        )
+        - 1.0
+    )
 
 
 def add_area_state(

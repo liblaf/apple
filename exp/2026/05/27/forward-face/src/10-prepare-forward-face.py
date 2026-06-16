@@ -236,8 +236,12 @@ def metric_summary(
         "activation/n_tets": int(active.sum()),
         "target/n_points": int(target_mask.sum()),
         "fixed/n_points": int(fixed.sum()),
-        "fixed/n_cranium_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
-        "fixed/n_mandible_points": int(np.asarray(mesh.point_data["FixedMandible"]).sum()),
+        "fixed/n_cranium_points": int(
+            np.asarray(mesh.point_data["FixedCranium"]).sum()
+        ),
+        "fixed/n_mandible_points": int(
+            np.asarray(mesh.point_data["FixedMandible"]).sum()
+        ),
         "volume/muscle_fraction": float(np.sum(muscle * volume)),
         "volume/smas_fraction": float(np.sum(smas * volume)),
         "volume/smas_stiffness_fraction": float(np.sum(smas_stiffness * volume)),

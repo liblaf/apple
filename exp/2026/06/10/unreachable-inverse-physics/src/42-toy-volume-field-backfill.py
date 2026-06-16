@@ -45,7 +45,8 @@ def case_paths(data_dir: Path) -> list[Path]:
     return [
         path
         for path in paths
-        if not path.name.endswith("-input.vtu") and not path.name.endswith("-target.vtu")
+        if not path.name.endswith("-input.vtu")
+        and not path.name.endswith("-target.vtu")
     ]
 
 
@@ -88,7 +89,9 @@ def patch_pair(result_path: Path) -> dict[str, Any]:
     cherries.log_output(result_path)
     cherries.log_output(target_path)
 
-    inverse_rel = np.asarray(result.cell_data["VolumeInverseRelChange"], dtype=np.float64)
+    inverse_rel = np.asarray(
+        result.cell_data["VolumeInverseRelChange"], dtype=np.float64
+    )
     target_rel = np.asarray(result.cell_data["VolumeTargetRelChange"], dtype=np.float64)
     signed_inverse_rel = np.asarray(
         result.cell_data["SignedVolumeInverseRelChange"], dtype=np.float64

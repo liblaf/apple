@@ -173,7 +173,9 @@ def make_result_mesh(
     result.point_data["TargetPoint"] = result.points
     result.cell_data[ACTIVATION_INV.vtk] = activation_inv
     result.cell_data["ForwardActivationInv"] = activation_inv
-    result.cell_data["ForwardActivationInvNorm"] = np.linalg.norm(activation_inv, axis=1)
+    result.cell_data["ForwardActivationInvNorm"] = np.linalg.norm(
+        activation_inv, axis=1
+    )
     BASE.add_tetra_volume_change_fields(result, target, displacement)
     result.cell_data["VolumeForward"] = np.asarray(result.cell_data["VolumeInverse"])
     result.cell_data["VolumeForwardRelChange"] = np.asarray(
@@ -201,7 +203,9 @@ def displacement_stats(mesh: Any, displacement: np.ndarray) -> dict[str, float]:
     active_points[np.unique(tets[active_cells].reshape(-1))] = True
     stats = {
         "displacement/mean": float(values.mean()),
-        "displacement/rms": float(np.linalg.norm(displacement) / math.sqrt(mesh.n_points)),
+        "displacement/rms": float(
+            np.linalg.norm(displacement) / math.sqrt(mesh.n_points)
+        ),
         "displacement/max": float(values.max()),
         "top/displacement_y_mean": float(displacement[top, 1].mean()),
         "top/displacement_y_min": float(displacement[top, 1].min()),
@@ -260,15 +264,29 @@ def solve_case(case: ForwardCase, cfg: Config) -> dict[str, Any]:
     }
     row.update(forward_solution_metrics(solution))
     row.update(displacement_stats(mesh, displacement))
-    row.update({f"forward/{key}": value for key, value in BASE.geometry_change(mesh, displacement, target_mask).items()})
+    row.update(
+        {
+            f"forward/{key}": value
+            for key, value in BASE.geometry_change(
+                mesh, displacement, target_mask
+            ).items()
+        }
+    )
 
     numeric_metrics = {
-        key: value for key, value in row.items() if isinstance(value, int | float | bool)
+        key: value
+        for key, value in row.items()
+        if isinstance(value, int | float | bool)
     }
-    melon.save(output_path, make_result_mesh(mesh, displacement, activation_inv, numeric_metrics))
+    melon.save(
+        output_path,
+        make_result_mesh(mesh, displacement, activation_inv, numeric_metrics),
+    )
     cherries.log_output(input_path)
     cherries.log_output(output_path)
-    cherries.log_metrics({f"{case.stem}/{key}": value for key, value in numeric_metrics.items()})
+    cherries.log_metrics(
+        {f"{case.stem}/{key}": value for key, value in numeric_metrics.items()}
+    )
     logger.info(
         "%s displacement rms %.6g max %.6g signed dV %.6g forward %s",
         case.stem,

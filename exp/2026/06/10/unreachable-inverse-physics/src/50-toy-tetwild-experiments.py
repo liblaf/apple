@@ -161,7 +161,9 @@ def sample_barycentric(n_samples: int) -> np.ndarray:
     return values / values.sum(axis=1, keepdims=True)
 
 
-def inside_box(points: np.ndarray, bounds: tuple[float, float, float, float, float, float]) -> np.ndarray:
+def inside_box(
+    points: np.ndarray, bounds: tuple[float, float, float, float, float, float]
+) -> np.ndarray:
     xmin, xmax, ymin, ymax, zmin, zmax = bounds
     eps = 1.0e-12
     return (
@@ -228,7 +230,9 @@ def add_fraction_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     mesh.cell_data["Volume"] = BASE.tetra_volumes(points, tets)
     mesh.cell_data[ACTIVATION.vtk] = zero_activation.copy()
     mesh.cell_data[ACTIVATION_INV.vtk] = zero_activation.copy()
-    mesh.field_data["FractionSamplesPerTet"] = np.asarray([cfg.fraction_samples_per_tet])
+    mesh.field_data["FractionSamplesPerTet"] = np.asarray(
+        [cfg.fraction_samples_per_tet]
+    )
 
     eps = max(1.0e-5, 0.03 * min(parse_floats(cfg.lrs)))
     point_x, point_y, point_z = points[:, 0], points[:, 1], points[:, 2]
@@ -278,7 +282,9 @@ def write_area_surface(
     surface.cell_data["TargetArea"] = target_area
     surface.cell_data["TargetAreaRelChange"] = BASE.rel_change(target_area, rest_area)
     surface.cell_data["SolutionArea"] = solution_area
-    surface.cell_data["SolutionAreaRelChange"] = BASE.rel_change(solution_area, rest_area)
+    surface.cell_data["SolutionAreaRelChange"] = BASE.rel_change(
+        solution_area, rest_area
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"{stem}-area-change.vtp"
     surface.save(path)
@@ -286,7 +292,9 @@ def write_area_surface(
     return path
 
 
-def target_rows(mesh: pv.UnstructuredGrid, spec: TetwildSpec, cfg: Config) -> list[dict[str, Any]]:
+def target_rows(
+    mesh: pv.UnstructuredGrid, spec: TetwildSpec, cfg: Config
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     data_dir = cfg.output_summary.parent
     input_path = data_dir / f"50-toy-tetwild-{spec.name}-input.vtu"
@@ -315,14 +323,23 @@ def target_rows(mesh: pv.UnstructuredGrid, spec: TetwildSpec, cfg: Config) -> li
             "lr": spec.lr,
             "n_points": int(mesh.n_points),
             "n_tets": int(mesh.n_cells),
-            "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"], dtype=bool).sum()),
+            "n_active_tets": int(
+                np.asarray(mesh.cell_data["ActivationMask"], dtype=bool).sum()
+            ),
             "n_target_points": int(target_mask.sum()),
             "target_y": target_y,
             "input_path": str(input_path),
             "target_path": str(target_path),
             "area_surface_path": str(area_path),
         }
-        row.update({f"target/{key}": value for key, value in BASE.geometry_change(mesh, target, target_mask).items()})
+        row.update(
+            {
+                f"target/{key}": value
+                for key, value in BASE.geometry_change(
+                    mesh, target, target_mask
+                ).items()
+            }
+        )
         rows.append(row)
         cherries.log_output(target_path)
     return rows
@@ -381,7 +398,9 @@ def forward_solution_metrics(solution: Any) -> dict[str, Any]:
     }
 
 
-def forward_rows(meshes: dict[float, pv.UnstructuredGrid], cfg: Config) -> list[dict[str, Any]]:
+def forward_rows(
+    meshes: dict[float, pv.UnstructuredGrid], cfg: Config
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for spec in specs(cfg):
         if spec.lr not in parse_floats(cfg.forward_lrs):
@@ -421,22 +440,44 @@ def forward_rows(meshes: dict[float, pv.UnstructuredGrid], cfg: Config) -> list[
             "lr": spec.lr,
             "n_points": int(mesh.n_points),
             "n_tets": int(mesh.n_cells),
-            "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"], dtype=bool).sum()),
+            "n_active_tets": int(
+                np.asarray(mesh.cell_data["ActivationMask"], dtype=bool).sum()
+            ),
             "n_target_points": int(target_mask.sum()),
             "elapsed_s": time.perf_counter() - start,
             "output_path": str(output_path),
             "area_surface_path": str(area_path),
         }
         row.update(forward_solution_metrics(solution))
-        row.update({f"forward/{key}": value for key, value in BASE.geometry_change(mesh, displacement, target_mask).items()})
-        row.update({f"forward/{key}": value for key, value in BASE.top_roughness(mesh, displacement).items()})
+        row.update(
+            {
+                f"forward/{key}": value
+                for key, value in BASE.geometry_change(
+                    mesh, displacement, target_mask
+                ).items()
+            }
+        )
+        row.update(
+            {
+                f"forward/{key}": value
+                for key, value in BASE.top_roughness(mesh, displacement).items()
+            }
+        )
         rows.append(row)
         cherries.log_output(output_path)
-        cherries.log_metrics({f"{stem}/{key}": value for key, value in row.items() if isinstance(value, int | float | bool)})
+        cherries.log_metrics(
+            {
+                f"{stem}/{key}": value
+                for key, value in row.items()
+                if isinstance(value, int | float | bool)
+            }
+        )
     return rows
 
 
-def inverse_rows(meshes: dict[float, pv.UnstructuredGrid], cfg: Config) -> list[dict[str, Any]]:
+def inverse_rows(
+    meshes: dict[float, pv.UnstructuredGrid], cfg: Config
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     original_make_tet_box = BASE.make_tet_box
     original_add_material = BASE.add_material_and_boundary_fields
@@ -445,7 +486,9 @@ def inverse_rows(meshes: dict[float, pv.UnstructuredGrid], cfg: Config) -> list[
             if spec.lr not in parse_floats(cfg.inverse_lrs):
                 continue
             for mode in parse_modes(cfg.modes):
-                target_y = cfg.target_magnitude if mode == "stretch" else -cfg.target_magnitude
+                target_y = (
+                    cfg.target_magnitude if mode == "stretch" else -cfg.target_magnitude
+                )
                 case = TetwildCase(resolution=spec, mode=mode, target_y=target_y)
                 mesh = meshes[spec.lr].copy(deep=True)
                 BASE.make_tet_box = lambda _resolution, mesh=mesh: mesh.copy(deep=True)
@@ -460,9 +503,14 @@ def inverse_rows(meshes: dict[float, pv.UnstructuredGrid], cfg: Config) -> list[
                 area_path = write_area_surface(
                     mesh=result,
                     stem=case.stem,
-                    target=np.asarray(result.point_data["TargetDisplacement"], dtype=np.float64),
-                    solution=np.asarray(result.point_data["Displacement"], dtype=np.float64),
-                    output_dir=cfg.output_summary.parent / "50-toy-tetwild-area-surfaces",
+                    target=np.asarray(
+                        result.point_data["TargetDisplacement"], dtype=np.float64
+                    ),
+                    solution=np.asarray(
+                        result.point_data["Displacement"], dtype=np.float64
+                    ),
+                    output_dir=cfg.output_summary.parent
+                    / "50-toy-tetwild-area-surfaces",
                 )
                 row["area_surface_path"] = str(area_path)
                 rows.append(row)

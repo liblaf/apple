@@ -153,7 +153,9 @@ def set_material(
     mesh.cell_data[FRACTION.vtk] = np.asarray(fraction, dtype=np.float64)
 
 
-def unpack_symmetric(values: tuple[float, float, float, float, float, float]) -> np.ndarray:
+def unpack_symmetric(
+    values: tuple[float, float, float, float, float, float],
+) -> np.ndarray:
     xx, yy, zz, xy, xz, yz = values
     return np.asarray(
         [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]],
@@ -304,7 +306,9 @@ def summarize(
     elapsed_s: float,
     cfg: Config,
 ) -> dict[str, Any]:
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     active = np.asarray(mesh.cell_data["ActivationMask"], dtype=bool)
     volume = np.asarray(mesh.cell_data["Volume"], dtype=np.float64)
     muscle = np.asarray(mesh.cell_data["MuscleFraction"], dtype=np.float64)
@@ -356,7 +360,9 @@ def make_result_mesh(
     metrics: dict[str, float | int | bool | str],
 ) -> pv.UnstructuredGrid:
     result = mesh.copy(deep=True)
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     error = displacement - target_displacement
     result.point_data["Displacement"] = displacement
     result.point_data["DisplacementNorm"] = np.linalg.norm(displacement, axis=1)

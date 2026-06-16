@@ -197,12 +197,15 @@ def tetra_volumes(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
 
 
 def rel_change(value: np.ndarray, reference: np.ndarray) -> np.ndarray:
-    return np.divide(
-        value,
-        reference,
-        out=np.full_like(value, np.nan, dtype=np.float64),
-        where=reference != 0.0,
-    ) - 1.0
+    return (
+        np.divide(
+            value,
+            reference,
+            out=np.full_like(value, np.nan, dtype=np.float64),
+            where=reference != 0.0,
+        )
+        - 1.0
+    )
 
 
 def add_tetra_volume_change_fields(
@@ -270,12 +273,7 @@ def add_material_and_boundary_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> 
     x, y, z = centers[:, 0], centers[:, 1], centers[:, 2]
 
     muscle = (
-        (x >= 0.0)
-        & (x <= 0.5)
-        & (y >= 0.04)
-        & (y <= 0.06)
-        & (z >= 0.4)
-        & (z <= 0.6)
+        (x >= 0.0) & (x <= 0.5) & (y >= 0.04) & (y <= 0.06) & (z >= 0.4) & (z <= 0.6)
     ).astype(np.float64)
     smas = ((y >= 0.04) & (y <= 0.06)).astype(np.float64)
     aponeurosis = np.maximum(0.0, smas - muscle)
@@ -407,7 +405,9 @@ def target_displacement(mesh: pv.UnstructuredGrid, target_y: float) -> np.ndarra
     return displacement
 
 
-def make_target_mesh(mesh: pv.UnstructuredGrid, displacement: np.ndarray) -> pv.UnstructuredGrid:
+def make_target_mesh(
+    mesh: pv.UnstructuredGrid, displacement: np.ndarray
+) -> pv.UnstructuredGrid:
     result = mesh.copy(deep=True)
     result.point_data["Displacement"] = displacement
     result.point_data["TargetDisplacement"] = displacement
@@ -508,7 +508,9 @@ def geometry_change(
     }
 
 
-def top_roughness(mesh: pv.UnstructuredGrid, displacement: np.ndarray) -> dict[str, float]:
+def top_roughness(
+    mesh: pv.UnstructuredGrid, displacement: np.ndarray
+) -> dict[str, float]:
     target_mask = np.asarray(mesh.point_data[TARGET_SURFACE_MASK], dtype=bool)
     top_ids = np.flatnonzero(target_mask)
     top_y = displacement[top_ids, 1]
@@ -659,7 +661,9 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:  # noqa: PLR0915
     forward = build_forward(inverse_mesh, cfg)
     differentiable_forward = DifferentiableForward(forward)
     base_materials = forward.model.get_materials()
-    global_ids = np.asarray(inverse_mesh.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64)
+    global_ids = np.asarray(
+        inverse_mesh.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64
+    )
     target_mask = np.asarray(inverse_mesh.point_data[TARGET_SURFACE_MASK], dtype=bool)
     target_ids = np.flatnonzero(target_mask).astype(np.int64)
     active_ids = np.flatnonzero(
@@ -742,7 +746,9 @@ def solve_case(case: ToyCase, cfg: Config) -> dict[str, Any]:  # noqa: PLR0915
                     torch.linalg.vector_norm(active_clamped.detach()).cpu()
                     / math.sqrt(active_clamped.numel())
                 ),
-                "activation_inv_max_abs": float(active_clamped.detach().abs().max().cpu()),
+                "activation_inv_max_abs": float(
+                    active_clamped.detach().abs().max().cpu()
+                ),
                 "grad_norm": float(torch.linalg.vector_norm(grad).cpu()),
             }
             if loss_value < best_loss:
@@ -883,7 +889,9 @@ def selected_cases(cfg: Config) -> list[ToyCase]:
             raise ValueError(msg)
         spec = RESOLUTION_SPECS[resolution_name]
         for mode in cfg.modes:
-            target_y = cfg.target_magnitude if mode == "stretch" else -cfg.target_magnitude
+            target_y = (
+                cfg.target_magnitude if mode == "stretch" else -cfg.target_magnitude
+            )
             cases.append(ToyCase(resolution=spec, mode=mode, target_y=target_y))
     return cases
 

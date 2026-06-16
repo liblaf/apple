@@ -123,7 +123,9 @@ def add_material_fields(mesh: pv.UnstructuredGrid, cfg: Config) -> None:
     zero_activation_fields(mesh)
 
 
-def fixed_point_mask(mesh: pv.UnstructuredGrid, cfg: Config) -> tuple[np.ndarray, dict[str, int]]:
+def fixed_point_mask(
+    mesh: pv.UnstructuredGrid, cfg: Config
+) -> tuple[np.ndarray, dict[str, int]]:
     fixed = np.zeros(mesh.n_points, dtype=bool)
     counts: dict[str, int] = {}
     for name in cfg.fixed_point_masks:
@@ -222,8 +224,12 @@ def metric_summary(
         "n_active_tets": int(np.asarray(mesh.cell_data["ActivationMask"]).sum()),
         "n_target_points": int(target_mask.sum()),
         "n_fixed_points": int(np.asarray(mesh.point_data["FixedBoundary"]).sum()),
-        "n_fixed_cranium_points": int(np.asarray(mesh.point_data["FixedCranium"]).sum()),
-        "n_fixed_mandible_points": int(np.asarray(mesh.point_data["FixedMandible"]).sum()),
+        "n_fixed_cranium_points": int(
+            np.asarray(mesh.point_data["FixedCranium"]).sum()
+        ),
+        "n_fixed_mandible_points": int(
+            np.asarray(mesh.point_data["FixedMandible"]).sum()
+        ),
         "muscle_fraction_volume": float(np.sum(muscle * volume)),
         "smas_fraction_volume": float(np.sum(smas * volume)),
         "target_displacement_mean": float(target_norm.mean()),

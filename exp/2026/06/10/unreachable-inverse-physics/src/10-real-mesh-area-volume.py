@@ -187,7 +187,9 @@ def mask_from_mesh(mesh: pv.UnstructuredGrid, name: str) -> np.ndarray:
     return np.ones(mesh.n_points, dtype=bool)
 
 
-def displacement_from(mesh: pv.UnstructuredGrid, *, preferred: str = "Displacement") -> np.ndarray:
+def displacement_from(
+    mesh: pv.UnstructuredGrid, *, preferred: str = "Displacement"
+) -> np.ndarray:
     if preferred in mesh.point_data:
         return np.asarray(mesh.point_data[preferred], dtype=np.float64)
     if "TargetDisplacement" in mesh.point_data:
@@ -420,7 +422,9 @@ def error_row(
         "n_points": int(error.shape[0]),
         "n_mask_points": int(mask.sum()),
         "mask_error_mean": float(mask_error.mean()),
-        "mask_error_rms": float(np.linalg.norm(error[mask]) / math.sqrt(int(mask.sum()))),
+        "mask_error_rms": float(
+            np.linalg.norm(error[mask]) / math.sqrt(int(mask.sum()))
+        ),
         "mask_error_max": float(mask_error.max()),
         "mask_target_displacement_rms": float(
             np.linalg.norm(target_displacement[mask]) / math.sqrt(int(mask.sum()))
@@ -434,7 +438,9 @@ def error_row(
     }
 
 
-def flatten_for_csv(rows: list[dict[str, Any]]) -> tuple[list[str], list[dict[str, Any]]]:
+def flatten_for_csv(
+    rows: list[dict[str, Any]],
+) -> tuple[list[str], list[dict[str, Any]]]:
     keys = sorted({key for row in rows for key in row})
     flat_rows: list[dict[str, Any]] = []
     for row in rows:
@@ -472,8 +478,7 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
     metric_rows = [
         row
         for row in rows
-        if row.get("state")
-        in {"target", "target-face-only-diagnostic", "inverse"}
+        if row.get("state") in {"target", "target-face-only-diagnostic", "inverse"}
     ]
     error_rows = {
         row["case"]: row for row in rows if row.get("state") == "inverse-minus-target"
@@ -524,7 +529,9 @@ def main(cfg: Config) -> None:
             msg = f"{case.name} selected no points with {case.target_mask}"
             raise ValueError(msg)
         target_displacement_raw = displacement_from(target)
-        target_displacement_face_only = restrict_displacement(target_displacement_raw, mask)
+        target_displacement_face_only = restrict_displacement(
+            target_displacement_raw, mask
+        )
         target_displacement_for_volume = (
             target_displacement_raw
             if case.target_volume_is_physical
@@ -540,7 +547,9 @@ def main(cfg: Config) -> None:
             msg = f"{case.name} has non-positive rest tetra volume"
             raise ValueError(msg)
         surface = surface_triangles(base)
-        rest_surface_area = triangle_areas(np.asarray(base.points, dtype=np.float64), surface)
+        rest_surface_area = triangle_areas(
+            np.asarray(base.points, dtype=np.float64), surface
+        )
         diagnostic_path = (
             cfg.output_summary.parent
             / "10-real-mesh-area-volume-vtu"
@@ -573,7 +582,9 @@ def main(cfg: Config) -> None:
             rest_surface_area=rest_surface_area,
             rest_signed_volume=rest_signed_volume,
             volume_is_physical=case.target_volume_is_physical,
-            volume_scope="full-field" if case.target_volume_is_physical else "IsFace-only",
+            volume_scope="full-field"
+            if case.target_volume_is_physical
+            else "IsFace-only",
         )
         target_row.update(
             displacement_stats(target_displacement_raw, mask, "target_raw_displacement")

@@ -62,7 +62,6 @@ ADJOINT_ATOL = 0.0
 ADJOINT_MAXITER = 10_000
 
 INVERSE_PATIENCE = 20
-ACTIVATION_INV_ABS_MAX = 0.8
 
 
 @dataclass(frozen=True)
@@ -1029,18 +1028,13 @@ def solve_case(  # noqa: PLR0915
         for step in range(cfg.inverse_max_steps + 1):
             step_start = time.perf_counter()
             optimizer.zero_grad()
-            parameter_clamped = torch.clamp(
+            active_activation_inv = active_activation_inv_from_parameter(
                 activation_parameter,
-                min=-ACTIVATION_INV_ABS_MAX,
-                max=ACTIVATION_INV_ABS_MAX,
-            )
-            active_clamped = active_activation_inv_from_parameter(
-                parameter_clamped,
                 n_active_tets=active_ids.size,
                 shared=case.variant.shared_activation,
             )
             materials = material_tree(
-                base_materials, active_clamped, active_ids_t, inverse_mesh.n_cells
+                base_materials, active_activation_inv, active_ids_t, inverse_mesh.n_cells
             )
             forward_start = time.perf_counter()
             output = forward_quiet(differentiable_forward, materials)
@@ -1059,7 +1053,7 @@ def solve_case(  # noqa: PLR0915
                 else torch.zeros((), dtype=data_loss.dtype, device=data_loss.device)
             )
             smooth_loss = (
-                activation_smooth_loss(active_clamped, smooth_i_t, smooth_j_t)
+                activation_smooth_loss(active_activation_inv, smooth_i_t, smooth_j_t)
                 if case.variant.activation_smooth
                 else torch.zeros((), dtype=data_loss.dtype, device=data_loss.device)
             )
@@ -1085,7 +1079,7 @@ def solve_case(  # noqa: PLR0915
             displacement = to_numpy(output)[global_ids]
             full_activation_inv = to_numpy(
                 full_activation_inv_from_active(
-                    active_clamped.detach(), active_ids_t, inverse_mesh.n_cells
+                    active_activation_inv.detach(), active_ids_t, inverse_mesh.n_cells
                 )
             )
             loss_value = float(loss.detach().cpu())
@@ -1119,18 +1113,11 @@ def solve_case(  # noqa: PLR0915
                 "target/error_rms": float(error_stats["rms"].detach().cpu()),
                 "target/error_max": float(error_stats["max"].detach().cpu()),
                 "activation_inv/rms": float(
-                    torch.linalg.vector_norm(active_clamped.detach()).cpu()
-                    / math.sqrt(active_clamped.numel())
+                    torch.linalg.vector_norm(active_activation_inv.detach()).cpu()
+                    / math.sqrt(active_activation_inv.numel())
                 ),
                 "activation_inv/max_abs": float(
-                    active_clamped.detach().abs().max().cpu()
-                ),
-                "activation_parameter/rms": float(
-                    torch.linalg.vector_norm(parameter_clamped.detach()).cpu()
-                    / math.sqrt(parameter_clamped.numel())
-                ),
-                "activation_parameter/max_abs": float(
-                    parameter_clamped.detach().abs().max().cpu()
+                    active_activation_inv.detach().abs().max().cpu()
                 ),
                 "grad/norm": float(torch.linalg.vector_norm(grad).detach().cpu()),
                 "best/step": float(best_step),
@@ -1192,10 +1179,6 @@ def solve_case(  # noqa: PLR0915
             if step == cfg.inverse_max_steps:
                 break
             optimizer.step()
-            with torch.no_grad():
-                activation_parameter.clamp_(
-                    -ACTIVATION_INV_ABS_MAX, ACTIVATION_INV_ABS_MAX
-                )
 
     if best_displacement is None or best_activation_inv is None:
         msg = f"{case.stem} did not evaluate any inverse state"

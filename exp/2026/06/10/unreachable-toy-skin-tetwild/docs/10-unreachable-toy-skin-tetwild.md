@@ -143,6 +143,36 @@ The loss curves were generated from each case's `*-steps.vtkhdf` file using
 
 ![Loss vs step for all squash cases](../figs/30-loss-curves/loss-vs-step-all-cases.png)
 
+## Learning Rate Probe
+
+A follow-up probe reran the L2, no-skin-prestrain, per-tet `ActivationInv`
+case with unrestricted six-vector activations. The inverse loop now records the
+true lowest-loss step as `best/step`; the plateau stop uses a private
+min-delta reference for 20 consecutive non-improving steps without recording a
+separate "last significant improvement" artifact.
+
+Commands:
+
+```bash
+CHERRIES_NAME=toy-skin-tetwild-lr-sweep CHERRIES_TAGS=lr030 COMET_LOG_GIT_PATCH=false uv run python src/20-inverse-toy-skin-tetwild.py --mode squash --loss-variant l2 --skin-prestrain-enabled false --activation-mode per-tet --inverse-lr 0.3 --inverse-loss-min-delta 1e-8 --inverse-max-steps 80 --require-convergence false --output-summary data/41-lr-sweep/lr030/summary.json --output-table data/41-lr-sweep/lr030/table.md
+CHERRIES_NAME=toy-skin-tetwild-lr-sweep CHERRIES_TAGS=lr060 COMET_LOG_GIT_PATCH=false uv run python src/20-inverse-toy-skin-tetwild.py --mode squash --loss-variant l2 --skin-prestrain-enabled false --activation-mode per-tet --inverse-lr 0.6 --inverse-loss-min-delta 1e-8 --inverse-max-steps 50 --require-convergence false --output-summary data/41-lr-sweep/lr060/summary.json --output-table data/41-lr-sweep/lr060/table.md
+CHERRIES_NAME=toy-skin-tetwild-lr-sweep-plots CHERRIES_TAGS=plot uv run python src/40-plot-lr-sweep-loss-curves.py
+```
+
+Summary:
+
+| lr | evaluations | stop | best step | best loss | final loss | final plateau steps | activation RMS | activation max abs |
+| ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.3 | 81 | step_limit | 79 | 0.000732421 | 0.000732922 | 1 | 1.32879 | 8.19763 |
+| 0.6 | 51 | step_limit | 50 | 0.000730082 | 0.000730082 | 0 | 1.64953 | 10.9414 |
+
+`lr = 0.6` is the better candidate from this probe: it reaches a lower loss in
+50 evaluations than `lr = 0.3` reaches in 81. Both curves still hit the
+exploratory step cap rather than the 20-step plateau stop, so the case has not
+visibly converged under these caps.
+
+![Log loss vs step for LR sweep](../figs/41-lr-sweep/l2-no-prestrain-per-tet-lr-sweep-log-loss.png)
+
 ## Validation
 
 Validation commands run successfully:

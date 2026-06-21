@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 class PlotLrSweepConfig(cherries.BaseConfig):
     model_config = ps.SettingsConfigDict(cli_parse_args=True)
 
-    input_dir: Path = Path("data/41-lr-sweep")
-    output_dir: Path = Path("figs/41-lr-sweep")
+    input_dir: Path = Path("data/20-stretch-lr001")
+    output_dir: Path = Path("figs/20-stretch-lr001")
 
 
 def load_history(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -34,21 +34,43 @@ def load_history(path: Path) -> tuple[np.ndarray, np.ndarray]:
 
 def load_cases(input_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
     loaded: list[tuple[Path, dict[str, Any]]] = []
-    for summary_path in sorted(input_dir.glob("lr*/summary.json")):
+    root_summary = input_dir / "summary.json"
+    summary_paths = [root_summary] if root_summary.exists() else sorted(input_dir.glob("**/summary.json"))
+    for summary_path in summary_paths:
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
         cases = list(summary["cases"])
-        if len(cases) != 1:
-            msg = f"expected exactly one case in {summary_path}, found {len(cases)}"
-            raise ValueError(msg)
-        loaded.append((summary_path, cases[0]))
+        loaded.extend((summary_path, case) for case in cases)
     if not loaded:
-        msg = f"no learning-rate summaries found under {input_dir}"
+        msg = f"no inverse summaries found under {input_dir}"
         raise FileNotFoundError(msg)
-    return sorted(loaded, key=lambda item: float(item[1]["inverse/lr"]))
+    return sorted(loaded, key=lambda item: case_sort_key(item[1]))
 
 
-def lr_label(case: dict[str, Any]) -> str:
-    return f"lr={float(case['inverse/lr']):g}"
+def case_sort_key(case: dict[str, Any]) -> tuple[int, float, str]:
+    if bool(case.get("loss/activation_smooth_enabled", False)):
+        rank = 2
+    elif bool(case.get("skin/energy_enabled", False)):
+        rank = 1
+    else:
+        rank = 0
+    return rank, float(case["inverse/lr"]), str(case["case"])
+
+
+def case_label(case: dict[str, Any]) -> str:
+    if bool(case.get("loss/activation_smooth_enabled", False)):
+        label = "activation smooth"
+    elif bool(case.get("skin/energy_enabled", False)):
+        label = "skin"
+    else:
+        label = "baseline"
+    return f"{label}, lr={float(case['inverse/lr']):g}"
+
+
+def case_title(case: dict[str, Any]) -> str:
+    mode = str(case.get("mode", "unknown")).title()
+    target_y = float(case.get("target_y", 0.0))
+    tetwild_lr = float(case.get("tetwild/lr", 0.0))
+    return f"{mode} target y={target_y:g}, TetWild lr={tetwild_lr:g}"
 
 
 def plot_overlay(
@@ -59,16 +81,16 @@ def plot_overlay(
     cmap = plt.get_cmap("viridis")
     colors = cmap(np.linspace(0.15, 0.85, len(rows)))
     for color, (case, steps, losses) in zip(colors, rows, strict=True):
-        ax.plot(steps, losses, linewidth=2.0, color=color, label=lr_label(case))
+        ax.plot(steps, losses, linewidth=2.0, color=color, label=case_label(case))
         best_step = int(case["best/step"])
         best_loss = float(case["best/loss"])
         ax.scatter([best_step], [best_loss], color=color, edgecolor="black", zorder=3)
     ax.set_yscale("log")
     ax.set_xlabel("Inverse step")
     ax.set_ylabel("Loss")
-    ax.set_title("L2, No Skin Prestrain, Per-Tet ActivationInv")
+    ax.set_title(case_title(rows[0][0]))
     ax.grid(visible=True, which="both", alpha=0.25)
-    ax.legend(title="Learning rate")
+    ax.legend(title="Case")
     fig.savefig(output_path, dpi=180)
     plt.close(fig)
 
@@ -88,7 +110,7 @@ def plot_single_case(
     ax.set_yscale("log")
     ax.set_xlabel("Inverse step")
     ax.set_ylabel("Loss")
-    ax.set_title(f"{lr_label(case)} loss vs step")
+    ax.set_title(f"{case_title(case)} ({case_label(case)})")
     ax.grid(visible=True, which="both", alpha=0.25)
     fig.savefig(output_path, dpi=180)
     plt.close(fig)
@@ -107,11 +129,11 @@ def main(cfg: PlotLrSweepConfig) -> None:
         steps, losses = load_history(history_path)
         rows.append((case, steps, losses))
 
-        output_path = cfg.output_dir / f"{summary_path.parent.name}-log-loss-vs-step.png"
+        output_path = cfg.output_dir / f"{case_name}-log-loss-vs-step.png"
         plot_single_case(output_path, case, steps, losses)
         output_paths.append(output_path)
 
-    overlay_path = cfg.output_dir / "l2-no-prestrain-per-tet-lr-sweep-log-loss.png"
+    overlay_path = cfg.output_dir / "loss-vs-step-log.png"
     plot_overlay(overlay_path, rows)
     output_paths.insert(0, overlay_path)
 

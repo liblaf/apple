@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This experiment builds the squash-only unreachable inverse-physics toy problem
+This experiment builds the unreachable inverse-physics toy problem
 under `exp/2026/06/10/unreachable-toy-skin-tetwild/`. Mesh preparation and
 inverse solves are split so that TetWild setup stays separate from the per-case
 CUDA solve:
@@ -14,8 +14,8 @@ CUDA solve:
 Every tetrahedron carries aponeurosis, fat, and muscle fractions. Material
 values are `E = 0.10 MPa, nu = 0.35` for aponeurosis, `E = 0.003 MPa,
 nu = 0.49` for fat, and `E = 0.030 MPa, nu = 0.49` for active muscle. The skin
-is modeled as the surface triangle mesh with `E = 0.20 MPa`, `nu = 0.49`, and
-optional 10% tensile prestrain.
+is modeled as the surface triangle mesh with `E = 0.20 MPa`, `nu = 0.49`,
+thickness `0.005`, and optional 10% tensile prestrain.
 
 TetWild is called through `melon.ext.tetwild(surface, edge_length_fac=0.01)`;
 `edge_length_fac` is relative. The toy boxes are:
@@ -25,7 +25,8 @@ TetWild is called through `melon.ext.tetwild(surface, edge_length_fac=0.01)`;
 - muscle: `(0, 0.5, 0.04, 0.06, 0.4, 0.6)`
 
 The bottom surface and four sides are fixed. The squash target moves free
-top-surface points by `-0.05` in `y`.
+top-surface points by `-0.05` in `y`; the visual stretch probe moves them by
+`+0.1` in `y`.
 
 ## Commands
 
@@ -172,6 +173,34 @@ exploratory step cap rather than the 20-step plateau stop, so the case has not
 visibly converged under these caps.
 
 ![Log loss vs step for LR sweep](../figs/41-lr-sweep/l2-no-prestrain-per-tet-lr-sweep-log-loss.png)
+
+## Thin-Skin Stretch Probe
+
+The stretch visual case was rerun after changing the toy shell thickness from
+`1.0` to `0.005`. The case is still L2-only, no skin prestrain, per-tet
+`ActivationInv`, target displacement `+0.1` in `y`, and `lr = 0.05`.
+
+Command:
+
+```bash
+DEBUG=1 CHERRIES_NAME=toy-skin-tetwild-stretch-thin-skin CHERRIES_TAGS=stretch,thin-skin,thickness005,lr005 uv run python src/20-inverse-toy-skin-tetwild.py --mode stretch --loss-variant l2 --skin-prestrain-enabled false --activation-mode per-tet --inverse-lr 0.05 --inverse-loss-min-delta 1e-8 --inverse-max-steps 120 --require-convergence false --output-summary data/43-stretch-thin-skin/lr005/summary.json --output-table data/43-stretch-thin-skin/lr005/table.md
+DEBUG=1 CHERRIES_NAME=toy-skin-tetwild-stretch-thin-skin-plots CHERRIES_TAGS=stretch,thin-skin,plot,thickness005 uv run python src/40-plot-lr-sweep-loss-curves.py --input-dir data/43-stretch-thin-skin --output-dir figs/43-stretch-thin-skin
+```
+
+Summary:
+
+| skin thickness | lr | evaluations | stop | best step | best loss | error RMS | activation RMS | activation max abs | mean top disp y | max top disp y |
+| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1.0 | 0.05 | 81 | step_limit | 80 | 0.00279729 | 0.0916071 | 0.361160 | 1.41934 | 0.00887135 | 0.0345964 |
+| 0.005 | 0.05 | 121 | step_limit | 120 | 0.00254153 | 0.0873188 | 0.424075 | 2.17600 | 0.0185202 | 0.109263 |
+
+The thin skin lowers the loss by about 9.1% relative to the earlier
+`thickness = 1.0`, `lr = 0.05`, step-80 run. Mean target-surface displacement
+roughly doubles, and the maximum target-surface displacement reaches the
+requested `+0.1` scale, so this is more visually useful. The case still stops
+at the exploratory step cap while loss is decreasing, so it has not converged.
+
+![Thin skin stretch log loss](../figs/43-stretch-thin-skin/l2-no-prestrain-per-tet-lr-sweep-log-loss.png)
 
 ## Validation
 

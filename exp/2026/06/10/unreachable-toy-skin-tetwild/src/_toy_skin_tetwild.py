@@ -50,7 +50,7 @@ APONEUROSIS_E = 0.10
 APONEUROSIS_NU = 0.35
 SKIN_E = 0.20
 SKIN_NU = 0.49
-SKIN_THICKNESS = 1.0
+SKIN_THICKNESS = 0.005
 SKIN_PRESTRAIN = 0.10
 ACTIVE_FRACTION_TOL = 1.0e-6
 
@@ -73,14 +73,20 @@ class ResolutionSpec:
 @dataclass(frozen=True)
 class LossVariant:
     name: Literal["l2", "laplacian"]
+    skin_energy: bool
     skin_prestrain: bool
     activation_mode: Literal["per-tet", "per-tet-smooth", "shared"]
 
     @property
     def label(self) -> str:
-        prestrain = "skin-prestrain10" if self.skin_prestrain else "skin-prestrain0"
+        skin = "skin" if self.skin_energy else "no_skin"
+        prestrain = (
+            "prestrain10"
+            if self.skin_energy and self.skin_prestrain
+            else "prestrain0"
+        )
         mode = self.activation_mode.replace("-", "_")
-        return f"{self.name}-{prestrain}-activation-{mode}"
+        return f"{self.name}-{skin}-{prestrain}-activation-{mode}"
 
     @property
     def activation_smooth(self) -> bool:
@@ -116,21 +122,42 @@ class InverseConfig(cherries.BaseConfig):
     model_config = ps.SettingsConfigDict(cli_parse_args=True)
 
     input_mesh: Path = Path("data/10-toy-tetwild-lr001-prepared.vtu")
-    output_summary: Path = Path("data/20-unreachable-toy-skin-tetwild-summary.json")
-    output_table: Path = Path("data/20-unreachable-toy-skin-tetwild-table.md")
+    output_summary: Path = Path("data/20-stretch-lr001/summary.json")
+    output_table: Path = Path("data/20-stretch-lr001/table.md")
 
-    mode: str = "squash"
+    case_preset: str = ""
+    mode: str = "stretch"
     loss_variant: str = "l2"
+    skin_energy_enabled: bool = False
     skin_prestrain_enabled: bool = False
     activation_mode: str = "per-tet"
     compare_existing: bool = False
 
-    inverse_lr: float = 0.03
-    inverse_max_steps: int = 200
-    inverse_loss_min_delta: float = 1.0e-8
+    inverse_lr: float = 0.1
+    inverse_max_steps: int = 600
+    inverse_loss_min_delta: float = 1.0e-6
     residual_laplacian_weight: float = 10.0
-    activation_smooth_weight: float = 1.0e-2
+    activation_smooth_weight: float = 1.0e-1
     require_convergence: bool = True
+
+
+class ForwardContractConfig(cherries.BaseConfig):
+    model_config = ps.SettingsConfigDict(cli_parse_args=True)
+
+    input_mesh: Path = Path("data/10-toy-tetwild-lr001-prepared.vtu")
+    output_mesh: Path = Path("data/25-forward-contract-x/contract-x.vtu")
+    output_summary: Path = Path("data/25-forward-contract-x/summary.json")
+
+    activation_inv: tuple[float, float, float, float, float, float] = (
+        -0.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    )
+    skin_energy_enabled: bool = True
+    skin_prestrain_enabled: bool = False
 
 
 def configure_runtime() -> None:
@@ -164,17 +191,43 @@ def selected_mode(cfg: InverseConfig) -> Literal["stretch", "squash"]:
 
 def selected_case(cfg: InverseConfig, resolution: ResolutionSpec) -> ToyCase:
     mode = selected_mode(cfg)
-    if cfg.loss_variant not in {"l2", "laplacian"}:
-        msg = f"unknown loss variant {cfg.loss_variant!r}; expected l2 or laplacian"
+    loss_variant = cfg.loss_variant
+    skin_energy_enabled = cfg.skin_energy_enabled
+    skin_prestrain_enabled = cfg.skin_prestrain_enabled
+    activation_mode_value = cfg.activation_mode
+    if cfg.case_preset:
+        if cfg.case_preset == "baseline":
+            loss_variant = "l2"
+            skin_energy_enabled = False
+            skin_prestrain_enabled = False
+            activation_mode_value = "per-tet"
+        elif cfg.case_preset == "skin":
+            loss_variant = "l2"
+            skin_energy_enabled = True
+            skin_prestrain_enabled = False
+            activation_mode_value = "per-tet"
+        elif cfg.case_preset == "activation-smooth":
+            loss_variant = "l2"
+            skin_energy_enabled = False
+            skin_prestrain_enabled = False
+            activation_mode_value = "per-tet-smooth"
+        else:
+            msg = (
+                f"unknown case preset {cfg.case_preset!r}; expected baseline, "
+                "skin, or activation-smooth"
+            )
+            raise ValueError(msg)
+    if loss_variant not in {"l2", "laplacian"}:
+        msg = f"unknown loss variant {loss_variant!r}; expected l2 or laplacian"
         raise ValueError(msg)
-    if cfg.activation_mode not in {"per-tet", "per-tet-smooth", "shared"}:
+    if activation_mode_value not in {"per-tet", "per-tet-smooth", "shared"}:
         msg = (
-            f"unknown activation mode {cfg.activation_mode!r}; "
+            f"unknown activation mode {activation_mode_value!r}; "
             "expected per-tet, per-tet-smooth, or shared"
         )
         raise ValueError(msg)
-    loss_name: Literal["l2", "laplacian"] = cfg.loss_variant  # pyright: ignore[reportAssignmentType]
-    activation_mode: Literal["per-tet", "per-tet-smooth", "shared"] = cfg.activation_mode  # pyright: ignore[reportAssignmentType]
+    loss_name: Literal["l2", "laplacian"] = loss_variant  # pyright: ignore[reportAssignmentType]
+    activation_mode: Literal["per-tet", "per-tet-smooth", "shared"] = activation_mode_value  # pyright: ignore[reportAssignmentType]
     return ToyCase(
         resolution=resolution,
         mode=mode,
@@ -183,7 +236,8 @@ def selected_case(cfg: InverseConfig, resolution: ResolutionSpec) -> ToyCase:
         else -SQUASH_TARGET_MAGNITUDE,
         variant=LossVariant(
             name=loss_name,
-            skin_prestrain=cfg.skin_prestrain_enabled,
+            skin_energy=skin_energy_enabled,
+            skin_prestrain=skin_prestrain_enabled,
             activation_mode=activation_mode,
         ),
     )
@@ -206,14 +260,17 @@ def expected_inverse_cases(
             mode=mode,
             target_y=target_y,
             variant=LossVariant(
-                name=loss_name,
-                skin_prestrain=skin_prestrain,
+                name="l2",
+                skin_energy=skin_energy,
+                skin_prestrain=False,
                 activation_mode=activation_mode,
             ),
         )
-        for loss_name in ("l2", "laplacian")
-        for skin_prestrain in (False, True)
-        for activation_mode in ("per-tet", "per-tet-smooth", "shared")
+        for skin_energy, activation_mode in (
+            (False, "per-tet"),
+            (True, "per-tet"),
+            (False, "per-tet-smooth"),
+        )
     ]
 
 
@@ -470,11 +527,13 @@ def build_forward(mesh: pv.UnstructuredGrid, case: ToyCase):
     )
     builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="aponeurosis"))
 
-    prestrain = SKIN_PRESTRAIN if case.variant.skin_prestrain else 0.0
-    skin = skin_surface(mesh, prestrain=prestrain)
-    builder.add_potential(
-        Koiter.from_pyvista(skin, name="skin", thickness=SKIN_THICKNESS)
-    )
+    skin = None
+    if case.variant.skin_energy:
+        prestrain = SKIN_PRESTRAIN if case.variant.skin_prestrain else 0.0
+        skin = skin_surface(mesh, prestrain=prestrain)
+        builder.add_potential(
+            Koiter.from_pyvista(skin, name="skin", thickness=SKIN_THICKNESS)
+        )
 
     forward = Forward(builder.finalize())
     forward.optimizer = forward.default_optimizer(
@@ -639,6 +698,9 @@ def bumpiness_metrics(
     edges = top_surface_edges(mesh)
     if edges.size == 0:
         return {
+            "bumpiness/top_y_min": math.nan,
+            "bumpiness/top_y_mean": math.nan,
+            "bumpiness/top_y_max": math.nan,
             "bumpiness/top_y_std": math.nan,
             "bumpiness/top_y_range": math.nan,
             "bumpiness/displacement_edge_rms": math.nan,
@@ -668,6 +730,9 @@ def bumpiness_metrics(
         residual[active] - residual_neighbor_sum[active] / neighbor_count[active, None]
     )
     return {
+        "bumpiness/top_y_min": float(top_y.min()),
+        "bumpiness/top_y_mean": float(top_y.mean()),
+        "bumpiness/top_y_max": float(top_y.max()),
         "bumpiness/top_y_std": float(top_y.std()),
         "bumpiness/top_y_range": float(top_y.max() - top_y.min()),
         "bumpiness/displacement_edge_rms": float(
@@ -1018,7 +1083,6 @@ def solve_case(  # noqa: PLR0915
     best_loss = math.inf
     best_displacement: np.ndarray | None = None
     best_activation_inv: np.ndarray | None = None
-    plateau_reference_loss = math.inf
     plateau_steps = 0
     trace: list[dict[str, Any]] = []
     history_frames = 0
@@ -1083,16 +1147,15 @@ def solve_case(  # noqa: PLR0915
                 )
             )
             loss_value = float(loss.detach().cpu())
+            prev_best_loss = best_loss
             if loss_value < best_loss:
                 best_step = step
                 best_loss = loss_value
                 best_displacement = displacement
                 best_activation_inv = full_activation_inv
-            if (
-                math.isinf(plateau_reference_loss)
-                or loss_value <= plateau_reference_loss - cfg.inverse_loss_min_delta
+            if math.isinf(prev_best_loss) or loss_value <= (
+                prev_best_loss - cfg.inverse_loss_min_delta
             ):
-                plateau_reference_loss = loss_value
                 plateau_steps = 0
             else:
                 plateau_steps += 1
@@ -1197,11 +1260,14 @@ def solve_case(  # noqa: PLR0915
         "input_mesh": str(cfg.input_mesh),
         "mode": case.mode,
         "loss_variant": case.variant.name,
+        "skin/energy_enabled": bool(case.variant.skin_energy),
         "skin/prestrain_enabled": bool(case.variant.skin_prestrain),
         "skin/prestrain": float(
-            SKIN_PRESTRAIN if case.variant.skin_prestrain else 0.0
+            SKIN_PRESTRAIN
+            if case.variant.skin_energy and case.variant.skin_prestrain
+            else 0.0
         ),
-        "skin/n_triangles": int(skin.n_cells),
+        "skin/n_triangles": 0 if skin is None else int(skin.n_cells),
         "resolution": case.resolution.name,
         "tetwild/lr": float(case.resolution.lr),
         "tetwild/lr_interpretation": "relative_edge_length_fac",
@@ -1319,8 +1385,8 @@ def format_float(value: Any) -> str:
 
 def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
     lines = [
-        "| case | lr | mode | residual lap | activation mode | skin prestrain | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | top y std | residual edge RMS | residual lap RMS |",
-        "| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | residual edge RMS | residual lap RMS |",
+        "| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     lines.extend(
         (
@@ -1330,9 +1396,9 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                     str(row["case"]),
                     format_float(row["tetwild/lr"]),
                     str(row["mode"]),
-                    format_float(row["loss/residual_laplacian_enabled"]),
+                    format_float(row["skin/energy_enabled"]),
                     str(row["activation/mode"]),
-                    format_float(row["skin/prestrain_enabled"]),
+                    format_float(row["loss/activation_smooth_enabled"]),
                     str(row["n_tets"]),
                     str(row["n_active_tets"]),
                     str(row["n_activation_parameters"]),
@@ -1342,6 +1408,7 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                     format_float(row["best/loss"]),
                     format_float(row["best/error_rms"]),
                     format_float(row["best/error_rms_fraction_of_target"]),
+                    format_float(row["bumpiness/top_y_mean"]),
                     format_float(row["bumpiness/top_y_std"]),
                     format_float(row["bumpiness/residual_edge_rms"]),
                     format_float(row["bumpiness/residual_laplacian_rms"]),
@@ -1373,7 +1440,6 @@ def prepare_mesh(cfg: PrepareConfig) -> None:
         "n_active_tets": int(active_mask.sum()),
         "n_target_points": int(target_mask.sum()),
         "target/stretch_y": float(STRETCH_TARGET_MAGNITUDE),
-        "target/squash_y": float(-SQUASH_TARGET_MAGNITUDE),
         "fat/E_MPa": float(FAT_E),
         "fat/nu": float(FAT_NU),
         "muscle/E_MPa": float(MUSCLE_E),
@@ -1382,6 +1448,7 @@ def prepare_mesh(cfg: PrepareConfig) -> None:
         "aponeurosis/nu": float(APONEUROSIS_NU),
         "skin/E_MPa": float(SKIN_E),
         "skin/nu": float(SKIN_NU),
+        "skin/thickness": float(SKIN_THICKNESS),
         "skin/prestrain": float(SKIN_PRESTRAIN),
         **geometry_summary(mesh),
     }
@@ -1394,11 +1461,159 @@ def prepare_mesh(cfg: PrepareConfig) -> None:
     logger.info("Wrote %s", cfg.output_summary)
 
 
+def displacement_summary(
+    mesh: pv.UnstructuredGrid, displacement: np.ndarray, active_ids: np.ndarray
+) -> dict[str, float]:
+    fixed = np.asarray(mesh.point_data[FIXED_BOUNDARY], dtype=bool)
+    free = ~fixed
+    norm = np.linalg.norm(displacement, axis=1)
+    tets = tetra_cells(mesh)
+    active_cell_displacement = displacement[tets[active_ids]].mean(axis=1)
+    active_cell_norm = np.linalg.norm(active_cell_displacement, axis=1)
+    return {
+        "displacement/x_min": float(displacement[:, 0].min()),
+        "displacement/x_mean": float(displacement[:, 0].mean()),
+        "displacement/x_max": float(displacement[:, 0].max()),
+        "displacement/y_min": float(displacement[:, 1].min()),
+        "displacement/y_mean": float(displacement[:, 1].mean()),
+        "displacement/y_max": float(displacement[:, 1].max()),
+        "displacement/z_min": float(displacement[:, 2].min()),
+        "displacement/z_mean": float(displacement[:, 2].mean()),
+        "displacement/z_max": float(displacement[:, 2].max()),
+        "displacement/norm_rms": float(np.linalg.norm(displacement) / math.sqrt(mesh.n_points)),
+        "displacement/norm_max": float(norm.max()),
+        "displacement/fixed_norm_max": float(norm[fixed].max()) if np.any(fixed) else math.nan,
+        "displacement/free_norm_max": float(norm[free].max()) if np.any(free) else math.nan,
+        "active_cell_displacement/x_min": float(active_cell_displacement[:, 0].min()),
+        "active_cell_displacement/x_mean": float(active_cell_displacement[:, 0].mean()),
+        "active_cell_displacement/x_max": float(active_cell_displacement[:, 0].max()),
+        "active_cell_displacement/norm_rms": float(
+            np.linalg.norm(active_cell_displacement) / math.sqrt(active_ids.size)
+        ),
+        "active_cell_displacement/norm_max": float(active_cell_norm.max()),
+    }
+
+
+def run_forward_contract(cfg: ForwardContractConfig) -> None:
+    configure_runtime()
+    mesh = pv.read(cfg.input_mesh)
+    if not isinstance(mesh, pv.UnstructuredGrid):
+        mesh = mesh.cast_to_unstructured_grid()
+    resolution = mesh_resolution(mesh)
+    activation_inv = np.asarray(cfg.activation_inv, dtype=np.float64)
+    if activation_inv.shape != (6,):
+        msg = f"activation_inv must be a 6-vector, got shape {activation_inv.shape}"
+        raise ValueError(msg)
+
+    case = ToyCase(
+        resolution=resolution,
+        mode="stretch",
+        variant=LossVariant(
+            name="l2",
+            skin_energy=cfg.skin_energy_enabled,
+            skin_prestrain=cfg.skin_prestrain_enabled,
+            activation_mode="shared",
+        ),
+        target_y=0.0,
+    )
+    forward, skin = build_forward(mesh, case)
+    active_ids = np.flatnonzero(
+        np.asarray(mesh.cell_data[ACTIVE_FRACTION], dtype=np.float64)
+        > ACTIVE_FRACTION_TOL
+    )
+    if active_ids.size == 0:
+        msg = "prepared toy mesh has no active muscle tets"
+        raise RuntimeError(msg)
+
+    active_ids_t = torch.as_tensor(active_ids, dtype=torch.long, device="cuda")
+    active_activation_inv = torch.as_tensor(
+        np.broadcast_to(activation_inv, (active_ids.size, 6)).copy(),
+        dtype=torch.float64,
+        device="cuda",
+    )
+    materials = material_tree(
+        forward.model.get_materials(),
+        active_activation_inv,
+        active_ids_t,
+        mesh.n_cells,
+    )
+    forward.model.set_materials(materials)
+
+    start = time.perf_counter()
+    with contextlib.redirect_stdout(io.StringIO()):
+        solution = forward.step()
+    elapsed_s = time.perf_counter() - start
+
+    displacement = to_numpy(forward.state.u)
+    full_activation_inv = np.zeros((mesh.n_cells, 6), dtype=np.float64)
+    full_activation_inv[active_ids] = activation_inv
+    target = np.zeros_like(displacement)
+    metrics: dict[str, Any] = {
+        "forward/elapsed_s": float(elapsed_s),
+        "n_points": int(mesh.n_points),
+        "n_tets": int(mesh.n_cells),
+        "n_active_tets": int(active_ids.size),
+        "skin/energy_enabled": bool(cfg.skin_energy_enabled),
+        "skin/prestrain_enabled": bool(cfg.skin_prestrain_enabled),
+        "skin/thickness": float(SKIN_THICKNESS) if cfg.skin_energy_enabled else 0.0,
+        "skin/n_triangles": int(0 if skin is None else skin.n_cells),
+        "activation_inv/x": float(activation_inv[0]),
+        "activation_inv/y": float(activation_inv[1]),
+        "activation_inv/z": float(activation_inv[2]),
+        "activation_inv/xy": float(activation_inv[3]),
+        "activation_inv/yz": float(activation_inv[4]),
+        "activation_inv/xz": float(activation_inv[5]),
+        **forward_solution_metrics(solution),
+        **displacement_summary(mesh, displacement, active_ids),
+    }
+
+    result = make_result_mesh(
+        mesh,
+        target,
+        displacement,
+        full_activation_inv,
+        metrics,
+    )
+    result.point_data["ContractedPoint"] = result.points + displacement
+    cfg.output_mesh.parent.mkdir(parents=True, exist_ok=True)
+    melon.save(result, cfg.output_mesh)
+
+    summary: dict[str, Any] = {
+        "input_mesh": str(cfg.input_mesh),
+        "output_mesh": str(cfg.output_mesh),
+        "activation_inv": activation_inv.tolist(),
+        "resolution": resolution.name,
+        "tetwild/lr": float(resolution.lr),
+        **metrics,
+    }
+    cfg.output_summary.write_text(
+        json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    cherries.set_step(0)
+    cherries.log_metrics(
+        {
+            "forward/success": float(bool(metrics["forward/success"])),
+            "forward/steps": float(metrics["forward/steps"]),
+            "displacement/norm_max": metrics["displacement/norm_max"],
+            "displacement/x_min": metrics["displacement/x_min"],
+            "displacement/x_max": metrics["displacement/x_max"],
+            "active_cell_displacement/x_mean": metrics[
+                "active_cell_displacement/x_mean"
+            ],
+        }
+    )
+    cherries.log_input(cfg.input_mesh)
+    cherries.log_output(cfg.output_mesh)
+    cherries.log_output(cfg.output_summary)
+    logger.info("Wrote %s", cfg.output_mesh)
+    logger.info("Wrote %s", cfg.output_summary)
+
+
 def load_existing_case_summaries(cfg: InverseConfig) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = [
         json.loads(path.read_text(encoding="utf-8"))
         for path in sorted(
-            cfg.output_summary.parent.glob("20-toy-tetwild-*-summary.json")
+            cfg.output_summary.parent.rglob("20-toy-tetwild-*-summary.json")
         )
     ]
     if not rows:

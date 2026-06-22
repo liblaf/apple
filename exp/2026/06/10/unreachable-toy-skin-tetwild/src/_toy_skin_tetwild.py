@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 ALL_BOUNDS = (0.0, 1.0, 0.0, 0.1, 0.0, 1.0)
 SMAS_BOUNDS = (0.0, 1.0, 0.04, 0.06, 0.0, 1.0)
 MUSCLE_BOUNDS = (0.0, 0.5, 0.04, 0.06, 0.4, 0.6)
+PARABOLIC_MUSCLE_BOUNDS = (0.35, 0.65, 0.04, 0.06, 0.35, 0.65)
 
 FAT_FRACTION = "FatFraction"
 MUSCLE_FRACTION = "MuscleFraction"
@@ -34,9 +35,15 @@ TARGET_SURFACE_MASK = "TargetSurfaceMask"
 TOP_SURFACE_MASK = "TopSurfaceMask"
 FIXED_BOUNDARY = "FixedBoundary"
 ACTIVE_FRACTION = "ActiveFraction"
+GEOMETRY_KIND = "GeometryKind"
+MUSCLE_BOUNDS_FIELD = "MuscleBounds"
+PARABOLIC_RIM_HEIGHT_FIELD = "ParabolicRimHeight"
+PARABOLIC_REST_AMPLITUDE_FIELD = "ParabolicRestAmplitude"
+PARABOLIC_TARGET_AMPLITUDE_FIELD = "ParabolicTargetAmplitude"
+PARABOLIC_GRID_FIELD = "ParabolicGrid"
 
 STRETCH_TARGET_MAGNITUDE = 0.1
-SQUASH_TARGET_MAGNITUDE = 0.05
+SQUASH_TARGET_MAGNITUDE = 0.5
 BOUNDARY_TOL_SCALE = 0.4
 BOUNDARY_TOL_MIN = 5.0e-4
 FRACTION_SAMPLES_PER_TET = 16
@@ -53,6 +60,10 @@ SKIN_NU = 0.49
 SKIN_THICKNESS = 0.005
 SKIN_PRESTRAIN = 0.10
 ACTIVE_FRACTION_TOL = 1.0e-6
+PARABOLIC_RIM_HEIGHT = 0.10
+PARABOLIC_REST_AMPLITUDE = 0.12
+PARABOLIC_TARGET_AMPLITUDE = 0.02
+PARABOLIC_GRID = 32
 
 FORWARD_RTOL = 5.0e-4
 FORWARD_ATOL = 1.0e-10
@@ -81,9 +92,7 @@ class LossVariant:
     def label(self) -> str:
         skin = "skin" if self.skin_energy else "no_skin"
         prestrain = (
-            "prestrain10"
-            if self.skin_energy and self.skin_prestrain
-            else "prestrain0"
+            "prestrain10" if self.skin_energy and self.skin_prestrain else "prestrain0"
         )
         mode = self.activation_mode.replace("-", "_")
         return f"{self.name}-{skin}-{prestrain}-activation-{mode}"
@@ -116,6 +125,11 @@ class PrepareConfig(cherries.BaseConfig):
     output_summary: Path = Path("data/10-toy-tetwild-lr001-prepared-summary.json")
 
     tetwild_lr: float = 0.01
+    geometry: str = "box"
+    parabolic_rim_height: float = PARABOLIC_RIM_HEIGHT
+    parabolic_rest_amplitude: float = PARABOLIC_REST_AMPLITUDE
+    parabolic_target_amplitude: float = PARABOLIC_TARGET_AMPLITUDE
+    parabolic_grid: int = PARABOLIC_GRID
 
 
 class InverseConfig(cherries.BaseConfig):
@@ -133,9 +147,20 @@ class InverseConfig(cherries.BaseConfig):
     activation_mode: str = "per-tet"
     compare_existing: bool = False
 
-    inverse_lr: float = 0.1
+    inverse_lr: float = 0.03
     inverse_max_steps: int = 600
-    inverse_loss_min_delta: float = 1.0e-6
+    inverse_loss_min_delta: float = 1.0e-8
+    initial_activation_inv: tuple[float, float, float, float, float, float] = (
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    )
+    skin_e: float = SKIN_E
+    skin_thickness: float = SKIN_THICKNESS
+    skin_prestrain: float = SKIN_PRESTRAIN
     residual_laplacian_weight: float = 10.0
     activation_smooth_weight: float = 1.0e-1
     require_convergence: bool = True
@@ -206,6 +231,11 @@ def selected_case(cfg: InverseConfig, resolution: ResolutionSpec) -> ToyCase:
             skin_energy_enabled = True
             skin_prestrain_enabled = False
             activation_mode_value = "per-tet"
+        elif cfg.case_preset == "skin-prestrain":
+            loss_variant = "l2"
+            skin_energy_enabled = True
+            skin_prestrain_enabled = True
+            activation_mode_value = "per-tet"
         elif cfg.case_preset == "activation-smooth":
             loss_variant = "l2"
             skin_energy_enabled = False
@@ -214,7 +244,7 @@ def selected_case(cfg: InverseConfig, resolution: ResolutionSpec) -> ToyCase:
         else:
             msg = (
                 f"unknown case preset {cfg.case_preset!r}; expected baseline, "
-                "skin, or activation-smooth"
+                "skin, skin-prestrain, or activation-smooth"
             )
             raise ValueError(msg)
     if loss_variant not in {"l2", "laplacian"}:
@@ -227,7 +257,9 @@ def selected_case(cfg: InverseConfig, resolution: ResolutionSpec) -> ToyCase:
         )
         raise ValueError(msg)
     loss_name: Literal["l2", "laplacian"] = loss_variant  # pyright: ignore[reportAssignmentType]
-    activation_mode: Literal["per-tet", "per-tet-smooth", "shared"] = activation_mode_value  # pyright: ignore[reportAssignmentType]
+    activation_mode: Literal["per-tet", "per-tet-smooth", "shared"] = (
+        activation_mode_value  # pyright: ignore[reportAssignmentType]
+    )
     return ToyCase(
         resolution=resolution,
         mode=mode,
@@ -253,7 +285,9 @@ def mesh_resolution(mesh: pv.UnstructuredGrid) -> ResolutionSpec:
 def expected_inverse_cases(
     resolution: ResolutionSpec, mode: Literal["stretch", "squash"]
 ) -> list[ToyCase]:
-    target_y = STRETCH_TARGET_MAGNITUDE if mode == "stretch" else -SQUASH_TARGET_MAGNITUDE
+    target_y = (
+        STRETCH_TARGET_MAGNITUDE if mode == "stretch" else -SQUASH_TARGET_MAGNITUDE
+    )
     return [
         ToyCase(
             resolution=resolution,
@@ -262,20 +296,160 @@ def expected_inverse_cases(
             variant=LossVariant(
                 name="l2",
                 skin_energy=skin_energy,
-                skin_prestrain=False,
-                activation_mode=activation_mode,
+                skin_prestrain=skin_prestrain,
+                activation_mode="per-tet",
             ),
         )
-        for skin_energy, activation_mode in (
-            (False, "per-tet"),
-            (True, "per-tet"),
-            (False, "per-tet-smooth"),
+        for skin_energy, skin_prestrain in (
+            (False, False),
+            (True, False),
+            (True, True),
         )
     ]
 
 
-def tetwild_surface() -> pv.PolyData:
-    return pv.Box(ALL_BOUNDS, quads=False).triangulate()
+def field_string(mesh: pv.DataSet, name: str, default: str) -> str:
+    if name not in mesh.field_data:
+        return default
+    value = np.asarray(mesh.field_data[name]).ravel()[0]
+    if isinstance(value, bytes):
+        return value.decode()
+    return str(value)
+
+
+def field_float(mesh: pv.DataSet, name: str, default: float) -> float:
+    if name not in mesh.field_data:
+        return default
+    return float(np.asarray(mesh.field_data[name]).ravel()[0])
+
+
+def mesh_geometry_kind(mesh: pv.DataSet) -> str:
+    return field_string(mesh, GEOMETRY_KIND, "box")
+
+
+def mesh_muscle_bounds(mesh: pv.DataSet) -> tuple[float, float, float, float, float, float]:
+    if MUSCLE_BOUNDS_FIELD not in mesh.field_data:
+        if mesh_geometry_kind(mesh) == "parabolic":
+            return PARABOLIC_MUSCLE_BOUNDS
+        return MUSCLE_BOUNDS
+    values = tuple(float(x) for x in np.asarray(mesh.field_data[MUSCLE_BOUNDS_FIELD]).ravel())
+    if len(values) != 6:
+        msg = f"{MUSCLE_BOUNDS_FIELD} must contain 6 values, got {len(values)}"
+        raise ValueError(msg)
+    return values  # pyright: ignore[reportReturnType]
+
+
+def parabolic_profile(x: np.ndarray, z: np.ndarray) -> np.ndarray:
+    xmin, xmax, _, _, zmin, zmax = ALL_BOUNDS
+    x_hat = np.clip((x - xmin) / (xmax - xmin), 0.0, 1.0)
+    z_hat = np.clip((z - zmin) / (zmax - zmin), 0.0, 1.0)
+    return 16.0 * x_hat * (1.0 - x_hat) * z_hat * (1.0 - z_hat)
+
+
+def parabolic_top_y(
+    x: np.ndarray,
+    z: np.ndarray,
+    *,
+    rim_height: float,
+    amplitude: float,
+) -> np.ndarray:
+    return rim_height + amplitude * parabolic_profile(x, z)
+
+
+def flat_faces(faces: list[tuple[int, int, int]]) -> np.ndarray:
+    result = np.empty((len(faces), 4), dtype=np.int64)
+    result[:, 0] = 3
+    result[:, 1:] = np.asarray(faces, dtype=np.int64)
+    return result.ravel()
+
+
+def parabolic_box_surface(
+    *,
+    rim_height: float,
+    amplitude: float,
+    grid: int,
+) -> pv.PolyData:
+    if grid < 2:
+        msg = f"parabolic grid must be at least 2, got {grid}"
+        raise ValueError(msg)
+    xmin, xmax, ymin, _, zmin, zmax = ALL_BOUNDS
+    xs = np.linspace(xmin, xmax, grid + 1)
+    zs = np.linspace(zmin, zmax, grid + 1)
+    points: list[tuple[float, float, float]] = []
+    top_ids = np.empty((grid + 1, grid + 1), dtype=np.int64)
+    bottom_ids = np.empty((grid + 1, grid + 1), dtype=np.int64)
+    for i, x in enumerate(xs):
+        for j, z in enumerate(zs):
+            top_ids[i, j] = len(points)
+            y = float(
+                parabolic_top_y(
+                    np.asarray(x),
+                    np.asarray(z),
+                    rim_height=rim_height,
+                    amplitude=amplitude,
+                )
+            )
+            points.append((float(x), y, float(z)))
+    for i, x in enumerate(xs):
+        for j, z in enumerate(zs):
+            bottom_ids[i, j] = len(points)
+            points.append((float(x), float(ymin), float(z)))
+
+    faces: list[tuple[int, int, int]] = []
+    for i in range(grid):
+        for j in range(grid):
+            t00 = int(top_ids[i, j])
+            t10 = int(top_ids[i + 1, j])
+            t01 = int(top_ids[i, j + 1])
+            t11 = int(top_ids[i + 1, j + 1])
+            b00 = int(bottom_ids[i, j])
+            b10 = int(bottom_ids[i + 1, j])
+            b01 = int(bottom_ids[i, j + 1])
+            b11 = int(bottom_ids[i + 1, j + 1])
+            faces.extend(((t00, t01, t11), (t00, t11, t10)))
+            faces.extend(((b00, b10, b11), (b00, b11, b01)))
+
+    for j in range(grid):
+        b0, b1 = int(bottom_ids[0, j]), int(bottom_ids[0, j + 1])
+        t0, t1 = int(top_ids[0, j]), int(top_ids[0, j + 1])
+        faces.extend(((b0, t1, t0), (b0, b1, t1)))
+        b0, b1 = int(bottom_ids[grid, j]), int(bottom_ids[grid, j + 1])
+        t0, t1 = int(top_ids[grid, j]), int(top_ids[grid, j + 1])
+        faces.extend(((b0, t0, t1), (b0, t1, b1)))
+    for i in range(grid):
+        b0, b1 = int(bottom_ids[i, 0]), int(bottom_ids[i + 1, 0])
+        t0, t1 = int(top_ids[i, 0]), int(top_ids[i + 1, 0])
+        faces.extend(((b0, t0, t1), (b0, t1, b1)))
+        b0, b1 = int(bottom_ids[i, grid]), int(bottom_ids[i + 1, grid])
+        t0, t1 = int(top_ids[i, grid]), int(top_ids[i + 1, grid])
+        faces.extend(((b0, t1, t0), (b0, b1, t1)))
+
+    surface = pv.PolyData(np.asarray(points, dtype=np.float64), flat_faces(faces))
+    surface = surface.clean().triangulate()
+    return surface.compute_normals(
+        auto_orient_normals=True,
+        consistent_normals=True,
+        inplace=False,
+    )
+
+
+def tetwild_surface(
+    *,
+    geometry: str = "box",
+    parabolic_rim_height: float = PARABOLIC_RIM_HEIGHT,
+    parabolic_rest_amplitude: float = PARABOLIC_REST_AMPLITUDE,
+    parabolic_grid: int = PARABOLIC_GRID,
+) -> pv.PolyData:
+    if geometry == "box":
+        return pv.Box(ALL_BOUNDS, quads=False).triangulate()
+    if geometry == "parabolic":
+        return parabolic_box_surface(
+            rim_height=parabolic_rim_height,
+            amplitude=parabolic_rest_amplitude,
+            grid=parabolic_grid,
+        )
+    msg = f"unknown geometry {geometry!r}; expected box or parabolic"
+    raise ValueError(msg)
 
 
 def tetra_cells(mesh: pv.UnstructuredGrid) -> np.ndarray:
@@ -311,9 +485,22 @@ def orient_tetra_mesh(mesh: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
     return pv.UnstructuredGrid(cells.ravel(), cell_types, points)
 
 
-def make_tetwild_mesh(spec: ResolutionSpec) -> pv.UnstructuredGrid:
+def make_tetwild_mesh(
+    spec: ResolutionSpec,
+    *,
+    geometry: str = "box",
+    parabolic_rim_height: float = PARABOLIC_RIM_HEIGHT,
+    parabolic_rest_amplitude: float = PARABOLIC_REST_AMPLITUDE,
+    parabolic_target_amplitude: float = PARABOLIC_TARGET_AMPLITUDE,
+    parabolic_grid: int = PARABOLIC_GRID,
+) -> pv.UnstructuredGrid:
     start = time.perf_counter()
-    surface = tetwild_surface()
+    surface = tetwild_surface(
+        geometry=geometry,
+        parabolic_rim_height=parabolic_rim_height,
+        parabolic_rest_amplitude=parabolic_rest_amplitude,
+        parabolic_grid=parabolic_grid,
+    )
     mesh = melon.ext.tetwild(surface, edge_length_fac=spec.lr)
     if not isinstance(mesh, pv.UnstructuredGrid):
         mesh = mesh.cast_to_unstructured_grid()
@@ -322,9 +509,25 @@ def make_tetwild_mesh(spec: ResolutionSpec) -> pv.UnstructuredGrid:
     mesh.field_data["TetWildLrInterpretation"] = np.asarray(
         ["relative_edge_length_fac"]
     )
+    mesh.field_data[GEOMETRY_KIND] = np.asarray([geometry])
+    if geometry == "parabolic":
+        mesh.field_data[MUSCLE_BOUNDS_FIELD] = np.asarray(PARABOLIC_MUSCLE_BOUNDS)
+        mesh.field_data[PARABOLIC_RIM_HEIGHT_FIELD] = np.asarray(
+            [parabolic_rim_height]
+        )
+        mesh.field_data[PARABOLIC_REST_AMPLITUDE_FIELD] = np.asarray(
+            [parabolic_rest_amplitude]
+        )
+        mesh.field_data[PARABOLIC_TARGET_AMPLITUDE_FIELD] = np.asarray(
+            [parabolic_target_amplitude]
+        )
+        mesh.field_data[PARABOLIC_GRID_FIELD] = np.asarray([parabolic_grid])
+    else:
+        mesh.field_data[MUSCLE_BOUNDS_FIELD] = np.asarray(MUSCLE_BOUNDS)
     logger.info(
-        "TetWild %s lr=%g produced %d points and %d tetrahedra in %.2fs",
+        "TetWild %s %s lr=%g produced %d points and %d tetrahedra in %.2fs",
         spec.name,
+        geometry,
         spec.lr,
         mesh.n_points,
         mesh.n_cells,
@@ -379,11 +582,12 @@ def add_material_and_boundary_fields(
     points = np.asarray(mesh.points, dtype=np.float64)
     tets = tetra_cells(mesh)
     barycentric = sample_barycentric(FRACTION_SAMPLES_PER_TET)
+    muscle_bounds = mesh_muscle_bounds(mesh)
 
     muscle = sampled_box_fraction(
         points=points,
         tets=tets,
-        bounds=MUSCLE_BOUNDS,
+        bounds=muscle_bounds,
         barycentric=barycentric,
         chunk_tets=FRACTION_CHUNK_TETS,
     )
@@ -411,9 +615,7 @@ def add_material_and_boundary_fields(
     mesh.cell_data["Volume"] = tetra_volumes(points, tets)
     mesh.cell_data[ACTIVATION.vtk] = zero_activation.copy()
     mesh.cell_data[ACTIVATION_INV.vtk] = zero_activation.copy()
-    mesh.field_data["FractionSamplesPerTet"] = np.asarray(
-        [FRACTION_SAMPLES_PER_TET]
-    )
+    mesh.field_data["FractionSamplesPerTet"] = np.asarray([FRACTION_SAMPLES_PER_TET])
 
     tol = max(BOUNDARY_TOL_MIN, BOUNDARY_TOL_SCALE * spec.lr)
     point_x, point_y, point_z = points[:, 0], points[:, 1], points[:, 2]
@@ -425,7 +627,22 @@ def add_material_and_boundary_fields(
         | (point_z >= ALL_BOUNDS[5] - tol)
     )
     fixed = bottom | sides
-    top = point_y >= ALL_BOUNDS[3] - tol
+    if mesh_geometry_kind(mesh) == "parabolic":
+        rim_height = field_float(mesh, PARABOLIC_RIM_HEIGHT_FIELD, PARABOLIC_RIM_HEIGHT)
+        rest_amplitude = field_float(
+            mesh,
+            PARABOLIC_REST_AMPLITUDE_FIELD,
+            PARABOLIC_REST_AMPLITUDE,
+        )
+        rest_top_y = parabolic_top_y(
+            point_x,
+            point_z,
+            rim_height=rim_height,
+            amplitude=rest_amplitude,
+        )
+        top = np.abs(point_y - rest_top_y) <= tol
+    else:
+        top = point_y >= ALL_BOUNDS[3] - tol
     target = top & ~fixed
     if not np.any(target):
         msg = f"{spec.name} selected no free top-surface target points"
@@ -464,7 +681,9 @@ def set_volume_material(
     mesh.cell_data[FRACTION.vtk] = np.asarray(fraction, dtype=np.float64)
 
 
-def skin_surface(mesh: pv.UnstructuredGrid, *, prestrain: float) -> pv.PolyData:
+def skin_surface(
+    mesh: pv.UnstructuredGrid, *, E: float, prestrain: float
+) -> pv.PolyData:
     from liblaf.apple.common import (
         ACTIVATION_INV,
         FRACTION,
@@ -481,7 +700,7 @@ def skin_surface(mesh: pv.UnstructuredGrid, *, prestrain: float) -> pv.PolyData:
     surface.point_data[GLOBAL_POINT_ID.vtk] = np.asarray(
         mesh.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64
     )[original_ids]
-    lambda_, mu = lame_parameters(SKIN_E, SKIN_NU)
+    lambda_, mu = lame_parameters(E, SKIN_NU)
     surface.cell_data[LAMBDA.vtk] = np.full(surface.n_cells, lambda_, dtype=np.float64)
     surface.cell_data[MU.vtk] = np.full(surface.n_cells, mu, dtype=np.float64)
     surface.cell_data[FRACTION.vtk] = np.ones(surface.n_cells, dtype=np.float64)
@@ -495,7 +714,14 @@ def skin_surface(mesh: pv.UnstructuredGrid, *, prestrain: float) -> pv.PolyData:
     return surface
 
 
-def build_forward(mesh: pv.UnstructuredGrid, case: ToyCase):
+def build_forward(
+    mesh: pv.UnstructuredGrid,
+    case: ToyCase,
+    *,
+    skin_e: float = SKIN_E,
+    skin_thickness: float = SKIN_THICKNESS,
+    skin_prestrain: float = SKIN_PRESTRAIN,
+):
     from liblaf.apple.forward import Forward, ModelBuilder
     from liblaf.apple.warp.fem import Koiter, StableNeoHookean, StableNeoHookeanActive
 
@@ -529,10 +755,10 @@ def build_forward(mesh: pv.UnstructuredGrid, case: ToyCase):
 
     skin = None
     if case.variant.skin_energy:
-        prestrain = SKIN_PRESTRAIN if case.variant.skin_prestrain else 0.0
-        skin = skin_surface(mesh, prestrain=prestrain)
+        prestrain = skin_prestrain if case.variant.skin_prestrain else 0.0
+        skin = skin_surface(mesh, E=skin_e, prestrain=prestrain)
         builder.add_potential(
-            Koiter.from_pyvista(skin, name="skin", thickness=SKIN_THICKNESS)
+            Koiter.from_pyvista(skin, name="skin", thickness=skin_thickness)
         )
 
     forward = Forward(builder.finalize())
@@ -568,6 +794,30 @@ def active_activation_inv_from_parameter(
     return activation_parameter
 
 
+def initial_activation_parameter(
+    values: tuple[float, float, float, float, float, float],
+    *,
+    n_active_tets: int,
+    shared: bool,
+) -> tuple[np.ndarray, torch.Tensor]:
+    initial_activation_inv = np.asarray(values, dtype=np.float64)
+    if initial_activation_inv.shape != (6,):
+        msg = (
+            "initial_activation_inv must be a 6-vector, "
+            f"got shape {initial_activation_inv.shape}"
+        )
+        raise ValueError(msg)
+    parameter = torch.as_tensor(
+        np.broadcast_to(
+            initial_activation_inv,
+            (1 if shared else n_active_tets, 6),
+        ).copy(),
+        dtype=torch.get_default_dtype(),
+        device=torch.get_default_device(),
+    )
+    return initial_activation_inv, parameter
+
+
 def material_tree(
     base_materials: dict[str, dict[str, torch.Tensor]],
     active_activation_inv: torch.Tensor,
@@ -584,7 +834,34 @@ def material_tree(
 def target_displacement(mesh: pv.UnstructuredGrid, target_y: float) -> np.ndarray:
     target_mask = np.asarray(mesh.point_data[TARGET_SURFACE_MASK], dtype=bool)
     displacement = np.zeros((mesh.n_points, 3), dtype=np.float64)
-    displacement[target_mask, 1] = target_y
+    if mesh_geometry_kind(mesh) == "parabolic":
+        points = np.asarray(mesh.points, dtype=np.float64)
+        rim_height = field_float(mesh, PARABOLIC_RIM_HEIGHT_FIELD, PARABOLIC_RIM_HEIGHT)
+        rest_amplitude = field_float(
+            mesh,
+            PARABOLIC_REST_AMPLITUDE_FIELD,
+            PARABOLIC_REST_AMPLITUDE,
+        )
+        target_amplitude = field_float(
+            mesh,
+            PARABOLIC_TARGET_AMPLITUDE_FIELD,
+            PARABOLIC_TARGET_AMPLITUDE,
+        )
+        rest_y = parabolic_top_y(
+            points[:, 0],
+            points[:, 2],
+            rim_height=rim_height,
+            amplitude=rest_amplitude,
+        )
+        target_top_y = parabolic_top_y(
+            points[:, 0],
+            points[:, 2],
+            rim_height=rim_height,
+            amplitude=target_amplitude,
+        )
+        displacement[target_mask, 1] = target_top_y[target_mask] - rest_y[target_mask]
+    else:
+        displacement[target_mask, 1] = target_y
     return displacement
 
 
@@ -680,12 +957,53 @@ def unique_edges(triangles: np.ndarray) -> np.ndarray:
 
 
 def top_surface_edges(mesh: pv.UnstructuredGrid) -> np.ndarray:
-    triangles = surface_triangles(mesh)
-    top = np.asarray(mesh.point_data[TOP_SURFACE_MASK], dtype=bool)
-    top_triangles = triangles[np.all(top[triangles], axis=1)]
+    top_triangles = top_surface_triangles(mesh)
     if top_triangles.size == 0:
         return np.empty((0, 2), dtype=np.int64)
     return unique_edges(top_triangles).astype(np.int64)
+
+
+def top_surface_triangles(mesh: pv.UnstructuredGrid) -> np.ndarray:
+    triangles = surface_triangles(mesh)
+    top = np.asarray(mesh.point_data[TOP_SURFACE_MASK], dtype=bool)
+    top_triangles = triangles[np.all(top[triangles], axis=1)]
+    return top_triangles.astype(np.int64)
+
+
+def triangle_areas(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
+    p0 = points[triangles[:, 0]]
+    p1 = points[triangles[:, 1]]
+    p2 = points[triangles[:, 2]]
+    return 0.5 * np.linalg.norm(np.cross(p1 - p0, p2 - p0), axis=1)
+
+
+def top_area_metrics(
+    mesh: pv.UnstructuredGrid, displacement: np.ndarray, target: np.ndarray
+) -> dict[str, float]:
+    triangles = top_surface_triangles(mesh)
+    if triangles.size == 0:
+        return {
+            "surface/top_area_rest": math.nan,
+            "surface/top_area_target": math.nan,
+            "surface/top_area_deformed": math.nan,
+            "surface/top_area_target_over_rest": math.nan,
+            "surface/top_area_deformed_over_rest": math.nan,
+            "surface/top_area_deformed_over_target": math.nan,
+        }
+    points = np.asarray(mesh.points, dtype=np.float64)
+    rest_area = triangle_areas(points, triangles).sum()
+    target_area = triangle_areas(points + target, triangles).sum()
+    deformed_area = triangle_areas(points + displacement, triangles).sum()
+    return {
+        "surface/top_area_rest": float(rest_area),
+        "surface/top_area_target": float(target_area),
+        "surface/top_area_deformed": float(deformed_area),
+        "surface/top_area_target_over_rest": float(target_area / rest_area),
+        "surface/top_area_deformed_over_rest": float(deformed_area / rest_area),
+        "surface/top_area_deformed_over_target": float(deformed_area / target_area)
+        if target_area > 0.0
+        else math.nan,
+    }
 
 
 def bumpiness_metrics(
@@ -747,6 +1065,51 @@ def bumpiness_metrics(
         "bumpiness/residual_laplacian_rms": float(
             np.linalg.norm(residual_lap[top_ids]) / math.sqrt(top_ids.size)
         ),
+    }
+
+
+def near_muscle_top_metrics(
+    mesh: pv.UnstructuredGrid, displacement: np.ndarray, target: np.ndarray
+) -> dict[str, float]:
+    points = np.asarray(mesh.points, dtype=np.float64)
+    target_mask = np.asarray(mesh.point_data[TARGET_SURFACE_MASK], dtype=bool)
+    muscle_bounds = mesh_muscle_bounds(mesh)
+    x0, x1 = muscle_bounds[0], muscle_bounds[1]
+    z0, z1 = muscle_bounds[4], muscle_bounds[5]
+    ids = np.flatnonzero(
+        target_mask
+        & (points[:, 0] >= x0)
+        & (points[:, 0] <= x1)
+        & (points[:, 2] >= z0)
+        & (points[:, 2] <= z1)
+    )
+    if ids.size == 0:
+        return {
+            "near_muscle/n_top_points": 0,
+            "near_muscle/top_y_mean": math.nan,
+            "near_muscle/top_y_std": math.nan,
+            "near_muscle/top_y_min": math.nan,
+            "near_muscle/top_y_max": math.nan,
+            "near_muscle/mean_fraction_of_target": math.nan,
+            "near_muscle/error_rms_fraction_of_target": math.nan,
+        }
+    top_y = displacement[ids, 1]
+    target_y = target[ids, 1]
+    target_norm = np.linalg.norm(target[ids])
+    return {
+        "near_muscle/n_top_points": int(ids.size),
+        "near_muscle/top_y_mean": float(top_y.mean()),
+        "near_muscle/top_y_std": float(top_y.std()),
+        "near_muscle/top_y_min": float(top_y.min()),
+        "near_muscle/top_y_max": float(top_y.max()),
+        "near_muscle/mean_fraction_of_target": float(top_y.mean() / target_y.mean())
+        if target_y.mean() != 0.0
+        else math.nan,
+        "near_muscle/error_rms_fraction_of_target": float(
+            np.linalg.norm(displacement[ids] - target[ids]) / target_norm
+        )
+        if target_norm > 0.0
+        else math.nan,
     }
 
 
@@ -929,7 +1292,7 @@ def adjoint_solution_metrics(solution: Any) -> dict[str, Any]:
     return metrics
 
 
-def geometry_summary(mesh: pv.UnstructuredGrid) -> dict[str, float]:
+def geometry_summary(mesh: pv.UnstructuredGrid) -> dict[str, Any]:
     fractions = np.column_stack(
         (
             np.asarray(mesh.cell_data[APONEUROSIS_FRACTION], dtype=np.float64),
@@ -939,7 +1302,15 @@ def geometry_summary(mesh: pv.UnstructuredGrid) -> dict[str, float]:
     )
     volumes = np.asarray(mesh.cell_data["Volume"], dtype=np.float64)
     weighted = fractions * volumes[:, None]
-    return {
+    muscle_bounds = mesh_muscle_bounds(mesh)
+    summary: dict[str, Any] = {
+        "geometry/kind": mesh_geometry_kind(mesh),
+        "muscle_bounds/x_min": float(muscle_bounds[0]),
+        "muscle_bounds/x_max": float(muscle_bounds[1]),
+        "muscle_bounds/y_min": float(muscle_bounds[2]),
+        "muscle_bounds/y_max": float(muscle_bounds[3]),
+        "muscle_bounds/z_min": float(muscle_bounds[4]),
+        "muscle_bounds/z_max": float(muscle_bounds[5]),
         "volume/total": float(volumes.sum()),
         "volume/aponeurosis": float(weighted[:, 0].sum()),
         "volume/fat": float(weighted[:, 1].sum()),
@@ -948,6 +1319,30 @@ def geometry_summary(mesh: pv.UnstructuredGrid) -> dict[str, float]:
         "fraction_sum/max": float(fractions.sum(axis=1).max()),
         "fraction_sum/mean": float(fractions.sum(axis=1).mean()),
     }
+    if mesh_geometry_kind(mesh) == "parabolic":
+        summary.update(
+            {
+                "geometry/parabolic/rim_height": field_float(
+                    mesh,
+                    PARABOLIC_RIM_HEIGHT_FIELD,
+                    PARABOLIC_RIM_HEIGHT,
+                ),
+                "geometry/parabolic/rest_amplitude": field_float(
+                    mesh,
+                    PARABOLIC_REST_AMPLITUDE_FIELD,
+                    PARABOLIC_REST_AMPLITUDE,
+                ),
+                "geometry/parabolic/target_amplitude": field_float(
+                    mesh,
+                    PARABOLIC_TARGET_AMPLITUDE_FIELD,
+                    PARABOLIC_TARGET_AMPLITUDE,
+                ),
+                "geometry/parabolic/grid": int(
+                    field_float(mesh, PARABOLIC_GRID_FIELD, PARABOLIC_GRID)
+                ),
+            }
+        )
+    return summary
 
 
 class RecordingDifferentiableForward:  # attrs subclasses with extra slots are brittle.
@@ -1014,7 +1409,13 @@ def solve_case(  # noqa: PLR0915
     melon.save(make_target_mesh(mesh, target), target_path)
 
     inverse_mesh = mesh.copy(deep=True)
-    forward, skin = build_forward(inverse_mesh, case)
+    forward, skin = build_forward(
+        inverse_mesh,
+        case,
+        skin_e=cfg.skin_e,
+        skin_thickness=cfg.skin_thickness,
+        skin_prestrain=cfg.skin_prestrain,
+    )
     differentiable_forward = RecordingDifferentiableForward(
         forward, make_adjoint_solver()
     )
@@ -1067,13 +1468,12 @@ def solve_case(  # noqa: PLR0915
         smooth_edges[:, 1], dtype=torch.long, device=torch.get_default_device()
     )
 
-    activation_parameter = torch.nn.Parameter(
-        torch.zeros(
-            (1 if case.variant.shared_activation else active_ids.size, 6),
-            dtype=torch.get_default_dtype(),
-            device=torch.get_default_device(),
-        )
+    initial_activation_inv, initial_parameter = initial_activation_parameter(
+        cfg.initial_activation_inv,
+        n_active_tets=active_ids.size,
+        shared=case.variant.shared_activation,
     )
+    activation_parameter = torch.nn.Parameter(initial_parameter)
     optimizer = torch.optim.Adam(
         [activation_parameter],
         lr=cfg.inverse_lr,
@@ -1098,7 +1498,10 @@ def solve_case(  # noqa: PLR0915
                 shared=case.variant.shared_activation,
             )
             materials = material_tree(
-                base_materials, active_activation_inv, active_ids_t, inverse_mesh.n_cells
+                base_materials,
+                active_activation_inv,
+                active_ids_t,
+                inverse_mesh.n_cells,
             )
             forward_start = time.perf_counter()
             output = forward_quiet(differentiable_forward, materials)
@@ -1255,6 +1658,7 @@ def solve_case(  # noqa: PLR0915
     initial = trace[0]
     final = trace[-1]
     converged = stop_reason.startswith("loss_plateau")
+    case_summary_path = data_dir / f"{case.stem}-summary.json"
     summary: dict[str, Any] = {
         "case": case.stem,
         "input_mesh": str(cfg.input_mesh),
@@ -1263,7 +1667,7 @@ def solve_case(  # noqa: PLR0915
         "skin/energy_enabled": bool(case.variant.skin_energy),
         "skin/prestrain_enabled": bool(case.variant.skin_prestrain),
         "skin/prestrain": float(
-            SKIN_PRESTRAIN
+            cfg.skin_prestrain
             if case.variant.skin_energy and case.variant.skin_prestrain
             else 0.0
         ),
@@ -1275,7 +1679,9 @@ def solve_case(  # noqa: PLR0915
         "n_points": int(inverse_mesh.n_points),
         "n_tets": int(inverse_mesh.n_cells),
         "n_active_tets": int(active_ids.size),
-        "n_activation_parameters": int(1 if case.variant.shared_activation else active_ids.size),
+        "n_activation_parameters": int(
+            1 if case.variant.shared_activation else active_ids.size
+        ),
         "n_activation_parameter_dofs": int(activation_parameter.numel()),
         "n_target_points": int(target_ids.size),
         "n_top_laplacian_edges": int(edge_i.size),
@@ -1285,11 +1691,20 @@ def solve_case(  # noqa: PLR0915
         "inverse/lr": float(cfg.inverse_lr),
         "inverse/patience": int(INVERSE_PATIENCE),
         "inverse/loss_min_delta": float(cfg.inverse_loss_min_delta),
+        "inverse/initial_activation_inv/x": float(initial_activation_inv[0]),
+        "inverse/initial_activation_inv/y": float(initial_activation_inv[1]),
+        "inverse/initial_activation_inv/z": float(initial_activation_inv[2]),
+        "inverse/initial_activation_inv/xy": float(initial_activation_inv[3]),
+        "inverse/initial_activation_inv/yz": float(initial_activation_inv[4]),
+        "inverse/initial_activation_inv/xz": float(initial_activation_inv[5]),
         "inverse/stop_reason": stop_reason,
         "inverse/converged": bool(converged),
         "inverse/evaluations": len(trace),
         "history/format": "VTKHDFTemporalUnstructuredGrid",
-        "history/path": history_path.name,
+        "history/path": str(history_path),
+        "target/path": str(target_path),
+        "result/path": str(output_path),
+        "summary/path": str(case_summary_path),
         "history/frames": int(history_frames),
         "initial/loss": float(initial["loss/total"]),
         "initial/error_rms": float(initial["target/error_rms"]),
@@ -1313,6 +1728,9 @@ def solve_case(  # noqa: PLR0915
             np.linalg.norm(target[target_ids]) / math.sqrt(target_ids.size)
         ),
         "target/displacement_max": float(target_norm.max()),
+        "target/y_min": float(target[target_ids, 1].min()),
+        "target/y_mean": float(target[target_ids, 1].mean()),
+        "target/y_max": float(target[target_ids, 1].max()),
         "activation/mode": case.variant.activation_mode,
         "activation/shared": bool(case.variant.shared_activation),
         "activation_inv/rms": float(
@@ -1326,16 +1744,25 @@ def solve_case(  # noqa: PLR0915
         "muscle/nu": float(MUSCLE_NU),
         "aponeurosis/E_MPa": float(APONEUROSIS_E),
         "aponeurosis/nu": float(APONEUROSIS_NU),
-        "skin/E_MPa": float(SKIN_E),
+        "skin/E_MPa": float(cfg.skin_e),
         "skin/nu": float(SKIN_NU),
-        "skin/thickness": float(SKIN_THICKNESS),
+        "skin/thickness": float(cfg.skin_thickness),
+        "solver/forward": "PNCG",
+        "solver/forward/rtol": float(FORWARD_RTOL),
+        "solver/forward/atol": float(FORWARD_ATOL),
+        "solver/forward/max_steps": int(FORWARD_MAX_STEPS),
+        "solver/adjoint": "FallbackSolver(CupyCG,CupyMinRes)",
+        "solver/adjoint/rtol": float(ADJOINT_RTOL),
+        "solver/adjoint/atol": float(ADJOINT_ATOL),
         "loss/residual_laplacian_enabled": case.variant.name == "laplacian",
         "loss/residual_laplacian_weight": float(cfg.residual_laplacian_weight),
         "loss/activation_smooth_enabled": bool(case.variant.activation_smooth),
         "loss/activation_smooth_weight": float(cfg.activation_smooth_weight),
         "trace": trace,
         **geometry_summary(inverse_mesh),
+        **top_area_metrics(inverse_mesh, best_displacement, target),
         **bumpiness_metrics(inverse_mesh, best_displacement, target),
+        **near_muscle_top_metrics(inverse_mesh, best_displacement, target),
         **{
             f"last/{key}": value
             for key, value in forward_solution_metrics(
@@ -1362,7 +1789,6 @@ def solve_case(  # noqa: PLR0915
         result_metrics,
     )
     melon.save(result, output_path)
-    case_summary_path = data_dir / f"{case.stem}-summary.json"
     case_summary_path.write_text(
         json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"
     )
@@ -1385,8 +1811,8 @@ def format_float(value: Any) -> str:
 
 def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
     lines = [
-        "| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | residual edge RMS | residual lap RMS |",
-        "| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | top area target/rest | top area deformed/rest | residual edge RMS | residual lap RMS |",
+        "| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     lines.extend(
         (
@@ -1410,6 +1836,10 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
                     format_float(row["best/error_rms_fraction_of_target"]),
                     format_float(row["bumpiness/top_y_mean"]),
                     format_float(row["bumpiness/top_y_std"]),
+                    format_float(row.get("surface/top_area_target_over_rest", math.nan)),
+                    format_float(
+                        row.get("surface/top_area_deformed_over_rest", math.nan)
+                    ),
                     format_float(row["bumpiness/residual_edge_rms"]),
                     format_float(row["bumpiness/residual_laplacian_rms"]),
                 ]
@@ -1423,13 +1853,22 @@ def write_table(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def prepare_mesh(cfg: PrepareConfig) -> None:
     resolution = ResolutionSpec(name=label_lr(cfg.tetwild_lr), lr=cfg.tetwild_lr)
-    mesh = make_tetwild_mesh(resolution)
+    mesh = make_tetwild_mesh(
+        resolution,
+        geometry=cfg.geometry,
+        parabolic_rim_height=cfg.parabolic_rim_height,
+        parabolic_rest_amplitude=cfg.parabolic_rest_amplitude,
+        parabolic_target_amplitude=cfg.parabolic_target_amplitude,
+        parabolic_grid=cfg.parabolic_grid,
+    )
     add_material_and_boundary_fields(mesh, resolution)
     cfg.output_mesh.parent.mkdir(parents=True, exist_ok=True)
     melon.save(mesh, cfg.output_mesh)
 
     target_mask = np.asarray(mesh.point_data[TARGET_SURFACE_MASK], dtype=bool)
     active_mask = np.asarray(mesh.cell_data["ActivationMask"], dtype=bool)
+    squash_target = target_displacement(mesh, -SQUASH_TARGET_MAGNITUDE)
+    zero_displacement = np.zeros_like(squash_target)
     summary: dict[str, Any] = {
         "mesh": cfg.output_mesh.name,
         "resolution": resolution.name,
@@ -1440,6 +1879,7 @@ def prepare_mesh(cfg: PrepareConfig) -> None:
         "n_active_tets": int(active_mask.sum()),
         "n_target_points": int(target_mask.sum()),
         "target/stretch_y": float(STRETCH_TARGET_MAGNITUDE),
+        "target/squash_y": float(-SQUASH_TARGET_MAGNITUDE),
         "fat/E_MPa": float(FAT_E),
         "fat/nu": float(FAT_NU),
         "muscle/E_MPa": float(MUSCLE_E),
@@ -1451,6 +1891,7 @@ def prepare_mesh(cfg: PrepareConfig) -> None:
         "skin/thickness": float(SKIN_THICKNESS),
         "skin/prestrain": float(SKIN_PRESTRAIN),
         **geometry_summary(mesh),
+        **top_area_metrics(mesh, zero_displacement, squash_target),
     }
     cfg.output_summary.write_text(
         json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"
@@ -1480,10 +1921,16 @@ def displacement_summary(
         "displacement/z_min": float(displacement[:, 2].min()),
         "displacement/z_mean": float(displacement[:, 2].mean()),
         "displacement/z_max": float(displacement[:, 2].max()),
-        "displacement/norm_rms": float(np.linalg.norm(displacement) / math.sqrt(mesh.n_points)),
+        "displacement/norm_rms": float(
+            np.linalg.norm(displacement) / math.sqrt(mesh.n_points)
+        ),
         "displacement/norm_max": float(norm.max()),
-        "displacement/fixed_norm_max": float(norm[fixed].max()) if np.any(fixed) else math.nan,
-        "displacement/free_norm_max": float(norm[free].max()) if np.any(free) else math.nan,
+        "displacement/fixed_norm_max": float(norm[fixed].max())
+        if np.any(fixed)
+        else math.nan,
+        "displacement/free_norm_max": float(norm[free].max())
+        if np.any(free)
+        else math.nan,
         "active_cell_displacement/x_min": float(active_cell_displacement[:, 0].min()),
         "active_cell_displacement/x_mean": float(active_cell_displacement[:, 0].mean()),
         "active_cell_displacement/x_max": float(active_cell_displacement[:, 0].max()),
@@ -1629,7 +2076,9 @@ def summarize_existing_cases(
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     expected_stems = [case.stem for case in expected_inverse_cases(resolution, mode)]
     rows_by_case = {str(row["case"]): row for row in rows}
-    ordered_rows = [rows_by_case[stem] for stem in expected_stems if stem in rows_by_case]
+    ordered_rows = [
+        rows_by_case[stem] for stem in expected_stems if stem in rows_by_case
+    ]
     extra_stems = sorted(set(rows_by_case) - set(expected_stems))
     ordered_rows.extend(rows_by_case[stem] for stem in extra_stems)
     missing_stems = [stem for stem in expected_stems if stem not in rows_by_case]

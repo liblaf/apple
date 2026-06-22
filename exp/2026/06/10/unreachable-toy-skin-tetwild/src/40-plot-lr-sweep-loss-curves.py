@@ -34,11 +34,12 @@ def load_history(path: Path) -> tuple[np.ndarray, np.ndarray]:
 
 def load_cases(input_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
     loaded: list[tuple[Path, dict[str, Any]]] = []
-    root_summary = input_dir / "summary.json"
-    summary_paths = [root_summary] if root_summary.exists() else sorted(input_dir.glob("**/summary.json"))
+    summary_paths = sorted(input_dir.glob("**/20-toy-tetwild-*-summary.json"))
+    if not summary_paths and (input_dir / "summary.json").exists():
+        summary_paths = [input_dir / "summary.json"]
     for summary_path in summary_paths:
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
-        cases = list(summary["cases"])
+        cases = list(summary.get("cases", [summary]))
         loaded.extend((summary_path, case) for case in cases)
     if not loaded:
         msg = f"no inverse summaries found under {input_dir}"
@@ -47,23 +48,35 @@ def load_cases(input_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
 
 
 def case_sort_key(case: dict[str, Any]) -> tuple[int, float, str]:
-    if bool(case.get("loss/activation_smooth_enabled", False)):
-        rank = 2
-    elif bool(case.get("skin/energy_enabled", False)):
-        rank = 1
-    else:
+    if not bool(case.get("skin/energy_enabled", False)):
         rank = 0
+    elif bool(case.get("skin/prestrain_enabled", False)):
+        rank = 2
+    else:
+        rank = 1
     return rank, float(case["inverse/lr"]), str(case["case"])
 
 
 def case_label(case: dict[str, Any]) -> str:
-    if bool(case.get("loss/activation_smooth_enabled", False)):
-        label = "activation smooth"
-    elif bool(case.get("skin/energy_enabled", False)):
-        label = "skin"
-    else:
+    if not bool(case.get("skin/energy_enabled", False)):
         label = "baseline"
+    elif bool(case.get("skin/prestrain_enabled", False)):
+        label = "skin + prestrain"
+    else:
+        label = "skin"
     return f"{label}, lr={float(case['inverse/lr']):g}"
+
+
+def history_path_for_case(summary_path: Path, case: dict[str, Any]) -> Path:
+    recorded = case.get("history/path")
+    if isinstance(recorded, str) and recorded:
+        path = Path(recorded)
+        if path.exists():
+            return path
+        candidate = summary_path.parent / path.name
+        if candidate.exists():
+            return candidate
+    return summary_path.parent / f"{case['case']}-steps.vtkhdf"
 
 
 def case_title(case: dict[str, Any]) -> str:
@@ -123,7 +136,7 @@ def main(cfg: PlotLrSweepConfig) -> None:
     output_paths: list[Path] = []
     for summary_path, case in load_cases(cfg.input_dir):
         case_name = str(case["case"])
-        history_path = summary_path.parent / f"{case_name}-steps.vtkhdf"
+        history_path = history_path_for_case(summary_path, case)
         cherries.log_input(summary_path)
         cherries.log_input(history_path)
         steps, losses = load_history(history_path)

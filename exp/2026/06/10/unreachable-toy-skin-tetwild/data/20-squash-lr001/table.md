@@ -1,0 +1,5 @@
+| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | residual edge RMS | residual lap RMS |
+| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20-toy-tetwild-squash-lr001-l2-no_skin-prestrain0-activation-per_tet | 0.01 | squash | False | per-tet | False | 376971 | 10834 | 10834 | 5927 | loss_plateau_20_steps | 22 | 0.0826318 | 0.497891 | 0.995782 | -0.00216517 | 0.00458065 | 0.0879413 | 0.0376377 |
+| 20-toy-tetwild-squash-lr001-l2-skin-prestrain0-activation-per_tet | 0.01 | squash | True | per-tet | False | 376971 | 10834 | 10834 | 5927 | loss_plateau_20_steps | 22 | 0.0826969 | 0.498087 | 0.996174 | -0.00192615 | 0.00317328 | 0.0879811 | 0.037635 |
+| 20-toy-tetwild-squash-lr001-l2-skin-prestrain10-activation-per_tet | 0.01 | squash | True | per-tet | False | 376971 | 10834 | 10834 | 5927 | loss_plateau_20_steps | 20 | 0.0828307 | 0.49849 | 0.99698 | -0.00151329 | 0.00174766 | 0.088023 | 0.0376329 |

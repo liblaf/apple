@@ -1,0 +1,3 @@
+| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | residual edge RMS | residual lap RMS |
+| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20-toy-tetwild-squash-lr0005-l2-skin-prestrain10-activation-per_tet | 0.005 | squash | True | per-tet | False | 2766827 | 69870 | 69870 | 23614 | loss_plateau_20_steps | 20 | 0.0830145 | 0.499043 | 0.998085 | -0.000958708 | 0.00107621 | 0.0661389 | 0.0283446 |

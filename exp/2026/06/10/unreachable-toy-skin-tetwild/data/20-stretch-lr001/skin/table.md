@@ -1,0 +1,3 @@
+| case | lr | mode | skin | activation mode | smooth loss | tets | active | params | target pts | stop | best step | best loss | error RMS | error/target | mean top y | top y std | residual edge RMS | residual lap RMS |
+| --- | ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20-toy-tetwild-stretch-lr001-l2-skin-prestrain0-activation-per_tet | 0.01 | stretch | True | per-tet | False | 376971 | 10834 | 10834 | 5927 | loss_plateau_20_steps | 54 | 0.00258724 | 0.0881006 | 0.881006 | 0.0170134 | 0.0287856 | 0.0176432 | 0.00753945 |

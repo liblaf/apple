@@ -33,9 +33,11 @@ def load_history(path: Path) -> tuple[np.ndarray, np.ndarray]:
 
 
 def row_label(case: dict[str, Any]) -> str:
-    loss = "L2 + residual Laplacian" if case["loss/residual_laplacian_enabled"] else "L2"
-    prestrain = "skin prestrain" if case["skin/prestrain_enabled"] else "no skin prestrain"
-    return f"{loss}\n{prestrain}"
+    if not bool(case["skin/energy_enabled"]):
+        return "L2, no skin"
+    if bool(case["skin/prestrain_enabled"]):
+        return "L2, skin + prestrain"
+    return "L2, skin"
 
 
 def activation_label(case: dict[str, Any]) -> str:
@@ -46,7 +48,7 @@ def activation_label(case: dict[str, Any]) -> str:
 
 
 def case_title(case: dict[str, Any]) -> str:
-    return f"{row_label(case).replace(chr(10), ', ')}\n{activation_label(case)}"
+    return f"{case['mode'].title()} {case['resolution']}: {row_label(case)}"
 
 
 def case_filename(case: dict[str, Any]) -> str:
@@ -68,6 +70,7 @@ def plot_single_case(
     ax.set_title(case_title(case))
     ax.set_xlabel("Inverse step")
     ax.set_ylabel("Loss")
+    ax.set_yscale("log")
     ax.grid(visible=True, alpha=0.25)
     fig.savefig(output_path, dpi=180)
     plt.close(fig)
@@ -78,51 +81,39 @@ def plot_overview(
     cases: list[dict[str, Any]],
     histories: dict[str, tuple[np.ndarray, np.ndarray]],
 ) -> None:
-    rows = [
-        (False, False),
-        (False, True),
-        (True, False),
-        (True, True),
-    ]
-    activations = ["per-tet", "per-tet-smooth", "shared"]
-    case_by_key = {
-        (
-            bool(case["loss/residual_laplacian_enabled"]),
-            bool(case["skin/prestrain_enabled"]),
-            str(case["activation/mode"]),
-        ): case
-        for case in cases
-    }
+    fig, ax = plt.subplots(figsize=(7.4, 4.6), constrained_layout=True)
+    cmap = plt.get_cmap("viridis")
+    colors = cmap(np.linspace(0.15, 0.85, len(cases)))
+    for color, case in zip(colors, cases, strict=True):
+        steps, losses = histories[str(case["case"])]
+        ax.plot(steps, losses, color=color, linewidth=2.0, label=row_label(case))
+        best_step = int(case["best/step"])
+        best_loss = float(case["best/loss"])
+        ax.scatter([best_step], [best_loss], color=color, edgecolor="black", zorder=3)
 
-    fig, axes = plt.subplots(
-        nrows=len(rows),
-        ncols=len(activations),
-        figsize=(14.0, 10.0),
-        sharex=False,
-        sharey=False,
-        constrained_layout=True,
+    ax.set_title(
+        f"Toy {cases[0]['mode'].title()} {cases[0]['resolution']}: Loss vs Step"
     )
-    fig.suptitle("Toy Squash Inverse Physics: Loss vs Step", fontsize=16)
-
-    for row_idx, row_key in enumerate(rows):
-        for col_idx, activation in enumerate(activations):
-            ax = axes[row_idx, col_idx]
-            case = case_by_key[(*row_key, activation)]
-            steps, losses = histories[str(case["case"])]
-            ax.plot(steps, losses, color="#2a6f97", linewidth=1.8)
-            best_step = int(case["best/step"])
-            best_loss = float(case["best/loss"])
-            ax.scatter([best_step], [best_loss], color="#c1121f", s=18, zorder=3)
-            ax.axvline(best_step, color="#c1121f", alpha=0.2, linewidth=1.0)
-            ax.grid(visible=True, alpha=0.25)
-            ax.set_title(activation_label(case), fontsize=10)
-            if col_idx == 0:
-                ax.set_ylabel(f"{row_label(case)}\nLoss")
-            if row_idx == len(rows) - 1:
-                ax.set_xlabel("Inverse step")
+    ax.set_xlabel("Inverse step")
+    ax.set_ylabel("Loss")
+    ax.set_yscale("log")
+    ax.grid(visible=True, which="both", alpha=0.25)
+    ax.legend(title="Case")
 
     fig.savefig(output_path, dpi=180)
     plt.close(fig)
+
+
+def history_path_for_case(summary_path: Path, case: dict[str, Any]) -> Path:
+    recorded = case.get("history/path")
+    if isinstance(recorded, str) and recorded:
+        path = Path(recorded)
+        if path.exists():
+            return path
+        candidate = summary_path.parent / path.name
+        if candidate.exists():
+            return candidate
+    return summary_path.parent / f"{case['case']}-steps.vtkhdf"
 
 
 def main(cfg: PlotLossConfig) -> None:
@@ -134,7 +125,7 @@ def main(cfg: PlotLossConfig) -> None:
     output_paths: list[Path] = []
     for case in cases:
         case_name = str(case["case"])
-        history_path = cfg.comparison_summary.parent / f"{case_name}-steps.vtkhdf"
+        history_path = history_path_for_case(cfg.comparison_summary, case)
         cherries.log_input(history_path)
         steps, losses = load_history(history_path)
         histories[case_name] = (steps, losses)
@@ -148,7 +139,9 @@ def main(cfg: PlotLossConfig) -> None:
 
     for output_path in output_paths:
         cherries.log_output(output_path)
-    logger.info("Wrote %d loss-curve plot(s) under %s", len(output_paths), cfg.output_dir)
+    logger.info(
+        "Wrote %d loss-curve plot(s) under %s", len(output_paths), cfg.output_dir
+    )
 
 
 if __name__ == "__main__":

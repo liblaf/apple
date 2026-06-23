@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from _human_face_inverse import run_inverse
+from _human_face_entrypoints import run_inverse
 
 from liblaf import cherries
 

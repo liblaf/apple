@@ -1,0 +1,23 @@
+{
+  "source_mesh": "/home/liblaf/github/liblaf/melon/exp/2026/05/27/head/data/62-tetmesh-3191k.vtu",
+  "expression": "LipsCornersDown",
+  "output_isface_surface": "/home/liblaf/github/liblaf/apple/exp/2026/06/17/human-face-skin-prestrain/data/36-lips-corners-down-isface-area-change.vtp",
+  "output_full_surface": "/home/liblaf/github/liblaf/apple/exp/2026/06/17/human-face-skin-prestrain/data/36-lips-corners-down-surface-area-change.vtp",
+  "surface_triangles": 227720,
+  "isface_triangles": 29899,
+  "isface_area_total_ratio": 0.9974285923561914,
+  "area_ratio_min": 0.32024387507517915,
+  "area_ratio_q001": 0.7051412461494756,
+  "area_ratio_q01": 0.849148256372007,
+  "area_ratio_q05": 0.9147482051402529,
+  "area_ratio_median": 0.9994805198496616,
+  "area_ratio_q95": 1.1202571381330777,
+  "area_ratio_q99": 1.2568789062759722,
+  "area_ratio_q999": 1.9268916991453433,
+  "area_ratio_max": 7.394208816093518,
+  "frac_abs_log_gt_10pct": 0.10572259941804074,
+  "frac_abs_log_gt_25pct": 0.01555235961068932,
+  "frac_abs_log_gt_2x": 0.0009699321047526673,
+  "frac_stretch_gt_10pct": 0.0661226127964146,
+  "frac_shrink_gt_10pct": 0.03959998662162614
+}

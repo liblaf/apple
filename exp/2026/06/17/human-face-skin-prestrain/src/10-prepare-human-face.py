@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from _human_face_inverse import prepare_mesh
+from _human_face_entrypoints import prepare_mesh
 
 from liblaf import cherries
 

@@ -1,0 +1,84 @@
+{
+  "input_mesh": "/home/liblaf/github/liblaf/melon/exp/2026/05/27/head/data/62-tetmesh-3191k.vtu",
+  "mask_name": "IsFace",
+  "selection_rule": "all triangle vertices have mask=True",
+  "n_points": 599998,
+  "n_tets": 3190515,
+  "n_surface_points": 113786,
+  "n_surface_triangles": 227720,
+  "n_selected_face_triangles": 29899,
+  "n_expressions": 36,
+  "expression_names": [
+    "MouthOpen",
+    "BrowDownLeft",
+    "NeckCompression",
+    "EyeClosedBrowUpLeft",
+    "EyeClosedRight",
+    "EyeClosedLeft",
+    "EyesUpMax",
+    "EyesDown",
+    "JawFront",
+    "EyesUp",
+    "MouthOpenSlightly",
+    "Scream",
+    "Smile",
+    "EyeScrewedUpLeft",
+    "BrowUpLeft",
+    "LipsFunnel",
+    "LipsRight",
+    "JawLeft",
+    "MouthOpenMax",
+    "BrowUpRight",
+    "EyesRight",
+    "EyesLeft",
+    "BrowDownRight",
+    "LipsPressed",
+    "LipsCornersDown",
+    "EyeScrewedUpRight",
+    "LipsLeft",
+    "Compressed",
+    "LowerLipBack",
+    "Puff",
+    "EyeClosedBrowUpRight",
+    "Extra_Funnel",
+    "LipsDisgust",
+    "LowerLipFront",
+    "JawRight",
+    "SmileClosed"
+  ],
+  "base_area": {
+    "min": 3.743119669978754e-09,
+    "mean": 1.4341610286990544e-06,
+    "max": 3.3454036216189584e-06,
+    "sum": 0.04287998059707303
+  },
+  "min_relative_area_change": {
+    "min": -0.9545843344570981,
+    "mean": -0.180168391538535,
+    "max": 1.7790316555466035e-06,
+    "argmin_triangle_id": 7813
+  },
+  "max_relative_area_change": {
+    "min": 0.0,
+    "mean": 0.23939481788710829,
+    "max": 34.32827593391882,
+    "argmax_triangle_id": 7678
+  },
+  "global_min": {
+    "relative_area_change": -0.9545843344570981,
+    "triangle_id": 7813,
+    "expression": "Smile"
+  },
+  "global_max": {
+    "relative_area_change": 34.32827593391882,
+    "triangle_id": 7678,
+    "expression": "Scream"
+  },
+  "outputs": {
+    "surface": "/home/liblaf/github/liblaf/apple/exp/2026/06/23/head-face-relative-area-change/data/10-face-relative-area-change.vtp",
+    "npz": "/home/liblaf/github/liblaf/apple/exp/2026/06/23/head-face-relative-area-change/data/10-face-relative-area-change.npz",
+    "csv": "/home/liblaf/github/liblaf/apple/exp/2026/06/23/head-face-relative-area-change/data/10-face-relative-area-change.csv",
+    "summary": "/home/liblaf/github/liblaf/apple/exp/2026/06/23/head-face-relative-area-change/data/10-face-relative-area-change-summary.json",
+    "expression_table": "/home/liblaf/github/liblaf/apple/exp/2026/06/23/head-face-relative-area-change/data/10-expression-area-change-summary.csv"
+  }
+}

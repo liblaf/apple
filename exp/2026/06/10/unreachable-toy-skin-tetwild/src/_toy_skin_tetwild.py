@@ -206,6 +206,17 @@ def label_lr(lr: float) -> str:
     return f"lr{lr:g}".replace("0.", "0").replace(".", "p")
 
 
+def label_percent(value: float) -> str:
+    return f"{100.0 * value:g}".replace(".", "p")
+
+
+def case_output_stem(case: ToyCase, cfg: InverseConfig) -> str:
+    stem = case.stem
+    if case.variant.skin_energy and case.variant.skin_prestrain:
+        stem = stem.replace("prestrain10", f"prestrain{label_percent(cfg.skin_prestrain)}")
+    return stem
+
+
 def selected_mode(cfg: InverseConfig) -> Literal["stretch", "squash"]:
     if cfg.mode not in {"stretch", "squash"}:
         msg = f"unknown mode {cfg.mode!r}; expected stretch or squash"
@@ -1400,11 +1411,12 @@ def solve_case(  # noqa: PLR0915
 
     start = time.perf_counter()
     data_dir = cfg.output_summary.parent
+    stem = case_output_stem(case, cfg)
     mesh = base_mesh.copy(deep=True)
     target = target_displacement(mesh, case.target_y)
-    target_path = data_dir / f"{case.stem}-target.vtu"
-    output_path = data_dir / f"{case.stem}.vtu"
-    history_path = data_dir / f"{case.stem}-steps.vtkhdf"
+    target_path = data_dir / f"{stem}-target.vtu"
+    output_path = data_dir / f"{stem}.vtu"
+    history_path = data_dir / f"{stem}-steps.vtkhdf"
 
     melon.save(make_target_mesh(mesh, target), target_path)
 
@@ -1430,7 +1442,7 @@ def solve_case(  # noqa: PLR0915
         np.asarray(inverse_mesh.cell_data["ActivationMask"], dtype=bool)
     ).astype(np.int64)
     if active_ids.size == 0:
-        msg = f"{case.stem} has no active muscle tetrahedra"
+        msg = f"{stem} has no active muscle tetrahedra"
         raise ValueError(msg)
     smooth_edges = active_tetra_neighbor_edges(inverse_mesh, active_ids)
 
@@ -1599,20 +1611,20 @@ def solve_case(  # noqa: PLR0915
             cherries.set_step(len(trace) - 1)
             cherries.log_metrics(
                 {
-                    f"{case.stem}/loss": row["loss/total"],
-                    f"{case.stem}/data_loss": row["loss/data"],
-                    f"{case.stem}/laplacian_loss": row["loss/residual_laplacian"],
-                    f"{case.stem}/activation_smooth_loss": row[
+                    f"{stem}/loss": row["loss/total"],
+                    f"{stem}/data_loss": row["loss/data"],
+                    f"{stem}/laplacian_loss": row["loss/residual_laplacian"],
+                    f"{stem}/activation_smooth_loss": row[
                         "loss/activation_smooth"
                     ],
-                    f"{case.stem}/error_rms": row["target/error_rms"],
-                    f"{case.stem}/error_max": row["target/error_max"],
-                    f"{case.stem}/activation_inv_rms": row["activation_inv/rms"],
+                    f"{stem}/error_rms": row["target/error_rms"],
+                    f"{stem}/error_max": row["target/error_max"],
+                    f"{stem}/activation_inv_rms": row["activation_inv/rms"],
                 }
             )
             logger.info(
                 "%s step %03d loss %.6g data %.6g lap %.6g act %.6g rms %.6g grad %.6g",
-                case.stem,
+                stem,
                 step,
                 row["loss/total"],
                 row["loss/data"],
@@ -1647,7 +1659,7 @@ def solve_case(  # noqa: PLR0915
             optimizer.step()
 
     if best_displacement is None or best_activation_inv is None:
-        msg = f"{case.stem} did not evaluate any inverse state"
+        msg = f"{stem} did not evaluate any inverse state"
         raise RuntimeError(msg)
 
     elapsed_s = time.perf_counter() - start
@@ -1658,9 +1670,9 @@ def solve_case(  # noqa: PLR0915
     initial = trace[0]
     final = trace[-1]
     converged = stop_reason.startswith("loss_plateau")
-    case_summary_path = data_dir / f"{case.stem}-summary.json"
+    case_summary_path = data_dir / f"{stem}-summary.json"
     summary: dict[str, Any] = {
-        "case": case.stem,
+        "case": stem,
         "input_mesh": str(cfg.input_mesh),
         "mode": case.mode,
         "loss_variant": case.variant.name,

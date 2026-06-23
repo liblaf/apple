@@ -127,6 +127,48 @@ def activation_inv_stats(prefix: str, activation_inv: np.ndarray) -> dict[str, f
     }
 
 
+def det_f_metrics(prefix: str, det_f: np.ndarray) -> dict[str, float | int]:
+    return {
+        f"{prefix}/inverted_cells": int((det_f <= 0.0).sum()),
+        f"{prefix}/lt_0p5_cells": int((det_f < 0.5).sum()),
+        f"{prefix}/gt_1p5_cells": int((det_f > 1.5).sum()),
+        **stats(prefix, det_f),
+    }
+
+
+def surface_area_metrics(
+    prefix: str, skin: pv.PolyData, displacement: np.ndarray
+) -> dict[str, float]:
+    from liblaf.apple.common import GLOBAL_POINT_ID
+
+    faces = triangle_faces(skin)
+    surface_ids = np.asarray(skin.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64)
+    rest_area = np.asarray(skin.cell_data["RestArea"], dtype=np.float64)
+    deformed_area = triangle_areas(skin.points + displacement[surface_ids], faces)
+    area_ratio = np.ones_like(rest_area)
+    valid = rest_area > 0.0
+    area_ratio[valid] = deformed_area[valid] / rest_area[valid]
+    is_face = np.asarray(skin.cell_data["IsFacePrestrainCell"], dtype=bool)
+    active = np.asarray(skin.cell_data["IsStretchedPrestrainCell"], dtype=bool)
+
+    result: dict[str, float] = {
+        f"{prefix}/surface_area_ratio_all": float(
+            deformed_area.sum() / rest_area.sum()
+        ),
+        f"{prefix}/surface_area_ratio_is_face": float(
+            deformed_area[is_face].sum() / rest_area[is_face].sum()
+        ),
+    }
+    if np.any(active):
+        result[f"{prefix}/surface_area_ratio_active_prestrain"] = float(
+            deformed_area[active].sum() / rest_area[active].sum()
+        )
+    else:
+        result[f"{prefix}/surface_area_ratio_active_prestrain"] = math.nan
+    result.update(stats(f"{prefix}/surface_area_ratio_cell", area_ratio))
+    return result
+
+
 def prepare_simulation_mesh(
     cfg: EstimateConfig,
 ) -> tuple[pv.UnstructuredGrid, dict[str, Any]]:
@@ -350,24 +392,21 @@ def estimate_volume_activation_inv(
     stretches = np.sqrt(np.maximum(eigvals, cfg.stretch_floor**2))
 
     inv_stretches = 1.0 / stretches
-    U_inv = (eigvecs * inv_stretches[:, None, :]) @ np.swapaxes(eigvecs, 1, 2)
+    U = (eigvecs * stretches[:, None, :]) @ np.swapaxes(eigvecs, 1, 2)
 
     activation_inv = np.empty((tets.shape[0], 6), dtype=np.float64)
-    activation_inv[:, 0] = U_inv[:, 0, 0] - 1.0
-    activation_inv[:, 1] = U_inv[:, 1, 1] - 1.0
-    activation_inv[:, 2] = U_inv[:, 2, 2] - 1.0
-    activation_inv[:, 3] = U_inv[:, 0, 1]
-    activation_inv[:, 4] = U_inv[:, 1, 2]
-    activation_inv[:, 5] = U_inv[:, 0, 2]
+    activation_inv[:, 0] = U[:, 0, 0] - 1.0
+    activation_inv[:, 1] = U[:, 1, 1] - 1.0
+    activation_inv[:, 2] = U[:, 2, 2] - 1.0
+    activation_inv[:, 3] = U[:, 0, 1]
+    activation_inv[:, 4] = U[:, 1, 2]
+    activation_inv[:, 5] = U[:, 0, 2]
 
     metrics: dict[str, Any] = {
         "volume/stretch_eigenvalues_clipped": int(clipped.sum()),
-        "skin_only/detF_inverted_cells": int((det_F <= 0.0).sum()),
-        "skin_only/detF_lt_0p5_cells": int((det_F < 0.5).sum()),
-        "skin_only/detF_gt_1p5_cells": int((det_F > 1.5).sum()),
-        **stats("skin_only/detF", det_F),
+        **det_f_metrics("skin_only/detF", det_F),
         **stats("volume/stretch", stretches.ravel()),
-        **stats("volume/inverse_stretch", inv_stretches.ravel()),
+        **stats("volume/implied_prestrain_stretch", inv_stretches.ravel()),
         **activation_inv_stats("volume/estimated_activation_inv", activation_inv),
     }
     return activation_inv, metrics
@@ -461,6 +500,11 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
     compensated, compensated_forward = run_forward(
         mesh, skin, estimated_activation, cfg
     )
+    compensated_det_f = np.linalg.det(
+        deformation_gradients(
+            np.asarray(mesh.points, dtype=np.float64), compensated, tets
+        )
+    )
 
     fixed = np.asarray(mesh.point_data[IS_FIXED], dtype=bool)
     free = ~fixed
@@ -486,7 +530,10 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
         "skin/thickness": float(SKIN_THICKNESS),
         "skin/E_MPa": float(SKIN_E),
         "skin/nu": float(SKIN_NU),
-        "volume/prestrain_source": "inverse_polar_stretch_of_skin_only_deformation",
+        "volume/activation_inv_source": "polar_stretch_of_skin_only_deformation",
+        "volume/implied_prestrain_source": (
+            "inverse_polar_stretch_of_skin_only_deformation"
+        ),
         "compensation/free_rms_ratio": float(compensated_rms / skin_only_rms)
         if skin_only_rms > 0.0
         else math.nan,
@@ -495,14 +542,17 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
         **estimate_metrics,
         **{f"skin_only/{key}": value for key, value in skin_only_forward.items()},
         **{f"compensated/{key}": value for key, value in compensated_forward.items()},
+        **det_f_metrics("compensated/detF", compensated_det_f),
         **vector_stats("skin_only/displacement_all", skin_only),
         **vector_stats("skin_only/displacement_free", skin_only, free),
         **vector_stats("skin_only/displacement_surface", skin_only, surface_mask),
         **vector_stats("skin_only/displacement_target", skin_only, loss_mask),
+        **surface_area_metrics("skin_only", skin, skin_only),
         **vector_stats("compensated/displacement_all", compensated),
         **vector_stats("compensated/displacement_free", compensated, free),
         **vector_stats("compensated/displacement_surface", compensated, surface_mask),
         **vector_stats("compensated/displacement_target", compensated, loss_mask),
+        **surface_area_metrics("compensated", skin, compensated),
     }
 
     write_outputs(

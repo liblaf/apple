@@ -1,0 +1,57 @@
+{
+  "input_mesh": "/home/liblaf/github/liblaf/melon/exp/2026/05/27/head/data/62-tetmesh-3191k.vtu",
+  "target": "Smile",
+  "area_ratio_floor": 0.1,
+  "surface_triangles": 227720,
+  "isface_surface_triangles": 29899,
+  "output_points": 15299,
+  "output_triangles": 29899,
+  "finite_target_output_triangles": 29899,
+  "active_prestrain_triangles": 13159,
+  "total_target_rest_area_ratio": 0.9959036301993714,
+  "target_rest_area_ratio": {
+    "min": 0.045415665542901884,
+    "q01": 0.6322311816123309,
+    "median": 1.0033631793814313,
+    "q99": 1.725150161605689,
+    "max": 16.513033660865602,
+    "mean": 1.0179180002076973,
+    "rms": 1.0552838454751476
+  },
+  "estimated_length_prestrain": {
+    "min": 0.0,
+    "q01": 0.0,
+    "median": 0.0,
+    "q99": 0.20487033663890575,
+    "max": 0.683772233983162,
+    "mean": 0.019020243513960818,
+    "rms": 0.04689479575460688
+  },
+  "estimated_length_prestrain_active": {
+    "min": 3.3815775635215317e-06,
+    "q01": 0.00010015421139148994,
+    "median": 0.02021494268224633,
+    "q99": 0.22665907007152128,
+    "max": 0.683772233983162,
+    "mean": 0.04321652563446421,
+    "rms": 0.07068732332564803
+  },
+  "estimated_activation_inv_diag": {
+    "min": 0.0,
+    "q01": 0.0,
+    "median": 0.0,
+    "q99": 0.25765651335513273,
+    "max": 2.162277660168379,
+    "mean": 0.021733477814758363,
+    "rms": 0.058957879584264995
+  },
+  "estimated_activation_inv_diag_active": {
+    "min": 3.3815889985966407e-06,
+    "q01": 0.00010016424327272678,
+    "median": 0.02063201773824397,
+    "q99": 0.2930907461651989,
+    "max": 2.162277660168379,
+    "mean": 0.04938135520810551,
+    "rms": 0.08887072925055116
+  }
+}

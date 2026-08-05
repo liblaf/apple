@@ -72,6 +72,10 @@ class EstimateConfig(cherries.BaseConfig):
     )
 
     target_expression: str = "LipsCornersDown"
+    output_stem: str = ""
+    skin_prestrain_mode: str = "target-area"
+    uniform_skin_prestrain: float = 0.05
+    volume_estimation_mode: str = "direct-polar"
     area_ratio_floor: float = 1.0e-6
     stretch_floor: float = 1.0e-6
     max_steps: int = FORWARD_MAX_STEPS
@@ -125,6 +129,18 @@ def activation_inv_stats(prefix: str, activation_inv: np.ndarray) -> dict[str, f
         **stats(f"{prefix}/component", activation_inv.ravel()),
         **stats(f"{prefix}/norm", np.linalg.norm(activation_inv, axis=1)),
     }
+
+
+def apply_output_stem(cfg: EstimateConfig) -> None:
+    if not cfg.output_stem:
+        return
+    data_dir = cfg.output_summary.parent
+    stem = cfg.output_stem
+    cfg.output_summary = data_dir / f"{stem}-summary.json"
+    cfg.output_result = data_dir / f"{stem}.vtu"
+    cfg.output_skin = data_dir / f"{stem}-skin.vtp"
+    cfg.output_skin_inspect = data_dir / f"{stem}-skin-inspect.vtp"
+    cfg.output_target = data_dir / f"{stem}-target.vtu"
 
 
 def det_f_metrics(prefix: str, det_f: np.ndarray) -> dict[str, float | int]:
@@ -222,6 +238,78 @@ def target_displacement(
     )
 
 
+def skin_prestrain_fields(
+    cfg: EstimateConfig,
+    area_ratio: np.ndarray,
+    face_cells: np.ndarray,
+    stretched_face_cells: np.ndarray,
+    contracted_face_cells: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    if cfg.skin_prestrain_mode == "target-area":
+        active_prestrain_cells = contracted_face_cells
+        effective_area_ratio = np.ones_like(area_ratio)
+        effective_area_ratio[active_prestrain_cells] = area_ratio[
+            active_prestrain_cells
+        ]
+        stress_free_area_ratio = np.ones_like(area_ratio)
+        stress_free_area_ratio[active_prestrain_cells] = np.maximum(
+            effective_area_ratio[active_prestrain_cells], cfg.area_ratio_floor
+        )
+        inv_length_factor = 1.0 / np.sqrt(stress_free_area_ratio)
+        activation_diag = inv_length_factor - 1.0
+        return (
+            active_prestrain_cells,
+            effective_area_ratio,
+            stress_free_area_ratio,
+            inv_length_factor,
+            activation_diag,
+        )
+
+    if cfg.skin_prestrain_mode == "target-area-stretch-legacy":
+        active_prestrain_cells = stretched_face_cells
+        effective_area_ratio = np.ones_like(area_ratio)
+        effective_area_ratio[active_prestrain_cells] = area_ratio[
+            active_prestrain_cells
+        ]
+        inv_area_factor = np.maximum(effective_area_ratio, cfg.area_ratio_floor)
+        stress_free_area_ratio = 1.0 / inv_area_factor
+        inv_length_factor = np.sqrt(inv_area_factor)
+        activation_diag = inv_length_factor - 1.0
+        return (
+            active_prestrain_cells,
+            effective_area_ratio,
+            stress_free_area_ratio,
+            inv_length_factor,
+            activation_diag,
+        )
+
+    if cfg.skin_prestrain_mode == "uniform":
+        if not 0.0 <= cfg.uniform_skin_prestrain < 1.0:
+            msg = "uniform_skin_prestrain must be in [0, 1)"
+            raise ValueError(msg)
+        active_prestrain_cells = face_cells
+        inv_length_factor = np.ones_like(area_ratio)
+        inv_length_factor[active_prestrain_cells] = 1.0 / (
+            1.0 - cfg.uniform_skin_prestrain
+        )
+        effective_area_ratio = inv_length_factor**2
+        stress_free_area_ratio = 1.0 / effective_area_ratio
+        activation_diag = inv_length_factor - 1.0
+        return (
+            active_prestrain_cells,
+            effective_area_ratio,
+            stress_free_area_ratio,
+            inv_length_factor,
+            activation_diag,
+        )
+
+    msg = (
+        f"unknown skin_prestrain_mode {cfg.skin_prestrain_mode!r}; "
+        "expected 'target-area', 'target-area-stretch-legacy', or 'uniform'"
+    )
+    raise ValueError(msg)
+
+
 def make_area_skin(
     mesh: pv.UnstructuredGrid, target: np.ndarray, cfg: EstimateConfig
 ) -> tuple[pv.PolyData, dict[str, Any]]:
@@ -249,11 +337,20 @@ def make_area_skin(
         target_area[valid_rest_area] / rest_area[valid_rest_area]
     )
     stretched_face_cells = face_cells & (area_ratio > 1.0)
-    effective_area_ratio = np.ones_like(area_ratio)
-    effective_area_ratio[stretched_face_cells] = area_ratio[stretched_face_cells]
-    clipped_area_ratio = np.maximum(effective_area_ratio, cfg.area_ratio_floor)
-    length_factor = np.sqrt(clipped_area_ratio)
-    activation_diag = length_factor - 1.0
+    contracted_face_cells = face_cells & (area_ratio < 1.0)
+    (
+        active_prestrain_cells,
+        effective_area_ratio,
+        stress_free_area_ratio,
+        inv_length_factor,
+        activation_diag,
+    ) = skin_prestrain_fields(
+        cfg,
+        area_ratio,
+        face_cells,
+        stretched_face_cells,
+        contracted_face_cells,
+    )
 
     activation_inv = np.zeros((surface.n_cells, 3), dtype=np.float64)
     activation_inv[:, 0] = activation_diag
@@ -273,17 +370,33 @@ def make_area_skin(
     surface.cell_data[ACTIVATION_INV.vtk] = activation_inv
     surface.cell_data["TargetRestAreaRatio"] = area_ratio
     surface.cell_data["EffectiveTargetRestAreaRatio"] = effective_area_ratio
-    surface.cell_data["StressFreeAreaRatio"] = 1.0 / clipped_area_ratio
-    surface.cell_data["TargetRestLengthFactor"] = length_factor
+    surface.cell_data["StressFreeAreaRatio"] = stress_free_area_ratio
+    surface.cell_data["TargetRestLengthFactor"] = inv_length_factor
+    surface.cell_data["EstimatedInvLengthFactor"] = inv_length_factor
+    surface.cell_data["EstimatedLengthPrestrain"] = 1.0 - np.sqrt(
+        stress_free_area_ratio
+    )
     surface.cell_data["RestArea"] = rest_area
     surface.cell_data["TargetArea"] = target_area
     surface.cell_data["IsFacePrestrainCell"] = face_cells.astype(np.int8)
     surface.cell_data["IsStretchedPrestrainCell"] = stretched_face_cells.astype(np.int8)
+    surface.cell_data["IsContractedFaceCell"] = contracted_face_cells.astype(np.int8)
+    surface.cell_data["IsContractedPrestrainCell"] = active_prestrain_cells.astype(
+        np.int8
+    )
+    surface.cell_data["IsActivePrestrainCell"] = active_prestrain_cells.astype(np.int8)
+    uniform_skin_prestrain = np.zeros(surface.n_cells, dtype=np.float64)
+    uniform_skin_prestrain[active_prestrain_cells] = cfg.uniform_skin_prestrain
+    surface.cell_data["UniformSkinPrestrain"] = uniform_skin_prestrain
 
     metrics: dict[str, Any] = {
+        "skin/prestrain_mode": cfg.skin_prestrain_mode,
+        "skin/uniform_prestrain_length_fraction": float(cfg.uniform_skin_prestrain),
         "skin/surface_triangles": int(surface.n_cells),
         "skin/is_face_triangles": int(face_cells.sum()),
+        "skin/active_prestrain_triangles": int(active_prestrain_cells.sum()),
         "skin/stretched_is_face_triangles": int(stretched_face_cells.sum()),
+        "skin/contracted_is_face_triangles": int(contracted_face_cells.sum()),
         "skin/area_ratio_total": float(target_area.sum() / rest_area.sum()),
         "skin/is_face_area_ratio_total": float(
             target_area[face_cells].sum() / rest_area[face_cells].sum()
@@ -297,8 +410,12 @@ def make_area_skin(
         "skin/masked_non_face_stretched_cells": int(
             ((~face_cells) & (area_ratio > 1.0)).sum()
         ),
+        "skin/masked_non_face_contracted_cells": int(
+            ((~face_cells) & (area_ratio < 1.0)).sum()
+        ),
         **stats("skin/area_ratio", area_ratio),
         **stats("skin/effective_area_ratio", effective_area_ratio),
+        **stats("skin/stress_free_area_ratio", stress_free_area_ratio),
         **stats("skin/activation_inv_diag", activation_diag),
     }
     return surface, metrics
@@ -371,6 +488,108 @@ def run_forward(
     return to_numpy(forward.state.u), forward_solution_metrics(solution)
 
 
+def make_volume_only_forward(mesh: pv.UnstructuredGrid, cfg: EstimateConfig) -> Any:
+    from liblaf.apple.forward import Forward, ModelBuilder
+    from liblaf.apple.warp.fem import StableNeoHookean
+
+    builder = ModelBuilder()
+    builder.add_vertices(mesh)
+    builder.add_fixed(mesh)
+
+    set_volume_material(
+        mesh,
+        E=APONEUROSIS_E,
+        nu=APONEUROSIS_NU,
+        fraction=np.asarray(mesh.cell_data[APONEUROSIS_FRACTION], dtype=np.float64),
+    )
+    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="aponeurosis"))
+
+    set_volume_material(
+        mesh,
+        E=FAT_E,
+        nu=FAT_NU,
+        fraction=np.asarray(mesh.cell_data[FAT_FRACTION], dtype=np.float64),
+    )
+    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="fat"))
+
+    set_volume_material(
+        mesh,
+        E=MUSCLE_E,
+        nu=MUSCLE_NU,
+        fraction=np.asarray(mesh.cell_data[MUSCLE_FRACTION], dtype=np.float64),
+    )
+    builder.add_potential(StableNeoHookean.from_pyvista(mesh, name="muscle"))
+
+    forward = Forward(builder.finalize())
+    forward.optimizer = forward.default_optimizer(
+        max_steps=cfg.max_steps,
+        atol=cfg.atol,
+        rtol=cfg.rtol,
+    )
+    return forward
+
+
+def contracted_boundary_mesh(
+    mesh: pv.UnstructuredGrid,
+    skin: pv.PolyData,
+    skin_only: np.ndarray,
+) -> tuple[pv.UnstructuredGrid, np.ndarray, np.ndarray, int]:
+    from liblaf.apple.common import FIXED_MASK, FIXED_VALUE, GLOBAL_POINT_ID
+
+    contracted = mesh.copy(deep=True)
+    original_points = np.asarray(mesh.points, dtype=np.float64)
+    contracted.points = original_points + skin_only
+
+    surface_ids = np.unique(
+        np.asarray(skin.point_data[GLOBAL_POINT_ID.vtk], dtype=np.int64)
+    )
+    surface_mask = np.zeros(mesh.n_points, dtype=bool)
+    surface_mask[surface_ids] = True
+    skull_mask = np.asarray(mesh.point_data[IS_FIXED], dtype=bool)
+    fixed_mask = surface_mask | skull_mask
+
+    fixed_values = np.zeros((mesh.n_points, 3), dtype=np.float64)
+    fixed_values[fixed_mask] = (
+        original_points[fixed_mask]
+        - np.asarray(contracted.points, dtype=np.float64)[fixed_mask]
+    )
+    contracted.point_data[FIXED_MASK.vtk] = np.repeat(fixed_mask[:, None], 3, axis=1)
+    contracted.point_data[FIXED_VALUE.vtk] = fixed_values
+    contracted.point_data["BoundaryFixedMask"] = fixed_mask.astype(np.int8)
+    contracted.point_data["BoundaryFixedValue"] = fixed_values
+    contracted, n_flipped = orient_tetra_mesh(contracted)
+    return contracted, fixed_mask, fixed_values, n_flipped
+
+
+def run_boundary_pullback_forward(
+    mesh: pv.UnstructuredGrid,
+    skin: pv.PolyData,
+    skin_only: np.ndarray,
+    cfg: EstimateConfig,
+) -> tuple[
+    pv.UnstructuredGrid,
+    np.ndarray,
+    np.ndarray,
+    int,
+    np.ndarray,
+    dict[str, Any],
+]:
+    contracted, fixed_mask, fixed_values, n_flipped = contracted_boundary_mesh(
+        mesh, skin, skin_only
+    )
+    forward = make_volume_only_forward(contracted.copy(deep=True), cfg)
+    with contextlib.redirect_stdout(io.StringIO()):
+        solution = forward.step()
+    return (
+        contracted,
+        fixed_mask,
+        fixed_values,
+        n_flipped,
+        to_numpy(forward.state.u),
+        forward_solution_metrics(solution),
+    )
+
+
 def deformation_gradients(
     points: np.ndarray, displacement: np.ndarray, tets: np.ndarray
 ) -> np.ndarray:
@@ -412,6 +631,37 @@ def estimate_volume_activation_inv(
     return activation_inv, metrics
 
 
+def estimate_volume_activation_inv_from_pullback(
+    points: np.ndarray, displacement: np.ndarray, tets: np.ndarray, cfg: EstimateConfig
+) -> tuple[np.ndarray, dict[str, Any]]:
+    F = deformation_gradients(points, displacement, tets)
+    det_F = np.linalg.det(F)
+    C = np.swapaxes(F, 1, 2) @ F
+    eigvals, eigvecs = np.linalg.eigh(C)
+    clipped = eigvals < cfg.stretch_floor**2
+    stretches = np.sqrt(np.maximum(eigvals, cfg.stretch_floor**2))
+
+    inv_stretches = 1.0 / stretches
+    U_inv = (eigvecs * inv_stretches[:, None, :]) @ np.swapaxes(eigvecs, 1, 2)
+
+    activation_inv = np.empty((tets.shape[0], 6), dtype=np.float64)
+    activation_inv[:, 0] = U_inv[:, 0, 0] - 1.0
+    activation_inv[:, 1] = U_inv[:, 1, 1] - 1.0
+    activation_inv[:, 2] = U_inv[:, 2, 2] - 1.0
+    activation_inv[:, 3] = U_inv[:, 0, 1]
+    activation_inv[:, 4] = U_inv[:, 1, 2]
+    activation_inv[:, 5] = U_inv[:, 0, 2]
+
+    metrics: dict[str, Any] = {
+        "boundary_pullback/stretch_eigenvalues_clipped": int(clipped.sum()),
+        **det_f_metrics("boundary_pullback/detF", det_F),
+        **stats("boundary_pullback/stretch", stretches.ravel()),
+        **stats("boundary_pullback/inverse_stretch", inv_stretches.ravel()),
+        **activation_inv_stats("volume/estimated_activation_inv", activation_inv),
+    }
+    return activation_inv, metrics
+
+
 def write_outputs(
     mesh: pv.UnstructuredGrid,
     skin: pv.PolyData,
@@ -421,16 +671,28 @@ def write_outputs(
     compensated: np.ndarray,
     activation_inv: np.ndarray,
     cfg: EstimateConfig,
+    *,
+    boundary_pullback: np.ndarray | None = None,
+    boundary_fixed_mask: np.ndarray | None = None,
 ) -> None:
     from liblaf.apple.common import ACTIVATION_INV, GLOBAL_POINT_ID
 
     result = mesh.copy(deep=True)
+    boundary_total = None
+    if boundary_pullback is not None:
+        boundary_total = skin_only + boundary_pullback
     result.point_data["TargetDisplacement"] = target
     result.point_data["LossMask"] = loss_mask.astype(np.int8)
     result.point_data["SkinOnlyDisplacement"] = skin_only
     result.point_data["CompensatedDisplacement"] = compensated
     result.point_data["SkinOnlyPoint"] = result.points + skin_only
     result.point_data["CompensatedPoint"] = result.points + compensated
+    if boundary_pullback is not None and boundary_total is not None:
+        result.point_data["BoundaryPullbackDisplacement"] = boundary_pullback
+        result.point_data["BoundaryPullbackTotalDisplacement"] = boundary_total
+        result.point_data["BoundaryPullbackPoint"] = result.points + boundary_total
+    if boundary_fixed_mask is not None:
+        result.point_data["BoundaryFixedMask"] = boundary_fixed_mask.astype(np.int8)
     result.cell_data[ACTIVATION_INV.vtk] = activation_inv
     result.cell_data["EstimatedActivationInvVol"] = activation_inv
 
@@ -447,6 +709,21 @@ def write_outputs(
         skin_inspect.point_data[name.replace("Displacement", "Point")] = (
             skin_inspect.points + skin_inspect.point_data[name]
         )
+    if boundary_pullback is not None and boundary_total is not None:
+        skin_inspect.point_data["BoundaryPullbackDisplacement"] = boundary_pullback[
+            surface_ids
+        ]
+        skin_inspect.point_data["BoundaryPullbackTotalDisplacement"] = boundary_total[
+            surface_ids
+        ]
+        skin_inspect.point_data["BoundaryPullbackPoint"] = (
+            skin_inspect.points
+            + skin_inspect.point_data["BoundaryPullbackTotalDisplacement"]
+        )
+    if boundary_fixed_mask is not None:
+        skin_inspect.point_data["BoundaryFixedMask"] = boundary_fixed_mask[
+            surface_ids
+        ].astype(np.int8)
     skin_activation = np.asarray(skin_inspect.cell_data[ACTIVATION_INV.vtk])
     raw_area_ratio = np.asarray(skin_inspect.cell_data["TargetRestAreaRatio"])
     effective_area_ratio = np.asarray(
@@ -480,6 +757,7 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
     from liblaf.apple.common import GLOBAL_POINT_ID
 
     configure_runtime()
+    apply_output_stem(cfg)
     start = time.perf_counter()
 
     mesh, prep_summary = prepare_simulation_mesh(cfg)
@@ -491,10 +769,57 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
     skin_only, skin_only_forward = run_forward(mesh, skin, zero_activation, cfg)
 
     tets = tetra_cells(mesh)
-    logger.info("Estimating volume ActivationInv from skin-only deformation")
-    estimated_activation, estimate_metrics = estimate_volume_activation_inv(
-        np.asarray(mesh.points, dtype=np.float64), skin_only, tets, cfg
-    )
+    boundary_pullback: np.ndarray | None = None
+    boundary_fixed_mask: np.ndarray | None = None
+    boundary_metrics: dict[str, Any] = {}
+    if cfg.volume_estimation_mode == "direct-polar":
+        logger.info("Estimating volume ActivationInv from skin-only deformation")
+        estimated_activation, estimate_metrics = estimate_volume_activation_inv(
+            np.asarray(mesh.points, dtype=np.float64), skin_only, tets, cfg
+        )
+    elif cfg.volume_estimation_mode == "boundary-pullback":
+        logger.info("Running contracted-rest boundary pullback solve")
+        (
+            contracted_mesh,
+            boundary_fixed_mask,
+            boundary_fixed_values,
+            boundary_oriented_tets_flipped,
+            boundary_pullback,
+            boundary_forward,
+        ) = run_boundary_pullback_forward(mesh, skin, skin_only, cfg)
+        logger.info("Estimating volume ActivationInv from boundary pullback")
+        estimated_activation, estimate_metrics = (
+            estimate_volume_activation_inv_from_pullback(
+                np.asarray(contracted_mesh.points, dtype=np.float64),
+                boundary_pullback,
+                tetra_cells(contracted_mesh),
+                cfg,
+            )
+        )
+        boundary_total = skin_only + boundary_pullback
+        boundary_metrics = {
+            "boundary_pullback/oriented_tets_flipped": int(
+                boundary_oriented_tets_flipped
+            ),
+            "boundary_pullback/fixed_points": int(boundary_fixed_mask.sum()),
+            "boundary_pullback/fixed_value_rms": float(
+                np.linalg.norm(boundary_fixed_values[boundary_fixed_mask])
+                / math.sqrt(int(boundary_fixed_mask.sum()))
+            ),
+            **{
+                f"boundary_pullback/{key}": value
+                for key, value in boundary_forward.items()
+            },
+            **vector_stats("boundary_pullback/displacement", boundary_pullback),
+            **vector_stats("boundary_pullback/total_displacement", boundary_total),
+            **surface_area_metrics("boundary_pullback", skin, boundary_total),
+        }
+    else:
+        msg = (
+            f"unknown volume_estimation_mode {cfg.volume_estimation_mode!r}; "
+            "expected 'direct-polar' or 'boundary-pullback'"
+        )
+        raise ValueError(msg)
 
     logger.info("Running compensated forward solve")
     compensated, compensated_forward = run_forward(
@@ -530,9 +855,16 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
         "skin/thickness": float(SKIN_THICKNESS),
         "skin/E_MPa": float(SKIN_E),
         "skin/nu": float(SKIN_NU),
-        "volume/activation_inv_source": "polar_stretch_of_skin_only_deformation",
+        "volume/estimation_mode": cfg.volume_estimation_mode,
+        "volume/activation_inv_source": (
+            "inverse_polar_stretch_of_boundary_pullback_deformation"
+            if cfg.volume_estimation_mode == "boundary-pullback"
+            else "polar_stretch_of_skin_only_deformation"
+        ),
         "volume/implied_prestrain_source": (
-            "inverse_polar_stretch_of_skin_only_deformation"
+            "polar_stretch_of_boundary_pullback_deformation"
+            if cfg.volume_estimation_mode == "boundary-pullback"
+            else "inverse_polar_stretch_of_skin_only_deformation"
         ),
         "compensation/free_rms_ratio": float(compensated_rms / skin_only_rms)
         if skin_only_rms > 0.0
@@ -540,6 +872,7 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
         **target_metrics,
         **skin_metrics,
         **estimate_metrics,
+        **boundary_metrics,
         **{f"skin_only/{key}": value for key, value in skin_only_forward.items()},
         **{f"compensated/{key}": value for key, value in compensated_forward.items()},
         **det_f_metrics("compensated/detF", compensated_det_f),
@@ -564,6 +897,8 @@ def run_estimate(cfg: EstimateConfig) -> dict[str, Any]:
         compensated,
         estimated_activation,
         cfg,
+        boundary_pullback=boundary_pullback,
+        boundary_fixed_mask=boundary_fixed_mask,
     )
     cfg.output_summary.write_text(
         json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"

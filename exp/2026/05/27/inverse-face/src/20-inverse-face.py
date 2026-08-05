@@ -1079,9 +1079,7 @@ def summarize(
         "loss/data": final_loss,
         "loss/data_objective": float(best_record.get("loss/data", final_loss)),
         "loss/top_error": float(best_record.get("loss/top_error", 0.0)),
-        "loss/top_error_penalty": float(
-            best_record.get("loss/top_error_penalty", 0.0)
-        ),
+        "loss/top_error_penalty": float(best_record.get("loss/top_error_penalty", 0.0)),
         "loss/top_error_weight": cfg.top_error_weight,
         "loss/top_error_fraction": cfg.top_error_fraction,
         "loss/top_error_count": int(best_record.get("loss/top_error_count", 0)),

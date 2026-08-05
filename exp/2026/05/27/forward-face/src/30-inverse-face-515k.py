@@ -297,7 +297,9 @@ def local_deltas_from_activation_inv(
     local_activation_inv = eye + matrix_from_symmetric(local_activation_inv_delta)
     local_activation = np.linalg.inv(local_activation_inv)
     local_activation_delta = pack_symmetric_np(local_activation[None, ...] - eye)[0]
-    return local_activation_delta, np.asarray(local_activation_inv_delta, dtype=np.float64)
+    return local_activation_delta, np.asarray(
+        local_activation_inv_delta, dtype=np.float64
+    )
 
 
 def activation_inv_from_local_delta(
@@ -553,7 +555,9 @@ def make_result_mesh(
 
     result = mesh.copy(deep=True)
     add_masks(result, target_ids, active_ids)
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     error = displacement - target_displacement
     result.point_data["Displacement"] = displacement
     result.point_data["DisplacementNorm"] = np.linalg.norm(displacement, axis=1)
@@ -698,7 +702,9 @@ def solve_inverse(  # noqa: C901, PLR0915
         device=torch.get_default_device(),
     )
     local_activation_inv_delta = torch.nn.Parameter(
-        torch.zeros(6, dtype=torch.get_default_dtype(), device=torch.get_default_device())
+        torch.zeros(
+            6, dtype=torch.get_default_dtype(), device=torch.get_default_device()
+        )
     )
     optimizer = torch.optim.Adam(
         [local_activation_inv_delta],
@@ -936,7 +942,9 @@ def summarize(
 ) -> dict[str, Any]:
     from liblaf.apple.common import ACTIVATION_INV
 
-    target_displacement = np.asarray(target.point_data["Displacement"], dtype=np.float64)
+    target_displacement = np.asarray(
+        target.point_data["Displacement"], dtype=np.float64
+    )
     error = displacement - target_displacement
     target_error = error[target_ids]
     target_error_norm = np.linalg.norm(target_error, axis=1)
@@ -1039,10 +1047,12 @@ def main(cfg: Config) -> None:
     _, local_activation_inv_delta = local_deltas_from_activation_inv(
         recovered_local_activation_inv_delta
     )
-    activation, activation_inv, local_activation_delta = full_activation_fields_from_local(
-        mesh,
-        active_ids,
-        local_activation_inv_delta,
+    activation, activation_inv, local_activation_delta = (
+        full_activation_fields_from_local(
+            mesh,
+            active_ids,
+            local_activation_inv_delta,
+        )
     )
     total_elapsed_s = time.perf_counter() - total_start
     summary = summarize(
@@ -1075,7 +1085,9 @@ def main(cfg: Config) -> None:
     try:
         save_snapshot(cfg.output_snapshot, result)
     except (OSError, RuntimeError, ValueError):
-        logger.warning("failed to save snapshot: %s", cfg.output_snapshot, exc_info=True)
+        logger.warning(
+            "failed to save snapshot: %s", cfg.output_snapshot, exc_info=True
+        )
     save_json(cfg.output_summary, summary)
     cherries.log_metrics(numeric_metrics(summary, exclude=frozenset({"trace"})))
     print(

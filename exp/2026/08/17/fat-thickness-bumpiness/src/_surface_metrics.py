@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 import pyvista as pv
 from _common import toy
-from scipy.interpolate import LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 from scipy.ndimage import gaussian_filter
 
 
@@ -79,19 +79,17 @@ def interpolation_values(
     points_xz: np.ndarray,
     values: np.ndarray,
     query_xz: np.ndarray,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     linear = LinearNDInterpolator(points_xz, values, fill_value=np.nan)
     result = np.asarray(linear(query_xz), dtype=np.float64)
     if result.ndim == 1:
         result = result[:, None]
-    missing = ~np.isfinite(result).all(axis=1)
+    valid = np.isfinite(result).all(axis=1)
+    missing = ~valid
     if np.any(missing):
-        msg = (
-            f"{int(missing.sum())} common-grid points lie outside the top-surface "
-            "linear interpolation domain"
-        )
-        raise ValueError(msg)
-    return result
+        nearest = NearestNDInterpolator(points_xz, values)
+        result[missing] = np.asarray(nearest(query_xz[missing]), dtype=np.float64)
+    return result, valid
 
 
 def resample_top_surface(
@@ -142,13 +140,26 @@ def resample_top_surface(
             target_all[ids],
         )
     )
-    sampled = interpolation_values(points_xz, packed, query_xz).reshape(
-        grid_size, grid_size, -1
-    )
+    sampled_flat, linear_valid_flat = interpolation_values(points_xz, packed, query_xz)
+    linear_valid = linear_valid_flat.reshape(grid_size, grid_size)
+    boundary = np.zeros_like(linear_valid)
+    boundary[[0, -1], :] = True
+    boundary[:, [0, -1]] = True
+    missing = ~linear_valid
+    n_missing = int(missing.sum())
+    max_boundary_missing = max(4, math.ceil(1.0e-3 * linear_valid.size))
+    if np.any(missing & ~boundary) or n_missing > max_boundary_missing:
+        msg = (
+            f"common-grid interpolation has {n_missing} missing points, including "
+            f"{int((missing & ~boundary).sum())} interior points; allowed at most "
+            f"{max_boundary_missing} boundary points"
+        )
+        raise ValueError(msg)
+    sampled = sampled_flat.reshape(grid_size, grid_size, -1)
     rest_y = sampled[..., 0]
     displacement = sampled[..., 1:4]
     target = sampled[..., 4:7]
-    valid = np.isfinite(sampled).all(axis=-1)
+    valid = linear_valid & np.isfinite(sampled).all(axis=-1)
     return ResampledSurface(
         x=x,
         z=z,
@@ -329,6 +340,7 @@ def surface_metrics(
         "grid/dz": dz,
         "grid/laplacian_smoothing_length": laplacian_smoothing_length,
         "grid/n_valid": int(valid.sum()),
+        "grid/n_extrapolated": int(valid.size - valid.sum()),
         "grid/n_laplacian": int(displacement_lap.size),
         "grid/displacement_rms": displacement_rms,
         "grid/target_rms": target_rms,

@@ -231,8 +231,12 @@ The staged plan is:
 ## Current Status
 
 Strict candidate preparation, the five-case factorial/control inverse smoke,
-the formal seven-case 40-step screen, and the full 287-frame physical-prefix
-analysis are complete. No candidate passed the requirements for a 200-step
-Stage B rerun. See [20-material-screen-findings.md](20-material-screen-findings.md)
-for the formal result and next-step decision. The repository `uv.lock` hash
-stayed unchanged during all experiment runs.
+the formal seven-case 40-step screen, the full 287-frame physical-prefix
+analysis, and the formal two-process zero-activation A1 sweep are complete.
+The A1 sweep executed all 18 forwards successfully, but `e025-p100` and
+`e050-p075` failed the replicated inversion/fold gates, so `safe_low=None` and
+no candidate is approved for a dynamic Stage B rerun. The next bounded step is
+an `E=0.75` A2 row plus targeted static branch replicates. See
+[20-material-screen-findings.md](20-material-screen-findings.md) for the formal
+results and decision. The repository `uv.lock` hash stayed unchanged during
+all experiment runs.

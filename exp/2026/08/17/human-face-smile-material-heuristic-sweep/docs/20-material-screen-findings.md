@@ -30,6 +30,11 @@ activation 下，target loss 总体下降且 terminal state 最优，但所有 s
 下一阶段需要先解决两个问题：缩小材料参数到静态可行范围，以及在保留 6-DoF 表达能力的同时，
 约束 activation inverse 不要在几步内制造局部翻转。
 
+后续完成的 zero-activation 双进程静态扫描进一步收紧了结论：`18/18` 次 fresh forward
+均执行成功，`E=1` 的三个 prestrain 点也全部 robust admissible，但 `E=0.25,p=1` 和
+`E=0.50,p=0.75` 出现 inversion/fold。因此预注册的 A1 规则判定失败，`safe_low=None`；
+在补做 A2 之前，不启动动态 inverse pilot。
+
 ## 1. Setup
 
 实验固定同一个 prepared human-face mesh、`Smile` target 和 `SmileLossMask`，只改变表皮材料：
@@ -168,7 +173,7 @@ fidelity spread 为 `0.025571`。因此这一 front 与上述 2 x 3 趋势均不
    inversions、folds 和 non-SPD activation。
 4. 不能直接把当前 screen 的 activation 迁移到其他材料 setup，或 warm-start 后续 long run。
 
-## 5. Next experiment
+## 5. Static follow-up and next experiment
 
 ### Priority A: static material admissibility
 
@@ -198,11 +203,43 @@ zero-activation inversion/fold 或两次分类冲突，都直接判为 branch-un
 `E=0.50` 整行 pass，则 `safe_low=0.50`；否则 A1 失败，不进入动态 inverse，必要时再补
 `E=0.75` 一整行。
 
+#### A1 result
+
+正式 A1 已按上述协议完成。两个独立 worker 分别使用正序和完全逆序，各做 `9` 次 fresh
+zero-activation equilibrium；全部 forward 为 `primary_success`，post-forward live muscle
+activation 仍严格为零。两次结果的最大 fidelity 差为 `7.90e-5`，最大 ROI displacement
+差为 target RMS 的 `5.92e-4`，均远低于预注册门槛。
+
+<!-- markdownlint-disable MD013 -->
+
+| Young scale | p=.50 | p=.75 | p=1.00 | whole row |
+| --- | --- | --- | --- | --- |
+| `0.25` | robust pass | robust pass | branch-unstable: R1 有 2 inversions / 2 folds | fail |
+| `0.50` | robust pass | branch-unstable: 两次均有 inversion，R1 有 1 fold | robust pass | fail |
+| `1.00` | robust pass | robust pass | robust pass | pass |
+
+<!-- markdownlint-enable MD013 -->
+
+`e025-p100` 的 R0/R1 分类分别为 admissible / physical-inadmissible，较差分支
+`det(F)_min=-0.94183`；`e050-p075` 两个分支都 physical-inadmissible，较差分支
+`det(F)_min=-0.17196`。其余七点在两次求解中均为 zero inversion、zero fold。
+
+这个结果不支持把 `p` 当成单调的静态安全轴：`e050-p075` 失败而 `e050-p100` 通过。
+更合理的解释是局部非线性 equilibrium branch 对微小数值差异敏感，而不是存在一个可直接
+插值的连续安全阈值。按预注册规则，`E=1` 整行通过，但 `E=.25`、`E=.50` 整行都未通过，
+所以 **A1-fail，`safe_low=None`**。执行和产物验证通过不改变这一 scientific NO-GO。
+
+最小 A2 是保持同一场、mesh、双进程和门禁，只补 `E=0.75 x p={.5,.75,1}` 一整行。
+A2 仍只决定静态可行矩形，不做 inverse 排名，也不用附加 replicate “救回”A1 的失败点。
+之后可另开 branch diagnostic，对非单调的 `e050-p075` 与分类冲突的 `e025-p100` 各做
+三个独立 singleton-process repeat，只报告失效频率和位置。
+
 ### Priority B: keep 6-DoF, regularize the inverse
 
-在不改变“每个 muscle tet 求 6 个 unconstrained activation 分量”这一项目定义的前提下，
-先对 `e100-p000`、`e100-p100`、A 找到的最高 prestrain 静态安全候选和 `no-skin`
-做短程 pilot：
+由于 A1 没有产生 `safe_low`，本轮不运行 Priority B。只有 A2 找到满足完整矩形规则的
+high/low Young-scale endpoints 后，才在不改变“每个 muscle tet 求 6 个 unconstrained
+activation 分量”这一项目定义的前提下，对 `e100-p000`、`e100-p100`、静态安全候选和
+`no-skin` 做短程 pilot：
 
 1. 先跑固定 `lr=0.10, steps=20`；若 physical prefix 或 matched spread 仍失败，再跑
    `lr=0.03, steps=60`。更密的状态必须来自更小真实更新，不能插值 mesh；
@@ -233,14 +270,20 @@ control，不参与 material promotion。这次两者交集为空。下一次 lo
 - candidate preparation artifact commit：`c14048e86b6d195525142d8b2d487c1f40595452`
 - 7-case 40-step screen artifact commit：`d432fb0d8ba247f62254e9e1b9345b19cbb009c3`
 - 287-frame analysis artifact commit：`a2dd55ce6c09bce15929e90f72135da05ce9b652`
+- static A1 artifact commit：`0381d8233189f258b51f6eae6afe634f87557fe2`
 - prepare Comet run：[aaa2723505fa44cd9e839845fe51a66a](https://www.comet.com/liblaf/apple/aaa2723505fa44cd9e839845fe51a66a)
 - screen Comet run：[2cb3cff85c0c413a89e5ce1257604696](https://www.comet.com/liblaf/apple/2cb3cff85c0c413a89e5ce1257604696)
 - analysis Comet run：[a4ce4a7d349c4089865b78ba35beca02](https://www.comet.com/liblaf/apple/a4ce4a7d349c4089865b78ba35beca02)
+- static A1 Comet run：[20a01c780d224dcea35cfd36505eaa5e](https://www.comet.com/liblaf/apple/20a01c780d224dcea35cfd36505eaa5e)
 
 formal screen 的 `7 x 41` 条 forward/adjoint trace 全部成功，固定 LR 和 fresh-zero contract
 通过；分析器逐帧读取 `287` 个 temporal states 并验证 history/trace/result correspondence。
 analysis 在写完五个完整输出后，因 `e025-p100: no admissible frame` 按设计返回非零；这是
 scientific gate 的失败结果，不是脚本崩溃。
+
+static A1 的 `18/18` 次 forward 均成功，严格 JSON/CSV、两个 replicate NPZ 及 `11` 个
+候选/anchor VTP 的 topology、material、solver-content hash 均通过独立 readback。两点
+scientific failure 来自重复求解中的 inversion/fold，而不是执行失败或 provenance 漂移。
 
 正式入口命令为：
 
@@ -251,6 +294,7 @@ python3 src/20-inverse-material-sweep.py \
   --inverse-max-steps 40 \
   --mandatory-baseline-steps 40
 python3 src/30-analyze-material-screen.py
+python3 src/40-static-material-admissibility-sweep.py
 ```
 
 screen 约用时 `2:11:58`，analysis 约用时 `6:34`。
@@ -264,6 +308,9 @@ screen 约用时 `2:11:58`，analysis 约用时 `6:34`。
 - [`../data/30-material-screen-table.md`](../data/30-material-screen-table.md)
 - [`../data/30-material-screen-trajectories.png`](../data/30-material-screen-trajectories.png)
 - [`../data/30-material-screen-matched.png`](../data/30-material-screen-matched.png)
+- [`../data/40-static-material-admissibility.json`](../data/40-static-material-admissibility.json)
+- [`../data/40-static-material-admissibility.csv`](../data/40-static-material-admissibility.csv)
+- [`../data/40-static-material-admissibility.md`](../data/40-static-material-admissibility.md)
 - [`../logs/30-analyze-material-screen.log`](../logs/30-analyze-material-screen.log)
 
 Cherries Local snapshot 中的 per-case summaries 是外层 final rewrite 前的旧副本；本报告和

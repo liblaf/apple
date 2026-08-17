@@ -356,7 +356,6 @@ def main(cfg: Config) -> None:
         cfg.output_metric_plot,
         cfg.output_field_plot,
     ):
-        cherries.log_output(path)
         logger.info("Wrote %s", path)
 
 

@@ -171,6 +171,14 @@ q0.1%/q99.9% `= 0.6930/1.0077`. The `no-skin` control has
 `error/target = 1.0` at zero activation. These are interface-smoke diagnostics,
 not optimized comparisons.
 
+The later formal temporal scan supersedes this smoke as a physical-admissibility
+test. With the same topology/material/solver-content hashes, formal
+`e025-p100@0` had two inverted tetrahedra and two folded skin triangles. The
+smoke and formal displacement fields differ by only `2.11e-6 m` RMS and
+`2.44e-4 m` maximum, so this corner is numerically close to a local fold rather
+than robustly admissible. Static material screening therefore needs repeated
+independent forward solves, not one smoke result.
+
 The smoke intentionally stopped at the step limit and is not an optimization
 result. The aggregate and table are explicitly logged at their redirected tmp
 paths; Cherries additionally emitted two harmless warnings while checking the
@@ -222,6 +230,9 @@ The staged plan is:
 
 ## Current Status
 
-Strict candidate preparation and the five-case factorial/control inverse smoke
-are complete. No formal multi-hour inverse sweep has been run. The repository
-`uv.lock` hash stayed unchanged during all debug runs.
+Strict candidate preparation, the five-case factorial/control inverse smoke,
+the formal seven-case 40-step screen, and the full 287-frame physical-prefix
+analysis are complete. No candidate passed the requirements for a 200-step
+Stage B rerun. See [20-material-screen-findings.md](20-material-screen-findings.md)
+for the formal result and next-step decision. The repository `uv.lock` hash
+stayed unchanged during all experiment runs.

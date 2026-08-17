@@ -33,7 +33,8 @@ activation 下，target loss 总体下降且 terminal state 最优，但所有 s
 后续完成的 zero-activation 双进程静态扫描进一步收紧了结论：`18/18` 次 fresh forward
 均执行成功，`E=1` 的三个 prestrain 点也全部 robust admissible，但 `E=0.25,p=1` 和
 `E=0.50,p=0.75` 出现 inversion/fold。因此预注册的 A1 规则判定失败，`safe_low=None`；
-在补做 A2 之前，不启动动态 inverse pilot。
+补做的 `E=.75` A2 中，`p=.5/.75` 通过，但 `p=1` 再次出现 replicate 分类冲突。因此
+`safe_low` 仍为空，不启动动态 inverse pilot。
 
 ## 1. Setup
 
@@ -231,14 +232,48 @@ activation 仍严格为零。两次结果的最大 fidelity 差为 `7.90e-5`，�
 
 最小 A2 是保持同一场、mesh、双进程和门禁，只补 `E=0.75 x p={.5,.75,1}` 一整行。
 A2 仍只决定静态可行矩形，不做 inverse 排名，也不用附加 replicate “救回”A1 的失败点。
-之后可另开 branch diagnostic，对非单调的 `e050-p075` 与分类冲突的 `e025-p100` 各做
-三个独立 singleton-process repeat，只报告失效频率和位置。
+
+#### A2 result
+
+A2 使用两个独立 worker：R0 顺序为 `.5 -> .75 -> 1`，R1 使用循环错位
+`.75 -> 1 -> .5`，避免让关键的 `p=.75` 两次都处在队列中间。`6/6` 次 forward 均为
+`primary_success`，两个 replicate 的数值差异也都通过门禁。
+
+<!-- markdownlint-disable MD013 -->
+
+| candidate | R0 / R1 class | worst inversion / fold | worst det(F) min | delta fidelity | delta u / target | robust |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `e075-p050` | admissible / admissible | 0 / 0 | 0.41822 | 4.54e-5 | 1.70e-4 | yes |
+| `e075-p075` | admissible / admissible | 0 / 0 | 0.32219 | 3.72e-5 | 1.44e-4 | yes |
+| `e075-p100` | physical-inadmissible / admissible | 3 / 3 | -0.93602 | 1.29e-5 | 4.97e-4 | no |
+
+<!-- markdownlint-enable MD013 -->
+
+`e075-p100` 的两次 `SmileLossMask` ROI fidelity 和 displacement 很接近，但 R0 有 `3`
+个 inverted tets
+和 `3` 个 folds，R1 则没有；附加 replicate 不能覆盖这一正式 failure。hash-bound A1
+`E=1` 整行通过，而新 `E=.75` 整行未通过，所以 **A2-fail，`safe_low=None`**，离散
+Stage-B rectangle 仍未建立。
+
+到这里，不能再假定 sampled candidates 沿 Young scale 或 prestrain 单调：full prestrain
+在 `E=.25` 和 `.75` 都发生分支冲突，`.50` 却通过；`.50,p=.75` 又稳定失败。当前离散
+数据并不排除 `.75` 与 `1.0` 之间还存在某个可行阈值，但 formal protocol 明确不作连续性
+外推，因此不能未经额外采样和 branch 诊断就把二分结果称为连续安全边界。
+下一步需要在两个不同研究问题中做选择，不能事后改阈值混在同一结论里：
+
+1. **branch diagnostic**：对 `e025-p100`、`e050-p075/p100`、`e075-p100` 各做独立
+   singleton-process repeats，并记录失效 tet/triangle ID，判断是否总是同一局部单元和分支；
+2. **重新定义材料矩形**：把 high prestrain endpoint 从 `1.0` 降到 `.75`，再预注册并验证
+   `{E=.75,1} x {p=0,.5,.75}`，包括尚未双 replicate 验证的 `e075-p000`。
+
+前者回答 solver/branch 机制，后者回答较保守材料范围能否进入 inverse；两者都不能“救回”
+A1/A2，也不应在没有明确选择时直接启动动态优化。
 
 ### Priority B: keep 6-DoF, regularize the inverse
 
-由于 A1 没有产生 `safe_low`，本轮不运行 Priority B。只有 A2 找到满足完整矩形规则的
-high/low Young-scale endpoints 后，才在不改变“每个 muscle tet 求 6 个 unconstrained
-activation 分量”这一项目定义的前提下，对 `e100-p000`、`e100-p100`、静态安全候选和
+由于 A1 和 A2 都没有产生 `safe_low`，本轮不运行 Priority B。只有新的预注册静态实验找到
+满足完整矩形规则的 high/low Young-scale endpoints 后，才在不改变“每个 muscle tet 求
+6 个 unconstrained activation 分量”这一项目定义的前提下，对 baseline、静态安全候选和
 `no-skin` 做短程 pilot：
 
 1. 先跑固定 `lr=0.10, steps=20`；若 physical prefix 或 matched spread 仍失败，再跑
@@ -246,7 +281,8 @@ activation 分量”这一项目定义的前提下，对 `e100-p000`、`e100-p10
 2. 从 fresh zero 独立运行，比较各案在 physical prefix 内的可达 fidelity；
 3. material-only 的每案都必须有真实 threshold crossing bracket，selected fidelity spread
    `<= 0.001`，相对 baseline error `<= 1.05`；`no-skin` 只作 diagnostic control；
-4. 只有选定共同 LR 后，才运行最终 `{safe_low,1.0} x {0,.5,1}` material rectangle；
+4. 只有选定共同 LR 后，才运行最终 `{safe_low,1.0} x {0,.5,p_high}` material rectangle，
+   其中 `p_high` 必须来自新的静态预注册协议；
 5. 如果降 LR 仍在共同 threshold 前越界，再加 activation magnitude/spatial regularization
    和几何 barrier，且用同协议 unregularized run 作对照。
 
@@ -271,10 +307,12 @@ control，不参与 material promotion。这次两者交集为空。下一次 lo
 - 7-case 40-step screen artifact commit：`d432fb0d8ba247f62254e9e1b9345b19cbb009c3`
 - 287-frame analysis artifact commit：`a2dd55ce6c09bce15929e90f72135da05ce9b652`
 - static A1 artifact commit：`0381d8233189f258b51f6eae6afe634f87557fe2`
+- static A2 artifact commit：`88e945ee5b6f3cf8988ea981f335e5be08024c71`
 - prepare Comet run：[aaa2723505fa44cd9e839845fe51a66a](https://www.comet.com/liblaf/apple/aaa2723505fa44cd9e839845fe51a66a)
 - screen Comet run：[2cb3cff85c0c413a89e5ce1257604696](https://www.comet.com/liblaf/apple/2cb3cff85c0c413a89e5ce1257604696)
 - analysis Comet run：[a4ce4a7d349c4089865b78ba35beca02](https://www.comet.com/liblaf/apple/a4ce4a7d349c4089865b78ba35beca02)
 - static A1 Comet run：[20a01c780d224dcea35cfd36505eaa5e](https://www.comet.com/liblaf/apple/20a01c780d224dcea35cfd36505eaa5e)
+- static A2 Comet run：[f24d1324d14a4718a61f96ef9dc0ec76](https://www.comet.com/liblaf/apple/f24d1324d14a4718a61f96ef9dc0ec76)
 
 formal screen 的 `7 x 41` 条 forward/adjoint trace 全部成功，固定 LR 和 fresh-zero contract
 通过；分析器逐帧读取 `287` 个 temporal states 并验证 history/trace/result correspondence。
@@ -284,6 +322,11 @@ scientific gate 的失败结果，不是脚本崩溃。
 static A1 的 `18/18` 次 forward 均成功，严格 JSON/CSV、两个 replicate NPZ 及 `11` 个
 候选/anchor VTP 的 topology、material、solver-content hash 均通过独立 readback。两点
 scientific failure 来自重复求解中的 inversion/fold，而不是执行失败或 provenance 漂移。
+
+static A2 的 `6/6` 次 forward、严格 JSON/CSV、两个 replicate NPZ、三个新 VTP 和全部
+A1/source/input identity binding 均通过独立 readback。A2 的 Comet run 已创建，但 cleanup
+报告 environment/git-patch upload 未完成并最终提示 `Failed to log run`；因此 canonical
+证据是上述 Git artifact commit 和 live data，不依赖该远端 run 的完整性。
 
 正式入口命令为：
 
@@ -295,6 +338,7 @@ python3 src/20-inverse-material-sweep.py \
   --mandatory-baseline-steps 40
 python3 src/30-analyze-material-screen.py
 python3 src/40-static-material-admissibility-sweep.py
+python3 src/50-static-material-admissibility-a2.py
 ```
 
 screen 约用时 `2:11:58`，analysis 约用时 `6:34`。
@@ -311,6 +355,9 @@ screen 约用时 `2:11:58`，analysis 约用时 `6:34`。
 - [`../data/40-static-material-admissibility.json`](../data/40-static-material-admissibility.json)
 - [`../data/40-static-material-admissibility.csv`](../data/40-static-material-admissibility.csv)
 - [`../data/40-static-material-admissibility.md`](../data/40-static-material-admissibility.md)
+- [`../data/50-static-material-admissibility-a2.json`](../data/50-static-material-admissibility-a2.json)
+- [`../data/50-static-material-admissibility-a2.csv`](../data/50-static-material-admissibility-a2.csv)
+- [`../data/50-static-material-admissibility-a2.md`](../data/50-static-material-admissibility-a2.md)
 - [`../logs/30-analyze-material-screen.log`](../logs/30-analyze-material-screen.log)
 
 Cherries Local snapshot 中的 per-case summaries 是外层 final rewrite 前的旧副本；本报告和

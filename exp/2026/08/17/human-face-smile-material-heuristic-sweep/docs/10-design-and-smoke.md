@@ -232,11 +232,15 @@ The staged plan is:
 
 Strict candidate preparation, the five-case factorial/control inverse smoke,
 the formal seven-case 40-step screen, the full 287-frame physical-prefix
-analysis, and the formal two-process zero-activation A1 sweep are complete.
+analysis, the formal two-process zero-activation A1 sweep, and the `E=0.75`
+A2 boundary refinement are complete.
 The A1 sweep executed all 18 forwards successfully, but `e025-p100` and
 `e050-p075` failed the replicated inversion/fold gates, so `safe_low=None` and
-no candidate is approved for a dynamic Stage B rerun. The next bounded step is
-an `E=0.75` A2 row plus targeted static branch replicates. See
+no candidate was approved for a dynamic Stage B rerun. In A2, `e075-p050` and
+`e075-p075` passed, while `e075-p100` was branch-unstable with three inversions
+and three folds in one replicate; `safe_low` therefore remains unset. The next
+decision is either a singleton-process branch diagnostic or a newly
+pre-registered rectangle with maximum prestrain gain reduced to `0.75`. See
 [20-material-screen-findings.md](20-material-screen-findings.md) for the formal
 results and decision. The repository `uv.lock` hash stayed unchanged during
 all experiment runs.

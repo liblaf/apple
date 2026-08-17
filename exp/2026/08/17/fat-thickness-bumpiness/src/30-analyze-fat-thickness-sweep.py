@@ -243,6 +243,9 @@ def validate_config(cfg: Config) -> None:
 
 def read_manifest_cases(path: Path) -> list[dict[str, Any]]:
     manifest = json.loads(path.read_text(encoding="utf-8"))
+    if manifest.get("complete") is False:
+        msg = "input manifest is marked incomplete"
+        raise ValueError(msg)
     cases = manifest.get("cases")
     if (
         not isinstance(cases, list)
@@ -251,11 +254,27 @@ def read_manifest_cases(path: Path) -> list[dict[str, Any]]:
     ):
         msg = "input manifest must contain a non-empty list of case objects"
         raise ValueError(msg)
+    invalid = [
+        case_label(case)
+        for case in cases
+        if "status" in case and case.get("status") != "ok"
+    ]
+    if invalid:
+        msg = "input manifest contains invalid cases: " + ", ".join(invalid)
+        raise ValueError(msg)
     failed = [
         case_label(case) for case in cases if case.get("forward/success") is False
     ]
     if failed:
         msg = "input manifest contains failed forward cases: " + ", ".join(failed)
+        raise ValueError(msg)
+    failed_adjoint = [
+        case_label(case) for case in cases if case.get("adjoint/success") is False
+    ]
+    if failed_adjoint:
+        msg = "input manifest contains failed adjoint cases: " + ", ".join(
+            failed_adjoint
+        )
         raise ValueError(msg)
     return cases
 

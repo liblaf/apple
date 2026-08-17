@@ -1377,7 +1377,9 @@ class RecordingDifferentiableForward:  # attrs subclasses with extra slots are b
         return self._impl.last_adjoint_solution
 
     def forward(self, materials: Any) -> torch.Tensor:
-        return self._impl.forward(materials)
+        output = self._impl.forward(materials)
+        self.last_forward_solution = self._impl.last_solution
+        return output
 
     def step(self) -> Any:
         solution = self._impl.step()

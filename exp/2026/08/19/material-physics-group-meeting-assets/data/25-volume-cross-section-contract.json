@@ -44,32 +44,103 @@
     "physics_interpretation": "The solver uses continuous fraction-weighted constitutive energies; the categorical dominant-material field is not a solver input.",
     "visualization_only": true
   },
-  "complete": false,
-  "cross_section": {
-    "camera_focus_m": [
-      1.4070235649558214,
-      2.211267239594009,
-      0.04436769207785067
-    ],
-    "camera_parallel_scale_m": 0.11650847052685555,
-    "name": "coronal mid-plane",
-    "normal": [
-      0.0,
-      0.0,
-      1.0
-    ],
-    "origin_m": [
-      1.4070235649558214,
-      2.211267239594009,
-      0.04436769207785067
-    ],
-    "view_up": [
-      0.0,
-      1.0,
-      0.0
-    ]
+  "complete": true,
+  "cross_sections": {
+    "axial": {
+      "camera_focus_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "camera_parallel_scale_m": 0.07984509777420407,
+      "cells": 14023,
+      "dominant_category_cell_counts": {
+        "Aponeurosis": 741,
+        "Fat": 10848,
+        "Muscle": 2434
+      },
+      "name": "axial mid-plane",
+      "normal": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "origin_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "points": 9686,
+      "view_up": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "coronal": {
+      "camera_focus_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "camera_parallel_scale_m": 0.11650847052685555,
+      "cells": 20808,
+      "dominant_category_cell_counts": {
+        "Aponeurosis": 300,
+        "Fat": 15856,
+        "Muscle": 4652
+      },
+      "name": "coronal mid-plane",
+      "normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "origin_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "points": 14394,
+      "view_up": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "midsagittal": {
+      "camera_focus_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "camera_parallel_scale_m": 0.11650847052685555,
+      "cells": 19053,
+      "dominant_category_cell_counts": {
+        "Aponeurosis": 270,
+        "Fat": 17116,
+        "Muscle": 1667
+      },
+      "name": "midsagittal mid-plane",
+      "normal": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "origin_m": [
+        1.4070235649558214,
+        2.211267239594009,
+        0.04436769207785067
+      ],
+      "points": 13052,
+      "view_up": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
   },
-  "design": "whole-anatomy-dominant-material-coronal-cross-section",
+  "design": "whole-anatomy-dominant-material-three-midplane-cross-sections",
   "input": {
     "identity": {
       "sha256": "8131d6944b322d7c1e21918688f297e2887b42bf4dbc19ce36259b007e8dc563",
@@ -97,9 +168,42 @@
     }
   },
   "outputs": {
-    "png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-dominant-material.png",
-    "pvsm": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-dominant-material.pvsm",
-    "renderer_receipt": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section-renderer-receipt.json"
+    "renderer_receipt": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section-renderer-receipt.json",
+    "views": {
+      "axial": {
+        "png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-axial-dominant-material.png",
+        "pvsm": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-axial-dominant-material.pvsm",
+        "render_input": {
+          "identity": {
+            "sha256": "c49dbf0745bdf6f77b80b1306ca5a98444c7464df45002f870b8b4d97333fe06",
+            "size_bytes": 1685538
+          },
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-axial-render-input.vtp"
+        }
+      },
+      "coronal": {
+        "png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-coronal-dominant-material.png",
+        "pvsm": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-coronal-dominant-material.pvsm",
+        "render_input": {
+          "identity": {
+            "sha256": "720f15b118272adcdb84559c57839d35911340597792f2b90800ed8e9906e675",
+            "size_bytes": 2486863
+          },
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-coronal-render-input.vtp"
+        }
+      },
+      "midsagittal": {
+        "png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-midsagittal-dominant-material.png",
+        "pvsm": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-midsagittal-dominant-material.pvsm",
+        "render_input": {
+          "identity": {
+            "sha256": "4dab7681f59537f890a5efe89a8b02a46a2a7735cc8b71a078ccc95b70753c70",
+            "size_bytes": 2339028
+          },
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-midsagittal-render-input.vtp"
+        }
+      }
+    }
   },
   "renderer": {
     "image_resolution": [
@@ -110,10 +214,10 @@
     "path": "/usr/bin/pvbatch",
     "script": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/25-volume-cross-section-paraview.py",
     "script_identity": {
-      "sha256": "152294639434b42b86b9c29ce94d2a839cab93d29bb7b265fe39dc007123233a",
-      "size_bytes": 11028
+      "sha256": "7127ea34e0d145ce3ea83329d5579cb7cf00b0346b7b78e0f1f1472ceacdc5a5",
+      "size_bytes": 9225
     },
     "version": "6.1.1"
   },
-  "schema_version": 1
+  "schema_version": 2
 }

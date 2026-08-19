@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # Run only with ParaView's pvbatch.
-# ruff: noqa: C901, EM101, EM102, FBT003, PLR0915, SLF001, TRY003
+# ruff: noqa: C901, EM102, FBT003, PLR0915, SLF001, TRY003
 import argparse
 import hashlib
 import json
@@ -11,10 +11,7 @@ from typing import Any
 import paraview.simple as pvs
 
 EXPECTED_VERSION = "6.1.1"
-EXPECTED_DESIGN = "whole-anatomy-dominant-material-coronal-cross-section"
-EXPECTED_POINTS = 228_660
-EXPECTED_TETS = 1_146_517
-EXPECTED_FIELDS = ("FatFraction", "MuscleFraction", "AponeurosisFraction")
+EXPECTED_DESIGN = "whole-anatomy-dominant-material-three-midplane-cross-sections"
 BACKGROUND = (0.97, 0.97, 0.97)
 TEXT = (0.05, 0.05, 0.05)
 
@@ -64,29 +61,15 @@ def _version() -> str:
     )
 
 
-def _fetch_dataset(proxy: Any) -> Any:
+def _fetch(proxy: Any) -> Any:
     from paraview import servermanager
 
     return servermanager.Fetch(proxy)
 
 
-def _validate_input(reader: Any) -> None:
-    dataset = _fetch_dataset(reader)
-    if dataset.GetNumberOfPoints() != EXPECTED_POINTS:
-        raise ValueError(f"prepared point count changed: {dataset.GetNumberOfPoints()}")
-    if dataset.GetNumberOfCells() != EXPECTED_TETS:
-        raise ValueError(f"prepared cell count changed: {dataset.GetNumberOfCells()}")
-    cell_data = dataset.GetCellData()
-    names = {
-        str(cell_data.GetArrayName(index))
-        for index in range(cell_data.GetNumberOfArrays())
-    }
-    missing = sorted(set(EXPECTED_FIELDS) - names)
-    if missing:
-        raise KeyError(f"prepared mesh lacks fraction arrays: {missing}")
-
-
-def _add_text(view: Any, text: str, location: str, font_size: int, *, bold: bool) -> None:
+def _add_text(
+    view: Any, text: str, location: str, font_size: int, *, bold: bool
+) -> None:
     source = pvs.Text()
     source.Text = text
     display = pvs.Show(source, view, "TextSourceRepresentation")
@@ -96,84 +79,44 @@ def _add_text(view: Any, text: str, location: str, font_size: int, *, bold: bool
     display.Bold = int(bold)
 
 
-def _dominant_filter(reader: Any) -> Any:
-    result = pvs.ProgrammableFilter(
-        registrationName="Dominant constituent (visualization only)", Input=reader
-    )
-    result.OutputDataSetType = "vtkUnstructuredGrid"
-    result.Script = """
-import numpy as np
-from vtkmodules.util.numpy_support import numpy_to_vtk, vtk_to_numpy
-
-source = inputs[0]
-output.ShallowCopy(source)
-cell_data = source.GetCellData()
-fractions = np.column_stack([
-    vtk_to_numpy(cell_data.GetArray('FatFraction')),
-    vtk_to_numpy(cell_data.GetArray('MuscleFraction')),
-    vtk_to_numpy(cell_data.GetArray('AponeurosisFraction')),
-])
-dominant = np.argmax(fractions, axis=1).astype(np.int32)
-array = numpy_to_vtk(dominant, deep=True)
-array.SetName('DominantMaterial')
-output.GetCellData().AddArray(array)
-"""
-    result.UpdatePipeline()
-    dataset = _fetch_dataset(result)
-    if dataset.GetCellData().GetArray("DominantMaterial") is None:
-        raise RuntimeError("ProgrammableFilter did not create DominantMaterial")
-    return result
-
-
-def _render(contract_path: Path, receipt_path: Path) -> None:
-    contract = _read_json(contract_path)
-    if contract.get("design") != EXPECTED_DESIGN:
-        raise ValueError(f"unexpected design: {contract.get('design')}")
-    version = _version()
-    if version != EXPECTED_VERSION:
-        raise ValueError(f"ParaView version changed: {version}")
-
-    input_spec = contract["input"]
+def _render_view(contract: dict[str, Any], plane_id: str) -> dict[str, Any]:
+    plane = contract["cross_sections"][plane_id]
+    outputs = contract["outputs"]["views"][plane_id]
+    input_spec = outputs["render_input"]
     input_path = Path(str(input_spec["path"])).resolve()
     if _identity(input_path) != input_spec["identity"]:
-        raise ValueError("prepared mesh identity changed after contract creation")
-    output_png = Path(str(contract["outputs"]["png"])).resolve()
-    output_pvsm = Path(str(contract["outputs"]["pvsm"])).resolve()
+        raise ValueError(f"{plane_id} render-input identity changed")
+    output_png = Path(str(outputs["png"])).resolve()
+    output_pvsm = Path(str(outputs["pvsm"])).resolve()
     output_png.parent.mkdir(parents=True, exist_ok=True)
 
     pvs.ResetSession()
     pvs._DisableFirstRenderCameraReset()
-    reader = pvs.XMLUnstructuredGridReader(
-        registrationName="Corrected whole-anatomy prepared volume",
+    reader = pvs.XMLPolyDataReader(
+        registrationName=f"Prepared whole-anatomy {plane_id} cross-section",
         FileName=[str(input_path)],
     )
-    reader.CellArrayStatus = list(EXPECTED_FIELDS)
+    reader.CellArrayStatus = ["DominantMaterial"]
     reader.UpdatePipeline()
-    _validate_input(reader)
-    dominant = _dominant_filter(reader)
-
-    plane = contract["cross_section"]
-    section = pvs.Slice(registrationName="Coronal mid-plane", Input=dominant)
-    section.SliceType = "Plane"
-    section.SliceType.Origin = [float(value) for value in plane["origin_m"]]
-    section.SliceType.Normal = [float(value) for value in plane["normal"]]
-    section.UpdatePipeline()
-    section_data = _fetch_dataset(section)
-    if section_data.GetNumberOfPoints() == 0 or section_data.GetNumberOfCells() == 0:
-        raise ValueError("coronal cross-section is empty")
-    category_array = section_data.GetCellData().GetArray("DominantMaterial")
+    dataset = _fetch(reader)
+    if dataset.GetNumberOfPoints() != int(plane["points"]):
+        raise ValueError(f"{plane_id} point count changed")
+    if dataset.GetNumberOfCells() != int(plane["cells"]):
+        raise ValueError(f"{plane_id} cell count changed")
+    category_array = dataset.GetCellData().GetArray("DominantMaterial")
     if category_array is None:
-        raise KeyError("cross-section lost DominantMaterial")
+        raise KeyError(f"{plane_id} cross-section lost DominantMaterial")
     counts = {"Fat": 0, "Muscle": 0, "Aponeurosis": 0}
     for index in range(category_array.GetNumberOfTuples()):
         category = round(category_array.GetTuple1(index))
         if category not in (0, 1, 2):
-            raise ValueError(f"cross-section category escapes [0,2]: {category}")
+            raise ValueError(f"{plane_id} category escapes [0,2]: {category}")
         counts[("Fat", "Muscle", "Aponeurosis")[category]] += 1
-    if any(count == 0 for count in counts.values()):
-        raise ValueError(f"cross-section does not expose every material: {counts}")
+    if counts != plane["dominant_category_cell_counts"]:
+        raise ValueError(f"{plane_id} category counts changed: {counts}")
 
     view = pvs.CreateView("RenderView")
+    view.UseColorPaletteForBackground = 0
     view.Background = list(BACKGROUND)
     view.OrientationAxesVisibility = 0
     view.CenterAxesVisibility = 0
@@ -186,32 +129,37 @@ def _render(contract_path: Path, receipt_path: Path) -> None:
     view.CenterOfRotation = focus
     view.CameraParallelScale = float(plane["camera_parallel_scale_m"])
 
-    display = pvs.Show(section, view, "GeometryRepresentation")
+    display = pvs.Show(reader, view, "GeometryRepresentation")
     display.Representation = "Surface"
     pvs.ColorBy(display, ("CELLS", "DominantMaterial"))
     lut = pvs.GetColorTransferFunction("DominantMaterial", display, separate=True)
     lut.InterpretValuesAsCategories = 1
     lut.Annotations = ["0", "Fat", "1", "Muscle", "2", "Aponeurosis"]
+    lut.ActiveAnnotatedValues = ["0", "1", "2"]
     colors: list[float] = []
     for key in ("0", "1", "2"):
-        colors.extend(float(value) for value in contract["categorical_view"]["materials"][key]["rgb"])
+        colors.extend(
+            float(value)
+            for value in contract["categorical_view"]["materials"][key]["rgb"]
+        )
     lut.IndexedColors = colors
     lut.ShowCategoricalColorsinDataRangeOnly = 1
+    lut.RescaleTransferFunction(0.0, 2.0)
+    lut.ScalarRangeInitialized = 1.0
     display.LookupTable = lut
     display.SetScalarBarVisibility(view, True)
     bar = pvs.GetScalarBar(lut, view)
-    bar.Title = "Dominant constituent"
-    bar.ComponentTitle = "visualization only"
+    bar.Title = ""
+    bar.ComponentTitle = ""
     bar.TitleColor = list(TEXT)
     bar.LabelColor = list(TEXT)
-    bar.TitleFontSize = 20
     bar.LabelFontSize = 18
     bar.WindowLocation = "Lower Right Corner"
     bar.Orientation = "Vertical"
     bar.ScalarBarLength = 0.23
     bar.ScalarBarThickness = 24
 
-    outline = pvs.FeatureEdges(registrationName="Cross-section boundary", Input=section)
+    outline = pvs.FeatureEdges(registrationName="Cross-section boundary", Input=reader)
     outline.BoundaryEdges = 1
     outline.FeatureEdges = 0
     outline.NonManifoldEdges = 0
@@ -225,7 +173,7 @@ def _render(contract_path: Path, receipt_path: Path) -> None:
 
     _add_text(
         view,
-        "WHOLE-ANATOMY VOLUME | coronal mid-plane\n"
+        f"WHOLE-ANATOMY VOLUME | {plane['name']}\n"
         "Dominant constituent (categorical view only)",
         "Upper Left Corner",
         24,
@@ -265,29 +213,41 @@ def _render(contract_path: Path, receipt_path: Path) -> None:
     )
     pvs.SaveState(str(pvsm_tmp))
     if not png_tmp.is_file() or not pvsm_tmp.is_file():
-        raise RuntimeError("ParaView did not create PNG and PVSM")
+        raise RuntimeError(f"ParaView did not create {plane_id} PNG and PVSM")
     png_tmp.replace(output_png)
     pvsm_tmp.replace(output_pvsm)
-
-    receipt = {
-        "schema_version": 1,
-        "design": EXPECTED_DESIGN,
-        "complete": True,
-        "native_paraview_rendering": True,
-        "paraview_version": version,
+    return {
+        "cross_section": {**plane, "dominant_category_cell_counts": counts},
         "input": {"path": str(input_path), "identity": _identity(input_path)},
-        "cross_section": {
-            **plane,
-            "points": int(section_data.GetNumberOfPoints()),
-            "cells": int(section_data.GetNumberOfCells()),
-            "dominant_category_cell_counts": counts,
-        },
         "outputs": {
             "png": {"path": str(output_png), "identity": _identity(output_png)},
             "pvsm": {"path": str(output_pvsm), "identity": _identity(output_pvsm)},
         },
     }
-    _write_json(receipt_path, receipt)
+
+
+def _render(contract_path: Path, receipt_path: Path) -> None:
+    contract = _read_json(contract_path)
+    if contract.get("design") != EXPECTED_DESIGN:
+        raise ValueError(f"unexpected design: {contract.get('design')}")
+    version = _version()
+    if version != EXPECTED_VERSION:
+        raise ValueError(f"ParaView version changed: {version}")
+    views = {
+        plane: _render_view(contract, plane)
+        for plane in ("midsagittal", "coronal", "axial")
+    }
+    _write_json(
+        receipt_path,
+        {
+            "schema_version": 2,
+            "design": EXPECTED_DESIGN,
+            "complete": True,
+            "native_paraview_rendering": True,
+            "paraview_version": version,
+            "views": views,
+        },
+    )
 
 
 def main() -> None:

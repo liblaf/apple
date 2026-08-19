@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # ruff: noqa: EM101, EM102, TRY003
 import hashlib
+import itertools
 import json
 import logging
 import subprocess
@@ -17,26 +18,20 @@ from liblaf import cherries
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 1
-DESIGN = "whole-anatomy-dominant-material-coronal-cross-section"
+SCHEMA_VERSION = 2
+DESIGN = "whole-anatomy-dominant-material-three-midplane-cross-sections"
 GROUP_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[6]
-
 PREPARED_MESH = (
     REPO_ROOT
     / "exp/2026/06/17/human-face-smile-prestrain-v2/data/10-human-face-prepared.vtu"
 )
 PARAVIEW_SCRIPT = GROUP_DIR / "src/25-volume-cross-section-paraview.py"
 PVBATCH = Path("/usr/bin/pvbatch")
-
 OUTPUT_DIR = GROUP_DIR / "data/25-volume-cross-section"
 CONTRACT = GROUP_DIR / "data/25-volume-cross-section-contract.json"
-RENDERER_RECEIPT = (
-    GROUP_DIR / "data/25-volume-cross-section-renderer-receipt.json"
-)
+RENDERER_RECEIPT = GROUP_DIR / "data/25-volume-cross-section-renderer-receipt.json"
 FINAL_RECEIPT = GROUP_DIR / "data/25-volume-cross-section-receipt.json"
-PNG = OUTPUT_DIR / "25-volume-cross-section-dominant-material.png"
-PVSM = OUTPUT_DIR / "25-volume-cross-section-dominant-material.pvsm"
 
 EXPECTED_MESH_IDENTITY = {
     "size_bytes": 76_792_914,
@@ -47,7 +42,23 @@ EXPECTED_TETS = 1_146_517
 EXPECTED_PARAVIEW_VERSION = "6.1.1"
 FIELDS = ("FatFraction", "MuscleFraction", "AponeurosisFraction")
 IMAGE_RESOLUTION = (2000, 1600)
-
+PLANE_SPECS = {
+    "midsagittal": {
+        "label": "midsagittal mid-plane",
+        "normal": (1.0, 0.0, 0.0),
+        "view_up": (0.0, 1.0, 0.0),
+    },
+    "coronal": {
+        "label": "coronal mid-plane",
+        "normal": (0.0, 0.0, 1.0),
+        "view_up": (0.0, 1.0, 0.0),
+    },
+    "axial": {
+        "label": "axial mid-plane",
+        "normal": (0.0, 1.0, 0.0),
+        "view_up": (0.0, 0.0, 1.0),
+    },
+}
 MATERIALS = {
     "0": {
         "name": "Fat",
@@ -76,6 +87,13 @@ MATERIALS = {
 }
 
 
+def _relative_output(plane: str, suffix: str) -> str:
+    stem = f"25-volume-cross-section-{plane}-dominant-material"
+    if suffix == "render-input.vtp":
+        return f"25-volume-cross-section/25-volume-cross-section-{plane}-{suffix}"
+    return f"25-volume-cross-section/{stem}.{suffix}"
+
+
 class Config(cherries.BaseConfig):
     model_config = ps.SettingsConfigDict(cli_parse_args=True)
 
@@ -90,13 +108,32 @@ class Config(cherries.BaseConfig):
     output_final_receipt: Path = cherries.output(
         "25-volume-cross-section-receipt.json", mkdir=True
     )
-    output_png: Path = cherries.output(
-        "25-volume-cross-section/25-volume-cross-section-dominant-material.png",
-        mkdir=True,
+    output_midsagittal_render_input: Path = cherries.output(
+        _relative_output("midsagittal", "render-input.vtp"), mkdir=True
     )
-    output_pvsm: Path = cherries.output(
-        "25-volume-cross-section/25-volume-cross-section-dominant-material.pvsm",
-        mkdir=True,
+    output_midsagittal_png: Path = cherries.output(
+        _relative_output("midsagittal", "png"), mkdir=True
+    )
+    output_midsagittal_pvsm: Path = cherries.output(
+        _relative_output("midsagittal", "pvsm"), mkdir=True
+    )
+    output_coronal_render_input: Path = cherries.output(
+        _relative_output("coronal", "render-input.vtp"), mkdir=True
+    )
+    output_coronal_png: Path = cherries.output(
+        _relative_output("coronal", "png"), mkdir=True
+    )
+    output_coronal_pvsm: Path = cherries.output(
+        _relative_output("coronal", "pvsm"), mkdir=True
+    )
+    output_axial_render_input: Path = cherries.output(
+        _relative_output("axial", "render-input.vtp"), mkdir=True
+    )
+    output_axial_png: Path = cherries.output(
+        _relative_output("axial", "png"), mkdir=True
+    )
+    output_axial_pvsm: Path = cherries.output(
+        _relative_output("axial", "pvsm"), mkdir=True
     )
 
 
@@ -133,30 +170,49 @@ def _read_json(path: Path) -> dict[str, Any]:
     return result
 
 
-def _require_exact_path(actual: Path, expected: Path, name: str) -> None:
-    if actual.resolve() != expected.resolve():
-        raise ValueError(f"{name} must be {expected}, got {actual}")
+def _plane_paths(cfg: Config, plane: str) -> dict[str, Path]:
+    return {
+        "render_input": getattr(cfg, f"output_{plane}_render_input"),
+        "png": getattr(cfg, f"output_{plane}_png"),
+        "pvsm": getattr(cfg, f"output_{plane}_pvsm"),
+    }
 
 
 def _validate_config(cfg: Config) -> None:
-    for actual, expected, name in (
-        (cfg.input_mesh, PREPARED_MESH, "input_mesh"),
-        (cfg.paraview_script, PARAVIEW_SCRIPT, "paraview_script"),
-        (cfg.output_contract, CONTRACT, "output_contract"),
-        (cfg.output_renderer_receipt, RENDERER_RECEIPT, "output_renderer_receipt"),
-        (cfg.output_final_receipt, FINAL_RECEIPT, "output_final_receipt"),
-        (cfg.output_png, PNG, "output_png"),
-        (cfg.output_pvsm, PVSM, "output_pvsm"),
-    ):
-        _require_exact_path(actual, expected, name)
+    fixed = {
+        "input_mesh": PREPARED_MESH,
+        "paraview_script": PARAVIEW_SCRIPT,
+        "output_contract": CONTRACT,
+        "output_renderer_receipt": RENDERER_RECEIPT,
+        "output_final_receipt": FINAL_RECEIPT,
+    }
+    for name, expected in fixed.items():
+        actual = getattr(cfg, name)
+        if actual.resolve() != expected.resolve():
+            raise ValueError(f"{name} must be {expected}, got {actual}")
+    for plane in PLANE_SPECS:
+        expected = {
+            "render_input": OUTPUT_DIR
+            / f"25-volume-cross-section-{plane}-render-input.vtp",
+            "png": OUTPUT_DIR
+            / f"25-volume-cross-section-{plane}-dominant-material.png",
+            "pvsm": OUTPUT_DIR
+            / f"25-volume-cross-section-{plane}-dominant-material.pvsm",
+        }
+        for key, actual in _plane_paths(cfg, plane).items():
+            if actual.resolve() != expected[key].resolve():
+                raise ValueError(f"{plane} {key} must be {expected[key]}, got {actual}")
 
 
 def _validate_mesh(path: Path) -> tuple[pv.UnstructuredGrid, dict[str, Any]]:
-    if _identity(path) != EXPECTED_MESH_IDENTITY:
-        raise ValueError(f"prepared mesh identity changed: {_identity(path)}")
+    identity = _identity(path)
+    if identity != EXPECTED_MESH_IDENTITY:
+        raise ValueError(f"prepared mesh identity changed: {identity}")
     mesh = pv.read(path)
     if not isinstance(mesh, pv.UnstructuredGrid):
-        raise TypeError(f"prepared mesh is {type(mesh).__name__}, expected UnstructuredGrid")
+        raise TypeError(
+            f"prepared mesh is {type(mesh).__name__}, expected UnstructuredGrid"
+        )
     if mesh.n_points != EXPECTED_POINTS or mesh.n_cells != EXPECTED_TETS:
         raise ValueError(
             f"prepared topology changed: {mesh.n_points} points, {mesh.n_cells} cells"
@@ -174,28 +230,77 @@ def _validate_mesh(path: Path) -> tuple[pv.UnstructuredGrid, dict[str, Any]]:
     sum_error = float(np.max(np.abs(fractions.sum(axis=1) - 1.0)))
     if sum_error != 0.0:
         raise ValueError(f"active fractions no longer sum bit-exactly: {sum_error}")
-    dominant = np.argmax(fractions, axis=1)
-    dominant_counts = {
-        MATERIALS[str(index)]["name"]: int(np.count_nonzero(dominant == index))
-        for index in range(3)
-    }
-    bounds = [float(value) for value in mesh.bounds]
+    dominant = np.argmax(fractions, axis=1).astype(np.int32)
+    mesh.cell_data["DominantMaterial"] = dominant
     return mesh, {
         "points": int(mesh.n_points),
         "tetrahedra": int(mesh.n_cells),
-        "bounds_m": bounds,
+        "bounds_m": [float(value) for value in mesh.bounds],
         "active_fraction_sum_max_abs_error": sum_error,
-        "whole_volume_dominant_tet_counts": dominant_counts,
+        "whole_volume_dominant_tet_counts": {
+            MATERIALS[str(index)]["name"]: int(np.count_nonzero(dominant == index))
+            for index in range(3)
+        },
         "dominance_tie_break": "numpy argmax field order: Fat, Muscle, Aponeurosis",
     }
 
 
+def _camera_scale(bounds: np.ndarray, normal: np.ndarray, up: np.ndarray) -> float:
+    right = np.cross(up, normal)
+    right /= np.linalg.norm(right)
+    corners = np.asarray(
+        list(itertools.product(*[(low, high) for low, high in bounds])),
+        dtype=np.float64,
+    )
+    horizontal_range = float(np.ptp(corners @ right))
+    vertical_range = float(np.ptp(corners @ up))
+    aspect = IMAGE_RESOLUTION[0] / IMAGE_RESOLUTION[1]
+    return 0.58 * max(vertical_range, horizontal_range / aspect)
+
+
+def _write_section(
+    mesh: pv.UnstructuredGrid,
+    *,
+    plane: str,
+    spec: dict[str, Any],
+    center: np.ndarray,
+    bounds: np.ndarray,
+    path: Path,
+) -> tuple[dict[str, Any], dict[str, int | str]]:
+    normal = np.asarray(spec["normal"], dtype=np.float64)
+    up = np.asarray(spec["view_up"], dtype=np.float64)
+    section = mesh.slice(normal=normal, origin=center)
+    if section.n_points == 0 or section.n_cells == 0:
+        raise ValueError(f"prepared {plane} cross-section is empty")
+    dominant = np.asarray(section.cell_data["DominantMaterial"], dtype=np.int32)
+    counts = {
+        MATERIALS[str(index)]["name"]: int(np.count_nonzero(dominant == index))
+        for index in range(3)
+    }
+    if any(count == 0 for count in counts.values()):
+        raise ValueError(f"{plane} cross-section misses a material: {counts}")
+    temporary = path.with_name(f".{path.stem}.tmp{path.suffix}")
+    section.save(temporary, binary=True)
+    temporary.replace(path)
+    return (
+        {
+            "name": str(spec["label"]),
+            "origin_m": center.tolist(),
+            "normal": normal.tolist(),
+            "view_up": up.tolist(),
+            "camera_focus_m": center.tolist(),
+            "camera_parallel_scale_m": _camera_scale(bounds, normal, up),
+            "points": int(section.n_points),
+            "cells": int(section.n_cells),
+            "dominant_category_cell_counts": counts,
+        },
+        _identity(path),
+    )
+
+
 def _paraview_version() -> str:
     completed = subprocess.run(
-        [str(PVBATCH), "--version"],
-        check=True,
-        capture_output=True,
-        text=True,
+        [str(PVBATCH), "--version"], check=True, capture_output=True, text=True
     )
     words = completed.stdout.strip().split()
     if not words:
@@ -212,31 +317,44 @@ def _validate_png(path: Path) -> dict[str, Any]:
     if size != IMAGE_RESOLUTION:
         raise ValueError(f"PNG resolution changed: {size}")
     if path.stat().st_size <= 50_000:
-        raise ValueError("PNG is unexpectedly small")
+        raise ValueError(f"PNG is unexpectedly small: {path}")
     return {"resolution": list(size), "mode": mode, **_identity(path)}
 
 
 def main(cfg: Config) -> None:
     _validate_config(cfg)
-    if not cfg.paraview_script.is_file():
-        raise FileNotFoundError(cfg.paraview_script)
-    if not PVBATCH.is_file():
-        raise FileNotFoundError(PVBATCH)
-
+    if not cfg.paraview_script.is_file() or not PVBATCH.is_file():
+        raise FileNotFoundError("ParaView renderer or pvbatch is missing")
     mesh, mesh_validation = _validate_mesh(cfg.input_mesh)
     bounds = np.asarray(mesh.bounds, dtype=np.float64).reshape(3, 2)
     center = bounds.mean(axis=1)
-    normal = np.asarray((0.0, 0.0, 1.0), dtype=np.float64)
-    up = np.asarray((0.0, 1.0, 0.0), dtype=np.float64)
-    aspect = IMAGE_RESOLUTION[0] / IMAGE_RESOLUTION[1]
-    horizontal_range = float(np.ptp(bounds[0]))
-    vertical_range = float(np.ptp(bounds[1]))
-    parallel_scale = 0.58 * max(vertical_range, horizontal_range / aspect)
+    cross_sections: dict[str, Any] = {}
+    view_outputs: dict[str, Any] = {}
+    render_input_identities: dict[str, dict[str, int | str]] = {}
+    for plane, spec in PLANE_SPECS.items():
+        paths = _plane_paths(cfg, plane)
+        section, identity = _write_section(
+            mesh,
+            plane=plane,
+            spec=spec,
+            center=center,
+            bounds=bounds,
+            path=paths["render_input"],
+        )
+        cross_sections[plane] = section
+        render_input_identities[plane] = identity
+        view_outputs[plane] = {
+            "render_input": {
+                "path": str(paths["render_input"].resolve()),
+                "identity": identity,
+            },
+            "png": str(paths["png"].resolve()),
+            "pvsm": str(paths["pvsm"].resolve()),
+        }
 
     version = _paraview_version()
     if version != EXPECTED_PARAVIEW_VERSION:
         raise ValueError(f"ParaView version changed: {version}")
-
     contract: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "design": DESIGN,
@@ -246,14 +364,7 @@ def main(cfg: Config) -> None:
             "identity": EXPECTED_MESH_IDENTITY,
             "validation": mesh_validation,
         },
-        "cross_section": {
-            "name": "coronal mid-plane",
-            "origin_m": center.tolist(),
-            "normal": normal.tolist(),
-            "view_up": up.tolist(),
-            "camera_focus_m": center.tolist(),
-            "camera_parallel_scale_m": float(parallel_scale),
-        },
+        "cross_sections": cross_sections,
         "categorical_view": {
             "field": "DominantMaterial",
             "definition": "argmax(FatFraction, MuscleFraction, AponeurosisFraction)",
@@ -276,13 +387,11 @@ def main(cfg: Config) -> None:
             "native_paraview_rendering": True,
         },
         "outputs": {
-            "png": str(cfg.output_png.resolve()),
-            "pvsm": str(cfg.output_pvsm.resolve()),
+            "views": view_outputs,
             "renderer_receipt": str(cfg.output_renderer_receipt.resolve()),
         },
     }
     _write_json(cfg.output_contract, contract)
-
     completed = subprocess.run(
         [
             str(PVBATCH),
@@ -306,35 +415,45 @@ def main(cfg: Config) -> None:
     renderer_receipt = _read_json(cfg.output_renderer_receipt)
     if renderer_receipt.get("complete") is not True:
         raise ValueError("renderer receipt is incomplete")
-    png_validation = _validate_png(cfg.output_png)
-    if not cfg.output_pvsm.is_file() or cfg.output_pvsm.stat().st_size <= 10_000:
-        raise ValueError("PVSM is missing or unexpectedly small")
+    final_outputs: dict[str, Any] = {}
+    for plane in PLANE_SPECS:
+        paths = _plane_paths(cfg, plane)
+        png_validation = _validate_png(paths["png"])
+        if not paths["pvsm"].is_file() or paths["pvsm"].stat().st_size <= 10_000:
+            raise ValueError(f"PVSM is missing or unexpectedly small: {paths['pvsm']}")
+        final_outputs[plane] = {
+            "render_input": {
+                "path": str(paths["render_input"].resolve()),
+                **render_input_identities[plane],
+            },
+            "png": {"path": str(paths["png"].resolve()), **png_validation},
+            "pvsm": {
+                "path": str(paths["pvsm"].resolve()),
+                **_identity(paths["pvsm"]),
+            },
+        }
 
     contract["complete"] = True
     _write_json(cfg.output_contract, contract)
-    final_receipt = {
-        "schema_version": SCHEMA_VERSION,
-        "design": DESIGN,
-        "complete": True,
-        "contract": {
-            "path": str(cfg.output_contract.resolve()),
-            "identity": _identity(cfg.output_contract),
-        },
-        "renderer_receipt": {
-            "path": str(cfg.output_renderer_receipt.resolve()),
-            "identity": _identity(cfg.output_renderer_receipt),
-            "summary": renderer_receipt,
-        },
-        "outputs": {
-            "png": {"path": str(cfg.output_png.resolve()), **png_validation},
-            "pvsm": {
-                "path": str(cfg.output_pvsm.resolve()),
-                **_identity(cfg.output_pvsm),
+    _write_json(
+        cfg.output_final_receipt,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "design": DESIGN,
+            "complete": True,
+            "contract": {
+                "path": str(cfg.output_contract.resolve()),
+                "identity": _identity(cfg.output_contract),
             },
+            "renderer_receipt": {
+                "path": str(cfg.output_renderer_receipt.resolve()),
+                "identity": _identity(cfg.output_renderer_receipt),
+                "summary": renderer_receipt,
+            },
+            "outputs": final_outputs,
         },
-    }
-    _write_json(cfg.output_final_receipt, final_receipt)
-    logger.info("Wrote native ParaView cross-section: %s", cfg.output_png)
+    )
+    logger.info("Wrote three native ParaView cross-section views to %s", OUTPUT_DIR)
 
 
 if __name__ == "__main__":

@@ -51,6 +51,23 @@ Everything else is shared:
 - Inverse: fresh-zero activation, displacement, and optimizer; Adam
   `lr = 0.3`; 40 updates and 41 evaluations.
 
+### Shared volume-material cross-section
+
+This coronal cross-section is a categorical visualization of the dominant
+constituent at each volume point. It is for explaining anatomy only. The
+actual physics uses continuous fractions satisfying
+`FatFraction + MuscleFraction + AponeurosisFraction = 1`:
+
+- Fat: Stable Neo-Hookean, `E = 0.003 MPa`, `nu = 0.49`.
+- Muscle: active Stable Neo-Hookean, `E = 0.03 MPa`, `nu = 0.49`.
+- Aponeurosis: Stable Neo-Hookean, `E = 0.10 MPa`, `nu = 0.35`.
+
+#### Coronal dominant constituent
+
+![Coronal dominant-constituent volume cross-section](../data/25-volume-cross-section/25-volume-cross-section-dominant-material.png)
+
+[ParaView state: coronal dominant constituent](../data/25-volume-cross-section/25-volume-cross-section-dominant-material.pvsm)
+
 ### Slide 1: show the two material factors
 
 Use these four standalone ParaView images to explain the row and column factors:

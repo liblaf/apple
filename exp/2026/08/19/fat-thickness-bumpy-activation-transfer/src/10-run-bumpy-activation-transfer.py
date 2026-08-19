@@ -15,6 +15,9 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib as mpl
+
+mpl.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pydantic_settings as ps
@@ -966,7 +969,7 @@ def plot_top_field(row: dict[str, Any], path: Path, *, common_limit: float) -> N
     axis.set_xlabel("z [model length]")
     axis.set_ylabel("x [model length]")
     axis.set_title(
-        f"{row['label']}: bumpy - uniform surface displacement",
+        f"{row['label'].capitalize()} fat: induced surface response",
         fontsize=18,
         fontweight="bold",
     )

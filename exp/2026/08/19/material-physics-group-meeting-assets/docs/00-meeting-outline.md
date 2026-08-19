@@ -53,20 +53,32 @@ Everything else is shared:
 
 ### Shared volume-material cross-section
 
-This coronal cross-section is a categorical visualization of the dominant
-constituent at each volume point. It is for explaining anatomy only. The
-actual physics uses continuous fractions satisfying
+These three anatomical cross-sections are categorical visualizations of the
+dominant constituent at each volume point. They are for explaining anatomy
+only. The actual physics uses continuous fractions satisfying
 `FatFraction + MuscleFraction + AponeurosisFraction = 1`:
 
 - Fat: Stable Neo-Hookean, `E = 0.003 MPa`, `nu = 0.49`.
 - Muscle: active Stable Neo-Hookean, `E = 0.03 MPa`, `nu = 0.49`.
 - Aponeurosis: Stable Neo-Hookean, `E = 0.10 MPa`, `nu = 0.35`.
 
+#### Midsagittal dominant constituent
+
+![Midsagittal dominant-constituent volume cross-section](../data/25-volume-cross-section/25-volume-cross-section-midsagittal-dominant-material.png)
+
+[ParaView state: midsagittal dominant constituent](../data/25-volume-cross-section/25-volume-cross-section-midsagittal-dominant-material.pvsm)
+
 #### Coronal dominant constituent
 
-![Coronal dominant-constituent volume cross-section](../data/25-volume-cross-section/25-volume-cross-section-dominant-material.png)
+![Coronal dominant-constituent volume cross-section](../data/25-volume-cross-section/25-volume-cross-section-coronal-dominant-material.png)
 
-[ParaView state: coronal dominant constituent](../data/25-volume-cross-section/25-volume-cross-section-dominant-material.pvsm)
+[ParaView state: coronal dominant constituent](../data/25-volume-cross-section/25-volume-cross-section-coronal-dominant-material.pvsm)
+
+#### Axial dominant constituent
+
+![Axial dominant-constituent volume cross-section](../data/25-volume-cross-section/25-volume-cross-section-axial-dominant-material.png)
+
+[ParaView state: axial dominant constituent](../data/25-volume-cross-section/25-volume-cross-section-axial-dominant-material.pvsm)
 
 ### Slide 1: show the two material factors
 

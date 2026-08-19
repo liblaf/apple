@@ -1,0 +1,468 @@
+{
+  "command": [
+    "/usr/bin/pvbatch",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/20-ablation-render-paraview.py",
+    "--contract",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets-contract.json",
+    "--output-dir",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets"
+  ],
+  "complete": true,
+  "contract": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets-contract.json",
+    "sha256": "8699604d57f0835e72c30831fd665fcf3aa2f08fa1288e28861956ed43de9aff",
+    "size_bytes": 14599
+  },
+  "design": "meeting-authoritative-homogeneous-vs-fat-floor-c020-2x2-step40",
+  "forward_or_inverse_executed": false,
+  "inputs": {
+    "H0P0": {
+      "material": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "result": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu",
+        "sha256": "c6a0b183675ffb3ec537c1153544b041acd7aa0fdd5216c0cf9a50022d52b0a4",
+        "size_bytes": 147657021
+      },
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-summary-final.json",
+        "sha256": "575ebcbd7152a256917c2a11a9bf9bef9046f00f9831e18adc86d41645be1856",
+        "size_bytes": 126540
+      },
+      "surface": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p0.vtp",
+        "sha256": "e28fd72de800a93179db44fa070f4555035d8ea1d6626518ed69850dda5f6f5b",
+        "size_bytes": 1772624
+      }
+    },
+    "H0P1": {
+      "material": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+        "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+        "size_bytes": 1898983
+      },
+      "result": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1.vtu",
+        "sha256": "eabec1d0493f004d066f94f20b5ac6725f8d84245ceccfddc51dc191dd96cde0",
+        "size_bytes": 147640393
+      },
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-summary-final.json",
+        "sha256": "0ecf17c2a25cc03ebccb42a7ca3bd25bbeaf2fde0b0da3f1dec156efe8d99b2c",
+        "size_bytes": 111232
+      },
+      "surface": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p1.vtp",
+        "sha256": "c1c736d92195b9ac6d5af32609c4443b1227f4dbfb3817040d2c6717c4524da8",
+        "size_bytes": 1772156
+      }
+    },
+    "HFP0": {
+      "material": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+        "sha256": "8aff20c6ecad328bb436213c7751c25546df3b12a01e3f6e748c24e4b9941f23",
+        "size_bytes": 1611312
+      },
+      "result": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp0.vtu",
+        "sha256": "3175b90a4134d69bf159095bb7f1a74f9b67e4f3f23df81a789bae4e638d5fd3",
+        "size_bytes": 147659455
+      },
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp0-summary-final.json",
+        "sha256": "b21223ade6fd0e4112ea389e351bd890cd4b60704cd0b50638ebde998c8dea84",
+        "size_bytes": 111570
+      },
+      "surface": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp0.vtp",
+        "sha256": "a99569a63761a4d76c1f94b01ec4a456700d0eaa6abca0100eb1e1d98ef12861",
+        "size_bytes": 2634952
+      }
+    },
+    "HFP1": {
+      "material": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+        "sha256": "89e0b349b1ba8002bc654325ba2f025c492b6e096c242c4c194ddede72cd117d",
+        "size_bytes": 2072304
+      },
+      "result": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1.vtu",
+        "sha256": "f93bf583819048b5d81a674c4f409450e3cd1200e0d3811b3dc98811480d53dd",
+        "size_bytes": 147652097
+      },
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-summary-final.json",
+        "sha256": "73238e1a1cdb4f8f398b4d1430874abd22ef768d564225d4e3b07307bdb41540",
+        "size_bytes": 111700
+      },
+      "surface": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp1.vtp",
+        "sha256": "a595a874ca4ce42c2884a8f6c7705e857cfbe51531a44537ea0c49020972249f",
+        "size_bytes": 2634336
+      }
+    },
+    "metric_skin": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    },
+    "pvbatch": {
+      "path": "/usr/bin/pvbatch",
+      "sha256": "be482a75b1e52a8b5d9df6c5687c743cc0b5312e30916622d54652a998eb8871",
+      "size_bytes": 18608
+    },
+    "registered_analyzer": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/src/30-analyze-selective-skin-prestrain.py",
+      "sha256": "d3225740992d57edfc852026416fe11c1bd4ab94c13c955debb4323c7c280548",
+      "size_bytes": 66557
+    }
+  },
+  "material_validation": {
+    "H0P0": {
+      "activation_inv": {
+        "array_sha256_le_f8": "051fe4599913dc590cb39aa79f7bb51578efc3323cd9c0a337be804d12d8f224",
+        "max": 0.0,
+        "min": 0.0
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "points": 15299,
+      "stress_free_area_ratio": {
+        "array_sha256_le_f8": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+        "max": 1.0,
+        "min": 1.0
+      },
+      "triangles": 29899,
+      "young_modulus_MPa": {
+        "array_sha256_le_f8": "79258360b0aa0cc628c86628bde75fe2ea114d14b34fe5430cd8f4f28e359c24",
+        "fat_floor_triangles": 0,
+        "max": 0.2,
+        "min": 0.2
+      }
+    },
+    "H0P1": {
+      "activation_inv": {
+        "array_sha256_le_f8": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+        "max": 0.44307506364601545,
+        "min": 0.0
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+      "points": 15299,
+      "stress_free_area_ratio": {
+        "array_sha256_le_f8": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+        "max": 0.9603999999999999,
+        "min": 0.48019999999999996
+      },
+      "triangles": 29899,
+      "young_modulus_MPa": {
+        "array_sha256_le_f8": "79258360b0aa0cc628c86628bde75fe2ea114d14b34fe5430cd8f4f28e359c24",
+        "fat_floor_triangles": 0,
+        "max": 0.2,
+        "min": 0.2
+      }
+    },
+    "HFP0": {
+      "activation_inv": {
+        "array_sha256_le_f8": "051fe4599913dc590cb39aa79f7bb51578efc3323cd9c0a337be804d12d8f224",
+        "max": 0.0,
+        "min": 0.0
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+      "points": 15299,
+      "stress_free_area_ratio": {
+        "array_sha256_le_f8": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+        "max": 1.0,
+        "min": 1.0
+      },
+      "triangles": 29899,
+      "young_modulus_MPa": {
+        "array_sha256_le_f8": "3d16df172d08edfdb52077ac8961aa80bc3363ed9e9d8b0b1f1a0f3695b82c1e",
+        "fat_floor_triangles": 16723,
+        "max": 0.2,
+        "min": 0.003
+      }
+    },
+    "HFP1": {
+      "activation_inv": {
+        "array_sha256_le_f8": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+        "max": 0.44307506364601545,
+        "min": 0.0
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+      "points": 15299,
+      "stress_free_area_ratio": {
+        "array_sha256_le_f8": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+        "max": 0.9603999999999999,
+        "min": 0.48019999999999996
+      },
+      "triangles": 29899,
+      "young_modulus_MPa": {
+        "array_sha256_le_f8": "3d16df172d08edfdb52077ac8961aa80bc3363ed9e9d8b0b1f1a0f3695b82c1e",
+        "fat_floor_triangles": 16723,
+        "max": 0.2,
+        "min": 0.003
+      }
+    }
+  },
+  "metrics": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-step40-metrics.json",
+    "sha256": "1e394640e41d727a677ce4767db8150802c2eca9dcd9037110460f83fdc9c102",
+    "size_bytes": 6752
+  },
+  "metrics_table": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-step40-metrics.md",
+    "sha256": "3afcaec6af8fff4620d61610150f8ba3d4d9df875646f89ebe52ef17199c62ef",
+    "size_bytes": 616
+  },
+  "normal_residual_shared_limit_mm": 3.8157138586747696,
+  "output_count": 32,
+  "outputs": [
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-prestrain-p0.png",
+      "sha256": "2d646b586d9a231066c9652deaa2b320ad3e3101059afb6a4aa3d553b3f8ad2c",
+      "size_bytes": 355137
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-prestrain-p0.pvsm",
+      "sha256": "ae0509a6bfad29063d510955ada9cdc0c27dbe78985ca75fb5415a44504623a0",
+      "size_bytes": 266305
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-prestrain-p1.png",
+      "sha256": "d6fd6bfb1b36243178f4dac3d0c84f162f019330bcf19ac3f37d92a1b9fbf76f",
+      "size_bytes": 440936
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-prestrain-p1.pvsm",
+      "sha256": "dd990477f09f2f5ab55fcfd05a2b528975c6994a99ea3d78948ecce7b4661fb4",
+      "size_bytes": 267650
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-young-h0.png",
+      "sha256": "b49fab961fa496e2e492ee00ffe420ae5d3ea4ea5389cf8f028d088c485617a9",
+      "size_bytes": 354028
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-young-h0.pvsm",
+      "sha256": "bba329cfd3330cac8ac740ff7a77da3fdeab81c1b2f411e6dd035d162667f866",
+      "size_bytes": 264084
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-young-hf.png",
+      "sha256": "aa819a76927aff8ff19356caa3d8a349fb88511554a04fee7f557eed8fb38737",
+      "size_bytes": 401372
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-material-young-hf.pvsm",
+      "sha256": "7c993485e1ad38cee4b3fd42f23383872a5f414d9474291de81cec3f205bbbb2",
+      "size_bytes": 265770
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-geometry.png",
+      "sha256": "b63e744fddf641e44a2f46406899640b658e685c4e0dfc96882f5c1e121ec8ad",
+      "size_bytes": 460145
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-geometry.pvsm",
+      "sha256": "4591a8bc53af85990298f2647498421a6e99c7a86e846d848d4ec0d10df4b703",
+      "size_bytes": 233159
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-normal-residual.png",
+      "sha256": "015b236f849b8f1ec5195fc778ad729d756c0e142d2cd559f425a8bc9075de5b",
+      "size_bytes": 872994
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-normal-residual.pvsm",
+      "sha256": "92ba663ab10e6ac3e52ca446630a133ca63c093750abc6a75f9d7b0f91a94e7f",
+      "size_bytes": 269852
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-point-error.png",
+      "sha256": "58711b65084e473ea1c8c8da2106194769701179279536eb9e6d331b6cd9dd80",
+      "size_bytes": 649919
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p0-point-error.pvsm",
+      "sha256": "1e84dc9f98502faed04e61b860b0571ea19222700ad58f039aa90f2ce280ff1f",
+      "size_bytes": 269776
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-geometry.png",
+      "sha256": "5043a1d19fcae8526004f5cbc60d1a0f240c8f31808a18bac6a9c9a20fda832f",
+      "size_bytes": 412314
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-geometry.pvsm",
+      "sha256": "9cb7475e9fc5885b9a4b060b08c099538858d0bac35d85ec01b74db9b4303eb7",
+      "size_bytes": 233162
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-normal-residual.png",
+      "sha256": "4fc721842e9885a4f0fdcdded750badfb6e14dd27a68b0a4a2c25927e4f7656c",
+      "size_bytes": 781515
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-normal-residual.pvsm",
+      "sha256": "725ba0b314749665751f4f65873207a61b11397375e0ed21cf0c71ba5573fd0c",
+      "size_bytes": 269855
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-point-error.png",
+      "sha256": "185e716067dcbfd9225987c07de321b59052be32714cca7e2a68746a7da4b902",
+      "size_bytes": 588124
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-h0p1-point-error.pvsm",
+      "sha256": "2c2bbb040f36c14a4e37b10f1558268693d0069b5c6303711fcbc8b21806e7fe",
+      "size_bytes": 269779
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-geometry.png",
+      "sha256": "9a6c856f4464f24eae85e33105cc07aba00fd92ad041315eb92dec23b52f13cb",
+      "size_bytes": 491317
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-geometry.pvsm",
+      "sha256": "e1892cc4636266a884a3fc3ee068f489df8722376bf9895e3937e505ee681924",
+      "size_bytes": 226176
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-normal-residual.png",
+      "sha256": "faec70cedf7b563f57e8f374f38b39aeb2e7921636a049d4b6424738001cee5e",
+      "size_bytes": 894398
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-normal-residual.pvsm",
+      "sha256": "69679e1a241cecba6c00debdb90118267131206ac1a7c0f9e3810ff0e4d02039",
+      "size_bytes": 262870
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-point-error.png",
+      "sha256": "33ddb595f44b92043c33e50df947539f66e8ebce50dfa6c6f06cc1d788aa3125",
+      "size_bytes": 630599
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp0-point-error.pvsm",
+      "sha256": "e9107f5fc91ea2fdaf79f715d9aaee445b3d797a46a20782f7bc42339243b2d3",
+      "size_bytes": 262796
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-geometry.png",
+      "sha256": "899473c260c11e0919d259b2cff0e8e43fd49a67e40ddd245a80b48470a8ff5a",
+      "size_bytes": 459290
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-geometry.pvsm",
+      "sha256": "c1259f1a2542c5373cba402c79663aa2c3806d67d5957abd70669a8b63bd247c",
+      "size_bytes": 226174
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-normal-residual.png",
+      "sha256": "3ee4b5ac5b763a06db2e9790213177d4e4edf8ec4915215aa9db9fc93db87df2",
+      "size_bytes": 827077
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-normal-residual.pvsm",
+      "sha256": "f745ec23d5661cfbf71a2480c433b9c3d0a23f1c0f55727148abaa0721aac539",
+      "size_bytes": 262870
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-point-error.png",
+      "sha256": "a800a4374ab53ec2af4ee0b1882ad6cb2682d883535f89ea779cc623330971dc",
+      "size_bytes": 583989
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-assets/20-ablation-step40-hfp1-point-error.pvsm",
+      "sha256": "68f5012ac829fcf4e2414d12c564b2a79f5a90d31943ebb0ff06d39475eff0b0",
+      "size_bytes": 262796
+    }
+  ],
+  "paraview_version": "6.1.1",
+  "point_error_objective_linkage": {
+    "H0P0": {
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 2.720948224753828,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.23833120633194776,
+      "surface_objective_point_count": 15299,
+      "surface_point_error_rms_mm": 2.7212121263767064,
+      "target_point_error_sha256_le_f8": "89196522bd3f3bd16b2692ab3f129622e81ff3f2ec487ead4945eb5d8ed1ec27",
+      "target_rms_mm": 2.7209482247538275
+    },
+    "H0P1": {
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 2.849028620697618,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 1.2731081566013775,
+      "surface_objective_point_count": 15299,
+      "surface_point_error_rms_mm": 2.849293339066177,
+      "target_point_error_sha256_le_f8": "e8a1b5a97f50e929bb86b40f451672456e371ef3eb7fafa447cb8852c61721eb",
+      "target_rms_mm": 2.849028620697618
+    },
+    "HFP0": {
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 1.4810806710478472,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.19434455313207893,
+      "surface_objective_point_count": 15299,
+      "surface_point_error_rms_mm": 1.4812215893697573,
+      "target_point_error_sha256_le_f8": "171acd10712889b5dd7dd0674ddebcc1b0dc83f97b4c3d31274d72c77dbb7808",
+      "target_rms_mm": 1.481080671047847
+    },
+    "HFP1": {
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 1.441859604928723,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.7993502369293743,
+      "surface_objective_point_count": 15299,
+      "surface_point_error_rms_mm": 1.4419828492339182,
+      "target_point_error_sha256_le_f8": "6f7e4928f2ae2e543bfda2beb2235fa1d337ea8666399ed4030378af4d46dbf8",
+      "target_rms_mm": 1.441859604928723
+    }
+  },
+  "point_error_shared_limit_mm": 9.931346158112657,
+  "render_inputs": {
+    "H0P0": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p0.vtp",
+      "point_error_array_sha256_le_f8": "89196522bd3f3bd16b2692ab3f129622e81ff3f2ec487ead4945eb5d8ed1ec27",
+      "sha256": "cddb40625e3d5ec0c4cc42ffd22a54db69882e896e8f881daa81fd99f7e889e4",
+      "size_bytes": 1929070
+    },
+    "H0P1": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p1.vtp",
+      "point_error_array_sha256_le_f8": "e8a1b5a97f50e929bb86b40f451672456e371ef3eb7fafa447cb8852c61721eb",
+      "sha256": "46cc66d7b5539d8030c106eba9ccfe12326b222d6512867d22384f5b07c979a0",
+      "size_bytes": 1928494
+    },
+    "HFP0": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp0.vtp",
+      "point_error_array_sha256_le_f8": "171acd10712889b5dd7dd0674ddebcc1b0dc83f97b4c3d31274d72c77dbb7808",
+      "sha256": "975dc38e2fb98e6721edd0438a0fd34d68c7a4faf0d3d039674ffdcca25531f6",
+      "size_bytes": 2790950
+    },
+    "HFP1": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp1.vtp",
+      "point_error_array_sha256_le_f8": "6f7e4928f2ae2e543bfda2beb2235fa1d337ea8666399ed4030378af4d46dbf8",
+      "sha256": "0d6a9bdaa5cf1e9662564ceebd4fb829b6add56fbf25ffac5e22337b5482270c",
+      "size_bytes": 2790010
+    }
+  },
+  "renderer": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/20-ablation-render-paraview.py",
+    "sha256": "7fad1a7a1ef530daaed36d24b2c141237bfb20f23ad496c4b27289cf28ad95be",
+    "size_bytes": 13062
+  },
+  "schema_version": 2,
+  "separate_png_count": 16,
+  "separate_pvsm_count": 16,
+  "status": "ok",
+  "visualization_only": true,
+  "wrapper": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/20-ablation-assets.py",
+    "sha256": "24703fdcaa9b451b759b1dbeb760f908f5675c2763eb6d246642325b8a95a887",
+    "size_bytes": 34542
+  }
+}

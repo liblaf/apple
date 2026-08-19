@@ -1,0 +1,140 @@
+{
+  "camera": {
+    "focal_point": [
+      1.4070500020750487,
+      2.211375948871603,
+      0.04575618370825054
+    ],
+    "parallel_scale": 0.10895257866982927,
+    "position": [
+      1.4070500020750487,
+      2.211375948871603,
+      0.8381385740342815
+    ],
+    "projection": "parallel",
+    "view_direction": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "view_up": [
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "case_order": [
+    "H0P0",
+    "H0P1",
+    "H1P1",
+    "H1P0"
+  ],
+  "color_association": "CELLS",
+  "complete": true,
+  "design": "paraview-6.1.1-four-case-skin-material-sheet",
+  "fields": [
+    {
+      "fixed_range": [
+        0.0,
+        0.2
+      ],
+      "label": "Skin Young's modulus E (MPa)",
+      "name": "SkinYoungModulusMPa"
+    },
+    {
+      "fixed_range": [
+        0.4802,
+        1.0
+      ],
+      "label": "Stress-free area ratio rho",
+      "name": "StressFreeAreaRatio"
+    }
+  ],
+  "image_resolution": [
+    4000,
+    2160
+  ],
+  "layout": "2 rows (E, stress-free area ratio) x 4 cases",
+  "manifest": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases-manifest.json",
+    "sha256": "e436d7d0a1da519b76d6a495b70a75c5c725cf6de346c298aec720cd9de9701e",
+    "size_bytes": 34699
+  },
+  "meeting_authority": "native ParaView 6.1.1 XMLPolyDataReader; both rows use true cell-data arrays with fixed ranges and identical parallel-projection cameras",
+  "outputs": {
+    "screenshot": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/15-paraview-material-cases.png",
+      "sha256": "55d3bc969515687cf54056b87bf52d2e962009904d80b33e043dc73182dd572c",
+      "size_bytes": 1477892
+    },
+    "state": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/15-paraview-material-cases.pvsm",
+      "sha256": "26f998df690dec457ef342ab41e7082238c6fb78bb6d18cfdefbac8fe02b2371",
+      "size_bytes": 1787098
+    }
+  },
+  "paraview_version": "6.1.1",
+  "schema_version": 1,
+  "sources": [
+    {
+      "case_id": "H0P0",
+      "cell_arrays_verified": [
+        "SkinYoungModulusMPa",
+        "StressFreeAreaRatio"
+      ],
+      "file_identity": {
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "points": 15299,
+      "triangles": 29899,
+      "unchanged": true
+    },
+    {
+      "case_id": "H0P1",
+      "cell_arrays_verified": [
+        "SkinYoungModulusMPa",
+        "StressFreeAreaRatio"
+      ],
+      "file_identity": {
+        "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+        "size_bytes": 1898983
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+      "points": 15299,
+      "triangles": 29899,
+      "unchanged": true
+    },
+    {
+      "case_id": "H1P1",
+      "cell_arrays_verified": [
+        "SkinYoungModulusMPa",
+        "StressFreeAreaRatio"
+      ],
+      "file_identity": {
+        "sha256": "8f6ef40914faf2333e03daa2b04f9755392015ed3b53277c446acb66beb73989",
+        "size_bytes": 1936062
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h1p1-selective-e000-c020.vtp",
+      "points": 15299,
+      "triangles": 29899,
+      "unchanged": true
+    },
+    {
+      "case_id": "H1P0",
+      "cell_arrays_verified": [
+        "SkinYoungModulusMPa",
+        "StressFreeAreaRatio"
+      ],
+      "file_identity": {
+        "sha256": "69ec650a995f707d5e856ab745747ba7e6f7f4644dcd77c6936a66b9416cc486",
+        "size_bytes": 1613395
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h1p0-selective-e000-p000.vtp",
+      "points": 15299,
+      "triangles": 29899,
+      "unchanged": true
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "complete": true,
+  "design": "corrected-isface-gain4-vs-gain8-linear-young-modulus",
+  "execution_contract": {
+    "adjoint_started": false,
+    "forward_started": false,
+    "inverse_started": false,
+    "visualization_only": true
+  },
+  "input_provenance": {
+    "corrected_skin": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+      "size_bytes": 1138550
+    },
+    "driver_skin": {
+      "allowed_arrays": [
+        "ExpansionWeight"
+      ],
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "prohibited_reuse": [
+        "lambda",
+        "mu",
+        "SkinYoungModulusMPa",
+        "ActivationInv",
+        "RestArea"
+      ],
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    }
+  },
+  "mapping": {
+    "corrected_triangle_keys_sha256_le_i8": "dca8d77662f49b54250657424cfc29a3b438437081f83d65f7e108f312da2310",
+    "corrected_triangles": 29899,
+    "driver_triangles": 128172,
+    "exact_readback": true,
+    "mapped_driver_cell_indices_sha256_le_i8": "13458107ceef23ecc144340101574f3fb4f2e157f90a9251434e7b09a86a66c3",
+    "mapped_unique_driver_triangles": 29899,
+    "method": "sorted GlobalPointId triangle keys"
+  },
+  "output_contract": {
+    "json": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/20-gain4-vs-gain8-stats.json"
+    },
+    "overwrite_policy": "refuse existing live or temporary outputs",
+    "png": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/20-gain4-vs-gain8-linear-young-modulus.png",
+      "sha256": "77c175e7c0a75cb40379de38fd6d880d23d27de61df132e9d6800fa47af0ac9d",
+      "size_bytes": 1299467
+    }
+  },
+  "render": {
+    "clim_MPa": [
+      0.0,
+      0.2
+    ],
+    "colormap": "viridis",
+    "face_focus": [
+      1.4070500020750487,
+      2.211375948871603,
+      0.04575618370825054
+    ],
+    "face_parallel_scale": 0.11093353464564434,
+    "image_shape": [
+      1450,
+      2200,
+      3
+    ],
+    "layout": "2 rows (gain-4, gain-8) x 3 columns (front, 30 degree, mouth)",
+    "mouth_focus": [
+      1.4069556749352747,
+      2.1548284426519975,
+      0.0886334031246092
+    ],
+    "mouth_parallel_scale": 0.04140319668500314,
+    "rows": [
+      "gain-4 (primary candidate)",
+      "gain-8 (extreme reference)"
+    ],
+    "scalar": "SkinYoungModulusMPa",
+    "scale": "linear",
+    "views": [
+      "front",
+      "30 degree",
+      "mouth"
+    ],
+    "window_size": [
+      2200,
+      1450
+    ]
+  },
+  "schema_version": 1,
+  "skin": {
+    "cases": {
+      "gain4": {
+        "area_weighted_mean_MPa": 0.1416524140567568,
+        "baseline_MPa": 0.2,
+        "below_fat_E_cells": 2790,
+        "below_fat_E_rest_area_fraction": 0.06004361816654654,
+        "fat_E_MPa_for_parameter_comparison": 0.003,
+        "floor_MPa": 0.0003,
+        "formula": "s = clip(4 * ExpansionWeight, 0, 1); E = 0.2 * exp(log(0.0003 / 0.2) * s) MPa",
+        "gain": 4.0,
+        "interior_edge_jump_MPa": {
+          "max": 0.18072100425361415,
+          "q95": 0.01886155074199656,
+          "q99": 0.050002224455678146,
+          "rms": 0.010928775296645377
+        },
+        "lambda_plane_stress_MPa": {
+          "area_weighted_mean": 0.09134054860877859,
+          "area_weighted_quantiles": {
+            "q01": 0.00019344650611922618,
+            "q05": 0.001134030903697833,
+            "q25": 0.03646066010202864,
+            "q50": 0.1284742717313175,
+            "q75": 0.1289643374128175,
+            "q95": 0.1289643374128175,
+            "q99": 0.1289643374128175
+          },
+          "area_weighted_rms": 0.10439491402957524,
+          "max": 0.1289643374128175,
+          "min": 0.00019344650611922618
+        },
+        "lambda_plane_stress_sha256_le_f8": "a81d68e81be3b3d43a46960677e71f0ee86e5fbb99e8900d9951e0a10a10e658",
+        "lame_conversion": "plane stress: lambda = E*nu/(1-nu^2); mu = E/(2*(1+nu))",
+        "mu_MPa": {
+          "area_weighted_mean": 0.04753436713313987,
+          "area_weighted_quantiles": {
+            "q01": 0.00010067114093959729,
+            "q05": 0.0005901589396794845,
+            "q25": 0.018974425155137357,
+            "q50": 0.06685905977854278,
+            "q75": 0.06711409395973154,
+            "q95": 0.06711409395973154,
+            "q99": 0.06711409395973154
+          },
+          "area_weighted_rms": 0.054327965464370784,
+          "max": 0.06711409395973154,
+          "min": 0.00010067114093959729
+        },
+        "mu_sha256_le_f8": "7b0bc6ea603c60100050727ca68a8d86faa9a09a8080de33e1c31ad8e9194113",
+        "nu": 0.49,
+        "saturated_cells": 1946,
+        "saturated_rest_area_fraction": 0.03827246051715845,
+        "softening_exponent_sha256_le_f8": "e9578bd43feeb916449bba546c2a737b57087dacab60931623a78776975fe730",
+        "thickness_m": 0.001,
+        "young_MPa": {
+          "area_weighted_mean": 0.1416524140567568,
+          "area_weighted_quantiles": {
+            "q01": 0.0002999999999999999,
+            "q05": 0.001758673640244864,
+            "q25": 0.05654378696230932,
+            "q50": 0.1992399981400575,
+            "q75": 0.2,
+            "q95": 0.2,
+            "q99": 0.2
+          },
+          "area_weighted_rms": 0.16189733708382495,
+          "max": 0.2,
+          "min": 0.0002999999999999999
+        },
+        "young_sha256_le_f8": "84c15003461f3f69e212be9e60d2e99dc8747072f963a48398ab3fb9d16ecc9c"
+      },
+      "gain8": {
+        "area_weighted_mean_MPa": 0.13107545288953745,
+        "baseline_MPa": 0.2,
+        "below_fat_E_cells": 6327,
+        "below_fat_E_rest_area_fraction": 0.18095636594650907,
+        "fat_E_MPa_for_parameter_comparison": 0.003,
+        "floor_MPa": 0.0003,
+        "formula": "s = clip(8 * ExpansionWeight, 0, 1); E = 0.2 * exp(log(0.0003 / 0.2) * s) MPa",
+        "gain": 8.0,
+        "interior_edge_jump_MPa": {
+          "max": 0.196538539401554,
+          "q95": 0.02120283319455208,
+          "q99": 0.061784819377210094,
+          "rms": 0.01330525063967873
+        },
+        "lambda_plane_stress_MPa": {
+          "area_weighted_mean": 0.08452029466492084,
+          "area_weighted_quantiles": {
+            "q01": 0.00019344650611922618,
+            "q05": 0.00019344650611922618,
+            "q25": 0.010308118986571396,
+            "q50": 0.1279860683039647,
+            "q75": 0.1289643374128175,
+            "q95": 0.1289643374128175,
+            "q99": 0.1289643374128175
+          },
+          "area_weighted_rms": 0.10116944973564847,
+          "max": 0.1289643374128175,
+          "min": 0.00019344650611922618
+        },
+        "lambda_plane_stress_sha256_le_f8": "47737694649e4753be1bee9c5b3fa86b7c17265ea3e8d85583befedd487ec3d5",
+        "lame_conversion": "plane stress: lambda = E*nu/(1-nu^2); mu = E/(2*(1+nu))",
+        "mu_MPa": {
+          "area_weighted_mean": 0.04398505130521391,
+          "area_weighted_quantiles": {
+            "q01": 0.00010067114093959729,
+            "q05": 0.00010067114093959729,
+            "q25": 0.005364429268521848,
+            "q50": 0.06660499472961427,
+            "q75": 0.06711409395973154,
+            "q95": 0.06711409395973154,
+            "q99": 0.06711409395973154
+          },
+          "area_weighted_rms": 0.052649407515490534,
+          "max": 0.06711409395973154,
+          "min": 0.00010067114093959729
+        },
+        "mu_sha256_le_f8": "99d925f0b0e0f749532a440028f6c687a4f66bf90cb40551e58edea2a2dfcfd0",
+        "nu": 0.49,
+        "saturated_cells": 3643,
+        "saturated_rest_area_fraction": 0.0873748559185055,
+        "softening_exponent_sha256_le_f8": "2a41c846db9859de82332fd09322c7449807d12ae93435428f98534088a1b356",
+        "thickness_m": 0.001,
+        "young_MPa": {
+          "area_weighted_mean": 0.13107545288953745,
+          "area_weighted_quantiles": {
+            "q01": 0.0002999999999999999,
+            "q05": 0.0002999999999999999,
+            "q25": 0.01598599922019511,
+            "q50": 0.19848288429425054,
+            "q75": 0.2,
+            "q95": 0.2,
+            "q99": 0.2
+          },
+          "area_weighted_rms": 0.1568952343961618,
+          "max": 0.2,
+          "min": 0.0002999999999999999
+        },
+        "young_sha256_le_f8": "d42fa66ea54c47890e184fd8b670a7e80cd5621e337ee81b03f658a8b9821a44"
+      }
+    },
+    "comparison": {
+      "gain4_minus_gain8_area_weighted_mean_E_MPa": 0.010576961167219345,
+      "gain4_minus_gain8_below_fat_E_rest_area_fraction": -0.12091274777996253,
+      "gain4_minus_gain8_saturated_rest_area_fraction": -0.049102395401347046
+    },
+    "source_expansion_weight": {
+      "area_weighted_mean": 0.04177347802603174,
+      "area_weighted_quantiles": {
+        "q01": 0.0,
+        "q05": 0.0,
+        "q25": 0.0,
+        "q50": 0.00014638102799511968,
+        "q75": 0.048571426561410634,
+        "q95": 0.1820034684205868,
+        "q99": 0.5442311328700051
+      },
+      "area_weighted_rms": 0.10243872064748777,
+      "max": 0.7093692747170706,
+      "min": 0.0,
+      "positive_cells": 16770,
+      "positive_rest_area_fraction": 0.5511754194031411,
+      "sha256_le_f8": "68de7dd3189c99100e4648845acf67d37e0d8a3a43d0eec3425df4168cd35910"
+    },
+    "topology": {
+      "boundary_edges": 707,
+      "interior_edges": 44495,
+      "nonmanifold_edges": 0,
+      "points": 15299,
+      "rest_area_m2": 0.04287998059707303,
+      "triangles": 29899
+    }
+  }
+}

@@ -1670,10 +1670,10 @@ dependencies = [
     { name = "scipy" },
 ]
 wheels = [
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5a79340d7a432f2238eecb6005478b05ad5d7b9a6239571133189afe1dc8cd65" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1837ea29db61cdccc46dd5617503a42e39273b6c75e06d70e872b4a67ffdce8a" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b1570bdb4876127f9821ecdd6a2fb4a9743b09776378768e65be7cef7c1186af" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e79760c1f9bb4c7903e59e4ea6b94aa785a1e117d34d4a706ece1d05c2741f31" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9d0e4b5b36680923454bedaef547442fb7106ed5ad2db30710efd480668f8da3" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ffa5006ace16fd3e094817232f16bd710fdeac66e62b6625d6c63932345d16e6" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ad13981a0e045202fdfd4f4bcbb980e4bf56ca6444b249f9300fa1fee56bcc98" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:90eb4e3273690262f0cc913605768c3442db56d0018d8977338e4bc94ec62a3c" },
 ]
 
 [[package]]
@@ -1683,9 +1683,9 @@ source = { registry = "https://pypi.org/simple/" }
 dependencies = [
     { name = "ipctk" },
 ]
-sdist = { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk_stubs-1.6.0.tar.gz", hash = "sha256:d1e64558fc0a68963c2b6a3f04f5d3ffad076fb02be85f653f8cd5eb5d3a255d" }
+sdist = { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk_stubs-1.6.0.tar.gz", hash = "sha256:0ab318f2095036f472173327a40b71a102bfb1d124238eb15985da000208e498" }
 wheels = [
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk_stubs-1.6.0-py3-none-any.whl", hash = "sha256:fc32f251f8678080de0c2c77f24545f48f17613c996fb73c99617dac50ff2887" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk_stubs-1.6.0-py3-none-any.whl", hash = "sha256:6169c5605184f945f17bff8f750e3bf195e58e89e897062b59157eb91aabbbe1" },
 ]
 
 [[package]]

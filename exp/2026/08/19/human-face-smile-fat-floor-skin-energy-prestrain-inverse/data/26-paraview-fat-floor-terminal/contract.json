@@ -1,0 +1,179 @@
+{
+  "case_order": [
+    "H1P0",
+    "HFP0",
+    "H1P1",
+    "HFP1"
+  ],
+  "comparison": "terminal step-40 result files in exact order H1P0 E=0, HFP0 E=.003, H1P1 E=0+c020, HFP1 E=.003+c020",
+  "complete": true,
+  "design": "fat-floor-terminal-native-paraview-comparison-v1",
+  "image_resolution": [
+    4000,
+    3000
+  ],
+  "inputs": {
+    "H1P0": {
+      "case_id": "H1P0",
+      "display_label": "H1P0 | E=0 expansion",
+      "material_label": "p000 (no skin prestrain)",
+      "metric_label": "step=40 | err=1.438 mm\nLres=0.255 mm | folds=39",
+      "metrics": {
+        "best_step": 40,
+        "error_rms_mm": 1.4379112191552172,
+        "folded_triangles": 39,
+        "residual_laplacian_rms_mm": 0.2552416690878734
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/h1p0.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "2f1787095a09b236c179c3cf782752beb3b11b0156888e4ec5acbc79cd508ff9",
+        "GlobalPointId": "4bc8307ab884b47d37e2bf1813512c02ef263b8aca4fbf14af59d870e16b5540",
+        "ResidualDisplacementMM": "8f6318bba4272d27db64cb9c9306c7c2fcbfd91a2adfe66c322649b2ada8a06d",
+        "TargetDisplacementMM": "4f1dab2d6d8da7f1e41e1cd651aa88de223001c411423450b3751a59a12306ad",
+        "TargetNormalResidualMM": "9f11ba10fef68aa8adc8d60a395673851aac192e06a1d37fa6c5a8e16d5afc9d"
+      },
+      "sha256": "3677dbcbfc470e40c8780786495b94e8e7a183946c4c1ae834ca8499fa9d3cc4",
+      "size_bytes": 2634871
+    },
+    "H1P1": {
+      "case_id": "H1P1",
+      "display_label": "H1P1 | E=0 expansion",
+      "material_label": "c020 skin prestrain",
+      "metric_label": "step=40 | err=1.414 mm\nLres=0.225 mm | folds=16",
+      "metrics": {
+        "best_step": 40,
+        "error_rms_mm": 1.4142079515504593,
+        "folded_triangles": 16,
+        "residual_laplacian_rms_mm": 0.22461002217098447
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/h1p1.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "2c3f0992b9ad9dd53da8051b426ca5ef068a32d831cbe6263aba2b798f2e40a8",
+        "GlobalPointId": "4bc8307ab884b47d37e2bf1813512c02ef263b8aca4fbf14af59d870e16b5540",
+        "ResidualDisplacementMM": "8ec00cd17f4afcdc79b6d635c342a525808cd53dae614e18d406697f892565ee",
+        "TargetDisplacementMM": "4f1dab2d6d8da7f1e41e1cd651aa88de223001c411423450b3751a59a12306ad",
+        "TargetNormalResidualMM": "a2e47ad3265d74d364d4f4a3976854e8f3466021b5f242cbeb094588d558bb92"
+      },
+      "sha256": "8cc8db8580c73b6f42f6db1174745c2bf883acd55e6f7175823f53c6eb0df506",
+      "size_bytes": 2634135
+    },
+    "HFP0": {
+      "case_id": "HFP0",
+      "display_label": "HFP0 | E=.003 expansion",
+      "material_label": "p000 (no skin prestrain)",
+      "metric_label": "step=40 | err=1.481 mm\nLres=0.230 mm | folds=28",
+      "metrics": {
+        "best_step": 40,
+        "error_rms_mm": 1.4810806710478472,
+        "folded_triangles": 28,
+        "residual_laplacian_rms_mm": 0.2298533499959565
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp0.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "156d388250761db8cb0f12f600cae8321938dd632545a863b8b3d52e200f7d77",
+        "GlobalPointId": "4bc8307ab884b47d37e2bf1813512c02ef263b8aca4fbf14af59d870e16b5540",
+        "ResidualDisplacementMM": "00dc63252dafb124286988f68d6c6da86f10055806876f88d6da06d1990db8fb",
+        "TargetDisplacementMM": "4f1dab2d6d8da7f1e41e1cd651aa88de223001c411423450b3751a59a12306ad",
+        "TargetNormalResidualMM": "7d1bd3a25ab46390a542b7de747102f7004a483b127228b1b78e4272eaaa3784"
+      },
+      "sha256": "a99569a63761a4d76c1f94b01ec4a456700d0eaa6abca0100eb1e1d98ef12861",
+      "size_bytes": 2634952
+    },
+    "HFP1": {
+      "case_id": "HFP1",
+      "display_label": "HFP1 | E=.003 expansion",
+      "material_label": "c020 skin prestrain",
+      "metric_label": "step=40 | err=1.442 mm\nLres=0.181 mm | folds=10",
+      "metrics": {
+        "best_step": 40,
+        "error_rms_mm": 1.4418596049287227,
+        "folded_triangles": 10,
+        "residual_laplacian_rms_mm": 0.1809334835776836
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp1.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "6f838995ad57860e253c08026ec8a8a5a0a48d9fed5ba04261931894df8a56ed",
+        "GlobalPointId": "4bc8307ab884b47d37e2bf1813512c02ef263b8aca4fbf14af59d870e16b5540",
+        "ResidualDisplacementMM": "a4154f1008c16dc0549d47d1a2f66bc3b3e477bf30612aead91e5582571b28f5",
+        "TargetDisplacementMM": "4f1dab2d6d8da7f1e41e1cd651aa88de223001c411423450b3751a59a12306ad",
+        "TargetNormalResidualMM": "22c3a5518090f6e4cc3d8c0b0c4228d30853967f07ddda7f2998ef7ef264f478"
+      },
+      "sha256": "a595a874ca4ce42c2884a8f6c7705e857cfbe51531a44537ea0c49020972249f",
+      "size_bytes": 2634336
+    }
+  },
+  "mode_order": [
+    "geometry",
+    "normal-residual"
+  ],
+  "normal_residual_shared_limit_definition": "max(0.25 mm, pooled absolute 99th percentile) across H1P0/HFP0/H1P1/HFP1",
+  "normal_residual_shared_limit_mm": 2.9357310786150785,
+  "renderer": "ParaView 6.1.1 native geometry and scalar rendering only; no PyVista rendering",
+  "schema_version": 1,
+  "surface_domain": {
+    "expanding_triangles": 16723,
+    "name": "IsFace",
+    "points": 15299,
+    "triangles": 29899
+  },
+  "view_order": [
+    "front",
+    "30-degree",
+    "mouth",
+    "eye-cheek+x"
+  ],
+  "views": {
+    "30-degree": {
+      "direction": [
+        0.5,
+        0.0,
+        0.8660254037844386
+      ],
+      "focus": [
+        1.4070500020750487,
+        2.211375948871603,
+        0.04575618370825054
+      ],
+      "parallel_scale": 0.11093353464564434
+    },
+    "eye-cheek+x": {
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "focus": [
+        1.4403185318729945,
+        2.2049470311062636,
+        0.07565261485527228
+      ],
+      "parallel_scale": 0.047542943419561855
+    },
+    "front": {
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "focus": [
+        1.4070500020750487,
+        2.211375948871603,
+        0.04575618370825054
+      ],
+      "parallel_scale": 0.11093353464564434
+    },
+    "mouth": {
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "focus": [
+        1.4069141934663727,
+        2.1544171188314287,
+        0.08874689588584184
+      ],
+      "parallel_scale": 0.042199354270817946
+    }
+  }
+}

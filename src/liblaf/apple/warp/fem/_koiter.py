@@ -30,11 +30,6 @@ def _make_activation_mat22(activation: vec3) -> mat22:
 
 
 @wp.func
-def _det2(A: mat22) -> floating:
-    return A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
-
-
-@wp.func
 @no_type_check
 def _metric(a: vec3, b: vec3) -> vec3:
     return wp.vector(wp.dot(a, a), wp.dot(a, b), wp.dot(b, b))
@@ -47,16 +42,10 @@ def _metric_inv(materials: Materials, cid: int) -> mat22:
 
 
 @wp.func
-def _metric_sqrt_det(materials: Materials, cid: int) -> floating:
-    A_inv = _make_activation_mat22(materials.activation_inv[cid])
-    return materials.rest_metric_sqrt_det[cid] / _det2(A_inv)
-
-
-@wp.func
 def _energy_weight(materials: Materials, cid: int, thickness: floating) -> floating:
     fraction = materials.fraction[cid]
     h = fraction.dtype(thickness)
-    return h * fraction * _metric_sqrt_det(materials, cid) / fraction.dtype(8.0)
+    return h * fraction * materials.rest_metric_sqrt_det[cid] / fraction.dtype(8.0)
 
 
 @wp.func
@@ -390,6 +379,17 @@ def _check_cell_vec3(region: Region, values: np.ndarray, name: str) -> None:
 
 @attrs.define
 class Koiter(WarpPotential):
+    """Metric membrane with caller-supplied effective in-plane Lamé moduli.
+
+    ``Lambda`` and ``Mu`` are not reduced internally. When they originate from
+    3D Young's modulus and Poisson's ratio for a thin membrane, callers should
+    apply a plane-stress conversion before constructing this potential.
+
+    ``ActivationInv`` changes the stress-free metric while the energy remains
+    integrated over the original triangle reference area. It does not change
+    the amount of membrane material represented by a triangle.
+    """
+
     class Materials(WarpPotential.Materials):
         activation_inv: wp.array
         fraction: wp.array

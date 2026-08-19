@@ -1,5 +1,13 @@
 # Human Face Smile Prestrain v2 Final Comparison
 
+> **Historical-model result (superseded as a thin-skin baseline, 2026-08-18).**
+> The skin-enabled runs are preserved unchanged for reporting. They used a
+> full-subset-boundary Koiter membrane, 3D Lamé coefficients in the 2D membrane,
+> and an activation-dependent energy weight for nonzero prestrain. Their
+> quantitative skin comparisons require validation under the corrected
+> all-vertex-`IsFace`, plane-stress, fixed-reference-area model. The `no-skin`
+> result is unaffected.
+
 ## Purpose
 
 This experiment checks whether the estimated skin prestrain is reasonable for the Smile target, then compares inverse activation runs after scaling the optimizer loss by `1e6` into `loss_mm2`. The final additional test is the requested no-skin run at Adam `lr=0.3`.

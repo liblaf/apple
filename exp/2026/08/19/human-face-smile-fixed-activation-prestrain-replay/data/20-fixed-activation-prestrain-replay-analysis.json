@@ -1,0 +1,475 @@
+{
+  "advisory_decision": {
+    "advisory_only": true,
+    "alpha0_delta": {
+      "full_rms_m": 8.072585557501384e-07,
+      "isface_fraction_of_target": 0.00017420016666276023,
+      "isface_rms_m": 9.251169307692158e-07,
+      "loss_mask_fraction_of_target": 0.0001742000137131203,
+      "loss_mask_rms_m": 9.25026297471199e-07
+    },
+    "alpha0_roughness_ratios_to_canonical": {
+      "bumpiness/contraction_target_relative_dihedral_rms_deg": 0.9999976766083406,
+      "bumpiness/residual_normal_laplacian_rms_m": 0.9999952286258311
+    },
+    "alpha0_roughness_stable": true,
+    "alpha0_stable": true,
+    "branch_delta_continuation_vs_direct": {
+      "full_rms_m": 6.553523017248874e-05,
+      "isface_fraction_of_target": 0.01851330084963705,
+      "isface_rms_m": 9.831774784452417e-05,
+      "loss_mask_fraction_of_target": 0.0185132886636478,
+      "loss_mask_rms_m": 9.830813730446804e-05
+    },
+    "branch_stable": false,
+    "fidelity_acceptable": true,
+    "final_c020_sufficiency_visual_rule": "smoothing must be visible in at least three of the four fixed views (front, 30 degree, mouth, eye-cheek) with no new visible artifact",
+    "meaningful_smoothing": true,
+    "not_inverse_authorization": true,
+    "outcome": "stop-c020-replay-or-branch-failure-do-not-escalate",
+    "quality_policy": "reported for matched visual review; small visually imperceptible folds or inversions are not automatic vetoes",
+    "quality_warnings": {
+      "continuation": [
+        "minimum det(F) is lower than the exact baseline"
+      ],
+      "direct": [
+        "minimum det(F) is lower than the exact baseline"
+      ]
+    },
+    "reason": "c=.02 did not reproduce the canonical alpha-0 roughness/branch within the declared tolerances; c=.05 must not be run until this is resolved",
+    "smoothing_response": {
+      "continuation": {
+        "both_improve_at_least_5_percent": true,
+        "one_improves_at_least_10_percent_other_worsens_at_most_1_percent": true,
+        "passes": true,
+        "ratios_to_alpha0": {
+          "bumpiness/contraction_target_relative_dihedral_rms_deg": 0.4791739153779599,
+          "bumpiness/residual_normal_laplacian_rms_m": 0.8310096064512397
+        }
+      },
+      "direct": {
+        "both_improve_at_least_5_percent": true,
+        "one_improves_at_least_10_percent_other_worsens_at_most_1_percent": true,
+        "passes": true,
+        "ratios_to_alpha0": {
+          "bumpiness/contraction_target_relative_dihedral_rms_deg": 0.4859257096397442,
+          "bumpiness/residual_normal_laplacian_rms_m": 0.8297805786163749
+        }
+      }
+    },
+    "target_error_ratios_to_alpha0": {
+      "continuation": 1.0212475382722694,
+      "direct": 1.0211982068540488
+    },
+    "threshold_basis": "deterministic engineering effect sizes, not statistical significance: on both continuation and direct alpha-1 branches, either both primary Bumpy metrics improve by at least 5%, or one improves by at least 10% while the other worsens by at most 1%; target RMS may worsen by at most 5% relative to alpha-0; alpha-0 canonical roughness tolerance is 1%; SmileLossMask and IsFace replay/branch tolerances are 1e-3 of their corresponding target RMS",
+    "visual_review_fields": {
+      "fixed_views": [
+        "front",
+        "30 degree",
+        "mouth",
+        "eye-cheek (+x)"
+      ],
+      "record_any_new_visible_artifact": true,
+      "record_smoothing_visible_per_view": true
+    },
+    "visual_review_required": true,
+    "visual_review_resolution_rules": {
+      "c020_sufficient": "quantitative smoothing and fit pass, smoothing is visible in at least 3/4 fixed views, and no new visible artifact is present",
+      "c050_conditionally_required": "replay, branch, and fit pass and no new visible artifact is present, but either the quantitative smoothing rule fails or smoothing is visible in fewer than 3/4 fixed views; obtain separate approval and use a separate c=.05 forward-only producer",
+      "stop_do_not_escalate": "any replay, branch, solver, fixed-boundary, or fit failure, or any new visible artifact"
+    },
+    "visual_review_status": "pending"
+  },
+  "baseline": {
+    "bumpiness/contraction_target_relative_dihedral_rms_deg": 13.328980970609415,
+    "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.23263460387280382,
+    "bumpiness/displacement_laplacian_rms_m": 0.00017841926021157684,
+    "bumpiness/residual_laplacian_rms_m": 0.00019319739479828476,
+    "bumpiness/residual_normal_laplacian_rms_m": 0.0002170610984016332,
+    "fixed/displacement_exact_zero": true,
+    "fixed/displacement_max_abs_m": 0.0,
+    "quality/detF_min": -1.2139762125178772,
+    "quality/detF_q001": 0.35221040842433876,
+    "quality/inverted_tet_fraction": 4.099372272718154e-05,
+    "quality/inverted_tets": 47,
+    "quality/skin_area_ratio_q001": 0.8867637869603208,
+    "quality/skin_area_ratio_q999": 1.1663204084384327,
+    "quality/skin_folded_rest_area_fraction": 0.00015550920309218068,
+    "quality/skin_folded_triangle_fraction": 0.0008361483661660926,
+    "quality/skin_folded_triangles": 25,
+    "quality/skin_signed_normal_ratio_q001": 0.18225094823012913,
+    "quality/skin_signed_normal_ratio_q999": 1.1056660197232155,
+    "target/error_rms_fraction_of_target": 0.5124062087322062,
+    "target/error_rms_m": 0.0027209482247538275,
+    "target/error_rms_mm": 2.7209482247538275,
+    "target/face_rest_area_weighted_error_rms_m": 0.0026232176987998415,
+    "target/face_target_area_weighted_error_rms_m": 0.0026592115346428433
+  },
+  "branch_readback": {
+    "full_rms_m": 6.553523017248874e-05,
+    "isface_fraction_of_target": 0.01851330084963705,
+    "isface_rms_m": 9.831774784452417e-05,
+    "loss_mask_fraction_of_target": 0.0185132886636478,
+    "loss_mask_rms_m": 9.830813730446804e-05
+  },
+  "complete": true,
+  "design": "corrected-isface-fixed-activation-c020-prestrain-replay",
+  "execution_contract": {
+    "adjoint_started": false,
+    "c050_started": false,
+    "forward_started": false,
+    "inverse_started": false,
+    "muscle_activation_optimized": false,
+    "readback_and_render_only": true
+  },
+  "input_provenance": {
+    "canonical_metric_skin": {
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    },
+    "result": {
+      "sha256": "c6a0b183675ffb3ec537c1153544b041acd7aa0fdd5216c0cf9a50022d52b0a4",
+      "size_bytes": 147657021
+    },
+    "skin": {
+      "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+      "size_bytes": 1138550
+    },
+    "summary": {
+      "sha256": "575ebcbd7152a256917c2a11a9bf9bef9046f00f9831e18adc86d41645be1856",
+      "size_bytes": 126540
+    }
+  },
+  "interpretation": "same fixed optimized muscle activation in every checkpoint; alpha only scales the prescribed skin prestrain in log natural-area space; this is a forward mechanism replay, not an inverse result",
+  "inverse_eligibility": {
+    "eligible": false,
+    "required_next_action": "human review of both fixed-view sheets; if and only if the advisory decision requests c=.05, obtain explicit approval for a separate c=.05 fixed-activation forward producer/run",
+    "status": "not-assessed-by-this-forward-only-analysis"
+  },
+  "kind": "fixed-activation-prestrain-replay-static-readback-analysis",
+  "metric_contract": {
+    "all_metrics_recomputed_from_saved_result_meshes": true,
+    "contraction_mask_sha256": "e651bd347500222c2aef3008bf4ee45c2be4b31a45cd5286e5ab52a9d948a9a5",
+    "contraction_roi": "canonical ContractionPrestrainMask from the pinned 2026-08-17 metric skin, mapped by sorted GlobalPointId triangle keys",
+    "primary_bumpiness": [
+      "bumpiness/contraction_target_relative_dihedral_rms_deg",
+      "bumpiness/residual_normal_laplacian_rms_m"
+    ],
+    "producer_scalar_fields_trusted_without_readback": false,
+    "target_fidelity": [
+      "target/error_rms_fraction_of_target",
+      "target/face_target_area_weighted_error_rms_m"
+    ]
+  },
+  "outputs": {
+    "csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-replay-trajectories.csv",
+    "geometry_views": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-terminal-geometry.png",
+    "quality_plot": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-quality-trajectories.png",
+    "report": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-replay-analysis.md",
+    "residual_views": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-terminal-normal-residual.png",
+    "trajectory_plot": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/20-fixed-activation-prestrain-alpha-trajectories.png"
+  },
+  "producer_contract": {
+    "advisory_thresholds": {
+      "alpha0_delta_fraction_of_target_tolerance": 0.001,
+      "alpha0_roughness_relative_tolerance": 0.01,
+      "both_bumpiness_improvement_fraction": 0.05,
+      "branch_delta_fraction_of_target_tolerance": 0.001,
+      "max_target_error_relative_increase": 0.05,
+      "paired_bumpiness_max_regression_fraction": 0.01,
+      "single_bumpiness_improvement_fraction": 0.1
+    },
+    "execution_contract": {
+      "activation_optimized": false,
+      "adjoint_started": false,
+      "backward_started": false,
+      "fixed_muscle_activation": true,
+      "forward_only": true,
+      "forward_solves": 6,
+      "inverse_started": false
+    },
+    "producer_sha256": "231668ac7963bd7eff14705a94125ad8396d8886e0d34a152a4f51253f32c7f6"
+  },
+  "protocol": {
+    "alpha0_reference": "numerical replay compared to exact corrected baseline",
+    "alpha1_direct": "seeded from the exact corrected baseline displacement",
+    "alpha_formula": "rho_full=(1-c)^2*clip(R,0.5,1); rho_alpha=rho_full**alpha; Ainv_diag=rho_alpha**(-1/2)-1",
+    "case_id": "c020",
+    "constant_linear_tightening": 0.02,
+    "continuation_alphas": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "raw_area_ratio_floor": 0.5
+  },
+  "schema_version": 1,
+  "trajectory": [
+    {
+      "alpha": 0.0,
+      "case_id": "c020-continuation-alpha-000",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 8.072585557501384e-07,
+        "isface_fraction_of_target": 0.00017420016666276023,
+        "isface_rms_m": 9.251169307692158e-07,
+        "loss_mask_fraction_of_target": 0.0001742000137131203,
+        "loss_mask_rms_m": 9.25026297471199e-07
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 13.328950002166199,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.2326340633715055,
+        "bumpiness/displacement_laplacian_rms_m": 0.0001784185501063704,
+        "bumpiness/residual_laplacian_rms_m": 0.00019319644743604806,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.0002170600627219152,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.0,
+        "material/activation_sha256_le_f8": "051fe4599913dc590cb39aa79f7bb51578efc3323cd9c0a337be804d12d8f224",
+        "material/rho_area_weighted_mean": 0.9999999999999999,
+        "material/rho_min": 1.0,
+        "material/rho_sha256_le_f8": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+        "quality/detF_min": -1.2139917034207488,
+        "quality/detF_q001": 0.3522077642445671,
+        "quality/inverted_tet_fraction": 4.099372272718154e-05,
+        "quality/inverted_tets": 47,
+        "quality/skin_area_ratio_q001": 0.8867648794788575,
+        "quality/skin_area_ratio_q999": 1.1663209702780077,
+        "quality/skin_folded_rest_area_fraction": 0.00015550920309218068,
+        "quality/skin_folded_triangle_fraction": 0.0008361483661660926,
+        "quality/skin_folded_triangles": 25,
+        "quality/skin_signed_normal_ratio_q001": 0.1817498534454332,
+        "quality/skin_signed_normal_ratio_q999": 1.1056663451963638,
+        "target/error_rms_fraction_of_target": 0.5124105047846714,
+        "target/error_rms_m": 0.0027209710373898364,
+        "target/error_rms_mm": 2.7209710373898366,
+        "target/face_rest_area_weighted_error_rms_m": 0.0026232536260395365,
+        "target/face_target_area_weighted_error_rms_m": 0.0026592530149085187
+      },
+      "path_kind": "continuation",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-000/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-000/skin.vtp"
+    },
+    {
+      "alpha": 0.25,
+      "case_id": "c020-continuation-alpha-025",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 0.00011387321158147287,
+        "isface_fraction_of_target": 0.03800181417973824,
+        "isface_rms_m": 0.000201814512414798,
+        "loss_mask_fraction_of_target": 0.03800234031978431,
+        "loss_mask_rms_m": 0.00020179771179089693
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 10.687049506172045,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.18652420120633623,
+        "bumpiness/displacement_laplacian_rms_m": 0.00015346331764959448,
+        "bumpiness/residual_laplacian_rms_m": 0.00016998995140879168,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.0002019204752796618,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.09602946731353534,
+        "material/activation_sha256_le_f8": "14b62c9f14ecd3a553a27583b1c035d8ae4f0fd7c785afdd4095d2c776225e20",
+        "material/rho_area_weighted_mean": 0.9804565880991659,
+        "material/rho_min": 0.8324449805019047,
+        "material/rho_sha256_le_f8": "91450614bbdd5cb1ee8b8b4588cfc870558886c5ee30eaf35837687318cb8842",
+        "quality/detF_min": -1.2193821961183051,
+        "quality/detF_q001": 0.351472000033979,
+        "quality/inverted_tet_fraction": 4.2738136460253094e-05,
+        "quality/inverted_tets": 49,
+        "quality/skin_area_ratio_q001": 0.8401317574635107,
+        "quality/skin_area_ratio_q999": 1.1598018055739805,
+        "quality/skin_folded_rest_area_fraction": 5.402877288368894e-05,
+        "quality/skin_folded_triangle_fraction": 0.0007358105622261614,
+        "quality/skin_folded_triangles": 22,
+        "quality/skin_signed_normal_ratio_q001": 0.2537197374238624,
+        "quality/skin_signed_normal_ratio_q999": 1.0992303864524573,
+        "target/error_rms_fraction_of_target": 0.517340717477009,
+        "target/error_rms_m": 0.002747151152392865,
+        "target/error_rms_mm": 2.747151152392865,
+        "target/face_rest_area_weighted_error_rms_m": 0.002649880807346454,
+        "target/face_target_area_weighted_error_rms_m": 0.0026863230723400654
+      },
+      "path_kind": "continuation",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-025/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-025/skin.vtp"
+    },
+    {
+      "alpha": 0.5,
+      "case_id": "c020-continuation-alpha-050",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 0.00020193572598383233,
+        "isface_fraction_of_target": 0.07727596852300712,
+        "isface_rms_m": 0.00041038598407670503,
+        "loss_mask_fraction_of_target": 0.07727701046251098,
+        "loss_mask_rms_m": 0.000410351671874729
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 8.625589558547336,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.1505449377222952,
+        "bumpiness/displacement_laplacian_rms_m": 0.00013575101706170327,
+        "bumpiness/residual_laplacian_rms_m": 0.00015385035620236638,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.00019247584937712783,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.20128059321959224,
+        "material/activation_sha256_le_f8": "8db4f5203811b445be947a117d748a3a461dc6077b87f5969c435a1464ea147d",
+        "material/rho_area_weighted_mean": 0.9617449097287849,
+        "material/rho_min": 0.6929646455628166,
+        "material/rho_sha256_le_f8": "6c8ec3bc8ed846086c6951478ee913b98dc53c4a3daee0e8e4a5606b9193a4d4",
+        "quality/detF_min": -1.2356086497888261,
+        "quality/detF_q001": 0.3507615488452399,
+        "quality/inverted_tet_fraction": 4.186592959371732e-05,
+        "quality/inverted_tets": 48,
+        "quality/skin_area_ratio_q001": 0.7612551040226441,
+        "quality/skin_area_ratio_q999": 1.1489708114220296,
+        "quality/skin_folded_rest_area_fraction": 5.402877288368894e-05,
+        "quality/skin_folded_triangle_fraction": 0.0007358105622261614,
+        "quality/skin_folded_triangles": 22,
+        "quality/skin_signed_normal_ratio_q001": 0.30514790335896885,
+        "quality/skin_signed_normal_ratio_q999": 1.0949665226191225,
+        "target/error_rms_fraction_of_target": 0.520082085828992,
+        "target/error_rms_m": 0.0027617081995628817,
+        "target/error_rms_mm": 2.761708199562882,
+        "target/face_rest_area_weighted_error_rms_m": 0.0026612449160683736,
+        "target/face_target_area_weighted_error_rms_m": 0.002698259350101338
+      },
+      "path_kind": "continuation",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-050/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-050/skin.vtp"
+    },
+    {
+      "alpha": 0.75,
+      "case_id": "c020-continuation-alpha-075",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 0.0002794035508152037,
+        "isface_fraction_of_target": 0.11015807583180276,
+        "isface_rms_m": 0.0005850115012246173,
+        "loss_mask_fraction_of_target": 0.11015975947695457,
+        "loss_mask_rms_m": 0.0005849636418921258
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 7.410426321065272,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.12933633827903943,
+        "bumpiness/displacement_laplacian_rms_m": 0.00012419035826720552,
+        "bumpiness/residual_laplacian_rms_m": 0.00014328874308295667,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.0001857310350900254,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.31663892868055754,
+        "material/activation_sha256_le_f8": "5ca3cefaae0f83c9ff5749d306aea799329f2c8413acee5d13dc861c18f4459e",
+        "material/rho_area_weighted_mean": 0.9438003158697353,
+        "material/rho_min": 0.5768549408640481,
+        "material/rho_sha256_le_f8": "062d9dfce22c8c7a409fb5b3f2dd32cb9e51b767f36a7aeb32fc40a4d6ed461a",
+        "quality/detF_min": -1.261331722633055,
+        "quality/detF_q001": 0.3502752843509936,
+        "quality/inverted_tet_fraction": 4.2738136460253094e-05,
+        "quality/inverted_tets": 49,
+        "quality/skin_area_ratio_q001": 0.6649719696821199,
+        "quality/skin_area_ratio_q999": 1.1446722280936275,
+        "quality/skin_folded_rest_area_fraction": 5.402877288368894e-05,
+        "quality/skin_folded_triangle_fraction": 0.0007358105622261614,
+        "quality/skin_folded_triangles": 22,
+        "quality/skin_signed_normal_ratio_q001": 0.3261878854692412,
+        "quality/skin_signed_normal_ratio_q999": 1.0934615680055209,
+        "target/error_rms_fraction_of_target": 0.5198659195507216,
+        "target/error_rms_m": 0.002760560326564686,
+        "target/error_rms_mm": 2.760560326564686,
+        "target/face_rest_area_weighted_error_rms_m": 0.0026546556597352748,
+        "target/face_target_area_weighted_error_rms_m": 0.0026931297065658348
+      },
+      "path_kind": "continuation",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-075/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-075/skin.vtp"
+    },
+    {
+      "alpha": 1.0,
+      "case_id": "c020-continuation-alpha-100",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 0.0003722117595294531,
+        "isface_fraction_of_target": 0.15209744078216186,
+        "isface_rms_m": 0.0008077369860767538,
+        "loss_mask_fraction_of_target": 0.1520999060946778,
+        "loss_mask_rms_m": 0.0008076716527254783
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 6.386885160415044,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.11147217499600873,
+        "bumpiness/displacement_laplacian_rms_m": 0.00011449655232846405,
+        "bumpiness/residual_laplacian_rms_m": 0.00013436951250592332,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.00018037899729882016,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.44307506364601545,
+        "material/activation_sha256_le_f8": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+        "material/rho_area_weighted_mean": 0.9265646717354555,
+        "material/rho_min": 0.48019999999999996,
+        "material/rho_sha256_le_f8": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+        "quality/detF_min": -1.2828422853385315,
+        "quality/detF_q001": 0.35051310280887193,
+        "quality/inverted_tet_fraction": 4.012151586064576e-05,
+        "quality/inverted_tets": 46,
+        "quality/skin_area_ratio_q001": 0.5785790911380168,
+        "quality/skin_area_ratio_q999": 1.1243548294693604,
+        "quality/skin_folded_rest_area_fraction": 4.208513572695069e-05,
+        "quality/skin_folded_triangle_fraction": 0.0005351349543462992,
+        "quality/skin_folded_triangles": 16,
+        "quality/skin_signed_normal_ratio_q001": 0.33446529153403204,
+        "quality/skin_signed_normal_ratio_q999": 1.0931769217015657,
+        "target/error_rms_fraction_of_target": 0.5232979665961965,
+        "target/error_rms_m": 0.0027787849736445134,
+        "target/error_rms_mm": 2.7787849736445134,
+        "target/face_rest_area_weighted_error_rms_m": 0.0026674867821647142,
+        "target/face_target_area_weighted_error_rms_m": 0.0027057277055325423
+      },
+      "path_kind": "continuation",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-100/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-100/skin.vtp"
+    },
+    {
+      "alpha": 1.0,
+      "case_id": "c020-direct-alpha-100",
+      "delta_vs_exact_baseline": {
+        "full_rms_m": 0.0003708551875802377,
+        "isface_fraction_of_target": 0.15012129832704424,
+        "isface_rms_m": 0.0007972423758943172,
+        "loss_mask_fraction_of_target": 0.15012376720986031,
+        "loss_mask_rms_m": 0.0007971780804406795
+      },
+      "metrics": {
+        "bumpiness/contraction_target_relative_dihedral_rms_deg": 6.47687948855528,
+        "bumpiness/contraction_target_relative_dihedral_rms_rad": 0.11304287233017603,
+        "bumpiness/displacement_laplacian_rms_m": 0.00011462911137141947,
+        "bumpiness/residual_laplacian_rms_m": 0.000134564188004634,
+        "bumpiness/residual_normal_laplacian_rms_m": 0.00018011222443989743,
+        "fixed/displacement_exact_zero": true,
+        "fixed/displacement_max_abs_m": 0.0,
+        "material/activation_diag_max": 0.44307506364601545,
+        "material/activation_sha256_le_f8": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+        "material/rho_area_weighted_mean": 0.9265646717354555,
+        "material/rho_min": 0.48019999999999996,
+        "material/rho_sha256_le_f8": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+        "quality/detF_min": -1.2907293828343458,
+        "quality/detF_q001": 0.3501101937063386,
+        "quality/inverted_tet_fraction": 4.012151586064576e-05,
+        "quality/inverted_tets": 46,
+        "quality/skin_area_ratio_q001": 0.5786282183791116,
+        "quality/skin_area_ratio_q999": 1.1278619365490319,
+        "quality/skin_folded_rest_area_fraction": 4.046911956557869e-05,
+        "quality/skin_folded_triangle_fraction": 0.0006020268236395866,
+        "quality/skin_folded_triangles": 18,
+        "quality/skin_signed_normal_ratio_q001": 0.34487534398929603,
+        "quality/skin_signed_normal_ratio_q999": 1.0942629342483878,
+        "target/error_rms_fraction_of_target": 0.5232726886592844,
+        "target/error_rms_m": 0.0027786507442843023,
+        "target/error_rms_mm": 2.7786507442843025,
+        "target/face_rest_area_weighted_error_rms_m": 0.0026674078393213205,
+        "target/face_target_area_weighted_error_rms_m": 0.002707360278802338
+      },
+      "path_kind": "direct",
+      "result_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/direct/alpha-100/result.vtu",
+      "skin_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/direct/alpha-100/skin.vtp"
+    }
+  ]
+}

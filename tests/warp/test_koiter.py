@@ -54,6 +54,37 @@ def _make_mesh(*, use_activation: bool = False) -> pv.PolyData:
     return mesh
 
 
+def _make_unit_triangle_mesh(
+    *,
+    lambda_: float,
+    mu: float,
+    fraction: float = 1.0,
+    activation_inv: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    global_point_ids: tuple[int, int, int] = (0, 1, 2),
+) -> pv.PolyData:
+    from liblaf.apple.common import (
+        ACTIVATION_INV,
+        FRACTION,
+        GLOBAL_POINT_ID,
+        LAMBDA,
+        MU,
+    )
+
+    mesh = pv.PolyData(
+        np.array(
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+            dtype=np.float64,
+        ),
+        np.array([3, 0, 1, 2], dtype=np.int64),
+    )
+    mesh.point_data[GLOBAL_POINT_ID.vtk] = np.asarray(global_point_ids, dtype=np.int32)
+    mesh.cell_data[LAMBDA.vtk] = np.array([lambda_], dtype=np.float64)
+    mesh.cell_data[MU.vtk] = np.array([mu], dtype=np.float64)
+    mesh.cell_data[FRACTION.vtk] = np.array([fraction], dtype=np.float64)
+    mesh.cell_data[ACTIVATION_INV.vtk] = np.asarray([activation_inv], dtype=np.float64)
+    return mesh
+
+
 def _from_torch_vec3(x: torch.Tensor) -> wp.array:
     floating = wp.dtype_from_torch(x.dtype)
     return wp.from_torch(x, dtype=wp.types.vector(3, floating))
@@ -137,6 +168,157 @@ def test_koiter_zero_activation_has_zero_rest_energy() -> None:
     )
     torch.testing.assert_close(
         _grad(potential, u), torch.zeros_like(u), atol=1e-14, rtol=0.0
+    )
+
+
+def test_koiter_homogeneous_patch_matches_analytic_membrane_energy() -> None:
+    from liblaf.apple import common
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    lambda_t, mu_t = common.lame_converter_plane_stress(0.2, 0.49)
+    lambda_ = float(lambda_t)
+    mu = float(mu_t)
+    thickness = 0.001
+    fraction = 0.7
+    stretch_x = 1.08
+    stretch_y = 0.96
+    mesh = _make_unit_triangle_mesh(lambda_=lambda_, mu=mu, fraction=fraction)
+    potential = Koiter.from_pyvista(mesh, thickness=thickness)
+    u = torch.tensor(
+        [[0.0, 0.0, 0.0], [stretch_x - 1.0, 0.0, 0.0], [0.0, stretch_y - 1.0, 0.0]],
+        dtype=torch.float64,
+    )
+
+    m_x = stretch_x**2 - 1.0
+    m_y = stretch_y**2 - 1.0
+    density = 0.5 * lambda_ * (m_x + m_y) ** 2 + mu * (m_x**2 + m_y**2)
+    expected = thickness * fraction * density / 8.0
+
+    torch.testing.assert_close(
+        _fun(potential, u),
+        torch.tensor(expected, dtype=u.dtype),
+        rtol=1.0e-7,
+        atol=1.0e-15,
+    )
+
+
+def test_koiter_prestrain_patch_has_zero_energy_at_natural_metric() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    inverse_stretch = 1.3
+    mesh = _make_unit_triangle_mesh(
+        lambda_=0.4,
+        mu=0.2,
+        activation_inv=(inverse_stretch - 1.0, inverse_stretch - 1.0, 0.0),
+    )
+    potential = Koiter.from_pyvista(mesh, thickness=0.001)
+    natural_stretch = 1.0 / inverse_stretch
+    u = torch.tensor(
+        [
+            [0.0, 0.0, 0.0],
+            [natural_stretch - 1.0, 0.0, 0.0],
+            [0.0, natural_stretch - 1.0, 0.0],
+        ],
+        dtype=torch.float64,
+    )
+
+    torch.testing.assert_close(
+        _fun(potential, u), torch.zeros((), dtype=u.dtype), rtol=0.0, atol=1.0e-15
+    )
+    torch.testing.assert_close(
+        _grad(potential, u), torch.zeros_like(u), rtol=0.0, atol=1.0e-14
+    )
+
+
+def test_koiter_prestrain_keeps_original_reference_area_weight() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    inverse_stretch = 1.3
+    elastic_stretch = 1.08
+    thickness = 0.001
+    baseline = Koiter.from_pyvista(
+        _make_unit_triangle_mesh(lambda_=0.4, mu=0.2), thickness=thickness
+    )
+    prestrained = Koiter.from_pyvista(
+        _make_unit_triangle_mesh(
+            lambda_=0.4,
+            mu=0.2,
+            activation_inv=(
+                inverse_stretch - 1.0,
+                inverse_stretch - 1.0,
+                0.0,
+            ),
+        ),
+        thickness=thickness,
+    )
+    baseline_u = torch.tensor(
+        [
+            [0.0, 0.0, 0.0],
+            [elastic_stretch - 1.0, 0.0, 0.0],
+            [0.0, elastic_stretch - 1.0, 0.0],
+        ],
+        dtype=torch.float64,
+    )
+    prestrained_stretch = elastic_stretch / inverse_stretch
+    prestrained_u = torch.tensor(
+        [
+            [0.0, 0.0, 0.0],
+            [prestrained_stretch - 1.0, 0.0, 0.0],
+            [0.0, prestrained_stretch - 1.0, 0.0],
+        ],
+        dtype=torch.float64,
+    )
+
+    torch.testing.assert_close(
+        _fun(prestrained, prestrained_u),
+        _fun(baseline, baseline_u),
+        rtol=1.0e-12,
+        atol=1.0e-15,
+    )
+
+
+def test_koiter_filtered_surface_uses_global_point_ids() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    local_mesh = _make_unit_triangle_mesh(lambda_=0.4, mu=0.2)
+    mapped_mesh = _make_unit_triangle_mesh(
+        lambda_=0.4, mu=0.2, global_point_ids=(2, 5, 8)
+    )
+    local = Koiter.from_pyvista(local_mesh, thickness=0.001)
+    mapped = Koiter.from_pyvista(mapped_mesh, thickness=0.001)
+    local_u = torch.tensor(
+        [[0.0, 0.0, 0.0], [0.08, 0.0, 0.0], [0.0, -0.04, 0.0]],
+        dtype=torch.float64,
+    )
+    mapped_u = torch.zeros((9, 3), dtype=torch.float64)
+    mapped_u[[2, 5, 8]] = local_u
+
+    torch.testing.assert_close(
+        _fun(mapped, mapped_u), _fun(local, local_u), rtol=0.0, atol=0.0
+    )
+    mapped_grad = _grad(mapped, mapped_u)
+    torch.testing.assert_close(
+        mapped_grad[[2, 5, 8]], _grad(local, local_u), rtol=0.0, atol=0.0
+    )
+    inactive = torch.ones(9, dtype=torch.bool)
+    inactive[[2, 5, 8]] = False
+    torch.testing.assert_close(
+        mapped_grad[inactive],
+        torch.zeros_like(mapped_grad[inactive]),
+        rtol=0.0,
+        atol=0.0,
     )
 
 

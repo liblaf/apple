@@ -1,0 +1,331 @@
+{
+  "complete": true,
+  "design": "corrected-isface-smile-target-rest-area-ratio",
+  "execution_contract": {
+    "adjoint_started": false,
+    "forward_started": false,
+    "inverse_started": false,
+    "visualization_only": true
+  },
+  "input_provenance": {
+    "corrected_skin": {
+      "allowed_arrays": [
+        "RestArea",
+        "GlobalPointId",
+        "GroupId",
+        "GroupName"
+      ],
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+      "size_bytes": 1138550
+    },
+    "driver_skin": {
+      "allowed_arrays": [
+        "RestArea",
+        "TargetArea",
+        "TargetRestAreaRatio",
+        "LogAreaRaw",
+        "LogAreaDiffused",
+        "GlobalPointId"
+      ],
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "prohibited_reuse": [
+        "lambda",
+        "mu",
+        "SkinYoungModulusMPa",
+        "ActivationInv",
+        "StressFreeAreaRatio"
+      ],
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    }
+  },
+  "mapping": {
+    "corrected_triangle_keys_sha256_le_i8": "dca8d77662f49b54250657424cfc29a3b438437081f83d65f7e108f312da2310",
+    "corrected_triangles": 29899,
+    "driver_triangles": 128172,
+    "exact_readback": true,
+    "mapped_driver_cell_indices_sha256_le_i8": "13458107ceef23ecc144340101574f3fb4f2e157f90a9251434e7b09a86a66c3",
+    "mapped_unique_driver_triangles": 29899,
+    "method": "sorted GlobalPointId triangle keys"
+  },
+  "output_contract": {
+    "json": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/30-target-rest-area-ratio-stats.json"
+    },
+    "overwrite_policy": "refuse existing live or temporary outputs",
+    "png": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/30-target-rest-area-ratio.png",
+      "sha256": "95a0285d66a6d3e309876ab26d5d43fef998948d82edd0bd4152710aed36a159",
+      "size_bytes": 1592073
+    }
+  },
+  "render": {
+    "center": {
+      "meaning": "area preserving",
+      "shared_ratio": 1.0
+    },
+    "clip_policy": "display saturation only; source arrays are not clipped",
+    "colormap": "RdBu_r",
+    "face_focus": [
+      1.4070500020750487,
+      2.211375948871603,
+      0.04575618370825054
+    ],
+    "face_parallel_scale": 0.11093353464564434,
+    "image_shape": [
+      1450,
+      2200,
+      3
+    ],
+    "layout": "2 rows (raw target/rest ratio, processed heuristic ratio) x 3 columns (front, 30 degree, mouth)",
+    "mouth_focus": [
+      1.4069556749352747,
+      2.1548284426519975,
+      0.0886334031246092
+    ],
+    "mouth_parallel_scale": 0.04140319668500314,
+    "rows": [
+      "raw Smile target/rest area ratio",
+      "heuristic input: deadband + cap + 5 mm diffusion"
+    ],
+    "scale": "linear",
+    "shared_ratio_clim": [
+      0.6,
+      1.4
+    ],
+    "views": [
+      "front",
+      "30 degree",
+      "mouth"
+    ],
+    "window_size": [
+      2200,
+      1450
+    ]
+  },
+  "schema_version": 1,
+  "target_area_change": {
+    "definition": {
+      "heuristic_processed_driver_equivalent": {
+        "not": [
+          "target geometry",
+          "deformed geometry",
+          "forward result",
+          "inverse result",
+          "stress-free area ratio"
+        ],
+        "pipeline": "log(raw target/rest ratio), symmetric soft deadband, separate weighted caps, then 5 mm diffusion",
+        "ratio": "r_processed = exp(LogAreaDiffused)",
+        "role": "input from which ExpansionWeight and ContractionSeverityLogCapped are decoded"
+      },
+      "interpretation": {
+        "heuristic_processed_driver_equivalent": {
+          "r_above_1": "processed expansion-side driver",
+          "r_below_1": "processed contraction-side driver",
+          "r_equal_1": "neutral processed driver"
+        },
+        "raw_target_geometry": {
+          "r_above_1": "target triangle expands in area",
+          "r_below_1": "target triangle contracts in area",
+          "r_equal_1": "target triangle preserves area"
+        }
+      },
+      "log_statistics_note": "Raw log transforms are retained for audit in JSON but are not rendered in the primary sheet.",
+      "raw_target_geometry": {
+        "ratio": "r_raw = TargetArea / RestArea",
+        "signed_percent": "100 * (r_raw - 1)"
+      }
+    },
+    "display_saturation": {
+      "heuristic_processed_driver_equivalent": {
+        "above_clim_cells": 0,
+        "above_clim_rest_area_fraction": 0.0,
+        "below_clim_cells": 0,
+        "below_clim_rest_area_fraction": 0.0,
+        "total_saturated_cells": 0,
+        "total_saturated_rest_area_fraction": 0.0
+      },
+      "note": "Shared color limits affect display only; JSON statistics retain every raw and processed triangle value.",
+      "raw_target_geometry": {
+        "above_clim_cells": 607,
+        "above_clim_rest_area_fraction": 0.007750726141812753,
+        "below_clim_cells": 140,
+        "below_clim_rest_area_fraction": 0.003727836954896607,
+        "total_saturated_cells": 747,
+        "total_saturated_rest_area_fraction": 0.01147856309670936
+      },
+      "shared_ratio_clim": [
+        0.6,
+        1.4
+      ]
+    },
+    "fields": {
+      "heuristic_processed_area_ratio": {
+        "area_weighted_mean": 0.9891909895817055,
+        "area_weighted_quantiles": {
+          "q0.1": 0.6663676704132899,
+          "q1": 0.7032638318580529,
+          "q25": 0.9795375598108957,
+          "q5": 0.8215932468480708,
+          "q50": 1.0000578203253956,
+          "q75": 1.0193703154862739,
+          "q95": 1.074536136035668,
+          "q99": 1.2398177725549826,
+          "q99.9": 1.3065164143260741
+        },
+        "area_weighted_rms": 0.9924109741417496,
+        "max": 1.3233837290335404,
+        "min": 0.6587139441174722,
+        "sha256_le_f8": "08f1c02973f8798bbbb3950d071e1a3b1316e3ae242899881d52fc72dc1e22b5"
+      },
+      "heuristic_processed_signed_area_change_percent": {
+        "area_weighted_mean": -1.0809010418294247,
+        "area_weighted_quantiles": {
+          "q0.1": -33.363232958671006,
+          "q1": -29.673616814194716,
+          "q25": -2.046244018910426,
+          "q5": -17.84067531519292,
+          "q50": 0.005782032539558557,
+          "q75": 1.9370315486273881,
+          "q95": 7.4536136035668,
+          "q99": 23.98177725549826,
+          "q99.9": 30.651641432607413
+        },
+        "area_weighted_rms": 8.060745892015914,
+        "max": 32.33837290335404,
+        "min": -34.12860558825278,
+        "sha256_le_f8": "7e6201dbb2adab7350fd63f47781cc3b991f3b2dcabed67add96a1ec595a80d4"
+      },
+      "ln_target_rest_area_ratio": {
+        "area_weighted_mean": -0.011392005349658499,
+        "area_weighted_quantiles": {
+          "q0.1": -0.6712493885302114,
+          "q1": -0.4463845669826753,
+          "q25": -0.03190854405934132,
+          "q5": -0.23496211054503416,
+          "q50": 0.0023189818550114994,
+          "q75": 0.03416214120735081,
+          "q95": 0.1177939536000107,
+          "q99": 0.3151312462432827,
+          "q99.9": 0.6752234316193768
+        },
+        "area_weighted_rms": 0.12134309545478644,
+        "max": 2.804149987925186,
+        "min": -3.0918981774419145,
+        "sha256_le_f8": "26329c5975df180df12293335113dd13e0ed868cf4eab5a068f5cefb8770e080"
+      },
+      "log2_target_rest_area_ratio": {
+        "area_weighted_mean": -0.016435189623732863,
+        "area_weighted_quantiles": {
+          "q0.1": -0.968408164032285,
+          "q1": -0.6439968011152729,
+          "q25": -0.04603429827639872,
+          "q5": -0.3389786716801252,
+          "q50": 0.0033455836221365793,
+          "q75": 0.04928555170599352,
+          "q95": 0.1699407527054401,
+          "q99": 0.45463828618434277,
+          "q99.9": 0.974141496289303
+        },
+        "area_weighted_rms": 0.1750610820587365,
+        "max": 4.045533281488512,
+        "min": -4.460666167529074,
+        "sha256_le_f8": "44b846b3f48be4004d2e813afc453d4727a082cea1f38cfc507f6f27dfb2620a"
+      },
+      "log_area_diffused": {
+        "area_weighted_mean": -0.014363079992716904,
+        "area_weighted_quantiles": {
+          "q0.1": -0.40591370309191527,
+          "q1": -0.352023163326314,
+          "q25": -0.02067469643084252,
+          "q5": -0.1965098399146279,
+          "q50": 5.7818653864911184e-05,
+          "q75": 0.019185098906210604,
+          "q95": 0.07188906709395457,
+          "q99": 0.2149644112006674,
+          "q99.9": 0.26736436948634756
+        },
+        "area_weighted_rms": 0.08652360612824381,
+        "max": 0.28019188769897707,
+        "min": -0.41746591441203185,
+        "sha256_le_f8": "df8d57c95f18f63bda06a52eb4abbcd76e86eff9b259a53d6cd15d328bd566df"
+      },
+      "signed_area_change_percent": {
+        "area_weighted_mean": -0.40963698006284194,
+        "area_weighted_quantiles": {
+          "q0.1": -48.89303458263262,
+          "q1": -36.006237414704636,
+          "q25": -3.140483818979467,
+          "q5": -20.939919550517693,
+          "q50": 0.23216727730948072,
+          "q75": 3.4752369125590654,
+          "q95": 12.501228275363175,
+          "q99": 37.04391641461524,
+          "q99.9": 96.44718520657503
+        },
+        "area_weighted_rms": 12.887766216945806,
+        "max": 1551.3033660865603,
+        "min": -95.45843344570982,
+        "sha256_le_f8": "d47fa2fd5d977634131bef237856db1dfd1d0444899559588ac1a5514d778e47"
+      },
+      "target_rest_area_ratio": {
+        "area_weighted_mean": 0.9959036301993714,
+        "area_weighted_quantiles": {
+          "q0.1": 0.5110696541736738,
+          "q1": 0.6399376258529537,
+          "q25": 0.9685951618102053,
+          "q5": 0.7906008044948231,
+          "q50": 1.0023216727730948,
+          "q75": 1.0347523691255907,
+          "q95": 1.1250122827536317,
+          "q99": 1.3704391641461524,
+          "q99.9": 1.9644718520657503
+        },
+        "area_weighted_rms": 1.0041995380426183,
+        "max": 16.513033660865602,
+        "min": 0.045415665542901884,
+        "sha256_le_f8": "da98a6f48694eed30b1683ccf5a1f02fd67c87393b30003d07c52a7fa25bc606"
+      }
+    },
+    "identity": {
+      "ln_ratio_exactly_equals_mapped_LogAreaRaw": true,
+      "mapped_log_area_diffused_sha256_le_f8": "df8d57c95f18f63bda06a52eb4abbcd76e86eff9b259a53d6cd15d328bd566df",
+      "processed_ratio_exactly_equals_exp_mapped_LogAreaDiffused": true,
+      "processed_ratio_sha256_le_f8": "08f1c02973f8798bbbb3950d071e1a3b1316e3ae242899881d52fc72dc1e22b5",
+      "ratio_exactly_equals_target_div_rest": true,
+      "rest_area_sha256_le_f8": "5a7b8eb9861fa509212afd610c60183f894b80db8ded53d22f3f9045bc6889de",
+      "target_area_sha256_le_f8": "b50b815618e75ecd7b99619dc5a11492ea21dcde240dbd3a283030ac36dea580"
+    },
+    "sign_support": {
+      "heuristic_processed_driver_equivalent": {
+        "cells": {
+          "contraction": 13129,
+          "expansion": 16770,
+          "unchanged": 0
+        },
+        "contraction_rest_area_fraction": 0.44882458059685887,
+        "expansion_rest_area_fraction": 0.5511754194031411,
+        "unchanged_rest_area_fraction": 0.0
+      },
+      "raw_target_geometry": {
+        "cells": {
+          "contraction": 13159,
+          "expansion": 16723,
+          "unchanged": 17
+        },
+        "contraction_rest_area_fraction": 0.45442829010841274,
+        "expansion_rest_area_fraction": 0.5455308228719783,
+        "unchanged_rest_area_fraction": 4.0887019608821975e-05
+      }
+    },
+    "topology": {
+      "points": 15299,
+      "rest_area_m2": 0.04287998059707303,
+      "target_area_m2": 0.04270432833950364,
+      "total_signed_area_change_percent": -0.4096369800628552,
+      "total_target_rest_area_ratio": 0.9959036301993714,
+      "triangles": 29899
+    }
+  }
+}

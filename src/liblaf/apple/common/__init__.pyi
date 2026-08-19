@@ -1,5 +1,5 @@
 from . import attr_name
-from ._moduli import lame_converter
+from ._moduli import lame_converter, lame_converter_plane_stress
 from ._potential_name import DEFAULT_POTENTIAL_NAME
 from .attr_name import (
     ACTIVATION,
@@ -38,4 +38,5 @@ __all__ = [
     "E",
     "attr_name",
     "lame_converter",
+    "lame_converter_plane_stress",
 ]

@@ -1,0 +1,98 @@
+{
+  "camera": {
+    "focal_point": [
+      0.5,
+      0.09,
+      0.5
+    ],
+    "parallel_scale": 0.78,
+    "position": [
+      1.65,
+      1.13,
+      1.65
+    ],
+    "projection": "parallel",
+    "view_up": [
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "case_order": [
+    "top-fat-0p04",
+    "top-fat-0p08",
+    "top-fat-0p12"
+  ],
+  "cases": [
+    {
+      "case_id": "top-fat-0p04",
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/inputs/30-cuboid-top-fat-0p04-pressure-0p60.vtu",
+      "input_sha256": "d7ad9001330c5638a91526eeee5a408c2b54b75ae92cf955eed6469e1ac62114",
+      "input_size_bytes": 2180253,
+      "metrics": {
+        "laplacian_rms": 8.561538772519365,
+        "laplacian_rms_normalized": 180.9918947110849,
+        "max_displacement": 0.06819045640947001,
+        "min_det_f": 0.5017386314036679,
+        "p95_p05": 0.043594847964595625,
+        "q001_det_f": 0.5920092856356785
+      },
+      "n_cells": 42540,
+      "n_points": 9148,
+      "pressure": 0.6,
+      "top_fat_thickness": 0.04
+    },
+    {
+      "case_id": "top-fat-0p08",
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/inputs/30-cuboid-top-fat-0p08-pressure-0p60.vtu",
+      "input_sha256": "d34aceecd9965854ce89fe78ce39953b8c34c860e7bf3641a2e6b8457d9b1a0a",
+      "input_size_bytes": 2892315,
+      "metrics": {
+        "laplacian_rms": 5.781417476735358,
+        "laplacian_rms_normalized": 138.79787886244887,
+        "max_displacement": 0.06641315460168068,
+        "min_det_f": 0.5327785070001418,
+        "p95_p05": 0.03838786579613079,
+        "q001_det_f": 0.6007795454680841
+      },
+      "n_cells": 59907,
+      "n_points": 12289,
+      "pressure": 0.6,
+      "top_fat_thickness": 0.08
+    },
+    {
+      "case_id": "top-fat-0p12",
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/inputs/30-cuboid-top-fat-0p12-pressure-0p60.vtu",
+      "input_sha256": "9355da8265f57fea964811723f2aa25702e57ee993504947027ed176faa477ec",
+      "input_size_bytes": 3339421,
+      "metrics": {
+        "laplacian_rms": 4.813979334885397,
+        "laplacian_rms_normalized": 141.9202892057565,
+        "max_displacement": 0.06496485879012098,
+        "min_det_f": 0.4606904725907535,
+        "p95_p05": 0.03126095204469488,
+        "q001_det_f": 0.6049872150170859
+      },
+      "n_cells": 73876,
+      "n_points": 14606,
+      "pressure": 0.6,
+      "top_fat_thickness": 0.12
+    }
+  ],
+  "complete": true,
+  "design": "cuboid-fat-thickness-meeting-assets-v2",
+  "image_resolution": [
+    2400,
+    1800
+  ],
+  "renderer": "native ParaView 6.1.1",
+  "schema_version": 2,
+  "shared_u_y_range": [
+    -0.015297256566165955,
+    0.06818827008468058
+  ],
+  "warp": {
+    "scale_factor": 1.0,
+    "vectors": "Displacement"
+  }
+}

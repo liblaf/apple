@@ -1,0 +1,82 @@
+{
+  "camera": {
+    "focal_point": [
+      0.5,
+      0.09,
+      0.5
+    ],
+    "parallel_scale": 0.78,
+    "position": [
+      1.65,
+      1.13,
+      1.65
+    ],
+    "projection": "parallel",
+    "view_up": [
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "complete": true,
+  "design": "cuboid-fat-thickness-meeting-assets-v2",
+  "image_resolution": [
+    2400,
+    1800
+  ],
+  "native_paraview_rendering": true,
+  "outputs": [
+    {
+      "case_id": "top-fat-0p04",
+      "png": {
+        "height": 1800,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p04/30-cuboid-top-fat-0p04-paraview.png",
+        "sha256": "77b000c1d444bcf64bbfed6b183e71cbf44ea148aad7b5f680a657da78c3ca00",
+        "size_bytes": 1409911,
+        "width": 2400
+      },
+      "pvsm": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p04/30-cuboid-top-fat-0p04-paraview.pvsm",
+        "sha256": "e4f52532ace9e79f966d44a944a028859abfb1ad026cc8ee10f7d8190057fe12",
+        "size_bytes": 391240
+      }
+    },
+    {
+      "case_id": "top-fat-0p08",
+      "png": {
+        "height": 1800,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p08/30-cuboid-top-fat-0p08-paraview.png",
+        "sha256": "97f4eefbe2cd2f176561952d7ab74fca8624da920404af795bf10af8d76c97e9",
+        "size_bytes": 1416224,
+        "width": 2400
+      },
+      "pvsm": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p08/30-cuboid-top-fat-0p08-paraview.pvsm",
+        "sha256": "7d5d41922ddd8205f923fbf915290ca793157383c44ec716f5c1830b10a5e8ce",
+        "size_bytes": 394440
+      }
+    },
+    {
+      "case_id": "top-fat-0p12",
+      "png": {
+        "height": 1800,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p12/30-cuboid-top-fat-0p12-paraview.png",
+        "sha256": "98c5ca2ff9597c56b52fc5957c538678b309105708089979d3cf339506edfd52",
+        "size_bytes": 1451018,
+        "width": 2400
+      },
+      "pvsm": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/30-cuboid-fat-thickness/paraview/top-fat-0p12/30-cuboid-top-fat-0p12-paraview.pvsm",
+        "sha256": "a8609f125c48ef667d7def3d730fb1799021beca9129dad36886bc0d461665df",
+        "size_bytes": 394355
+      }
+    }
+  ],
+  "paraview_version": "6.1.1",
+  "schema_version": 2,
+  "shared_u_y_range": [
+    -0.015297256566165955,
+    0.06818827008468058
+  ],
+  "status": "ok"
+}

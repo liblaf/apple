@@ -60,8 +60,22 @@ Only the in-plane skin `ActivationInv` diagonal entries are set. Outside the
 finite all-vertices-`IsFace` masks, Young's modulus remains `0.20 MPa` and skin
 prestrain remains zero.
 
-To keep this experiment a controlled comparison against the existing Smile
-baseline, `E` and `nu = 0.49` are converted with the repository's existing 3D
+> **Superseded as a physical thin-skin baseline (2026-08-18).** The controlled
+> comparison below was executed as designed, but subsequent review concluded
+> that a Koiter membrane parameterized by 3D `E` and `nu` should use the
+> plane-stress reduction. Its skin-enabled quantitative results therefore apply
+> only to the historical high-area-stiffness convention and must be revalidated.
+> A later source-topology audit also found that the full extracted boundary used
+> by Koiter contains movable `InFaceConvex` cut surfaces and non-epidermal
+> anatomical boundaries; the corrected baseline must use an explicitly audited
+> facial membrane domain.
+> The historical prestrained cases also scaled the membrane energy weight by
+> `1 / det(Ainv)`. Those artifacts and reports are intentionally preserved for
+> the group-meeting comparison, but the corrected model uses the original
+> triangle reference area and lets prestrain change only the natural metric.
+
+To keep this experiment a controlled comparison against the then-existing
+Smile baseline, `E` and `nu = 0.49` were converted with the repository's 3D
 isotropic Lamé convention,
 `lambda = E nu / ((1 + nu) (1 - 2 nu))` and
 `mu = E / (2 (1 + nu))`. In a 2D membrane this is a plane-strain-like

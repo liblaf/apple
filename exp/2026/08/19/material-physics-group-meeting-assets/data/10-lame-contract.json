@@ -1,0 +1,117 @@
+{
+  "assets": [
+    {
+      "asset_id": "10-lame-old-3d-geometry",
+      "case_id": "old-3d",
+      "mode": "geometry",
+      "png_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-geometry.png",
+      "state_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-geometry.pvsm"
+    },
+    {
+      "asset_id": "10-lame-corrected-plane-stress-geometry",
+      "case_id": "corrected-plane-stress",
+      "mode": "geometry",
+      "png_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-geometry.png",
+      "state_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-geometry.pvsm"
+    },
+    {
+      "asset_id": "10-lame-old-3d-area-strain",
+      "case_id": "old-3d",
+      "mode": "area-strain",
+      "png_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-area-strain.png",
+      "state_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-area-strain.pvsm"
+    },
+    {
+      "asset_id": "10-lame-corrected-plane-stress-area-strain",
+      "case_id": "corrected-plane-stress",
+      "mode": "area-strain",
+      "png_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-area-strain.png",
+      "state_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-area-strain.pvsm"
+    }
+  ],
+  "camera": {
+    "basis": "pooled deformed IsFace bounds across both conversion-only cases",
+    "direction": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "focus": [
+      1.4070356327609757,
+      2.211941074517765,
+      0.04508433592169516
+    ],
+    "parallel_scale": 0.1084511202220335,
+    "projection": "parallel"
+  },
+  "case_order": [
+    "old-3d",
+    "corrected-plane-stress"
+  ],
+  "complete": true,
+  "design": "meeting-lame-conversion-only-native-paraview-v1",
+  "image_resolution": [
+    1800,
+    1800
+  ],
+  "inputs": {
+    "corrected-plane-stress": {
+      "case_id": "corrected-plane-stress",
+      "cell_array_hashes": {
+        "AreaRatio": "d107d3a1b116a1faca5323350d6fcb722300f26671f832cfe58494c6889b9c58",
+        "AreaStrainPercent": "ce12757492d0668fae3c3815573632f746413131980791e333d9117c13e5f29d"
+      },
+      "display_label": "plane-stress Lam\u00e9",
+      "metrics": {
+        "area_strain_percent_max": 25.158604039337163,
+        "area_strain_percent_min": -33.11769937121147,
+        "display_clipped_triangles": 596,
+        "mean_area_ratio": 1.0153995668256035,
+        "rest_area_weighted_mean_abs_area_strain_percent": 1.8397285902395801,
+        "rest_area_weighted_rms_area_strain_percent": 2.784431922855869
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-inputs/10-lame-corrected-plane-stress.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "7089726cab37f58748034b6af00d630d834af806ab35992b313a4b4dd478caa5",
+        "GlobalPointId": "842606174ee6622bc8d8d7a81f43731833dd13693167f0ed42ba25105fbbab1c",
+        "TargetDisplacementMM": "a8868b001cc79482d333d241240ec6094e27f238f4d1351882f8aeea093a0c98"
+      },
+      "points": 15299,
+      "sha256": "dd76d3abe18187c854e7f451e8e287de97d036ee6a0f0a78cf04d1eb0c2f0681",
+      "size_bytes": 2289447,
+      "triangles": 29899
+    },
+    "old-3d": {
+      "case_id": "old-3d",
+      "cell_array_hashes": {
+        "AreaRatio": "b23e9a4be76975371dd0f4d40562fb8b5bb8e0dfb9ae3da7a9f27d7a1ed4d439",
+        "AreaStrainPercent": "63fb1bb781e2cfdf23211df664650f99690647e7e5959fb0379586882a89a353"
+      },
+      "display_label": "old 3D Lam\u00e9",
+      "metrics": {
+        "area_strain_percent_max": 3.427568505382461,
+        "area_strain_percent_min": -8.49427012013415,
+        "display_clipped_triangles": 3,
+        "mean_area_ratio": 1.0003815231223196,
+        "rest_area_weighted_mean_abs_area_strain_percent": 0.23823859183663035,
+        "rest_area_weighted_rms_area_strain_percent": 0.4146008850710795
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-inputs/10-lame-old-3d.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "a22d698f95d2face9a12ce6f71fbdffadc0d25fd6fd6a848e714cc60210d0ff9",
+        "GlobalPointId": "842606174ee6622bc8d8d7a81f43731833dd13693167f0ed42ba25105fbbab1c",
+        "TargetDisplacementMM": "a8868b001cc79482d333d241240ec6094e27f238f4d1351882f8aeea093a0c98"
+      },
+      "points": 15299,
+      "sha256": "a05e30065434e88e508916a9733f40176a199a7233c3eccd874c74a8044a9d1e",
+      "size_bytes": 2272973,
+      "triangles": 29899
+    }
+  },
+  "layout": "one-view-per-file-no-contact-sheet",
+  "pooled_absolute_p99_percent_unrounded": 7.3224542093414104,
+  "renderer": "ParaView 6.1.1 native one-view-per-file geometry and cell-scalar rendering; PyVista used only for audited VTP preparation/readback",
+  "schema_version": 1,
+  "strain_limit_definition": "symmetric rounded pooled absolute p99 of AreaStrainPercent across both zero-seed conversion-only IsFace surfaces",
+  "strain_limit_percent": 7.322
+}

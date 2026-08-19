@@ -1,5 +1,13 @@
 # Smile Skin Material Heuristic Screen
 
+> **Historical-model result (superseded as a thin-skin baseline, 2026-08-18).**
+> These runs and all of their artifacts are intentionally retained for the
+> group-meeting comparison. Their Koiter term used the full extracted subset
+> boundary, the 3D Lamé conversion for a 2D membrane, and—when prestrain was
+> nonzero—an activation-dependent `1 / det(Ainv)` energy weight. Interpret the
+> numerical comparisons below only as a reproducible study of that historical
+> model. The `no-skin` control is unaffected.
+
 ## 结论
 
 这轮实验没有找到可以直接进入 200-step Stage B 的材料参数，但识别出了当前 inverse setup

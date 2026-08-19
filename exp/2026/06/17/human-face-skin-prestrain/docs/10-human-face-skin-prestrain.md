@@ -1,5 +1,12 @@
 # Human Face Smile Inverse Activation
 
+> **Historical-model result (superseded as a thin-skin baseline, 2026-08-18).**
+> The skin-enabled artifacts are preserved unchanged for reporting. They used
+> Koiter on the full extracted subset boundary with 3D Lamé coefficients; any
+> nonzero-prestrain variants additionally used the former
+> activation-dependent energy weight. Revalidate skin conclusions with the
+> corrected all-vertex-`IsFace`, plane-stress, fixed-reference-area model.
+
 ## Purpose
 
 This experiment compares Smile inverse activation on the InFaceConvex human-face

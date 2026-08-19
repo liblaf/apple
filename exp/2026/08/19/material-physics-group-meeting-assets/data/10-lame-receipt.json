@@ -1,0 +1,257 @@
+{
+  "analysis_metrics": {
+    "corrected-plane-stress": {
+      "bumpiness/contraction_target_relative_dihedral_rms_deg": 8.862031199161212,
+      "bumpiness/residual_normal_laplacian_rms_m": 0.00025068097747810424,
+      "target/error_rms_fraction_of_target": 0.7249167582212164,
+      "target/face_target_area_weighted_error_rms_m": 0.00368299094109499,
+      "warning/inverted_tets": 21,
+      "warning/isface_folded_triangles": 0
+    },
+    "old-3d": {
+      "bumpiness/contraction_target_relative_dihedral_rms_deg": 7.138010081546518,
+      "bumpiness/residual_normal_laplacian_rms_m": 0.00024388707134866374,
+      "target/error_rms_fraction_of_target": 0.7278912580059967,
+      "target/face_target_area_weighted_error_rms_m": 0.003670669383344755,
+      "warning/inverted_tets": 20,
+      "warning/isface_folded_triangles": 0
+    }
+  },
+  "command": [
+    "/usr/bin/pvbatch",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/10-lame-paraview.py",
+    "--contract",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-contract.json",
+    "--input-root",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-inputs",
+    "--output-root",
+    "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets"
+  ],
+  "comparison": {
+    "changed": "skin Lam\u00e9 conversion only",
+    "fixed": "historical full membrane, historical IsFixed, pinned step-40 e100-p000 activation, exact-zero displacement seed, E, nu, thickness, and no prestrain",
+    "interpretation": "demonstrates release of artificial in-plane area locking; does not claim improved target fit or bumpiness",
+    "kind": "conversion-only fixed-activation forward replay"
+  },
+  "complete": true,
+  "contract": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-contract.json",
+    "sha256": "2e9ac80388126ae53c1517482e4ea94be2609209c32083ae31ee3b11091a8b6e",
+    "size_bytes": 5585
+  },
+  "design": "meeting-lame-conversion-only-native-paraview-v1",
+  "execution": {
+    "contact_sheet_created": false,
+    "forward_executed": false,
+    "inverse_executed": false,
+    "native_paraview_rendering_executed": true,
+    "one_view_per_file": true,
+    "pyvista_rendering_executed": false,
+    "visualization_only": true
+  },
+  "execution_profile": "debug",
+  "material": {
+    "E_MPa": 0.2,
+    "isotropic_area_coefficient_old_over_corrected": 17.114093959731527,
+    "lambda_MPa_corrected_plane_stress": 0.1289643374128175,
+    "lambda_MPa_old_3d": 3.288590604026843,
+    "lambda_old_over_corrected": 25.5,
+    "mu_MPa_both": 0.06711409395973154,
+    "nu": 0.49,
+    "prestrain": "none",
+    "thickness_m": 0.001,
+    "volume_material_conversion": "3D Lam\u00e9 unchanged"
+  },
+  "outputs": [
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-area-strain.png",
+      "sha256": "fb0a698639b4cd46e3f00aeb38dcf1c50cef6281a7c32a279b39257444d10dd8",
+      "size_bytes": 801684
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-area-strain.pvsm",
+      "sha256": "68e7be61ab0a75fe4396fd0eb65b4ccaaf5acb1319fcc214f1a0dd30cbab6029",
+      "size_bytes": 239412
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-geometry.png",
+      "sha256": "b0ddc1c639dc215b657cfc188900daa0756438d29e4c6516ebcc9e3b1692c785",
+      "size_bytes": 565806
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-corrected-plane-stress-geometry.pvsm",
+      "sha256": "afada40148950d3e3cedae0d9bdf1f2970e15d346b19adcc135a37d000c80d19",
+      "size_bytes": 213046
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-area-strain.png",
+      "sha256": "079d2a900a21b7a9fa2590941532f8f67cc0366aae863add1d39851a638bb210",
+      "size_bytes": 673874
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-area-strain.pvsm",
+      "sha256": "987e9b2b7a9f9ed53397650ce36fad8f7de7b0a857ac0f300e2cf1df67ebf335",
+      "size_bytes": 239226
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-geometry.png",
+      "sha256": "972fd46609229f5ce061540c1a4efa751df9982dfc84c10407807536e0c3f811",
+      "size_bytes": 535227
+    },
+    {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-assets/10-lame-old-3d-geometry.pvsm",
+      "sha256": "176ac0d67263b16f2139e270be142cd4d4e32e8febf9203990360744ade12070",
+      "size_bytes": 212983
+    }
+  ],
+  "paraview_version": "6.1.1",
+  "pinned_inputs_post": {
+    "analysis": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/16-forward-domain-conversion-analysis.json",
+      "sha256": "c7e7e19456ea2cf29d91771ac377297a93af57cf9d91a4ad5fa8efc596eebdf9",
+      "size_bytes": 35544
+    },
+    "corrected_result": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/15-forward-domain-conversion-probe/full-plane-stress/zero/result.vtu",
+      "sha256": "c04b3ce317aa14d825032632c4d1d35f6a591d6ba171171ca257b14c38d462b4",
+      "size_bytes": 148094452
+    },
+    "koiter_source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/src/liblaf/apple/warp/fem/_koiter.py",
+      "sha256": "f7b7c9547c82976a130a88faf8df5172312309238c2b0cf8c8e762e1ec463e8c",
+      "size_bytes": 17329
+    },
+    "moduli_source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/src/liblaf/apple/common/_moduli.py",
+      "sha256": "9d5c14f27b9a08a8a4f9cd3ce4e3076f2375ed1108e84e94d307c9439e1a303d",
+      "size_bytes": 1210
+    },
+    "old_result": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/15-forward-domain-conversion-probe/full-3d-replay/zero/result.vtu",
+      "sha256": "d533ff178dcb86bb1fae9c3ad08563f8413261c76a93e809b96f4099df076f97",
+      "size_bytes": 148098752
+    },
+    "pvbatch": {
+      "path": "/usr/bin/pvbatch",
+      "sha256": "be482a75b1e52a8b5d9df6c5687c743cc0b5312e30916622d54652a998eb8871",
+      "size_bytes": 18608
+    },
+    "source_skin": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    }
+  },
+  "pinned_inputs_pre": {
+    "analysis": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/16-forward-domain-conversion-analysis.json",
+      "sha256": "c7e7e19456ea2cf29d91771ac377297a93af57cf9d91a4ad5fa8efc596eebdf9",
+      "size_bytes": 35544
+    },
+    "corrected_result": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/15-forward-domain-conversion-probe/full-plane-stress/zero/result.vtu",
+      "sha256": "c04b3ce317aa14d825032632c4d1d35f6a591d6ba171171ca257b14c38d462b4",
+      "size_bytes": 148094452
+    },
+    "koiter_source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/src/liblaf/apple/warp/fem/_koiter.py",
+      "sha256": "f7b7c9547c82976a130a88faf8df5172312309238c2b0cf8c8e762e1ec463e8c",
+      "size_bytes": 17329
+    },
+    "moduli_source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/src/liblaf/apple/common/_moduli.py",
+      "sha256": "9d5c14f27b9a08a8a4f9cd3ce4e3076f2375ed1108e84e94d307c9439e1a303d",
+      "size_bytes": 1210
+    },
+    "old_result": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/15-forward-domain-conversion-probe/full-3d-replay/zero/result.vtu",
+      "sha256": "d533ff178dcb86bb1fae9c3ad08563f8413261c76a93e809b96f4099df076f97",
+      "size_bytes": 148098752
+    },
+    "pvbatch": {
+      "path": "/usr/bin/pvbatch",
+      "sha256": "be482a75b1e52a8b5d9df6c5687c743cc0b5312e30916622d54652a998eb8871",
+      "size_bytes": 18608
+    },
+    "source_skin": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    }
+  },
+  "prepared_surfaces": {
+    "corrected-plane-stress": {
+      "case_id": "corrected-plane-stress",
+      "cell_array_hashes": {
+        "AreaRatio": "d107d3a1b116a1faca5323350d6fcb722300f26671f832cfe58494c6889b9c58",
+        "AreaStrainPercent": "ce12757492d0668fae3c3815573632f746413131980791e333d9117c13e5f29d"
+      },
+      "metrics": {
+        "area_strain_percent_max": 25.158604039337163,
+        "area_strain_percent_min": -33.11769937121147,
+        "display_clipped_triangles": 596,
+        "mean_area_ratio": 1.0153995668256035,
+        "rest_area_weighted_mean_abs_area_strain_percent": 1.8397285902395801,
+        "rest_area_weighted_rms_area_strain_percent": 2.784431922855869
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-inputs/10-lame-corrected-plane-stress.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "7089726cab37f58748034b6af00d630d834af806ab35992b313a4b4dd478caa5",
+        "GlobalPointId": "842606174ee6622bc8d8d7a81f43731833dd13693167f0ed42ba25105fbbab1c",
+        "TargetDisplacementMM": "a8868b001cc79482d333d241240ec6094e27f238f4d1351882f8aeea093a0c98"
+      },
+      "points": 15299,
+      "sha256": "dd76d3abe18187c854e7f451e8e287de97d036ee6a0f0a78cf04d1eb0c2f0681",
+      "size_bytes": 2289447,
+      "triangles": 29899
+    },
+    "old-3d": {
+      "case_id": "old-3d",
+      "cell_array_hashes": {
+        "AreaRatio": "b23e9a4be76975371dd0f4d40562fb8b5bb8e0dfb9ae3da7a9f27d7a1ed4d439",
+        "AreaStrainPercent": "63fb1bb781e2cfdf23211df664650f99690647e7e5959fb0379586882a89a353"
+      },
+      "metrics": {
+        "area_strain_percent_max": 3.427568505382461,
+        "area_strain_percent_min": -8.49427012013415,
+        "display_clipped_triangles": 3,
+        "mean_area_ratio": 1.0003815231223196,
+        "rest_area_weighted_mean_abs_area_strain_percent": 0.23823859183663035,
+        "rest_area_weighted_rms_area_strain_percent": 0.4146008850710795
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/10-lame-inputs/10-lame-old-3d.vtp",
+      "point_array_hashes": {
+        "DisplacementMM": "a22d698f95d2face9a12ce6f71fbdffadc0d25fd6fd6a848e714cc60210d0ff9",
+        "GlobalPointId": "842606174ee6622bc8d8d7a81f43731833dd13693167f0ed42ba25105fbbab1c",
+        "TargetDisplacementMM": "a8868b001cc79482d333d241240ec6094e27f238f4d1351882f8aeea093a0c98"
+      },
+      "points": 15299,
+      "sha256": "a05e30065434e88e508916a9733f40176a199a7233c3eccd874c74a8044a9d1e",
+      "size_bytes": 2272973,
+      "triangles": 29899
+    }
+  },
+  "pvbatch": {
+    "path": "/usr/bin/pvbatch",
+    "sha256": "be482a75b1e52a8b5d9df6c5687c743cc0b5312e30916622d54652a998eb8871",
+    "size_bytes": 18608
+  },
+  "schema_version": 1,
+  "shared_area_strain_scale": {
+    "display_limit_percent": 7.322,
+    "pooled_absolute_p99_percent_unrounded": 7.3224542093414104
+  },
+  "source": {
+    "renderer": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/10-lame-paraview.py",
+      "sha256": "b4460555fa3eda12d752910759732de7886398c790ce9646973c17a989f42523",
+      "size_bytes": 9352
+    },
+    "wrapper": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/10-lame-run.py",
+      "sha256": "52e7d09fcb653373cd5b9f5668fe7c48f94e279562e2bd9915b37f9cbedeb849",
+      "size_bytes": 26117
+    }
+  },
+  "status": "ok"
+}

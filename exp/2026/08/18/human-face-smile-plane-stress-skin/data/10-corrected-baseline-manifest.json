@@ -1,0 +1,192 @@
+{
+  "candidate_validation_errors": {},
+  "candidates": [
+    {
+      "content/area_m2": 0.04287998059707302,
+      "content/global_face_key_sha256": "6833e5d2215e0037447b2ed8850b20c65a3d63a3db7cfdc93482829892d082ea",
+      "content/material_sha256": "d830190f16757c75112b7e7c1dacd975b7de96a17cf762dbe7abbaacc5e01929",
+      "content/n_points": 15299,
+      "content/n_triangles": 29899,
+      "content/solver_sha256": "4280b510551a818d3c208ce01a814e16e1e63f563ae53ea3c0bf1ea82c6411db",
+      "content/topology_sha256": "c0457958a1b1477a8b79980968a8b1b0a9fcfb55f364c9992eb5fbabcce00239",
+      "domain/face_group_allowlist": [
+        "Chin",
+        "EyelidBottom",
+        "EyelidOuterBottom",
+        "EyelidOuterTop",
+        "EyelidTop",
+        "Face",
+        "LipBottom",
+        "LipOuterBottom",
+        "LipOuterTop",
+        "LipTop"
+      ],
+      "domain/gingiva_proximity_triangles": 0,
+      "domain/observed_group_names": [
+        "Chin",
+        "EyelidBottom",
+        "EyelidOuterBottom",
+        "EyelidOuterTop",
+        "EyelidTop",
+        "Face",
+        "LipBottom",
+        "LipOuterBottom",
+        "LipOuterTop",
+        "LipTop"
+      ],
+      "domain/teeth_proximity_triangles": 52,
+      "label": "isface-e0200-p000",
+      "material/E_MPa": 0.2,
+      "material/lambda_MPa": 0.1289643374128175,
+      "material/lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+      "material/mu_MPa": 0.06711409395973154,
+      "material/nu": 0.49,
+      "material/prestrain": "p000: ActivationInv is exactly zero",
+      "prestrain_gain": 0.0,
+      "readback/area_m2": 0.04287998059707302,
+      "readback/content/material_sha256": "d830190f16757c75112b7e7c1dacd975b7de96a17cf762dbe7abbaacc5e01929",
+      "readback/content/solver_sha256": "4280b510551a818d3c208ce01a814e16e1e63f563ae53ea3c0bf1ea82c6411db",
+      "readback/content/topology_sha256": "c0457958a1b1477a8b79980968a8b1b0a9fcfb55f364c9992eb5fbabcce00239",
+      "readback/errors": [],
+      "readback/n_points": 15299,
+      "readback/n_triangles": 29899,
+      "readback/ok": true,
+      "schema_version": 3,
+      "skin/domain": "all-vertex IsFace filtered PolyData",
+      "skin/file_identity": {
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "skin/lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+      "skin/nu": 0.49,
+      "skin/path": "10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "skin/thickness_m": 0.001,
+      "topology/boundary_edges": 707,
+      "topology/components": 1,
+      "topology/identity_lhs_3F": 89697,
+      "topology/identity_rhs_edge_incidence": 89697,
+      "topology/interior_edges": 44495,
+      "topology/nonmanifold_edges": 0,
+      "validation/errors": [],
+      "validation/ok": true,
+      "young_min_scale": 1.0
+    }
+  ],
+  "complete": true,
+  "constitutive_contract": {
+    "heterogeneous_material_fields": false,
+    "skin": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+    "skin/E_MPa": 0.2,
+    "skin/nu": 0.49,
+    "skin/prestrain": "none; ActivationInv is exactly zero",
+    "skin/thickness_m": 0.001,
+    "volume": "unchanged 3D isotropic volume convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))"
+  },
+  "design": "isface-plane-stress-corrected-baseline",
+  "domain_contract": {
+    "anatomy_group_gate": "every membrane vertex GroupName belongs to the exact pinned Melon FACE_GROUPS allowlist",
+    "artificial_cut_triangles": 13165,
+    "claim_scope": "facial-ROI membrane, not a complete anatomical epidermis",
+    "face_group_allowlist": [
+      "Chin",
+      "EyelidBottom",
+      "EyelidOuterBottom",
+      "EyelidOuterTop",
+      "EyelidTop",
+      "Face",
+      "LipBottom",
+      "LipOuterBottom",
+      "LipOuterTop",
+      "LipTop"
+    ],
+    "face_group_ids": [
+      17,
+      4,
+      6,
+      8,
+      3,
+      20,
+      11,
+      14,
+      13,
+      12
+    ],
+    "full_boundary_triangles": 128172,
+    "full_boundary_unassigned_group_points": 6000,
+    "isface_global_face_key_sha256": "6833e5d2215e0037447b2ed8850b20c65a3d63a3db7cfdc93482829892d082ea",
+    "observed_skin_group_names": [
+      "Chin",
+      "EyelidBottom",
+      "EyelidOuterBottom",
+      "EyelidOuterTop",
+      "EyelidTop",
+      "Face",
+      "LipBottom",
+      "LipOuterBottom",
+      "LipOuterTop",
+      "LipTop"
+    ],
+    "prepared_boundary_source_face_key_sha256": "0f620e22886597e642c35db367abe83af7ccd99700a1967a12a665adf760a980",
+    "selection": "all three triangle vertices have IsFace=true",
+    "skin_artificial_cut_overlap_triangles": 0,
+    "skin_disallowed_group_overlap_triangles": 0,
+    "skin_fixed_overlap_triangles": 0,
+    "skin_gingiva_proximity_overlap_triangles": 0,
+    "skin_nonfinite_target_triangles": 0,
+    "skin_teeth_proximity_overlap_triangles": 52,
+    "skin_triangles": 29899,
+    "source_outer_face_key_sha256": "c2d4e9960c6df63b8cd265579a7c27bf783aed0093a60dc0bd110aab71e90f58",
+    "source_outer_triangles": 115007,
+    "teeth_and_gingiva_proximity_policy": "diagnostic only: these are 2 mm proximity masks, not anatomy labels",
+    "topology_reference_global_face_key_sha256": "6833e5d2215e0037447b2ed8850b20c65a3d63a3db7cfdc93482829892d082ea",
+    "validation_errors": [],
+    "validation_ok": true
+  },
+  "experiment": "human-face Smile IsFace plane-stress corrected baseline",
+  "fixed_design": {
+    "candidate_labels": [
+      "isface-e0200-p000"
+    ],
+    "inverse_activation_initialization": "fresh exact zero",
+    "inverse_evaluations": 41,
+    "inverse_lr": 0.3,
+    "inverse_optimizer": "Adam",
+    "inverse_optimizer_steps": 40,
+    "skin_E_MPa": 0.2,
+    "skin_area_m2": 0.04287998059707303,
+    "skin_components": 1,
+    "skin_domain": "all-vertex IsFace physically filtered PolyData",
+    "skin_lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+    "skin_nu": 0.49,
+    "skin_prestrain": "p000",
+    "skin_triangles": 29899,
+    "volume_lame_conversion": "unchanged 3D isotropic volume convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))"
+  },
+  "input_mesh": "/home/liblaf/Projects/liblaf/apple/exp/2026/06/17/human-face-smile-prestrain-v2/data/10-human-face-prepared.vtu",
+  "input_mesh_identity": {
+    "sha256": "8131d6944b322d7c1e21918688f297e2887b42bf4dbc19ce36259b007e8dc563",
+    "size_bytes": 76792914
+  },
+  "inputs": {
+    "identities_verified_stable": true,
+    "melon_face_mask_implementation/file_identity": {
+      "sha256": "80b607635f150693aaffc9f960fe04f8e16d5be52efa80a87d1106dc2787d4ff",
+      "size_bytes": 5766
+    },
+    "melon_face_mask_implementation/path": "/home/liblaf/Projects/liblaf/melon/exp/2026/05/27/head/src/42-gen-masks.py",
+    "source_mesh/file_identity": {
+      "sha256": "824464f109a4e97c3176091bb21e8fdb533def6fc5616845bc36bb377c2a7752",
+      "size_bytes": 176496263
+    },
+    "source_mesh/path": "/home/liblaf/Projects/liblaf/melon/exp/2026/05/27/head/data/62-tetmesh-3191k.vtu",
+    "topology_reference/file_identity": {
+      "sha256": "156873bf661f9a32d8d4161d548e20c208008a6bee5e0308e15abc9403befeac",
+      "size_bytes": 20278382
+    },
+    "topology_reference/path": "/home/liblaf/Projects/liblaf/apple/exp/2026/06/17/human-face-smile-prestrain-v2/data/10-smile-isface-skin-estimated-prestrain.vtp"
+  },
+  "n_candidates": 1,
+  "purpose": "establish one corrected homogeneous p000 baseline before any prestrain or heterogeneous-E inverse experiment",
+  "schema_version": 3,
+  "validation_errors": []
+}

@@ -1,0 +1,284 @@
+{
+  "candidate_validation_errors": {},
+  "candidates": [
+    {
+      "candidate/label": "e100-p200",
+      "content/material_sha256": "269156a4b029edf33cd9cd45ef9b11f5323fab0ac2c654787fb238159ba4b155",
+      "content/n_points": 64042,
+      "content/n_triangles": 128172,
+      "content/solver_sha256": "286ac6c9e262a7a811a4739c0206ada833ef3e2d5a7af1d030909cbcf5a7eab9",
+      "content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "field/ContractionSeverityLogCapped_max": 0.41746591441203185,
+      "field/E_edge_jump_MPa": {
+        "edge_length_weighted_q99": 0.0,
+        "edge_length_weighted_rms": 0.0,
+        "face_boundary_max": 0.0,
+        "max": 0.0,
+        "max_fraction_of_eligible_range": 0.0
+      },
+      "field/ExpansionWeight_max": 0.7093692747170706,
+      "field/activation_edge_jump": {
+        "edge_length_weighted_q99": 0.033965849620700705,
+        "edge_length_weighted_rms": 0.00723327927229388,
+        "face_boundary_max": 0.07333588450591622,
+        "max": 0.09304226044699204,
+        "max_fraction_of_eligible_range": 0.17958024739732964
+      },
+      "formula/prestrain": "Ainv_diag = exp(0.5 * prestrain_gain * ContractionSeverityLogCapped) - 1",
+      "formula/young": "E = 0.2 * young_min_scale ** ExpansionWeight",
+      "label": "e100-p200",
+      "prestrain_gain": 2.0,
+      "readback/content/material_sha256": "269156a4b029edf33cd9cd45ef9b11f5323fab0ac2c654787fb238159ba4b155",
+      "readback/content/solver_sha256": "286ac6c9e262a7a811a4739c0206ada833ef3e2d5a7af1d030909cbcf5a7eab9",
+      "readback/content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "readback/errors": [],
+      "readback/formula_consistent": true,
+      "readback/n_points": 64042,
+      "readback/n_triangles": 128172,
+      "readback/ok": true,
+      "schema_version": 1,
+      "skin/E_MPa_area_weighted_mean": 0.2,
+      "skin/E_MPa_max": 0.2,
+      "skin/E_MPa_mean": 0.20000000000000007,
+      "skin/E_MPa_min": 0.2,
+      "skin/activation_inv_diag_area_weighted_mean": 0.03406130600361941,
+      "skin/activation_inv_diag_area_weighted_rms": 0.08761483572489043,
+      "skin/activation_inv_diag_max": 0.5181096573563111,
+      "skin/activation_inv_diag_rms": 0.042374797434577616,
+      "skin/base_E_MPa": 0.2,
+      "skin/contraction_triangles": 13129,
+      "skin/eligible_triangles": 29899,
+      "skin/expansion_triangles": 16770,
+      "skin/file_identity": {
+        "sha256": "703f1363a81de00a8ca7677d4522f0869ad41b59f973b6d44c3eb382337b8674",
+        "size_bytes": 39218336
+      },
+      "skin/lame_conversion": "existing 3D isotropic convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))",
+      "skin/nu": 0.49,
+      "skin/path": "10-exaggerated-materials/skin-e100-p200.vtp",
+      "skin/stress_free_area_ratio_min": 0.4339040601747963,
+      "validation/errors": [],
+      "validation/ok": true,
+      "warnings": [
+        "ActivationInv max edge jump 0.0930423 exceeds legacy threshold 0.08; recorded as warning only"
+      ],
+      "young_min_scale": 1.0
+    },
+    {
+      "candidate/label": "e005-p000",
+      "content/material_sha256": "03ac1e05f573dacd6c8c60bb2df287ffa0a144c36a7b2badb660387cedf050fa",
+      "content/n_points": 64042,
+      "content/n_triangles": 128172,
+      "content/solver_sha256": "66205800992bd057ec5577ed9b1ab5b32a55996e9a35760a83ae1900a3b7e257",
+      "content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "field/ContractionSeverityLogCapped_max": 0.41746591441203185,
+      "field/E_edge_jump_MPa": {
+        "edge_length_weighted_q99": 0.01813266071694515,
+        "edge_length_weighted_rms": 0.00388789414663274,
+        "face_boundary_max": 0.04698684130865524,
+        "max": 0.05834427199892536,
+        "max_fraction_of_eligible_range": 0.33128446476867296
+      },
+      "field/ExpansionWeight_max": 0.7093692747170706,
+      "field/activation_edge_jump": {
+        "edge_length_weighted_q99": 0.0,
+        "edge_length_weighted_rms": 0.0,
+        "face_boundary_max": 0.0,
+        "max": 0.0,
+        "max_fraction_of_eligible_range": 0.0
+      },
+      "formula/prestrain": "Ainv_diag = exp(0.5 * prestrain_gain * ContractionSeverityLogCapped) - 1",
+      "formula/young": "E = 0.2 * young_min_scale ** ExpansionWeight",
+      "label": "e005-p000",
+      "prestrain_gain": 0.0,
+      "readback/content/material_sha256": "03ac1e05f573dacd6c8c60bb2df287ffa0a144c36a7b2badb660387cedf050fa",
+      "readback/content/solver_sha256": "66205800992bd057ec5577ed9b1ab5b32a55996e9a35760a83ae1900a3b7e257",
+      "readback/content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "readback/errors": [],
+      "readback/formula_consistent": true,
+      "readback/n_points": 64042,
+      "readback/n_triangles": 128172,
+      "readback/ok": true,
+      "schema_version": 1,
+      "skin/E_MPa_area_weighted_mean": 0.18161749711930447,
+      "skin/E_MPa_max": 0.2,
+      "skin/E_MPa_mean": 0.19480345852033212,
+      "skin/E_MPa_min": 0.023884672528590813,
+      "skin/activation_inv_diag_area_weighted_mean": 0.0,
+      "skin/activation_inv_diag_area_weighted_rms": 0.0,
+      "skin/activation_inv_diag_max": 0.0,
+      "skin/activation_inv_diag_rms": 0.0,
+      "skin/base_E_MPa": 0.2,
+      "skin/contraction_triangles": 13129,
+      "skin/eligible_triangles": 29899,
+      "skin/expansion_triangles": 16770,
+      "skin/file_identity": {
+        "sha256": "726997d8bbff6a7e126a615efdd07080f17ecf9aa4e7ba7bd94decafac9d8eab",
+        "size_bytes": 39295293
+      },
+      "skin/lame_conversion": "existing 3D isotropic convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))",
+      "skin/nu": 0.49,
+      "skin/path": "10-exaggerated-materials/skin-e005-p000.vtp",
+      "skin/stress_free_area_ratio_min": 1.0,
+      "validation/errors": [],
+      "validation/ok": true,
+      "warnings": [],
+      "young_min_scale": 0.05
+    },
+    {
+      "candidate/label": "e005-p200",
+      "content/material_sha256": "2090dd12a7cb915a72a64c0dae96745789f2347ecf6bea06be37aa861458c934",
+      "content/n_points": 64042,
+      "content/n_triangles": 128172,
+      "content/solver_sha256": "c45010408615b337515b04459f59c6cc44424efaed7f6c83794a59d7f1303343",
+      "content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "field/ContractionSeverityLogCapped_max": 0.41746591441203185,
+      "field/E_edge_jump_MPa": {
+        "edge_length_weighted_q99": 0.01813266071694515,
+        "edge_length_weighted_rms": 0.00388789414663274,
+        "face_boundary_max": 0.04698684130865524,
+        "max": 0.05834427199892536,
+        "max_fraction_of_eligible_range": 0.33128446476867296
+      },
+      "field/ExpansionWeight_max": 0.7093692747170706,
+      "field/activation_edge_jump": {
+        "edge_length_weighted_q99": 0.033965849620700705,
+        "edge_length_weighted_rms": 0.00723327927229388,
+        "face_boundary_max": 0.07333588450591622,
+        "max": 0.09304226044699204,
+        "max_fraction_of_eligible_range": 0.17958024739732964
+      },
+      "formula/prestrain": "Ainv_diag = exp(0.5 * prestrain_gain * ContractionSeverityLogCapped) - 1",
+      "formula/young": "E = 0.2 * young_min_scale ** ExpansionWeight",
+      "label": "e005-p200",
+      "prestrain_gain": 2.0,
+      "readback/content/material_sha256": "2090dd12a7cb915a72a64c0dae96745789f2347ecf6bea06be37aa861458c934",
+      "readback/content/solver_sha256": "c45010408615b337515b04459f59c6cc44424efaed7f6c83794a59d7f1303343",
+      "readback/content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+      "readback/errors": [],
+      "readback/formula_consistent": true,
+      "readback/n_points": 64042,
+      "readback/n_triangles": 128172,
+      "readback/ok": true,
+      "schema_version": 1,
+      "skin/E_MPa_area_weighted_mean": 0.18161749711930447,
+      "skin/E_MPa_max": 0.2,
+      "skin/E_MPa_mean": 0.19480345852033212,
+      "skin/E_MPa_min": 0.023884672528590813,
+      "skin/activation_inv_diag_area_weighted_mean": 0.03406130600361941,
+      "skin/activation_inv_diag_area_weighted_rms": 0.08761483572489043,
+      "skin/activation_inv_diag_max": 0.5181096573563111,
+      "skin/activation_inv_diag_rms": 0.042374797434577616,
+      "skin/base_E_MPa": 0.2,
+      "skin/contraction_triangles": 13129,
+      "skin/eligible_triangles": 29899,
+      "skin/expansion_triangles": 16770,
+      "skin/file_identity": {
+        "sha256": "cf3021c023825dfe5bd9932b6dbec883cdf42d9f7777e7386fe46ca1378f1ca9",
+        "size_bytes": 39771488
+      },
+      "skin/lame_conversion": "existing 3D isotropic convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))",
+      "skin/nu": 0.49,
+      "skin/path": "10-exaggerated-materials/skin-e005-p200.vtp",
+      "skin/stress_free_area_ratio_min": 0.4339040601747963,
+      "validation/errors": [],
+      "validation/ok": true,
+      "warnings": [
+        "ActivationInv max edge jump 0.0930423 exceeds legacy threshold 0.08; recorded as warning only"
+      ],
+      "young_min_scale": 0.05
+    }
+  ],
+  "complete": true,
+  "design": "exaggerated-heterogeneous-mechanism-screen",
+  "edge_jump_policy": {
+    "legacy_thresholds": {
+      "E_jump_max_MPa": 0.06,
+      "E_jump_weighted_rms_MPa": 0.012,
+      "activation_jump_max": 0.08,
+      "activation_jump_weighted_rms": 0.02
+    },
+    "status": "warning_only",
+    "warnings": {
+      "e005-p200": [
+        "ActivationInv max edge jump 0.0930423 exceeds legacy threshold 0.08; recorded as warning only"
+      ],
+      "e100-p200": [
+        "ActivationInv max edge jump 0.0930423 exceeds legacy threshold 0.08; recorded as warning only"
+      ]
+    }
+  },
+  "experiment": "human-face Smile exaggerated heterogeneous skin materials",
+  "fixed_design": {
+    "candidate_labels": [
+      "e100-p200",
+      "e005-p000",
+      "e005-p200"
+    ],
+    "candidates": [
+      {
+        "label": "e100-p200",
+        "prestrain_gain": 2.0,
+        "young_min_scale": 1.0
+      },
+      {
+        "label": "e005-p000",
+        "prestrain_gain": 0.0,
+        "young_min_scale": 0.05
+      },
+      {
+        "label": "e005-p200",
+        "prestrain_gain": 2.0,
+        "young_min_scale": 0.05
+      }
+    ],
+    "heterogeneous_fields": [
+      "ExpansionWeight",
+      "ContractionSeverityLogCapped"
+    ],
+    "lame_conversion": "existing 3D isotropic convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))",
+    "prestrain_rule": "Ainv_diag = exp(0.5 * prestrain_gain * ContractionSeverityLogCapped) - 1",
+    "young_rule": "E = 0.2 * young_min_scale ** ExpansionWeight"
+  },
+  "input_mesh": "/home/liblaf/Projects/liblaf/apple/exp/2026/06/17/human-face-smile-prestrain-v2/data/10-human-face-prepared.vtu",
+  "input_mesh_identity": {
+    "sha256": "8131d6944b322d7c1e21918688f297e2887b42bf4dbc19ce36259b007e8dc563",
+    "size_bytes": 76792914
+  },
+  "input_mesh_identity_verified_stable": true,
+  "n_candidates": 3,
+  "purpose": "mechanism-contrast screen; deliberately exaggerated and not a physiological calibration",
+  "schema_version": 1,
+  "source": {
+    "candidate": "e100-p000",
+    "candidate/manifest_row_solver_sha256": "b9acd84d49b0f9ae6e82c4aad773c222dd5e2c24773f7cdc9712b4d3c6f0291f",
+    "content/material_sha256": "7fdd896528f867d35b5740763030c297ff53abad33590abd610edaa8689da6b5",
+    "content/solver_sha256": "b9acd84d49b0f9ae6e82c4aad773c222dd5e2c24773f7cdc9712b4d3c6f0291f",
+    "content/topology_sha256": "ae1261614865d2fa39e674994043e25fba85db3c5f2622fe588e676213ca5aff",
+    "driver_fields": {
+      "ContractionSeverityLogCapped_sha256": "b4431ae87e15f61da65c971566df645452ca54751ad33493d5659f226b840a3f",
+      "ExpansionWeight_sha256": "20939f58706b235b3bf6bfa7ad84a9c834616c2e4e16ef6e11106b382cc2797a"
+    },
+    "manifest/file_identity": {
+      "sha256": "f5b4a16183171bf68336db748bbd547621def8c9c3aa536fc4ee821869be3cd9",
+      "size_bytes": 79539
+    },
+    "manifest/identity_verified_stable": true,
+    "manifest/path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates-manifest.json",
+    "skin/file_identity": {
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    },
+    "skin/identity_verified_stable": true,
+    "skin/path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp"
+  },
+  "surface_topology": {
+    "eligible_boundary_edges": 707,
+    "eligible_interior_edges": 44495,
+    "eligible_triangles": 29899,
+    "identity_lhs_3F": 89697,
+    "identity_rhs_2Eint_plus_Eboundary": 89697,
+    "nonmanifold_eligible_edges": 0
+  },
+  "validation_errors": []
+}

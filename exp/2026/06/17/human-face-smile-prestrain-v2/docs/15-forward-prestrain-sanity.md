@@ -1,5 +1,11 @@
 # Forward Skin Prestrain Sanity Check
 
+> **Historical-model result (superseded as a thin-skin baseline, 2026-08-18).**
+> The artifacts are retained unchanged. This sanity check used the historical
+> full-boundary/3D-Lamé Koiter model and, for nonzero prestrain, the historical
+> activation-dependent energy weight. It remains useful for provenance and
+> group-meeting comparison, not as validation of the corrected membrane.
+
 ## Purpose
 
 Check the Smile-derived skin shrink prestrain before continuing inverse optimization. The revised goal adds a fourth case with uniform `c = 0.02` tightening on `IsFace` triangles, so this sanity pass compares:

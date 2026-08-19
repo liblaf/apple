@@ -1,0 +1,119 @@
+{
+  "categorical_view": {
+    "active_fraction_sum_statement": "FatFraction + MuscleFraction + AponeurosisFraction = 1 exactly",
+    "definition": "argmax(FatFraction, MuscleFraction, AponeurosisFraction)",
+    "field": "DominantMaterial",
+    "materials": {
+      "0": {
+        "constitutive_model": "Stable Neo-Hookean",
+        "fraction_field": "FatFraction",
+        "name": "Fat",
+        "poisson_ratio": 0.49,
+        "rgb": [
+          0.929,
+          0.694,
+          0.125
+        ],
+        "young_modulus_MPa": 0.003
+      },
+      "1": {
+        "constitutive_model": "active Stable Neo-Hookean",
+        "fraction_field": "MuscleFraction",
+        "name": "Muscle",
+        "poisson_ratio": 0.49,
+        "rgb": [
+          0.796,
+          0.153,
+          0.153
+        ],
+        "young_modulus_MPa": 0.03
+      },
+      "2": {
+        "constitutive_model": "Stable Neo-Hookean",
+        "fraction_field": "AponeurosisFraction",
+        "name": "Aponeurosis",
+        "poisson_ratio": 0.35,
+        "rgb": [
+          0.122,
+          0.467,
+          0.706
+        ],
+        "young_modulus_MPa": 0.1
+      }
+    },
+    "physics_interpretation": "The solver uses continuous fraction-weighted constitutive energies; the categorical dominant-material field is not a solver input.",
+    "visualization_only": true
+  },
+  "complete": false,
+  "cross_section": {
+    "camera_focus_m": [
+      1.4070235649558214,
+      2.211267239594009,
+      0.04436769207785067
+    ],
+    "camera_parallel_scale_m": 0.11650847052685555,
+    "name": "coronal mid-plane",
+    "normal": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "origin_m": [
+      1.4070235649558214,
+      2.211267239594009,
+      0.04436769207785067
+    ],
+    "view_up": [
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "design": "whole-anatomy-dominant-material-coronal-cross-section",
+  "input": {
+    "identity": {
+      "sha256": "8131d6944b322d7c1e21918688f297e2887b42bf4dbc19ce36259b007e8dc563",
+      "size_bytes": 76792914
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/06/17/human-face-smile-prestrain-v2/data/10-human-face-prepared.vtu",
+    "validation": {
+      "active_fraction_sum_max_abs_error": 0.0,
+      "bounds_m": [
+        1.3386133972229173,
+        1.4754337326887257,
+        2.110828902932927,
+        2.3117055762550915,
+        -0.02446428876198042,
+        0.11319967291768177
+      ],
+      "dominance_tie_break": "numpy argmax field order: Fat, Muscle, Aponeurosis",
+      "points": 228660,
+      "tetrahedra": 1146517,
+      "whole_volume_dominant_tet_counts": {
+        "Aponeurosis": 30215,
+        "Fat": 945754,
+        "Muscle": 170548
+      }
+    }
+  },
+  "outputs": {
+    "png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-dominant-material.png",
+    "pvsm": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section/25-volume-cross-section-dominant-material.pvsm",
+    "renderer_receipt": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/25-volume-cross-section-renderer-receipt.json"
+  },
+  "renderer": {
+    "image_resolution": [
+      2000,
+      1600
+    ],
+    "native_paraview_rendering": true,
+    "path": "/usr/bin/pvbatch",
+    "script": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/src/25-volume-cross-section-paraview.py",
+    "script_identity": {
+      "sha256": "152294639434b42b86b9c29ce94d2a839cab93d29bb7b265fe39dc007123233a",
+      "size_bytes": 11028
+    },
+    "version": "6.1.1"
+  },
+  "schema_version": 1
+}

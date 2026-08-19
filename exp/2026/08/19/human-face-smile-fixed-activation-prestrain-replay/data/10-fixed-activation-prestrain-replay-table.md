@@ -1,0 +1,8 @@
+| case | path | alpha | seed | forward | steps | loss RMS mm | IsFace RMS mm |
+| --- | --- | ---: | --- | --- | ---: | ---: | ---: |
+| c020-continuation-alpha-000 | continuation | 0.00 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu | True | 576 | 2.72097 | 2.72123 |
+| c020-continuation-alpha-025 | continuation | 0.25 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-000/result.vtu | True | 1703 | 2.74715 | 2.74742 |
+| c020-continuation-alpha-050 | continuation | 0.50 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-025/result.vtu | True | 1747 | 2.76171 | 2.76198 |
+| c020-continuation-alpha-075 | continuation | 0.75 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-050/result.vtu | True | 1588 | 2.76056 | 2.76083 |
+| c020-continuation-alpha-100 | continuation | 1.00 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fixed-activation-prestrain-replay/data/10-fixed-activation-prestrain-replay/c020/continuation/alpha-075/result.vtu | True | 1830 | 2.77878 | 2.77905 |
+| c020-direct-alpha-100 | direct | 1.00 | /home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu | True | 1802 | 2.77865 | 2.77892 |

@@ -1,0 +1,1278 @@
+{
+  "anatomy_material_contract": {
+    "boundary": {
+      "expected_cut_vertices": 6980,
+      "expected_model_fixed_dofs": 100908,
+      "expected_model_fixed_vertices": 33636,
+      "policy": "all cross-section incident vertices fixed to zero displacement"
+    },
+    "skin": {
+      "E_MPa": "case-dependent: 0.003 or 0.2",
+      "domain": "all-vertex IsFace filtered PolyData",
+      "energy_measure": "fixed original reference area",
+      "lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+      "nu": 0.49,
+      "thickness_m": 0.001
+    },
+    "volume": {
+      "aponeurosis": {
+        "E_MPa": 0.1,
+        "nu": 0.35
+      },
+      "fat": {
+        "E_MPa": 0.003,
+        "nu": 0.49
+      },
+      "lame_conversion": "unchanged 3D isotropic volume convention: lambda = E * nu / ((1 + nu) * (1 - 2 * nu)); mu = E / (2 * (1 + nu))",
+      "muscle": {
+        "E_MPa": 0.03,
+        "activation": "fresh exact-zero inverse initialization",
+        "nu": 0.49,
+        "parameterization": "independent 6-DoF per active muscle tet"
+      }
+    }
+  },
+  "approval": {
+    "forward_or_adjoint_smoke_approved": false,
+    "inverse_execution_approved": false,
+    "material_preparation_static_review": true,
+    "meaning": "this manifest certifies only deterministic material preparation; downstream smoke and inverse scripts retain independent blockers"
+  },
+  "candidate_array_hashes_le_c": {
+    "activation_c020": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+    "activation_diag_c020": "9886106f0c5a60c8007e6a6eda26eaa9c8bc33b159c9f719307bec5c832664d3",
+    "activation_diag_p000": "c1a2cfddfccbbbf0c5c331571cb1ccab9fea8d6afb8c7aa920c74abe1d86f7e2",
+    "expanding_mask": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+    "fat_floor_lambda": "d6ef7eed22196a7d8cb2bbe519d565fbeeafbf7c0ad6285e0de7377b374f2bf1",
+    "fat_floor_mu": "09a30f9c6a95003ddbc6e10c3880f5f8888c152656d2b49a499286681f4d05fa",
+    "fat_floor_young": "3d16df172d08edfdb52077ac8961aa80bc3363ed9e9d8b0b1f1a0f3695b82c1e",
+    "inherited_int8_all_one": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+    "inherited_int8_all_zero": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+    "mask_all_one": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+    "mask_all_zero": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+    "p000_activation": "051fe4599913dc590cb39aa79f7bb51578efc3323cd9c0a337be804d12d8f224",
+    "p000_stress_free_area_ratio": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+    "rho_c020": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+    "teeth_proximity": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e"
+  },
+  "case_order": [
+    "HFP1",
+    "HFP0"
+  ],
+  "cases": [
+    {
+      "case_id": "HFP1",
+      "definition": {
+        "energy_measure": "fixed original reference area",
+        "important_interaction": "prestrain is stored and mechanically active on all IsFace triangles; expanding triangles retain the positive 0.003 MPa modulus floor",
+        "lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+        "poisson_ratio": 0.49,
+        "prestrain": "rho=0.98^2*clip(raw R,0.5,1); ActivationInv=[rho^-1/2-1,rho^-1/2-1,0]",
+        "skin_domain": "all-vertex IsFace filtered PolyData",
+        "skin_thickness_m": 0.001,
+        "young_modulus": "E=fat modulus (0.003 MPa) iff raw R>1, else E=0.2 MPa"
+      },
+      "generated": true,
+      "inverse_artifacts": null,
+      "prestrain_mode": "c020-raw-area-ratio-floor-050",
+      "role": "fat-floor selective softening plus c020",
+      "skin": {
+        "arrays": {
+          "ActivationInv": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.44307506364601545,
+            "min": 0.0,
+            "sha256_le_c": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+            "shape": [
+              29899,
+              3
+            ]
+          },
+          "ArtificialCutTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "C020PrestrainEnabled": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+            "shape": [
+              29899
+            ]
+          },
+          "ClippedTargetRestAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.5,
+            "sha256_le_c": "aaf87f8d68485136c0ce09d113ce09de481654613c7d50c80ac2becb40e86e1e",
+            "shape": [
+              29899
+            ]
+          },
+          "DisallowedGroupTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "ExpandingTriangle": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+            "shape": [
+              29899
+            ]
+          },
+          "FixedTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "Fraction": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+            "shape": [
+              29899
+            ]
+          },
+          "GingivaProximityTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "IsFaceTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+            "shape": [
+              29899
+            ]
+          },
+          "RestArea": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 3.3454036216189584e-06,
+            "min": 3.743119669978754e-09,
+            "sha256_le_c": "5a7b8eb9861fa509212afd610c60183f894b80db8ded53d22f3f9045bc6889de",
+            "shape": [
+              29899
+            ]
+          },
+          "SelectiveFatFloor": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinActivationInvDiag": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.44307506364601545,
+            "min": 0.020408163265306145,
+            "sha256_le_c": "9886106f0c5a60c8007e6a6eda26eaa9c8bc33b159c9f719307bec5c832664d3",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinPoissonRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.49,
+            "min": 0.49,
+            "sha256_le_c": "31208c848c1278e2317d0faa7e4bb8a9fe5ec379e28b90ce3105350e8577b627",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinYoungModulusMPa": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.2,
+            "min": 0.003,
+            "sha256_le_c": "3d16df172d08edfdb52077ac8961aa80bc3363ed9e9d8b0b1f1a0f3695b82c1e",
+            "shape": [
+              29899
+            ]
+          },
+          "SourceOuterTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+            "shape": [
+              29899
+            ]
+          },
+          "StressFreeAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.9603999999999999,
+            "min": 0.48019999999999996,
+            "sha256_le_c": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+            "shape": [
+              29899
+            ]
+          },
+          "TargetRestAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 16.513033660865602,
+            "min": 0.045415665542901884,
+            "sha256_le_c": "da98a6f48694eed30b1683ccf5a1f02fd67c87393b30003d07c52a7fa25bc606",
+            "shape": [
+              29899
+            ]
+          },
+          "TeethProximityTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e",
+            "shape": [
+              29899
+            ]
+          },
+          "lambda": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.1289643374128175,
+            "min": 0.001934465061192262,
+            "sha256_le_c": "d6ef7eed22196a7d8cb2bbe519d565fbeeafbf7c0ad6285e0de7377b374f2bf1",
+            "shape": [
+              29899
+            ]
+          },
+          "mu": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.06711409395973154,
+            "min": 0.0010067114093959733,
+            "sha256_le_c": "09a30f9c6a95003ddbc6e10c3880f5f8888c152656d2b49a499286681f4d05fa",
+            "shape": [
+              29899
+            ]
+          }
+        },
+        "convenience_array_audit": {
+          "SkinActivationInvDiag": {
+            "dtype": "<f8",
+            "exactly_equals": "ActivationInv[:, 0]",
+            "sha256_le_c": "9886106f0c5a60c8007e6a6eda26eaa9c8bc33b159c9f719307bec5c832664d3",
+            "shape": [
+              29899
+            ]
+          },
+          "complete": true,
+          "inherited_cell_arrays": {
+            "ArtificialCutTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "DisallowedGroupTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "FixedTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "GingivaProximityTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "IsFaceTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 29899,
+              "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "SourceOuterTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 29899,
+              "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "TeethProximityTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 52,
+              "sha256_le_c": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            }
+          },
+          "point_domain": {
+            "all_IsFace": true,
+            "any_IsFixed": false,
+            "diagnostic_masks_rederived_from": [
+              "IsTeeth",
+              "IsGingiva"
+            ]
+          }
+        },
+        "file_identity": {
+          "sha256": "89e0b349b1ba8002bc654325ba2f025c492b6e096c242c4c194ddede72cd117d",
+          "size_bytes": 2072304
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+        "points": 15299,
+        "relative_path": "10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+        "triangles": 29899
+      },
+      "validation": {
+        "errors": [],
+        "ok": true
+      },
+      "young_modulus_mode": "selective-efat003-where-raw-r-gt-1"
+    },
+    {
+      "case_id": "HFP0",
+      "definition": {
+        "energy_measure": "fixed original reference area",
+        "important_interaction": null,
+        "lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+        "poisson_ratio": 0.49,
+        "prestrain": "p000: rho=1 and ActivationInv is exact zero",
+        "skin_domain": "all-vertex IsFace filtered PolyData",
+        "skin_thickness_m": 0.001,
+        "young_modulus": "E=fat modulus (0.003 MPa) iff raw R>1, else E=0.2 MPa"
+      },
+      "generated": true,
+      "inverse_artifacts": null,
+      "prestrain_mode": "p000",
+      "role": "fat-floor selective softening without prestrain",
+      "skin": {
+        "arrays": {
+          "ActivationInv": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "051fe4599913dc590cb39aa79f7bb51578efc3323cd9c0a337be804d12d8f224",
+            "shape": [
+              29899,
+              3
+            ]
+          },
+          "ArtificialCutTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "C020PrestrainEnabled": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "ClippedTargetRestAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.5,
+            "sha256_le_c": "aaf87f8d68485136c0ce09d113ce09de481654613c7d50c80ac2becb40e86e1e",
+            "shape": [
+              29899
+            ]
+          },
+          "DisallowedGroupTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "ExpandingTriangle": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+            "shape": [
+              29899
+            ]
+          },
+          "FixedTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "Fraction": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+            "shape": [
+              29899
+            ]
+          },
+          "GingivaProximityTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+            "shape": [
+              29899
+            ]
+          },
+          "IsFaceTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+            "shape": [
+              29899
+            ]
+          },
+          "RestArea": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 3.3454036216189584e-06,
+            "min": 3.743119669978754e-09,
+            "sha256_le_c": "5a7b8eb9861fa509212afd610c60183f894b80db8ded53d22f3f9045bc6889de",
+            "shape": [
+              29899
+            ]
+          },
+          "SelectiveFatFloor": {
+            "association": "cell",
+            "dtype": "u1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinActivationInvDiag": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.0,
+            "min": 0.0,
+            "sha256_le_c": "c1a2cfddfccbbbf0c5c331571cb1ccab9fea8d6afb8c7aa920c74abe1d86f7e2",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinPoissonRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.49,
+            "min": 0.49,
+            "sha256_le_c": "31208c848c1278e2317d0faa7e4bb8a9fe5ec379e28b90ce3105350e8577b627",
+            "shape": [
+              29899
+            ]
+          },
+          "SkinYoungModulusMPa": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.2,
+            "min": 0.003,
+            "sha256_le_c": "3d16df172d08edfdb52077ac8961aa80bc3363ed9e9d8b0b1f1a0f3695b82c1e",
+            "shape": [
+              29899
+            ]
+          },
+          "SourceOuterTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+            "shape": [
+              29899
+            ]
+          },
+          "StressFreeAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 1.0,
+            "min": 1.0,
+            "sha256_le_c": "aa74d25a4afece1f232101f98e5fda8177935c3e833ae578be636d9ff42294c2",
+            "shape": [
+              29899
+            ]
+          },
+          "TargetRestAreaRatio": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 16.513033660865602,
+            "min": 0.045415665542901884,
+            "sha256_le_c": "da98a6f48694eed30b1683ccf5a1f02fd67c87393b30003d07c52a7fa25bc606",
+            "shape": [
+              29899
+            ]
+          },
+          "TeethProximityTriangle": {
+            "association": "cell",
+            "dtype": "i1",
+            "finite": true,
+            "max": 1.0,
+            "min": 0.0,
+            "sha256_le_c": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e",
+            "shape": [
+              29899
+            ]
+          },
+          "lambda": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.1289643374128175,
+            "min": 0.001934465061192262,
+            "sha256_le_c": "d6ef7eed22196a7d8cb2bbe519d565fbeeafbf7c0ad6285e0de7377b374f2bf1",
+            "shape": [
+              29899
+            ]
+          },
+          "mu": {
+            "association": "cell",
+            "dtype": "<f8",
+            "finite": true,
+            "max": 0.06711409395973154,
+            "min": 0.0010067114093959733,
+            "sha256_le_c": "09a30f9c6a95003ddbc6e10c3880f5f8888c152656d2b49a499286681f4d05fa",
+            "shape": [
+              29899
+            ]
+          }
+        },
+        "convenience_array_audit": {
+          "SkinActivationInvDiag": {
+            "dtype": "<f8",
+            "exactly_equals": "ActivationInv[:, 0]",
+            "sha256_le_c": "c1a2cfddfccbbbf0c5c331571cb1ccab9fea8d6afb8c7aa920c74abe1d86f7e2",
+            "shape": [
+              29899
+            ]
+          },
+          "complete": true,
+          "inherited_cell_arrays": {
+            "ArtificialCutTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "DisallowedGroupTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "FixedTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "GingivaProximityTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 0,
+              "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "IsFaceTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 29899,
+              "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "SourceOuterTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 29899,
+              "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            },
+            "TeethProximityTriangle": {
+              "dtype": "i1",
+              "exact_semantic_readback": true,
+              "nonzero": 52,
+              "sha256_le_c": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e",
+              "shape": [
+                29899
+              ],
+              "unchanged_from_corrected_source": true
+            }
+          },
+          "point_domain": {
+            "all_IsFace": true,
+            "any_IsFixed": false,
+            "diagnostic_masks_rederived_from": [
+              "IsTeeth",
+              "IsGingiva"
+            ]
+          }
+        },
+        "file_identity": {
+          "sha256": "8aff20c6ecad328bb436213c7751c25546df3b12a01e3f6e748c24e4b9941f23",
+          "size_bytes": 1611312
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+        "points": 15299,
+        "relative_path": "10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+        "triangles": 29899
+      },
+      "validation": {
+        "errors": [],
+        "ok": true
+      },
+      "young_modulus_mode": "selective-efat003-where-raw-r-gt-1"
+    }
+  ],
+  "complete": true,
+  "constants": {
+    "fat_E_MPa": 0.003,
+    "fat_floor_area_weighted_E_MPa": 0.09253042789422025,
+    "length_factor": 0.98,
+    "linear_tightening": 0.02,
+    "raw_area_ratio_floor": 0.5,
+    "selective_fat_floor_rule": "E=fat modulus (0.003 MPa) iff raw TargetRestAreaRatio > 1; else E=0.2 MPa",
+    "skin_E_MPa": 0.2,
+    "skin_energy_measure": "fixed original reference area",
+    "skin_lame_conversion": "thin-membrane plane-stress reduction: lambda = E * nu / (1 - nu**2); mu = E / (2 * (1 + nu))",
+    "skin_nu": 0.49,
+    "skin_thickness_m": 0.001,
+    "uniform_natural_area_ratio": 0.9603999999999999
+  },
+  "control_order": [
+    "H0P0",
+    "H0P1"
+  ],
+  "controls": [
+    {
+      "case_id": "H0P0",
+      "inverse_artifacts": {
+        "aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-corrected-baseline-screen-summary-final.json",
+          "sha256": "64a030366053b14eed9ad4da322d910146175fe7bb781e2dca8ee976c03c7045",
+          "size_bytes": 148046
+        },
+        "case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-summary-final.json",
+          "sha256": "575ebcbd7152a256917c2a11a9bf9bef9046f00f9831e18adc86d41645be1856",
+          "size_bytes": 126540
+        },
+        "history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-steps.vtkhdf",
+          "sha256": "6e29d7b205e7901681942f0d413b091c5e4bce003ec4d789c2d7f69ded430d24",
+          "size_bytes": 2066073161
+        },
+        "result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu",
+          "sha256": "c6a0b183675ffb3ec537c1153544b041acd7aa0fdd5216c0cf9a50022d52b0a4",
+          "size_bytes": 147657021
+        },
+        "target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-target.vtu",
+          "sha256": "89ec02dfd87330f7dc1d303639893f7698ef2e6098480c4e39fa2ad94240206c",
+          "size_bytes": 84419492
+        },
+        "trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-trace.jsonl",
+          "sha256": "a0f83957c832a119f6f031fb78a46fe52060d3b190a2ba0a1265f000c5d8cde3",
+          "size_bytes": 91767
+        }
+      },
+      "prestrain_mode": "p000",
+      "reused_not_rerun": true,
+      "role": "exact-pinned homogeneous p000 control; not rerun",
+      "skin": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "young_modulus_mode": "homogeneous-e0200"
+    },
+    {
+      "case_id": "H0P1",
+      "inverse_artifacts": {
+        "aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-selective-skin-prestrain-inverse-summary-final.json",
+          "sha256": "cf533bb16f481d75587531dfcd5aa21ed1065ed02539ea3ff0290e94d6cd2de6",
+          "size_bytes": 387036
+        },
+        "case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-summary-final.json",
+          "sha256": "0ecf17c2a25cc03ebccb42a7ca3bd25bbeaf2fde0b0da3f1dec156efe8d99b2c",
+          "size_bytes": 111232
+        },
+        "history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-steps.vtkhdf",
+          "sha256": "c082c6202218c74a5fa3ef9c01048487a7ba4988621a7628eb1dc6a641debceb",
+          "size_bytes": 2071499339
+        },
+        "result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1.vtu",
+          "sha256": "eabec1d0493f004d066f94f20b5ac6725f8d84245ceccfddc51dc191dd96cde0",
+          "size_bytes": 147640393
+        },
+        "target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-target.vtu",
+          "sha256": "3d6e3fe1baa48745d8592b109ad513cf7a822f05ece26ccbf2045c57b8f44418",
+          "size_bytes": 84419492
+        },
+        "trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-trace.jsonl",
+          "sha256": "657de3a7bc6cbdf361dd805aafa9eedc64bc77a1487b93327e0d82de6257f692",
+          "size_bytes": 79471
+        }
+      },
+      "prestrain_mode": "c020-raw-area-ratio-floor-050",
+      "reused_not_rerun": true,
+      "role": "exact-pinned homogeneous c020 control; not rerun",
+      "skin": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+        "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+        "size_bytes": 1898983
+      },
+      "young_modulus_mode": "homogeneous-e0200"
+    }
+  ],
+  "convenience_array_contract": {
+    "candidate_requirement": "SkinActivationInvDiag exactly equals ActivationInv[:, 0]; inherited domain and diagnostic arrays retain their corrected-source values and rederived semantics",
+    "corrected_source_audit": {
+      "SkinActivationInvDiag": {
+        "dtype": "<f8",
+        "exactly_equals": "ActivationInv[:, 0]",
+        "sha256_le_c": "c1a2cfddfccbbbf0c5c331571cb1ccab9fea8d6afb8c7aa920c74abe1d86f7e2",
+        "shape": [
+          29899
+        ]
+      },
+      "complete": true,
+      "inherited_cell_arrays": {
+        "ArtificialCutTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 0,
+          "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "DisallowedGroupTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 0,
+          "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "FixedTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 0,
+          "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "GingivaProximityTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 0,
+          "sha256_le_c": "7bd2b07dd38fb3c32897d8931f62e04381be41f4b91df22c102fb4db1f477ce1",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "IsFaceTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 29899,
+          "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "SourceOuterTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 29899,
+          "sha256_le_c": "d2580c50d0997b172975ce03f35909cfcd6660043ca11b84b86a61b4871b367c",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        },
+        "TeethProximityTriangle": {
+          "dtype": "i1",
+          "exact_semantic_readback": true,
+          "nonzero": 52,
+          "sha256_le_c": "c8866dd1aecdb6c7c7fee45c009103f48cc5a4b7a3752926cbb45bc88b88a76e",
+          "shape": [
+            29899
+          ],
+          "unchanged_from_corrected_source": false
+        }
+      },
+      "point_domain": {
+        "all_IsFace": true,
+        "any_IsFixed": false,
+        "diagnostic_masks_rederived_from": [
+          "IsTeeth",
+          "IsGingiva"
+        ]
+      }
+    }
+  },
+  "design": "corrected-isface-two-case-selective-efat-c020-inverse-materials-v2",
+  "input_provenance": {
+    "control_artifacts": {
+      "H0P0": {
+        "aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-corrected-baseline-screen-summary-final.json",
+          "sha256": "64a030366053b14eed9ad4da322d910146175fe7bb781e2dca8ee976c03c7045",
+          "size_bytes": 148046
+        },
+        "case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-summary-final.json",
+          "sha256": "575ebcbd7152a256917c2a11a9bf9bef9046f00f9831e18adc86d41645be1856",
+          "size_bytes": 126540
+        },
+        "history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-steps.vtkhdf",
+          "sha256": "6e29d7b205e7901681942f0d413b091c5e4bce003ec4d789c2d7f69ded430d24",
+          "size_bytes": 2066073161
+        },
+        "result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu",
+          "sha256": "c6a0b183675ffb3ec537c1153544b041acd7aa0fdd5216c0cf9a50022d52b0a4",
+          "size_bytes": 147657021
+        },
+        "target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-target.vtu",
+          "sha256": "89ec02dfd87330f7dc1d303639893f7698ef2e6098480c4e39fa2ad94240206c",
+          "size_bytes": 84419492
+        },
+        "trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-trace.jsonl",
+          "sha256": "a0f83957c832a119f6f031fb78a46fe52060d3b190a2ba0a1265f000c5d8cde3",
+          "size_bytes": 91767
+        }
+      },
+      "H0P1": {
+        "aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-selective-skin-prestrain-inverse-summary-final.json",
+          "sha256": "cf533bb16f481d75587531dfcd5aa21ed1065ed02539ea3ff0290e94d6cd2de6",
+          "size_bytes": 387036
+        },
+        "case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-summary-final.json",
+          "sha256": "0ecf17c2a25cc03ebccb42a7ca3bd25bbeaf2fde0b0da3f1dec156efe8d99b2c",
+          "size_bytes": 111232
+        },
+        "history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-steps.vtkhdf",
+          "sha256": "c082c6202218c74a5fa3ef9c01048487a7ba4988621a7628eb1dc6a641debceb",
+          "size_bytes": 2071499339
+        },
+        "result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1.vtu",
+          "sha256": "eabec1d0493f004d066f94f20b5ac6725f8d84245ceccfddc51dc191dd96cde0",
+          "size_bytes": 147640393
+        },
+        "skin": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+          "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+          "size_bytes": 1898983
+        },
+        "target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-target.vtu",
+          "sha256": "3d6e3fe1baa48745d8592b109ad513cf7a822f05ece26ccbf2045c57b8f44418",
+          "size_bytes": 84419492
+        },
+        "trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-trace.jsonl",
+          "sha256": "657de3a7bc6cbdf361dd805aafa9eedc64bc77a1487b93327e0d82de6257f692",
+          "size_bytes": 79471
+        }
+      }
+    },
+    "corrected_manifest_contract_verified": true,
+    "final_recheck": {
+      "all_unchanged": true,
+      "files": {
+        "corrected_manifest": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline-manifest.json",
+          "sha256": "d999be4fc941253b8daa84dca4a52ab44bd02b3e42ce2af6d151a2e14b64a21a",
+          "size_bytes": 7723,
+          "unchanged": true
+        },
+        "corrected_skin": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+          "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+          "size_bytes": 1138550,
+          "unchanged": true
+        },
+        "h0p0_aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-corrected-baseline-screen-summary-final.json",
+          "sha256": "64a030366053b14eed9ad4da322d910146175fe7bb781e2dca8ee976c03c7045",
+          "size_bytes": 148046,
+          "unchanged": true
+        },
+        "h0p0_case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-summary-final.json",
+          "sha256": "575ebcbd7152a256917c2a11a9bf9bef9046f00f9831e18adc86d41645be1856",
+          "size_bytes": 126540,
+          "unchanged": true
+        },
+        "h0p0_history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-steps.vtkhdf",
+          "sha256": "6e29d7b205e7901681942f0d413b091c5e4bce003ec4d789c2d7f69ded430d24",
+          "size_bytes": 2066073161,
+          "unchanged": true
+        },
+        "h0p0_result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen.vtu",
+          "sha256": "c6a0b183675ffb3ec537c1153544b041acd7aa0fdd5216c0cf9a50022d52b0a4",
+          "size_bytes": 147657021,
+          "unchanged": true
+        },
+        "h0p0_target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-target.vtu",
+          "sha256": "89ec02dfd87330f7dc1d303639893f7698ef2e6098480c4e39fa2ad94240206c",
+          "size_bytes": 84419492,
+          "unchanged": true
+        },
+        "h0p0_trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/20-human-face-smile-skin-no-prestrain-lr3-corrected-isface-e0200-p000-screen-trace.jsonl",
+          "sha256": "a0f83957c832a119f6f031fb78a46fe52060d3b190a2ba0a1265f000c5d8cde3",
+          "size_bytes": 91767,
+          "unchanged": true
+        },
+        "h0p1_aggregate_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-selective-skin-prestrain-inverse-summary-final.json",
+          "sha256": "cf533bb16f481d75587531dfcd5aa21ed1065ed02539ea3ff0290e94d6cd2de6",
+          "size_bytes": 387036,
+          "unchanged": true
+        },
+        "h0p1_case_summary": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-summary-final.json",
+          "sha256": "0ecf17c2a25cc03ebccb42a7ca3bd25bbeaf2fde0b0da3f1dec156efe8d99b2c",
+          "size_bytes": 111232,
+          "unchanged": true
+        },
+        "h0p1_history": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-steps.vtkhdf",
+          "sha256": "c082c6202218c74a5fa3ef9c01048487a7ba4988621a7628eb1dc6a641debceb",
+          "size_bytes": 2071499339,
+          "unchanged": true
+        },
+        "h0p1_result": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1.vtu",
+          "sha256": "eabec1d0493f004d066f94f20b5ac6725f8d84245ceccfddc51dc191dd96cde0",
+          "size_bytes": 147640393,
+          "unchanged": true
+        },
+        "h0p1_skin": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+          "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+          "size_bytes": 1898983,
+          "unchanged": true
+        },
+        "h0p1_target": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-target.vtu",
+          "sha256": "3d6e3fe1baa48745d8592b109ad513cf7a822f05ece26ccbf2045c57b8f44418",
+          "size_bytes": 84419492,
+          "unchanged": true
+        },
+        "h0p1_trace": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/20-h0p1-trace.jsonl",
+          "sha256": "657de3a7bc6cbdf361dd805aafa9eedc64bc77a1487b93327e0d82de6257f692",
+          "size_bytes": 79471,
+          "unchanged": true
+        },
+        "raw_area_ratio_driver": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+          "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+          "size_bytes": 38742137,
+          "unchanged": true
+        },
+        "v1_hfp0_skin": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-hfp0-selective-efat-p000.vtp",
+          "sha256": "f3c2ebaf95f7b82c15a15743ef2a1be3eea378f1a89f9044df379179732c6bf7",
+          "size_bytes": 1611312,
+          "unchanged": true
+        },
+        "v1_hfp1_skin": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-hfp1-selective-efat-c020.vtp",
+          "sha256": "2199b33ba7896bfde82a9e1fcf12e7782e9e89daa742b787eb267a824f1ae855",
+          "size_bytes": 1933979,
+          "unchanged": true
+        },
+        "v1_manifest": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-manifest.json",
+          "sha256": "843179e074d00ead3469cd9e0e5f69f2f0b521398e86709d1ecb466bda2f26a9",
+          "size_bytes": 34033,
+          "unchanged": true
+        },
+        "v1_table": {
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-table.md",
+          "sha256": "e3bd37cc1351a42d665dcb21d6eabc01cba95f5fe2a56de3faa47d480e71c0de",
+          "size_bytes": 571,
+          "unchanged": true
+        }
+      }
+    },
+    "inputs": {
+      "corrected_manifest": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline-manifest.json",
+        "sha256": "d999be4fc941253b8daa84dca4a52ab44bd02b3e42ce2af6d151a2e14b64a21a",
+        "size_bytes": 7723
+      },
+      "corrected_skin": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "raw_area_ratio_driver": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+        "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+        "size_bytes": 38742137
+      }
+    },
+    "preserved_v1_outputs": {
+      "hfp0_skin": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-hfp0-selective-efat-p000.vtp",
+        "sha256": "f3c2ebaf95f7b82c15a15743ef2a1be3eea378f1a89f9044df379179732c6bf7",
+        "size_bytes": 1611312
+      },
+      "hfp1_skin": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-hfp1-selective-efat-c020.vtp",
+        "sha256": "2199b33ba7896bfde82a9e1fcf12e7782e9e89daa742b787eb267a824f1ae855",
+        "size_bytes": 1933979
+      },
+      "manifest": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-manifest.json",
+        "sha256": "843179e074d00ead3469cd9e0e5f69f2f0b521398e86709d1ecb466bda2f26a9",
+        "size_bytes": 34033
+      },
+      "table": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-table.md",
+        "sha256": "e3bd37cc1351a42d665dcb21d6eabc01cba95f5fe2a56de3faa47d480e71c0de",
+        "size_bytes": 571
+      }
+    }
+  },
+  "mapping": {
+    "activation_c020_sha256_le_f8": "1366a17e86a2b182dd9b15512b9dc0664c869e416af7b5e591fbfb347fd53d55",
+    "clipped_ratio_sha256_le_f8": "aaf87f8d68485136c0ce09d113ce09de481654613c7d50c80ac2becb40e86e1e",
+    "contracting_triangles": 13159,
+    "corrected_triangle_keys_sha256_le_i8": "dca8d77662f49b54250657424cfc29a3b438437081f83d65f7e108f312da2310",
+    "corrected_triangles": 29899,
+    "driver_triangles": 128172,
+    "exact_readback": true,
+    "expanding_mask_sha256_u1": "1da30d0805e41ebb56de39fb26ccd54c2b7a8bd7f4d1257459cbc7b9aa0bc05e",
+    "expanding_rest_area_fraction": 0.5455308228719783,
+    "expanding_triangles": 16723,
+    "floor_clamped_rest_area_fraction": 0.0008793660414554653,
+    "floor_clamped_triangles": 31,
+    "formula": "R=TargetArea/RestArea; fat_floor_skin=(R>1); rho_c020=0.98^2*clip(R,0.5,1); ActivationInv=[rho_c020^(-1/2)-1,rho_c020^(-1/2)-1,0]",
+    "mapped_driver_cell_indices_sha256_le_i8": "13458107ceef23ecc144340101574f3fb4f2e157f90a9251434e7b09a86a66c3",
+    "mapped_unique_driver_triangles": 29899,
+    "method": "sorted GlobalPointId triangle keys",
+    "raw_ratio_sha256_le_f8": "da98a6f48694eed30b1683ccf5a1f02fd67c87393b30003d07c52a7fa25bc606",
+    "rho_c020_sha256_le_f8": "d631449a1db997e6ce2eac9d3276ff8a23451461350f917026f19e9d50cc89f1",
+    "unchanged_triangles": 17
+  },
+  "output_contract": {
+    "candidate_root": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2",
+    "controls_reused_by_identity": true,
+    "generated_candidate_vtps": 2,
+    "manifest_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2-manifest.json",
+    "overwrite_policy": "refuse any existing final or temporary output",
+    "table_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2-table.md",
+    "v1_outputs_preserved_by_identity": true
+  },
+  "producer": {
+    "approval_only_reconstruction": {
+      "permitted_edit": "EXECUTION_APPROVED_AFTER_STATIC_REVIEW = False -> True",
+      "reconstructed_executable_identity": {
+        "sha256": "b5e7726c4fefde4dd522d97989753a30cb66e15a2715cd91c7775e1341182ead",
+        "size_bytes": 54600
+      },
+      "replacement_count": 1,
+      "verified": true
+    },
+    "executable_source": {
+      "approval_assignment": "EXECUTION_APPROVED_AFTER_STATIC_REVIEW = True",
+      "file_identity": {
+        "sha256": "b5e7726c4fefde4dd522d97989753a30cb66e15a2715cd91c7775e1341182ead",
+        "size_bytes": 54600
+      }
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/src/10-prepare-material-cases.py",
+    "relative_path": "src/10-prepare-material-cases.py",
+    "statically_reviewed_preapproval_source": {
+      "approval_assignment": "EXECUTION_APPROVED_AFTER_STATIC_REVIEW = False",
+      "file_identity": {
+        "sha256": "28d0c3667d3d803c58e8dc60e52c896cd62758ac586918fcf8f86b9da94985f5",
+        "size_bytes": 54601
+      }
+    }
+  },
+  "schema_version": 2
+}

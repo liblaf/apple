@@ -1,0 +1,287 @@
+{
+  "camera": {
+    "direction": [
+      0.5,
+      0.0,
+      0.8660254037844386
+    ],
+    "focus": [
+      1.4070500020750487,
+      2.211375948871603,
+      0.04575618370825054
+    ],
+    "parallel_scale": 0.11093353464564434,
+    "projection": "parallel"
+  },
+  "case_order": [
+    "H0P0",
+    "H0P1",
+    "HFP0",
+    "HFP1"
+  ],
+  "cases": {
+    "H0P0": {
+      "activation_rms": 0.06095803933140022,
+      "area_ratio_rms_error": 0.14085987437741324,
+      "case_id": "H0P0",
+      "contraction_dihedral_rms_deg": 13.327644941251366,
+      "fixed_displacement_exact_zero": true,
+      "folded_skin_triangles": 25,
+      "inverted_tets": 47,
+      "label": "homogeneous E, no prestrain",
+      "material_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+        "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+        "size_bytes": 1138550
+      },
+      "material_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 2.720948224753828,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.23833120633194776,
+      "render_surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p0.vtp",
+        "point_error_array_sha256_le_f8": "89196522bd3f3bd16b2692ab3f129622e81ff3f2ec487ead4945eb5d8ed1ec27",
+        "sha256": "cddb40625e3d5ec0c4cc42ffd22a54db69882e896e8f881daa81fd99f7e889e4",
+        "size_bytes": 1929070
+      },
+      "render_surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p0.vtp",
+      "residual_normal_laplacian_rms_mm": 0.2170610984016332,
+      "step": 40,
+      "surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p0.vtp",
+        "sha256": "e28fd72de800a93179db44fa070f4555035d8ea1d6626518ed69850dda5f6f5b",
+        "size_bytes": 1772624
+      },
+      "surface_objective_point_count": 15299,
+      "surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p0.vtp",
+      "surface_point_error_rms_mm": 2.7212121263767064,
+      "surface_residual_sha256_le_f8": "5463318acb6ff292a5463bf6c9f1e1ed007920a5137de731d2d36ec1238b0c44",
+      "target_point_error_sha256_le_f8": "89196522bd3f3bd16b2692ab3f129622e81ff3f2ec487ead4945eb5d8ed1ec27",
+      "target_rms_mm": 2.7209482247538275
+    },
+    "H0P1": {
+      "activation_rms": 0.054813570076668115,
+      "area_ratio_rms_error": 0.07278884758512451,
+      "case_id": "H0P1",
+      "contraction_dihedral_rms_deg": 5.579129031180237,
+      "fixed_displacement_exact_zero": true,
+      "folded_skin_triangles": 11,
+      "inverted_tets": 31,
+      "label": "homogeneous E + c020 prestrain",
+      "material_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+        "sha256": "9b69f6cad6cfc7c6deadbd687d2947a44eedf7a295aae3540ac104ea50ebaacf",
+        "size_bytes": 1898983
+      },
+      "material_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/10-prepared-material-cases/skin-h0p1-c020.vtp",
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 2.849028620697618,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 1.2731081566013775,
+      "render_surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p1.vtp",
+        "point_error_array_sha256_le_f8": "e8a1b5a97f50e929bb86b40f451672456e371ef3eb7fafa447cb8852c61721eb",
+        "sha256": "46cc66d7b5539d8030c106eba9ccfe12326b222d6512867d22384f5b07c979a0",
+        "size_bytes": 1928494
+      },
+      "render_surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-h0p1.vtp",
+      "residual_normal_laplacian_rms_mm": 0.1814870521114308,
+      "step": 40,
+      "surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p1.vtp",
+        "sha256": "c1c736d92195b9ac6d5af32609c4443b1227f4dbfb3817040d2c6717c4524da8",
+        "size_bytes": 1772156
+      },
+      "surface_objective_point_count": 15299,
+      "surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-selective-skin-energy-prestrain-inverse/data/30-paraview-inputs/terminal/h0p1.vtp",
+      "surface_point_error_rms_mm": 2.849293339066177,
+      "surface_residual_sha256_le_f8": "d48bc46bc50fd886fea95e0079d86849ea9de4a8fc4d5e92c49a548c6bf6ced4",
+      "target_point_error_sha256_le_f8": "e8a1b5a97f50e929bb86b40f451672456e371ef3eb7fafa447cb8852c61721eb",
+      "target_rms_mm": 2.849028620697618
+    },
+    "HFP0": {
+      "activation_rms": 0.06753929005944834,
+      "area_ratio_rms_error": 0.15387441580156674,
+      "case_id": "HFP0",
+      "contraction_dihedral_rms_deg": 15.486251556107996,
+      "fixed_displacement_exact_zero": true,
+      "folded_skin_triangles": 28,
+      "inverted_tets": 54,
+      "label": "fat-floor heterogeneous E, no prestrain",
+      "material_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+        "sha256": "8aff20c6ecad328bb436213c7751c25546df3b12a01e3f6e748c24e4b9941f23",
+        "size_bytes": 1611312
+      },
+      "material_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp0-selective-efat-p000.vtp",
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 1.4810806710478472,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.19434455313207893,
+      "render_surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp0.vtp",
+        "point_error_array_sha256_le_f8": "171acd10712889b5dd7dd0674ddebcc1b0dc83f97b4c3d31274d72c77dbb7808",
+        "sha256": "975dc38e2fb98e6721edd0438a0fd34d68c7a4faf0d3d039674ffdcca25531f6",
+        "size_bytes": 2790950
+      },
+      "render_surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp0.vtp",
+      "residual_normal_laplacian_rms_mm": 0.190229902729264,
+      "step": 40,
+      "surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp0.vtp",
+        "sha256": "a99569a63761a4d76c1f94b01ec4a456700d0eaa6abca0100eb1e1d98ef12861",
+        "size_bytes": 2634952
+      },
+      "surface_objective_point_count": 15299,
+      "surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp0.vtp",
+      "surface_point_error_rms_mm": 1.4812215893697573,
+      "surface_residual_sha256_le_f8": "7d1bd3a25ab46390a542b7de747102f7004a483b127228b1b78e4272eaaa3784",
+      "target_point_error_sha256_le_f8": "171acd10712889b5dd7dd0674ddebcc1b0dc83f97b4c3d31274d72c77dbb7808",
+      "target_rms_mm": 1.481080671047847
+    },
+    "HFP1": {
+      "activation_rms": 0.06284515913609133,
+      "area_ratio_rms_error": 0.09429168922624477,
+      "case_id": "HFP1",
+      "contraction_dihedral_rms_deg": 7.5644200718458885,
+      "fixed_displacement_exact_zero": true,
+      "folded_skin_triangles": 10,
+      "inverted_tets": 58,
+      "label": "fat-floor heterogeneous E + c020 prestrain",
+      "material_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+        "sha256": "89e0b349b1ba8002bc654325ba2f025c492b6e096c242c4c194ddede72cd117d",
+        "size_bytes": 2072304
+      },
+      "material_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp",
+      "objective_point_count": 15302,
+      "objective_rms_from_point_errors_mm": 1.441859604928723,
+      "off_surface_objective_point_count": 3,
+      "off_surface_point_error_squared_sum_mm2": 0.7993502369293743,
+      "render_surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp1.vtp",
+        "point_error_array_sha256_le_f8": "6f7e4928f2ae2e543bfda2beb2235fa1d337ea8666399ed4030378af4d46dbf8",
+        "sha256": "0d6a9bdaa5cf1e9662564ceebd4fb829b6add56fbf25ffac5e22337b5482270c",
+        "size_bytes": 2790010
+      },
+      "render_surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/20-ablation-render-inputs/20-ablation-step40-hfp1.vtp",
+      "residual_normal_laplacian_rms_mm": 0.13981126718770087,
+      "step": 40,
+      "surface_identity": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp1.vtp",
+        "sha256": "a595a874ca4ce42c2884a8f6c7705e857cfbe51531a44537ea0c49020972249f",
+        "size_bytes": 2634336
+      },
+      "surface_objective_point_count": 15299,
+      "surface_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp1.vtp",
+      "surface_point_error_rms_mm": 1.4419828492339182,
+      "surface_residual_sha256_le_f8": "22c3a5518090f6e4cc3d8c0b0c4228d30853967f07ddda7f2998ef7ef264f478",
+      "target_point_error_sha256_le_f8": "6f7e4928f2ae2e543bfda2beb2235fa1d337ea8666399ed4030378af4d46dbf8",
+      "target_rms_mm": 1.441859604928723
+    }
+  },
+  "complete": true,
+  "design": "meeting-authoritative-homogeneous-vs-fat-floor-c020-2x2-step40",
+  "excluded_cohorts": [
+    "selective E=0 ablation H1P0/H1P1",
+    "historical full-boundary 3D-Lame skin results"
+  ],
+  "image_resolution": [
+    1800,
+    1600
+  ],
+  "material_assignment": {
+    "H0": "E=0.2 MPa on every IsFace triangle",
+    "HF": "E=0.003 MPa iff raw TargetArea/RestArea>1; E=0.2 MPa otherwise",
+    "P0": "rho=1; skin ActivationInv exact zero",
+    "P1": "rho=0.98^2*clip(raw TargetArea/RestArea,0.5,1); ActivationInv=[rho^-1/2-1,rho^-1/2-1,0]",
+    "domain": "29,899 all-vertex IsFace triangles; artificial cross-section excluded"
+  },
+  "material_factors": [
+    {
+      "applies_to": [
+        "H0P0",
+        "H0P1"
+      ],
+      "factor_id": "young-h0",
+      "field": "SkinYoungModulusMPa",
+      "range": [
+        0.0,
+        0.2
+      ],
+      "scalar_title": "skin E (MPa, linear)",
+      "source_case": "H0P0",
+      "subtitle": "H0P0 / H0P1 | E = 0.2 MPa everywhere",
+      "title": "Young's modulus factor H0"
+    },
+    {
+      "applies_to": [
+        "HFP0",
+        "HFP1"
+      ],
+      "factor_id": "young-hf",
+      "field": "SkinYoungModulusMPa",
+      "range": [
+        0.0,
+        0.2
+      ],
+      "scalar_title": "skin E (MPa, linear)",
+      "source_case": "HFP0",
+      "subtitle": "HFP0 / HFP1 | E=.003 MPa where raw R>1; .2 otherwise",
+      "title": "Young's modulus factor HF"
+    },
+    {
+      "applies_to": [
+        "H0P0",
+        "HFP0"
+      ],
+      "factor_id": "prestrain-p0",
+      "field": "StressFreeAreaRatio",
+      "range": [
+        0.4802,
+        1.0
+      ],
+      "scalar_title": "stress-free area ratio rho",
+      "source_case": "H0P0",
+      "subtitle": "H0P0 / HFP0 | rho = 1; ActivationInv = 0",
+      "title": "Prestrain factor P0"
+    },
+    {
+      "applies_to": [
+        "H0P1",
+        "HFP1"
+      ],
+      "factor_id": "prestrain-p1",
+      "field": "StressFreeAreaRatio",
+      "range": [
+        0.4802,
+        1.0
+      ],
+      "scalar_title": "stress-free area ratio rho",
+      "source_case": "H0P1",
+      "subtitle": "H0P1 / HFP1 | rho=.98^2 clip(raw R,.5,1)",
+      "title": "Prestrain factor P1 (c020)"
+    }
+  ],
+  "normal_residual_shared_limit_definition": "max(0.25 mm, pooled absolute 99th percentile) across exact step-40 H0P0/H0P1/HFP0/HFP1 registered target-normal residuals",
+  "normal_residual_shared_limit_mm": 3.8157138586747696,
+  "point_error_objective_link": {
+    "definition": "target RMS = sqrt(sum of squared point-error magnitudes over all LossMask points / 15,302)",
+    "exact_reconstruction_validated_per_case": true,
+    "off_surface_objective_points": 3,
+    "surface_objective_points": 15299
+  },
+  "point_error_shared_limit_definition": "pooled maximum of ||Displacement-TargetDisplacement|| across the 15,299 IsFace surface points in exact step-40 H0P0/H0P1/HFP0/HFP1; linear nonnegative scale with no clipping",
+  "point_error_shared_limit_mm": 9.931346158112657,
+  "renderer": "native ParaView 6.1.1 only; separate files; no contact sheets",
+  "schema_version": 2,
+  "shared_anatomy": {
+    "aponeurosis": "Stable Neo-Hookean, E=.1 MPa, nu=.35",
+    "boundary": "all artificial cross-section incident vertices hard-fixed to exact zero displacement",
+    "fat": "Stable Neo-Hookean, E=.003 MPa, nu=.49",
+    "inverse": "fresh-zero activation/displacement/optimizer; Adam lr=.3; 40 updates and 41 evaluations",
+    "muscle": "Active Stable Neo-Hookean, E=.03 MPa, nu=.49",
+    "skin": "Koiter membrane, 1 mm, nu=.49, plane-stress Lame conversion, fixed original RestArea"
+  }
+}

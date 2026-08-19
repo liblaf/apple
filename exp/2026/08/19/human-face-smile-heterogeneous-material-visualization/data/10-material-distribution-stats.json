@@ -1,0 +1,398 @@
+{
+  "complete": true,
+  "design": "corrected-isface-heterogeneous-material-visualization",
+  "execution_contract": {
+    "adjoint_started": false,
+    "forward_started": false,
+    "inverse_started": false,
+    "visualization_only": true
+  },
+  "input_provenance": {
+    "corrected_skin": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/18/human-face-smile-plane-stress-skin/data/10-corrected-baseline/skin-isface-e0200-p000.vtp",
+      "sha256": "4c7ddce893eed4a8d0590042488ae1b35f0cae23383db6bc9814427eb6f7cc6f",
+      "size_bytes": 1138550
+    },
+    "old_driver_skin": {
+      "allowed_arrays": [
+        "ExpansionWeight",
+        "ContractionSeverityLogCapped"
+      ],
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/17/human-face-smile-material-heuristic-sweep/data/10-material-candidates/skin-e100-p000.vtp",
+      "prohibited_reuse": [
+        "lambda",
+        "mu",
+        "SkinYoungModulusMPa",
+        "ActivationInv",
+        "RestArea"
+      ],
+      "sha256": "ffd586e8e1625facc89e87be803fbac16b374ae3d64b34916fd280cd05104c5f",
+      "size_bytes": 38742137
+    },
+    "prepared_mesh": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/06/17/human-face-smile-prestrain-v2/data/10-human-face-prepared.vtu",
+      "sha256": "8131d6944b322d7c1e21918688f297e2887b42bf4dbc19ce36259b007e8dc563",
+      "size_bytes": 76792914
+    }
+  },
+  "mapping": {
+    "corrected_triangle_keys_sha256_le_i8": "dca8d77662f49b54250657424cfc29a3b438437081f83d65f7e108f312da2310",
+    "corrected_triangles": 29899,
+    "driver_triangles": 128172,
+    "exact_readback": true,
+    "mapped_driver_cell_indices_sha256_le_i8": "13458107ceef23ecc144340101574f3fb4f2e157f90a9251434e7b09a86a66c3",
+    "mapped_unique_driver_triangles": 29899,
+    "method": "sorted GlobalPointId triangle keys",
+    "point_alignment": {
+      "corrected_to_driver_max_abs_m": 0.0,
+      "corrected_to_mesh_max_abs_m": 0.0,
+      "prepared_mesh_point_id_semantics": "canonical local point index fallback"
+    }
+  },
+  "output_contract": {
+    "json": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/10-material-distribution-stats.json"
+    },
+    "overwrite_policy": "refuse existing live or temporary outputs",
+    "skin_png": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/10-skin-material-fields.png",
+      "sha256": "e17829c91362641b1f1715cfbf34e1dfaf64b35474f6913a60c16074207b4e1a",
+      "size_bytes": 1406118
+    },
+    "volume_png": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-heterogeneous-material-visualization/data/10-volume-fraction-cross-sections.png",
+      "sha256": "3f177fdc21db78885dc79a6d803a3120a8d8a820623783c842b2dbb82fc0a93b",
+      "size_bytes": 488905
+    }
+  },
+  "renders": {
+    "skin_material_fields": {
+      "face_focus": [
+        1.4070500020750487,
+        2.211375948871603,
+        0.04575618370825054
+      ],
+      "face_parallel_scale": 0.11093353464564434,
+      "fields": [
+        "ExpansionWeight",
+        "Log10SkinYoungModulusMPa",
+        "ContractionSeverityLogCapped",
+        "P200NaturalAreaRatio"
+      ],
+      "image_shape": [
+        1650,
+        2400,
+        3
+      ],
+      "mouth_focus": [
+        1.4069556749352747,
+        2.1548284426519975,
+        0.0886334031246092
+      ],
+      "mouth_parallel_scale": 0.04140319668500314,
+      "views": [
+        "front",
+        "30 degree",
+        "mouth"
+      ],
+      "window_size": [
+        2400,
+        1650
+      ]
+    },
+    "volume_fraction_cross_sections": {
+      "fields": [
+        "FatFraction",
+        "MuscleFraction",
+        "AponeurosisFraction",
+        "SMASFraction"
+      ],
+      "fraction_clim": [
+        0.0,
+        1.0
+      ],
+      "image_shape": [
+        2050,
+        1950,
+        3
+      ],
+      "planes": [
+        {
+          "cells": 19053,
+          "name": "midsagittal",
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "origin_m": [
+            1.4070235649558214,
+            2.211267239594009,
+            0.04436769207785067
+          ],
+          "points": 13052,
+          "up": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "cells": 20808,
+          "name": "coronal",
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "origin_m": [
+            1.4070235649558214,
+            2.211267239594009,
+            0.04436769207785067
+          ],
+          "points": 14394,
+          "up": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "cells": 14023,
+          "name": "axial",
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "origin_m": [
+            1.4070235649558214,
+            2.211267239594009,
+            0.04436769207785067
+          ],
+          "points": 9686,
+          "up": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "window_size": [
+        1950,
+        2050
+      ]
+    }
+  },
+  "schema_version": 1,
+  "skin": {
+    "domain": {
+      "contraction_cells": 13129,
+      "contraction_rest_area_fraction": 0.44882458059685887,
+      "expansion_cells": 16770,
+      "expansion_rest_area_fraction": 0.5511754194031411,
+      "supports_overlap_cells": 0,
+      "supports_partition_all_triangles": true
+    },
+    "planned_p200": {
+      "activation_diag": {
+        "area_weighted_mean": 0.03406130600361942,
+        "area_weighted_quantiles": {
+          "q01": 0.0,
+          "q05": 0.0,
+          "q25": 0.0,
+          "q50": 0.0,
+          "q75": 0.020889898487460368,
+          "q95": 0.21714729744476613,
+          "q99": 0.4219414602311591
+        },
+        "area_weighted_rms": 0.08761483572489043,
+        "max": 0.5181096573563111,
+        "min": 0.0
+      },
+      "activation_diag_sha256_le_f8": "649b66d63fe32405cbd0a46c51873ec6fae67693020c517c94948eef91d53a93",
+      "activation_inv_sha256_le_f8": "b6985bf92655086c18a8a832849c5e35088fe648a3eda18188087a347b3e078d",
+      "energy_weight": "fixed original RestArea; independent of prestrain",
+      "formula": "a = exp(ContractionSeverityLogCapped) - 1; ActivationInv = [a, a, 0]; natural area ratio = 1/(1+a)^2",
+      "interior_edge_activation_jump": {
+        "max": 0.09304226044699204,
+        "q95": 0.016084207967233952,
+        "q99": 0.034326653411959895,
+        "rms": 0.0073543292195560545
+      },
+      "natural_area_ratio": {
+        "area_weighted_mean": 0.9482128416235396,
+        "area_weighted_quantiles": {
+          "q01": 0.49458001719967165,
+          "q05": 0.675015463266355,
+          "q25": 0.9594938310802841,
+          "q50": 1.0,
+          "q75": 1.0,
+          "q95": 1.0,
+          "q99": 1.0
+        },
+        "area_weighted_rms": 0.9544390876960955,
+        "max": 1.0,
+        "min": 0.4339040601747963
+      },
+      "natural_area_ratio_sha256_le_f8": "d7cd2a58c9b9d3b29b645ca263f42c58fc4f2fc3fde2a6f77014f847ab6787be",
+      "prestrain_gain": 2.0
+    },
+    "planned_young_modulus": {
+      "baseline_MPa": 0.2,
+      "below_fat_E_cells": 6327,
+      "below_fat_E_rest_area_fraction": 0.18095636594650907,
+      "fat_E_MPa_for_parameter_comparison": 0.003,
+      "floor_MPa": 0.0003,
+      "formula": "s = clip(8 * ExpansionWeight, 0, 1); E = 0.2 * exp(log(0.0003 / 0.2) * s) MPa",
+      "gain": 8.0,
+      "interior_edge_jump_MPa": {
+        "max": 0.196538539401554,
+        "q95": 0.02120283319455208,
+        "q99": 0.061784819377210094,
+        "rms": 0.01330525063967873
+      },
+      "lambda": {
+        "area_weighted_mean": 0.08452029466492084,
+        "area_weighted_quantiles": {
+          "q01": 0.00019344650611922618,
+          "q05": 0.00019344650611922618,
+          "q25": 0.010308118986571396,
+          "q50": 0.1279860683039647,
+          "q75": 0.1289643374128175,
+          "q95": 0.1289643374128175,
+          "q99": 0.1289643374128175
+        },
+        "area_weighted_rms": 0.10116944973564847,
+        "max": 0.1289643374128175,
+        "min": 0.00019344650611922618
+      },
+      "lambda_sha256_le_f8": "47737694649e4753be1bee9c5b3fa86b7c17265ea3e8d85583befedd487ec3d5",
+      "lame_conversion": "plane stress: lambda = E*nu/(1-nu^2); mu = E/(2*(1+nu))",
+      "mu": {
+        "area_weighted_mean": 0.04398505130521391,
+        "area_weighted_quantiles": {
+          "q01": 0.00010067114093959729,
+          "q05": 0.00010067114093959729,
+          "q25": 0.005364429268521848,
+          "q50": 0.06660499472961427,
+          "q75": 0.06711409395973154,
+          "q95": 0.06711409395973154,
+          "q99": 0.06711409395973154
+        },
+        "area_weighted_rms": 0.052649407515490534,
+        "max": 0.06711409395973154,
+        "min": 0.00010067114093959729
+      },
+      "mu_sha256_le_f8": "99d925f0b0e0f749532a440028f6c687a4f66bf90cb40551e58edea2a2dfcfd0",
+      "nu": 0.49,
+      "saturated_cells": 3643,
+      "saturated_rest_area_fraction": 0.0873748559185055,
+      "softening_exponent_sha256_le_f8": "2a41c846db9859de82332fd09322c7449807d12ae93435428f98534088a1b356",
+      "thickness_m": 0.001,
+      "young": {
+        "area_weighted_mean": 0.13107545288953745,
+        "area_weighted_quantiles": {
+          "q01": 0.0002999999999999999,
+          "q05": 0.0002999999999999999,
+          "q25": 0.01598599922019511,
+          "q50": 0.19848288429425054,
+          "q75": 0.2,
+          "q95": 0.2,
+          "q99": 0.2
+        },
+        "area_weighted_rms": 0.1568952343961618,
+        "max": 0.2,
+        "min": 0.0002999999999999999
+      },
+      "young_sha256_le_f8": "d42fa66ea54c47890e184fd8b670a7e80cd5621e337ee81b03f658a8b9821a44"
+    },
+    "source_fields": {
+      "ContractionSeverityLogCapped": {
+        "area_weighted_mean": 0.03086307524347527,
+        "area_weighted_quantiles": {
+          "q01": 0.0,
+          "q05": 0.0,
+          "q25": 0.0,
+          "q50": 0.0,
+          "q75": 0.02067469643084252,
+          "q95": 0.1965098399146279,
+          "q99": 0.352023163326314
+        },
+        "area_weighted_rms": 0.07647980842587776,
+        "max": 0.41746591441203185,
+        "min": 0.0,
+        "sha256_le_f8": "a8bbf8d3626a506a5508eafb9c4824e1d694b87c0af5a73523c504f52d80ed41"
+      },
+      "ExpansionWeight": {
+        "area_weighted_mean": 0.04177347802603174,
+        "area_weighted_quantiles": {
+          "q01": 0.0,
+          "q05": 0.0,
+          "q25": 0.0,
+          "q50": 0.00014638102799511968,
+          "q75": 0.048571426561410634,
+          "q95": 0.1820034684205868,
+          "q99": 0.5442311328700051
+        },
+        "area_weighted_rms": 0.10243872064748777,
+        "max": 0.7093692747170706,
+        "min": 0.0,
+        "sha256_le_f8": "68de7dd3189c99100e4648845acf67d37e0d8a3a43d0eec3425df4168cd35910"
+      }
+    },
+    "topology": {
+      "boundary_edges": 707,
+      "interior_edges": 44495,
+      "nonmanifold_edges": 0,
+      "points": 15299,
+      "rest_area_m2": 0.04287998059707303,
+      "triangles": 29899
+    }
+  },
+  "volume": {
+    "SMAS_interpretation": "source diagnostic only; current forward builder does not add a separate SMAS constitutive energy",
+    "active_fraction_fields": [
+      "FatFraction",
+      "MuscleFraction",
+      "AponeurosisFraction"
+    ],
+    "active_fraction_sum_max_abs_error": 0.0,
+    "diagnostic_only_fields": [
+      "SMASFraction"
+    ],
+    "fractions": {
+      "AponeurosisFraction": {
+        "max": 1.0,
+        "min": 0.0,
+        "positive_cells": 125174,
+        "positive_tet_volume_fraction": 0.1208298675502588,
+        "tet_volume_weighted_mean": 0.02959468733230167
+      },
+      "FatFraction": {
+        "max": 1.0,
+        "min": 0.0,
+        "positive_cells": 1042175,
+        "positive_tet_volume_fraction": 0.9074207879442239,
+        "tet_volume_weighted_mean": 0.8095335288037033
+      },
+      "MuscleFraction": {
+        "max": 1.0,
+        "min": 0.0,
+        "positive_cells": 288235,
+        "positive_tet_volume_fraction": 0.2748811487142964,
+        "tet_volume_weighted_mean": 0.16087178386399503
+      },
+      "SMASFraction": {
+        "max": 1.0,
+        "min": 0.0,
+        "positive_cells": 225347,
+        "positive_tet_volume_fraction": 0.21507590985288588,
+        "tet_volume_weighted_mean": 0.12402284911918197
+      }
+    },
+    "points": 228660,
+    "tetrahedra": 1146517,
+    "total_volume_m3": 0.0007871493525589547
+  }
+}

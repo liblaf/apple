@@ -1,0 +1,155 @@
+{
+  "cases": [
+    {
+      "label": "thin",
+      "nx48": {
+        "interface_normalized_transmission": 1.2328619882139833,
+        "source_interface_modal_amplitude_abs": 0.0003894316161414726,
+        "surface_top_modal_amplitude_abs": 0.0004801154365495607
+      },
+      "nx64": {
+        "interface_normalized_transmission": 1.2864489879163132,
+        "source_interface_modal_amplitude_abs": 0.0005012557680698046,
+        "surface_top_modal_amplitude_abs": 0.0006448399755206144
+      },
+      "relative_change_nx64_vs_nx48": {
+        "interface_normalized_transmission": 0.043465529973845785,
+        "source_interface_modal_amplitude_abs": 0.2871470812675583,
+        "surface_top_modal_amplitude_abs": 0.3430936113091414
+      },
+      "top_fat_thickness": 0.04
+    },
+    {
+      "label": "medium",
+      "nx48": {
+        "interface_normalized_transmission": 0.9388520586820498,
+        "source_interface_modal_amplitude_abs": 0.0003529843977376028,
+        "surface_top_modal_amplitude_abs": 0.0003314001284985919
+      },
+      "nx64": {
+        "interface_normalized_transmission": 0.9182416851318428,
+        "source_interface_modal_amplitude_abs": 0.00044826406054582473,
+        "surface_top_modal_amplitude_abs": 0.0004116147463396405
+      },
+      "relative_change_nx64_vs_nx48": {
+        "interface_normalized_transmission": -0.021952738303774533,
+        "source_interface_modal_amplitude_abs": 0.2699259894173842,
+        "surface_top_modal_amplitude_abs": 0.24204763650654249
+      },
+      "top_fat_thickness": 0.08
+    },
+    {
+      "label": "thick",
+      "nx48": {
+        "interface_normalized_transmission": 0.6060709537164803,
+        "source_interface_modal_amplitude_abs": 0.00033598520699543735,
+        "surface_top_modal_amplitude_abs": 0.00020363087483835378
+      },
+      "nx64": {
+        "interface_normalized_transmission": 0.5362121168020326,
+        "source_interface_modal_amplitude_abs": 0.0004260925708839034,
+        "surface_top_modal_amplitude_abs": 0.000228475999387278
+      },
+      "relative_change_nx64_vs_nx48": {
+        "interface_normalized_transmission": -0.11526511291469621,
+        "source_interface_modal_amplitude_abs": 0.268188485720116,
+        "surface_top_modal_amplitude_abs": 0.1220105967164693
+      },
+      "top_fat_thickness": 0.12
+    }
+  ],
+  "complete": true,
+  "held_fixed": {
+    "experiment_design": "nested-mesh-isochoric-bumpy-activation-transfer-v2",
+    "top_fat_thicknesses": [
+      0.04,
+      0.08,
+      0.12
+    ],
+    "vertical_spacing": 0.01,
+    "wave_number": 4
+  },
+  "input_summaries": {
+    "nx48": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/10-bumpy-activation-transfer-summary.json",
+    "nx64": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/tmp/refinement-nx64/10-summary.json"
+  },
+  "interpretation": "The attenuation ordering is unchanged and stronger at nx=64, but one refinement pair cannot establish asymptotic convergence; the raw modal amplitude and thick-case normalized transmission remain resolution-sensitive.",
+  "maximum_absolute_relative_change_nx64_vs_nx48": {
+    "interface_normalized_transmission": 0.11526511291469621,
+    "surface_top_modal_amplitude_abs": 0.3430936113091414
+  },
+  "monotone_attenuation_by_grid": {
+    "nx48": {
+      "interface_normalized_transmission": true,
+      "surface_top_modal_amplitude_abs": true
+    },
+    "nx64": {
+      "interface_normalized_transmission": true,
+      "surface_top_modal_amplitude_abs": true
+    }
+  },
+  "plot": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/15-grid-refinement-sensitivity.png",
+  "qualitative_monotone_attenuation_robust": true,
+  "quantitatively_grid_converged": false,
+  "question": "Does the monotone attenuation of bumpy muscle activation by thicker fat persist when the horizontal grid is refined from 48 to 64 cells?",
+  "schema_version": 1,
+  "solver_gates": {
+    "nx48": {
+      "all_gates_passed": true,
+      "observed": {
+        "below_minimum_det_f_max_per_stage": 0,
+        "branch_difference_over_signal_max_across_cases": 0.00015225861461084755,
+        "branch_transmission_relative_difference_max_across_cases": 2.541080897181678e-06,
+        "det_f_min_across_stages": 0.9335021619428229,
+        "det_f_q001_min_across_stages": 0.9620303598128711,
+        "inverted_tets_max_per_stage": 0,
+        "stages_primary_success": 12,
+        "stages_total": 12
+      },
+      "thresholds": {
+        "branch_difference_over_signal_max": 0.1,
+        "minimum_det_f": 0.2,
+        "minimum_det_f_q001": 0.4,
+        "require_all_stages_primary_success": true,
+        "require_zero_inverted_tets": true,
+        "require_zero_tets_below_minimum_det_f": true
+      }
+    },
+    "nx64": {
+      "all_gates_passed": true,
+      "observed": {
+        "below_minimum_det_f_max_per_stage": 0,
+        "branch_difference_over_signal_max_across_cases": 0.00012441029301398835,
+        "branch_transmission_relative_difference_max_across_cases": 8.820264657276599e-06,
+        "det_f_min_across_stages": 0.9241939126124341,
+        "det_f_q001_min_across_stages": 0.9593096627528686,
+        "inverted_tets_max_per_stage": 0,
+        "stages_primary_success": 12,
+        "stages_total": 12
+      },
+      "thresholds": {
+        "branch_difference_over_signal_max": 0.1,
+        "minimum_det_f": 0.2,
+        "minimum_det_f_q001": 0.4,
+        "require_all_stages_primary_success": true,
+        "require_zero_inverted_tets": true,
+        "require_zero_tets_below_minimum_det_f": true
+      }
+    }
+  },
+  "status": "ok",
+  "thick_vs_thin_attenuation": {
+    "nx48": {
+      "interface_normalized_transmission": 0.5084032442313512,
+      "surface_top_modal_amplitude_abs": 0.5758710107265346
+    },
+    "nx64": {
+      "interface_normalized_transmission": 0.583184314466642,
+      "surface_top_modal_amplitude_abs": 0.6456857390039802
+    },
+    "nx64_minus_nx48_percentage_points": {
+      "interface_normalized_transmission": 7.478107023529079,
+      "surface_top_modal_amplitude_abs": 6.981472827744561
+    }
+  }
+}

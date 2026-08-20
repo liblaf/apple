@@ -1,0 +1,147 @@
+{
+  "activation_source": {
+    "active_tets": 27648,
+    "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/10-bumpy-activation-transfer/thin/10-thin-bumpy-activation-transfer.vtu",
+    "input_sha256": "056866fd845d81e6f115891d31f8ad717d511edde21b364cc428cf19d9a72ab4",
+    "input_size_bytes": 7903429,
+    "png": {
+      "height": 1350,
+      "relative_path": "source/21-shared-bumpy-activation-source-paraview.png",
+      "sha256": "a464342a3396bfa6ef82ce4b975ffd5ff12586ca3801b56d030a1fa7532832a9",
+      "size_bytes": 972573,
+      "width": 1800
+    },
+    "pvsm": {
+      "relative_path": "source/21-shared-bumpy-activation-source-paraview.pvsm",
+      "sha256": "0e605a4de7293dac2a4babab9c1345e6f2f52f2509a17481fac8085226f35044",
+      "size_bytes": 273959
+    }
+  },
+  "activation_visualization": {
+    "response": "ActivationInvXModulation",
+    "shared_source_color_range": [
+      -0.2,
+      0.2
+    ],
+    "warp_factor": 0.0
+  },
+  "cases": [
+    {
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/10-bumpy-activation-transfer/thin/10-thin-bumpy-activation-transfer.vtu",
+      "input_sha256": "056866fd845d81e6f115891d31f8ad717d511edde21b364cc428cf19d9a72ab4",
+      "input_size_bytes": 7903429,
+      "label": "thin",
+      "n_points": 26411,
+      "n_tets": 138240,
+      "png": {
+        "height": 1350,
+        "relative_path": "thin/21-thin-bumpy-minus-uniform-paraview.png",
+        "sha256": "d556a58e1e64eb710009f419060666de512f40a0c33694f0c0af83845afaae8b",
+        "size_bytes": 1060844,
+        "width": 1800
+      },
+      "pvsm": {
+        "relative_path": "thin/21-thin-bumpy-minus-uniform-paraview.pvsm",
+        "sha256": "3891d480a15663a385645180ea09f2c2951b82e0e110ebeac7b115fd979e4139",
+        "size_bytes": 277590
+      },
+      "surface_top_induced_y_rms": 0.0005089010502533797,
+      "surface_top_modal_amplitude_abs": 0.0004801154365495607,
+      "top_fat_thickness": 0.04,
+      "top_points": 2401,
+      "top_triangles": 4608,
+      "total_height": 0.1
+    },
+    {
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/10-bumpy-activation-transfer/medium/10-medium-bumpy-activation-transfer.vtu",
+      "input_sha256": "86e6e1ea10d5bebcd2e8a6987552dd5909174503ef399f60d53c1535c78e4bbc",
+      "input_size_bytes": 10721083,
+      "label": "medium",
+      "n_points": 36015,
+      "n_tets": 193536,
+      "png": {
+        "height": 1350,
+        "relative_path": "medium/21-medium-bumpy-minus-uniform-paraview.png",
+        "sha256": "80ee380abf7c99f99e37f3d4ae875a60adefe8996c2670cacdda06ccc757760b",
+        "size_bytes": 1055797,
+        "width": 1800
+      },
+      "pvsm": {
+        "relative_path": "medium/21-medium-bumpy-minus-uniform-paraview.pvsm",
+        "sha256": "cc210f38d329114e1e6335449a0daae262346bcb251a4017a1c70065be010f5a",
+        "size_bytes": 279489
+      },
+      "surface_top_induced_y_rms": 0.0003570207640211882,
+      "surface_top_modal_amplitude_abs": 0.0003314001284985919,
+      "top_fat_thickness": 0.08,
+      "top_points": 2401,
+      "top_triangles": 4608,
+      "total_height": 0.14
+    },
+    {
+      "input_path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/fat-thickness-bumpy-activation-transfer/data/10-bumpy-activation-transfer/thick/10-thick-bumpy-activation-transfer.vtu",
+      "input_sha256": "650f7a0f4ba5431e2c1aa2fe793e760f1d5021d10fb2eef7fe5a7878e6c3509d",
+      "input_size_bytes": 13528643,
+      "label": "thick",
+      "n_points": 45619,
+      "n_tets": 248832,
+      "png": {
+        "height": 1350,
+        "relative_path": "thick/21-thick-bumpy-minus-uniform-paraview.png",
+        "sha256": "9656419560df311fdccf20930b372d78a4a81b7c53e5056b46597956eec53c56",
+        "size_bytes": 1043995,
+        "width": 1800
+      },
+      "pvsm": {
+        "relative_path": "thick/21-thick-bumpy-minus-uniform-paraview.pvsm",
+        "sha256": "a06d627b11b4be71df8535faf1e1ab0b2836a7fcfb4c1c1c736dfd59bd0962ab",
+        "size_bytes": 279652
+      },
+      "surface_top_induced_y_rms": 0.00022151386318532243,
+      "surface_top_modal_amplitude_abs": 0.00020363087483835378,
+      "top_fat_thickness": 0.12,
+      "top_points": 2401,
+      "top_triangles": 4608,
+      "total_height": 0.18
+    }
+  ],
+  "complete": true,
+  "design": "fat-thickness-bumpy-activation-transfer-paraview-v1",
+  "native_paraview_rendering": true,
+  "paraview_version": "6.1.1",
+  "resolution": [
+    1800,
+    1350
+  ],
+  "schema_version": 1,
+  "status": "ok",
+  "summary_sha256": "e58972d5f19a082f193c0630c8b90f7a021fd285a439ae7b8557f2642a7310ec",
+  "surface_visualization": {
+    "response": "BumpyMinusUniformY",
+    "shared_camera": {
+      "focal_point": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "parallel_scale": 0.79,
+      "position": [
+        1.48,
+        1.2,
+        1.55
+      ],
+      "view_up": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "shared_response_color_range": [
+      -0.00165,
+      0.00165
+    ],
+    "top_rest_plane_normalized_to_y": 0.0,
+    "vertical_warp_only": true,
+    "warp_factor": 40.0
+  }
+}

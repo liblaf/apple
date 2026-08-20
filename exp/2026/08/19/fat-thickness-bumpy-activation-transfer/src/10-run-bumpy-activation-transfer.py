@@ -797,6 +797,11 @@ def solve_case(
 
     full_uniform = full_activation(mesh.n_cells, active_ids, uniform_activation)
     full_bumpy = full_activation(mesh.n_cells, active_ids, bumpy_activation)
+    inactive = np.ones(mesh.n_cells, dtype=bool)
+    inactive[active_ids] = False
+    inactive_nonzero_entries = int(np.count_nonzero(full_bumpy[inactive]))
+    if inactive_nonzero_entries != 0:
+        raise RuntimeError("bumpy activation leaked outside the muscle cells")
     zero_target = np.zeros_like(bumpy_u)
     row: dict[str, Any] = {
         "label": label,
@@ -838,7 +843,7 @@ def solve_case(
         ),
         "activation/x_min": float(bumpy_activation[:, 0].min()),
         "activation/x_max": float(bumpy_activation[:, 0].max()),
-        "activation/fat_nonzero_entries": 0,
+        "activation/fat_nonzero_entries": inactive_nonzero_entries,
         "stages": stage_rows,
         **activation_diagnostics,
         **transfer,

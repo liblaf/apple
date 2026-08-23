@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "best_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l1/best.png",
+    "control_evolution_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l1/control-evolution.png",
+    "evolution_mp4": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l1/evolution.mp4",
+    "history_npz": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l1/history.npz",
+    "trace_csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l1/trace.csv"
+  },
+  "best": {
+    "bound_hits": 0,
+    "controls": [
+      0.27636523884000014,
+      0.5510981347620963,
+      0.21427692666208065,
+      0.5890550368468258,
+      0.48783129687248156,
+      0.6848872666058778,
+      0.17637393195202977,
+      0.5010951365609572,
+      0.2642715806498091
+    ],
+    "linf": 0.04453514790314561,
+    "mae": 0.0013780685799396235,
+    "objective": 0.0013780685799396235,
+    "rmse": 0.00518246681368062,
+    "step": 596
+  },
+  "dimension": "3d",
+  "evaluations": 601,
+  "final": {
+    "controls": [
+      0.27638364217449246,
+      0.5510910412075848,
+      0.21427549141285676,
+      0.5890683677677406,
+      0.4878435739237802,
+      0.6849190665480166,
+      0.17637588753749808,
+      0.5010867523422756,
+      0.26427795515074254
+    ],
+    "linf": 0.0445340685011449,
+    "mae": 0.0013780918525163927,
+    "objective": 0.0013780918525163927,
+    "rmse": 0.0051822862696010415,
+    "step": 600
+  },
+  "initial": {
+    "controls": [
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05
+    ],
+    "linf": 0.09746248381992707,
+    "mae": 0.02859779083015571,
+    "objective": 0.02859779083015571,
+    "rmse": 0.03350258023678287,
+    "step": 0
+  },
+  "loss": "l1",
+  "loss_definition": "L1 / MAE",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 1.3376547763552238e-08,
+    "relative": 9.706830125983363e-06
+  },
+  "reference": {
+    "controls": [
+      0.2764061327435039,
+      0.5508224353701526,
+      0.21431678823593117,
+      0.5888610325904305,
+      0.4893607289924799,
+      0.6846236216091036,
+      0.17640613274350084,
+      0.5008224353701721,
+      0.2643167882358549
+    ],
+    "linf": 0.04446498036510005,
+    "mae": 0.00137805520339186,
+    "objective": 0.00137805520339186,
+    "rmse": 0.005170446152760928,
+    "solver": "scipy.optimize.linprog-highs",
+    "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+  },
+  "updates": 600,
+  "validation": {
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 0,
+  "worst_point_ties_max": 1
+}

@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "best_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l2/best.png",
+    "control_evolution_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l2/control-evolution.png",
+    "evolution_mp4": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l2/evolution.mp4",
+    "history_npz": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l2/history.npz",
+    "trace_csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/l2/trace.csv"
+  },
+  "best": {
+    "bound_hits": 0,
+    "controls": [
+      0.2999999999999503,
+      0.4500000000000382,
+      0.24999999999992745,
+      0.5000000000000646,
+      0.8499999999996858,
+      0.5500000000000709,
+      0.19999999999996562,
+      0.4000000000000359,
+      0.29999999999994764
+    ],
+    "linf": 0.03000000000001482,
+    "mae": 0.0020920194114227484,
+    "objective": 0.0037480595013887827,
+    "rmse": 0.0037480595013887827,
+    "step": 540
+  },
+  "dimension": "3d",
+  "evaluations": 601,
+  "final": {
+    "controls": [
+      0.2999999999999486,
+      0.45000000000007895,
+      0.24999999999994604,
+      0.5000000000000745,
+      0.8499999999998761,
+      0.5500000000000801,
+      0.19999999999994983,
+      0.40000000000007474,
+      0.29999999999994803
+    ],
+    "linf": 0.030000000000003357,
+    "mae": 0.0020920194114231144,
+    "objective": 0.003748059501388783,
+    "rmse": 0.003748059501388783,
+    "step": 600
+  },
+  "initial": {
+    "controls": [
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05
+    ],
+    "linf": 0.09746248381992707,
+    "mae": 0.02859779083015571,
+    "objective": 0.03350258023678287,
+    "rmse": 0.03350258023678287,
+    "step": 0
+  },
+  "loss": "l2",
+  "loss_definition": "L2 / RMS",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 0.0,
+    "relative": 0.0
+  },
+  "reference": {
+    "controls": [
+      0.30000000000000054,
+      0.45000000000000095,
+      0.2500000000000002,
+      0.5000000000000001,
+      0.8499999999999996,
+      0.5499999999999994,
+      0.20000000000000007,
+      0.3999999999999994,
+      0.30000000000000016
+    ],
+    "linf": 0.030000000000000013,
+    "mae": 0.002092019411423587,
+    "objective": 0.0037480595013887836,
+    "rmse": 0.0037480595013887836,
+    "solver": "scipy.optimize.lsq_linear",
+    "solver_status": "The unconstrained solution is optimal."
+  },
+  "updates": 600,
+  "validation": {
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 0,
+  "worst_point_ties_max": 1
+}

@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "best_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l2/best.png",
+    "control_evolution_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l2/control-evolution.png",
+    "evolution_mp4": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l2/evolution.mp4",
+    "history_npz": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l2/history.npz",
+    "trace_csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l2/trace.csv"
+  },
+  "best": {
+    "bound_hits": 0,
+    "controls": [
+      0.45000000287731773,
+      0.7999999995160199,
+      0.35000000395194264
+    ],
+    "linf": 0.03499999998554572,
+    "mae": 0.010758774665986178,
+    "objective": 0.013602686655480508,
+    "rmse": 0.013602686655480508,
+    "step": 348
+  },
+  "dimension": "2d",
+  "evaluations": 601,
+  "final": {
+    "controls": [
+      0.450000000000014,
+      0.7999999999999895,
+      0.3500000000000087
+    ],
+    "linf": 0.03500000000000045,
+    "mae": 0.010758774702767154,
+    "objective": 0.01360268665548051,
+    "rmse": 0.01360268665548051,
+    "step": 600
+  },
+  "initial": {
+    "controls": [
+      0.05,
+      0.05,
+      0.05
+    ],
+    "linf": 0.08046000830605209,
+    "mae": 0.02660714019288468,
+    "objective": 0.031720111042745316,
+    "rmse": 0.031720111042745316,
+    "step": 0
+  },
+  "loss": "l2",
+  "loss_definition": "L2 / RMS",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 0.0,
+    "relative": 0.0
+  },
+  "reference": {
+    "controls": [
+      0.44999999999999973,
+      0.8000000000000003,
+      0.3500000000000003
+    ],
+    "linf": 0.034999999999999996,
+    "mae": 0.010758774702767293,
+    "objective": 0.013602686655480508,
+    "rmse": 0.013602686655480508,
+    "solver": "scipy.optimize.lsq_linear",
+    "solver_status": "The unconstrained solution is optimal."
+  },
+  "updates": 600,
+  "validation": {
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 2,
+  "worst_point_ties_max": 1
+}

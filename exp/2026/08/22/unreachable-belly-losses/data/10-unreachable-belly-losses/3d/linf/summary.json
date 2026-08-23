@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "best_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/linf/best.png",
+    "control_evolution_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/linf/control-evolution.png",
+    "evolution_mp4": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/linf/evolution.mp4",
+    "history_npz": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/linf/history.npz",
+    "trace_csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/3d/linf/trace.csv"
+  },
+  "best": {
+    "bound_hits": 3,
+    "controls": [
+      0.0139599356354132,
+      0.7042904136851471,
+      0.0,
+      0.6523879533498569,
+      1.0,
+      0.5165852783231091,
+      0.0,
+      0.6473522194119025,
+      4.2361524431113705e-05
+    ],
+    "linf": 0.016383635707261104,
+    "mae": 0.0065852826927826616,
+    "objective": 0.016383635707261104,
+    "rmse": 0.00790301915040907,
+    "step": 544
+  },
+  "dimension": "3d",
+  "evaluations": 601,
+  "final": {
+    "controls": [
+      0.013297048301176456,
+      0.7038040375128912,
+      0.0,
+      0.6522957173372069,
+      1.0,
+      0.5182883606378942,
+      0.0,
+      0.6466689008597146,
+      0.0
+    ],
+    "linf": 0.016388025081584975,
+    "mae": 0.006578977714218674,
+    "objective": 0.016388025081584975,
+    "rmse": 0.007894685075979527,
+    "step": 600
+  },
+  "initial": {
+    "controls": [
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05
+    ],
+    "linf": 0.09746248381992707,
+    "mae": 0.02859779083015571,
+    "objective": 0.09746248381992707,
+    "rmse": 0.03350258023678287,
+    "step": 0
+  },
+  "loss": "linf",
+  "loss_definition": "L-inf / max",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 2.925213990923048e-06,
+    "relative": 0.0001785767468465325
+  },
+  "reference": {
+    "controls": [
+      0.014563268726423183,
+      0.7033824587826926,
+      0.0,
+      0.6523593957755864,
+      1.0,
+      0.5183465500440757,
+      0.0,
+      0.647102948515017,
+      0.0
+    ],
+    "linf": 0.01638071049327018,
+    "mae": 0.006575628529203559,
+    "objective": 0.01638071049327018,
+    "rmse": 0.007892597236076429,
+    "solver": "scipy.optimize.linprog-highs",
+    "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+  },
+  "updates": 600,
+  "validation": {
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 337,
+  "worst_point_ties_max": 1
+}

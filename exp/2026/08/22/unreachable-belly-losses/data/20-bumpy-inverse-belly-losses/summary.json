@@ -1,0 +1,1369 @@
+{
+  "cases": [
+    {
+      "artifacts": {
+        "best_png": "2d/l1/best.png",
+        "bumpiness_evolution_png": "2d/l1/bumpiness-evolution.png",
+        "control_evolution_png": "2d/l1/control-evolution.png",
+        "evolution_mp4": "2d/l1/evolution.mp4",
+        "history_npz": "2d/l1/history.npz",
+        "summary_json": "2d/l1/summary.json",
+        "trace_csv": "2d/l1/trace.csv"
+      },
+      "best": {
+        "bound_hits": 0,
+        "controls": [
+          0.05727707462929759,
+          0.30100441413247003,
+          0.6038001123440587,
+          0.8218767328862185,
+          0.9005574091217533,
+          0.821876732886211,
+          0.6038001123440698,
+          0.3010044141325031,
+          0.05727707462936589
+        ],
+        "linf": 0.013495580773352972,
+        "mae": 0.0035513901890417087,
+        "objective": 0.0035513901890417087,
+        "rmse": 0.004951467094115898,
+        "step": 496
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.019337457060732793,
+          "highpass_rms": 0.004500814433369841,
+          "laplacian_rms": 3.955619152612831
+        },
+        "best_highpass_ratio_to_target": 5.521760031419511,
+        "final": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.019335071861028955,
+          "highpass_rms": 0.004500728170958897,
+          "laplacian_rms": 3.955593801476264
+        },
+        "initial": {
+          "extrema_2d": 0,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.01933595763383127,
+          "highpass_rms": 0.004500775608670077,
+          "laplacian_rms": 3.9555929783502264
+        },
+        "target": {
+          "extrema_2d": 1,
+          "highpass_peak_to_valley": 0.002263896946182004,
+          "highpass_rms": 0.0008151050403783648,
+          "laplacian_rms": 0.13839828973956453
+        }
+      },
+      "dimension": "2d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.0573617617033946,
+          0.3009744809892265,
+          0.6037942708073074,
+          0.8219155899765332,
+          0.9004834070910583,
+          0.8219155899765257,
+          0.6037942708073185,
+          0.3009744809892596,
+          0.0573617617034629
+        ],
+        "linf": 0.013496196975493532,
+        "mae": 0.0035514283943397264,
+        "objective": 0.0035514283943397264,
+        "rmse": 0.004951462422853086,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.04,
+        "mae": 0.020129600341337307,
+        "objective": 0.020129600341337307,
+        "rmse": 0.02457338355764635,
+        "step": 0
+      },
+      "loss": "l1",
+      "loss_definition": "L1 / MAE",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 1.768158157909594e-08,
+        "relative": 4.9788022917768915e-06
+      },
+      "reference": {
+        "controls": [
+          0.05729035094732119,
+          0.3010051021824705,
+          0.6038216062901635,
+          0.8218773517666873,
+          0.9005030788507383,
+          0.8218773517666879,
+          0.6038216062901635,
+          0.3010051021824699,
+          0.05729035094732115
+        ],
+        "linf": 0.013496421726751268,
+        "mae": 0.0035513725074601296,
+        "objective": 0.0035513725074601296,
+        "rmse": 0.004951551386248205,
+        "solver": "scipy.optimize.linprog-highs",
+        "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 11,
+      "worst_point_ties_max": 2
+    },
+    {
+      "artifacts": {
+        "best_png": "2d/l2/best.png",
+        "bumpiness_evolution_png": "2d/l2/bumpiness-evolution.png",
+        "control_evolution_png": "2d/l2/control-evolution.png",
+        "evolution_mp4": "2d/l2/evolution.mp4",
+        "history_npz": "2d/l2/history.npz",
+        "summary_json": "2d/l2/summary.json",
+        "trace_csv": "2d/l2/trace.csv"
+      },
+      "best": {
+        "bound_hits": 0,
+        "controls": [
+          0.07107714325028965,
+          0.3098923307078266,
+          0.6170708718465442,
+          0.868088292452214,
+          0.9679822902032238,
+          0.868088292452214,
+          0.617070871846544,
+          0.3098923307078266,
+          0.07107714325028969
+        ],
+        "linf": 0.011797820978300625,
+        "mae": 0.003597730119837004,
+        "objective": 0.004784422530097567,
+        "rmse": 0.004784422530097567,
+        "step": 346
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.02087043259656679,
+          "highpass_rms": 0.0047298503702490665,
+          "laplacian_rms": 4.161456017984569
+        },
+        "best_highpass_ratio_to_target": 5.802749505822599,
+        "final": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.02087043254329419,
+          "highpass_rms": 0.004729850367673756,
+          "laplacian_rms": 4.161456016326816
+        },
+        "initial": {
+          "extrema_2d": 0,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": 17,
+          "highpass_peak_to_valley": 0.02087043254320521,
+          "highpass_rms": 0.0047298503676763675,
+          "laplacian_rms": 4.161456016328902
+        },
+        "target": {
+          "extrema_2d": 1,
+          "highpass_peak_to_valley": 0.002263896946182004,
+          "highpass_rms": 0.0008151050403783648,
+          "laplacian_rms": 0.13839828973956453
+        }
+      },
+      "dimension": "2d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.07107714363755081,
+          0.3098923322208571,
+          0.6170708709048536,
+          0.8680882927733798,
+          0.9679822884274267,
+          0.86808829277338,
+          0.6170708709048534,
+          0.30989233222085705,
+          0.07107714363755085
+        ],
+        "linf": 0.011797821001598634,
+        "mae": 0.003597730121019092,
+        "objective": 0.004784422530097568,
+        "rmse": 0.004784422530097568,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.04,
+        "mae": 0.020129600341337307,
+        "objective": 0.02457338355764635,
+        "rmse": 0.02457338355764635,
+        "step": 0
+      },
+      "loss": "l2",
+      "loss_definition": "L2 / RMS",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 0.0,
+        "relative": 0.0
+      },
+      "reference": {
+        "controls": [
+          0.07107714363742433,
+          0.3098923322217404,
+          0.6170708709019379,
+          0.8680882927772073,
+          0.9679822884254523,
+          0.8680882927772081,
+          0.6170708709019382,
+          0.3098923322217411,
+          0.07107714363742391
+        ],
+        "linf": 0.011797821001576211,
+        "mae": 0.0035977301210206713,
+        "objective": 0.004784422530097568,
+        "rmse": 0.004784422530097568,
+        "solver": "scipy.optimize.lsq_linear",
+        "solver_status": "The unconstrained solution is optimal."
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 15,
+      "worst_point_ties_max": 2
+    },
+    {
+      "artifacts": {
+        "best_png": "2d/linf/best.png",
+        "bumpiness_evolution_png": "2d/linf/bumpiness-evolution.png",
+        "control_evolution_png": "2d/linf/control-evolution.png",
+        "evolution_mp4": "2d/linf/evolution.mp4",
+        "history_npz": "2d/linf/history.npz",
+        "summary_json": "2d/linf/summary.json",
+        "trace_csv": "2d/linf/trace.csv"
+      },
+      "best": {
+        "bound_hits": 2,
+        "controls": [
+          0.0,
+          0.32971892065693936,
+          0.6391658836457397,
+          0.9178775343649656,
+          0.9985689675424363,
+          0.9177212448250313,
+          0.6496279856740482,
+          0.3262605643442751,
+          0.0
+        ],
+        "linf": 0.010628466044382268,
+        "mae": 0.0040731534654541565,
+        "objective": 0.010628466044382268,
+        "rmse": 0.0050665318229884465,
+        "step": 495
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": 13,
+          "highpass_peak_to_valley": 0.021369248348577903,
+          "highpass_rms": 0.005029048818373647,
+          "laplacian_rms": 4.355724786870539
+        },
+        "best_highpass_ratio_to_target": 6.169816857026434,
+        "final": {
+          "extrema_2d": 13,
+          "highpass_peak_to_valley": 0.02137019395411207,
+          "highpass_rms": 0.005028427718430562,
+          "laplacian_rms": 4.355213404835806
+        },
+        "initial": {
+          "extrema_2d": 0,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": 13,
+          "highpass_peak_to_valley": 0.021503455865692744,
+          "highpass_rms": 0.005340511455245647,
+          "laplacian_rms": 4.320364205182611
+        },
+        "target": {
+          "extrema_2d": 1,
+          "highpass_peak_to_valley": 0.002263896946182004,
+          "highpass_rms": 0.0008151050403783648,
+          "laplacian_rms": 0.13839828973956453
+        }
+      },
+      "dimension": "2d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.0,
+          0.3297189206121594,
+          0.6391173648590698,
+          0.9175938495481799,
+          0.9985408294897136,
+          0.9176208875296038,
+          0.6495909873227274,
+          0.32626056430883127,
+          0.0
+        ],
+        "linf": 0.010630687474754513,
+        "mae": 0.004072665984982863,
+        "objective": 0.010630687474754513,
+        "rmse": 0.005065812625359643,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.04,
+        "mae": 0.020129600341337307,
+        "objective": 0.04,
+        "rmse": 0.02457338355764635,
+        "step": 0
+      },
+      "loss": "linf",
+      "loss_definition": "L-inf / max",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 1.298756940275661e-05,
+        "relative": 0.001223455865260155
+      },
+      "reference": {
+        "controls": [
+          0.0,
+          0.4619341818161177,
+          0.5180282471812372,
+          0.918935175132367,
+          0.9983247742434636,
+          0.9189351751323689,
+          0.5180282471810664,
+          0.46193418308336287,
+          0.0
+        ],
+        "linf": 0.010615478474979512,
+        "mae": 0.004560437664398833,
+        "objective": 0.010615478474979512,
+        "rmse": 0.00578074542874512,
+        "solver": "scipy.optimize.linprog-highs",
+        "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 262,
+      "worst_point_ties_max": 2
+    },
+    {
+      "artifacts": {
+        "best_png": "3d/l1/best.png",
+        "bumpiness_evolution_png": "3d/l1/bumpiness-evolution.png",
+        "control_evolution_png": "3d/l1/control-evolution.png",
+        "evolution_mp4": "3d/l1/evolution.mp4",
+        "history_npz": "3d/l1/history.npz",
+        "summary_json": "3d/l1/summary.json",
+        "trace_csv": "3d/l1/trace.csv"
+      },
+      "best": {
+        "bound_hits": 1,
+        "controls": [
+          0.018842874466640555,
+          0.11977011633679208,
+          0.1915636497143731,
+          0.11977011633680039,
+          0.0188428744666746,
+          0.11977011633679292,
+          0.6503739743853043,
+          0.9844626028581325,
+          0.6503739743853153,
+          0.11977011633686512,
+          0.1915636497143595,
+          0.9844626028581328,
+          1.0,
+          0.9844626028581451,
+          0.19156364971443884,
+          0.1197701163367999,
+          0.6503739743853203,
+          0.9844626028581329,
+          0.6503739743853316,
+          0.11977011633688535,
+          0.018842874466674903,
+          0.11977011633685739,
+          0.19156364971447293,
+          0.11977011633686299,
+          0.0188428744667226
+        ],
+        "linf": 0.0230329933869742,
+        "mae": 0.003952070620436338,
+        "objective": 0.003952070620436338,
+        "rmse": 0.0063436693967225295,
+        "step": 498
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03567698493505382,
+          "highpass_rms": 0.005060246557431986,
+          "laplacian_rms": 1.2352218474368613
+        },
+        "best_highpass_ratio_to_target": 2.3334356904502442,
+        "final": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03567762777170888,
+          "highpass_rms": 0.005060385062240675,
+          "laplacian_rms": 1.235241984962602
+        },
+        "initial": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.035678133919827375,
+          "highpass_rms": 0.005060386604136056,
+          "laplacian_rms": 1.235236664514695
+        },
+        "target": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.00853343292659402,
+          "highpass_rms": 0.0021685819661289205,
+          "laplacian_rms": 0.12043022977728766
+        }
+      },
+      "dimension": "3d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.01884707568867935,
+          0.11974067971690038,
+          0.1915408776282895,
+          0.11974067971690869,
+          0.0188470756887134,
+          0.11974067971690122,
+          0.6504069106391288,
+          0.9844797633687232,
+          0.6504069106391398,
+          0.11974067971697341,
+          0.1915408776282759,
+          0.9844797633687236,
+          1.0,
+          0.9844797633687359,
+          0.19154087762835525,
+          0.1197406797169082,
+          0.6504069106391448,
+          0.9844797633687237,
+          0.6504069106391561,
+          0.11974067971699365,
+          0.018847075688713702,
+          0.11974067971696568,
+          0.19154087762838934,
+          0.11974067971697129,
+          0.018847075688761403
+        ],
+        "linf": 0.023032933071556287,
+        "mae": 0.003952073144260244,
+        "objective": 0.003952073144260244,
+        "rmse": 0.006343671120821264,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.035,
+        "mae": 0.009257309147691838,
+        "objective": 0.009257309147691838,
+        "rmse": 0.013489176650069538,
+        "step": 0
+      },
+      "loss": "l1",
+      "loss_definition": "L1 / MAE",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 7.551863569384143e-09,
+        "relative": 1.9108661573337167e-06
+      },
+      "reference": {
+        "controls": [
+          0.01882140126839837,
+          0.11971438935709018,
+          0.1915676215161573,
+          0.11971438935709003,
+          0.01882140126839837,
+          0.11971438935709018,
+          0.6503787989870683,
+          0.9844933051741385,
+          0.6503787989870682,
+          0.11971438935709013,
+          0.1915676215161576,
+          0.9844933051741387,
+          1.0,
+          0.9844933051741387,
+          0.19156762151615744,
+          0.11971438935709004,
+          0.6503787989870681,
+          0.9844933051741376,
+          0.6503787989870686,
+          0.11971438935709003,
+          0.01882140126839837,
+          0.11971438935709013,
+          0.1915676215161576,
+          0.11971438935708993,
+          0.018821401268398368
+        ],
+        "linf": 0.02303290575273631,
+        "mae": 0.003952063068572769,
+        "objective": 0.003952063068572769,
+        "rmse": 0.006343685057914833,
+        "solver": "scipy.optimize.linprog-highs",
+        "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 47,
+      "worst_point_ties_max": 8
+    },
+    {
+      "artifacts": {
+        "best_png": "3d/l2/best.png",
+        "bumpiness_evolution_png": "3d/l2/bumpiness-evolution.png",
+        "control_evolution_png": "3d/l2/control-evolution.png",
+        "evolution_mp4": "3d/l2/evolution.mp4",
+        "history_npz": "3d/l2/history.npz",
+        "summary_json": "3d/l2/summary.json",
+        "trace_csv": "3d/l2/trace.csv"
+      },
+      "best": {
+        "bound_hits": 5,
+        "controls": [
+          0.030623910500344555,
+          0.14413424644725106,
+          0.21434846809567437,
+          0.14413424644725106,
+          0.03062391050034454,
+          0.14413424644725106,
+          0.680331377154046,
+          1.0,
+          0.680331377154046,
+          0.144134246447251,
+          0.21434846809567448,
+          1.0,
+          1.0,
+          1.0,
+          0.2143484680956743,
+          0.1441342464472511,
+          0.680331377154046,
+          1.0,
+          0.6803313771540461,
+          0.14413424644725095,
+          0.030623910500344544,
+          0.144134246447251,
+          0.21434846809567443,
+          0.144134246447251,
+          0.03062391050034453
+        ],
+        "linf": 0.02297833100263031,
+        "mae": 0.003993610819237707,
+        "objective": 0.0063234498652065966,
+        "rmse": 0.0063234498652065966,
+        "step": 333
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03614854905515052,
+          "highpass_rms": 0.005161665598949487,
+          "laplacian_rms": 1.2687614464018027
+        },
+        "best_highpass_ratio_to_target": 2.38020313715116,
+        "final": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03614854904945261,
+          "highpass_rms": 0.005161665596095892,
+          "laplacian_rms": 1.2687614468367587
+        },
+        "initial": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03614854904945407,
+          "highpass_rms": 0.005161665596093743,
+          "laplacian_rms": 1.268761446836152
+        },
+        "target": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.00853343292659402,
+          "highpass_rms": 0.0021685819661289205,
+          "laplacian_rms": 0.12043022977728766
+        }
+      },
+      "dimension": "3d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.030623910833255167,
+          0.14413424873962624,
+          0.21434847126018797,
+          0.14413424873962624,
+          0.030623910833255157,
+          0.14413424873962624,
+          0.6803313761640493,
+          1.0,
+          0.6803313761640493,
+          0.1441342487396262,
+          0.21434847126018805,
+          1.0,
+          1.0,
+          1.0,
+          0.21434847126018786,
+          0.14413424873962624,
+          0.6803313761640493,
+          1.0,
+          0.6803313761640493,
+          0.14413424873962616,
+          0.030623910833255157,
+          0.14413424873962616,
+          0.21434847126018802,
+          0.14413424873962613,
+          0.03062391083325514
+        ],
+        "linf": 0.022978331003001323,
+        "mae": 0.003993610824875457,
+        "objective": 0.006323449865206597,
+        "rmse": 0.006323449865206597,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.035,
+        "mae": 0.009257309147691838,
+        "objective": 0.013489176650069538,
+        "rmse": 0.013489176650069538,
+        "step": 0
+      },
+      "loss": "l2",
+      "loss_definition": "L2 / RMS",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 0.0,
+        "relative": 0.0
+      },
+      "reference": {
+        "controls": [
+          0.0306239108332458,
+          0.14413424873944936,
+          0.21434847125990783,
+          0.14413424873944938,
+          0.03062391083324579,
+          0.14413424873944936,
+          0.6803313761629918,
+          0.9999999999999837,
+          0.6803313761629918,
+          0.1441342487394493,
+          0.21434847125990789,
+          0.9999999999999837,
+          0.9999999999999999,
+          0.9999999999999837,
+          0.2143484712599077,
+          0.14413424873944936,
+          0.6803313761629918,
+          0.9999999999999837,
+          0.6803313761629918,
+          0.1441342487394493,
+          0.03062391083324579,
+          0.1441342487394493,
+          0.21434847125990786,
+          0.14413424873944927,
+          0.03062391083324577
+        ],
+        "linf": 0.022978331003001763,
+        "mae": 0.003993610824874812,
+        "objective": 0.006323449865206601,
+        "rmse": 0.006323449865206601,
+        "solver": "scipy.optimize.lsq_linear",
+        "solver_status": "The first-order optimality measure is less than `tol`."
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 236,
+      "worst_point_ties_max": 8
+    },
+    {
+      "artifacts": {
+        "best_png": "3d/linf/best.png",
+        "bumpiness_evolution_png": "3d/linf/bumpiness-evolution.png",
+        "control_evolution_png": "3d/linf/control-evolution.png",
+        "evolution_mp4": "3d/linf/evolution.mp4",
+        "history_npz": "3d/linf/history.npz",
+        "summary_json": "3d/linf/summary.json",
+        "trace_csv": "3d/linf/trace.csv"
+      },
+      "best": {
+        "bound_hits": 5,
+        "controls": [
+          7.796904230668643e-07,
+          4.833973160648306e-05,
+          0.16767843520915335,
+          4.1491502368246415e-05,
+          3.3119706798126247e-07,
+          4.3017846603673794e-05,
+          0.945726178170326,
+          1.0,
+          0.9459145931608849,
+          1.8031830189002107e-06,
+          0.1756654324630816,
+          1.0,
+          1.0,
+          1.0,
+          0.2410491924570872,
+          3.608305182440859e-05,
+          0.9454013122544951,
+          1.0,
+          0.9456468082257301,
+          1.1104920899485653e-06,
+          2.9794388433322566e-07,
+          3.575676844853818e-07,
+          0.2450920072555831,
+          7.035017859672775e-07,
+          2.582193287566755e-07
+        ],
+        "linf": 0.02287898064040595,
+        "mae": 0.004490613397084451,
+        "objective": 0.02287898064040595,
+        "rmse": 0.006837861957635016,
+        "step": 334
+      },
+      "bumpiness": {
+        "best": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03714496974492337,
+          "highpass_rms": 0.006082294590809901,
+          "laplacian_rms": 1.4034607227942117
+        },
+        "best_highpass_ratio_to_target": 2.804733547456012,
+        "final": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.036203834868764995,
+          "highpass_rms": 0.0056418539075284106,
+          "laplacian_rms": 1.3208940595613832
+        },
+        "initial": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.0,
+          "highpass_rms": 0.0,
+          "laplacian_rms": 0.0
+        },
+        "reference": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.03684088113635613,
+          "highpass_rms": 0.006671299035509505,
+          "laplacian_rms": 1.5368724521190529
+        },
+        "target": {
+          "extrema_2d": -1,
+          "highpass_peak_to_valley": 0.00853343292659402,
+          "highpass_rms": 0.0021685819661289205,
+          "laplacian_rms": 0.12043022977728766
+        }
+      },
+      "dimension": "3d",
+      "evaluations": 501,
+      "final": {
+        "controls": [
+          0.0,
+          0.0,
+          0.16767695618178508,
+          4.1820659042850005e-06,
+          2.9303982932322175e-09,
+          0.0,
+          0.8071980375805831,
+          1.0,
+          0.8070041882706286,
+          4.172452402341268e-06,
+          0.17566396163131234,
+          1.0,
+          1.0,
+          1.0,
+          0.24104124001361268,
+          4.211879145616868e-06,
+          0.8070327329062313,
+          1.0,
+          0.8070159671400786,
+          4.546895718946085e-06,
+          3.4994143783994606e-09,
+          4.202202986319813e-06,
+          0.24508140380514,
+          4.545947701387665e-06,
+          3.53190819811533e-09
+        ],
+        "linf": 0.02293085340230816,
+        "mae": 0.004418618526140762,
+        "objective": 0.02293085340230816,
+        "rmse": 0.0065983649625371964,
+        "step": 500
+      },
+      "initial": {
+        "controls": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "linf": 0.035,
+        "mae": 0.009257309147691838,
+        "objective": 0.035,
+        "rmse": 0.013489176650069538,
+        "step": 0
+      },
+      "loss": "linf",
+      "loss_definition": "L-inf / max",
+      "optimizer": "projected Adam with cosine learning-rate decay",
+      "optimizer_gap_to_reference": {
+        "absolute": 2.502780875879296e-07,
+        "relative": 1.0939334640708105e-05
+      },
+      "reference": {
+        "controls": [
+          0.0,
+          0.0,
+          0.6998036044452076,
+          0.0,
+          0.0,
+          0.0,
+          0.946053360218363,
+          1.0,
+          0.946053360218365,
+          0.0,
+          0.6998036049777486,
+          1.0,
+          1.0,
+          1.0,
+          0.6998036049777485,
+          0.0,
+          0.9460533602183604,
+          1.0,
+          0.9460533602183608,
+          0.0,
+          0.0,
+          0.0,
+          0.6998036049777485,
+          0.0,
+          0.0
+        ],
+        "linf": 0.022878730362318363,
+        "mae": 0.0051928118591335745,
+        "objective": 0.022878730362318363,
+        "rmse": 0.007741143856656861,
+        "solver": "scipy.optimize.linprog-highs",
+        "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+      },
+      "updates": 500,
+      "validation": {
+        "best_bumpier_than_smooth_target": true,
+        "best_improves_initial": true,
+        "best_not_below_reference": true,
+        "bumpiness_emerges": true,
+        "controls_within_bounds": true,
+        "finite_history": true,
+        "target_residual_nonzero": true
+      },
+      "worst_point_switches": 224,
+      "worst_point_ties_max": 4
+    }
+  ],
+  "complete": true,
+  "config": {
+    "actuator_axis_3d": 5,
+    "actuator_scale_2d": 0.05,
+    "actuator_scale_3d": 0.04,
+    "actuator_width_2d": 0.065,
+    "actuator_width_3d": 0.1,
+    "actuators_2d": 9,
+    "bending_stiffness": 0.015,
+    "bump_filter_spacing_fraction": 0.55,
+    "control_max": 1.0,
+    "control_min": 0.0,
+    "final_learning_rate": 0.0003,
+    "foundation_stiffness": 1.0,
+    "grid_2d": 161,
+    "grid_3d": 41,
+    "initial_control": 0.0,
+    "learning_rate": 0.06,
+    "membrane_stiffness": 0.25,
+    "output_dir": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/20-bumpy-inverse-belly-losses",
+    "render_video": true,
+    "snapshot_every": 10,
+    "steps": 500,
+    "target_depth_2d": 0.04,
+    "target_depth_3d": 0.035,
+    "video_fps": 8
+  },
+  "design": "fixed-rim-local-actuator-inverse-fit-to-smooth-unreachable-target",
+  "loss_definitions": {
+    "l1": "mean(abs(surface-height residual))",
+    "l2": "sqrt(mean(square(surface-height residual)))",
+    "linf": "max(abs(surface-height residual))"
+  },
+  "models": {
+    "2d": {
+      "actuator_centers": [
+        -0.82,
+        -0.615,
+        -0.41,
+        -0.20499999999999996,
+        0.0,
+        0.20499999999999996,
+        0.41000000000000003,
+        0.6149999999999999,
+        0.82
+      ],
+      "actuator_width": 0.065,
+      "artifacts": {
+        "metric_comparison_early_png": "2d/metric-comparison-early.png",
+        "metric_comparison_png": "2d/metric-comparison.png",
+        "model_npz": "2d/model.npz"
+      },
+      "bump_filter_sigma_grid": 9.020000000000032,
+      "comparison": {
+        "best_state_metrics": {
+          "l1": {
+            "bump_highpass_rms": 0.004500814433369841,
+            "bump_laplacian_rms": 3.955619152612831,
+            "linf": 0.013495580773352972,
+            "mae": 0.0035513901890417087,
+            "rmse": 0.004951467094115898
+          },
+          "l2": {
+            "bump_highpass_rms": 0.0047298503702490665,
+            "bump_laplacian_rms": 4.161456017984569,
+            "linf": 0.011797820978300625,
+            "mae": 0.003597730119837004,
+            "rmse": 0.004784422530097567
+          },
+          "linf": {
+            "bump_highpass_rms": 0.005029048818373647,
+            "bump_laplacian_rms": 4.355724786870539,
+            "linf": 0.010628466044382268,
+            "mae": 0.0040731534654541565,
+            "rmse": 0.0050665318229884465
+          }
+        },
+        "winner_by_metric": {
+          "linf": "linf",
+          "mae": "l1",
+          "rmse": "l2"
+        }
+      },
+      "dimension": "2d",
+      "grid_shape": [
+        161
+      ],
+      "interpretation": "fixed-rim belly profile embedded in the x-height plane",
+      "n_controls": 9,
+      "n_interior_points": 159,
+      "n_points": 161,
+      "orthogonality_max_abs": 4.0074019763217034e-17,
+      "response_rank": 9,
+      "rest_height_max": 0.22999999999999998,
+      "rest_height_min": 0.05,
+      "target_bumpiness": {
+        "extrema_2d": 1,
+        "highpass_peak_to_valley": 0.002263896946182004,
+        "highpass_rms": 0.0008151050403783648,
+        "laplacian_rms": 0.13839828973956453
+      },
+      "target_depth": 0.04,
+      "target_height_max": 0.18999999999999997,
+      "target_height_min": 0.05,
+      "target_kind": "continuous smooth equilibrium load",
+      "unconstrained_projection_controls": [
+        0.07107714363742433,
+        0.3098923322217404,
+        0.6170708709019379,
+        0.8680882927772073,
+        0.9679822884254523,
+        0.8680882927772081,
+        0.6170708709019382,
+        0.3098923322217411,
+        0.07107714363742391
+      ],
+      "unconstrained_projection_linf": 0.011797821001576215,
+      "unconstrained_projection_mae": 0.0035977301210206713,
+      "unconstrained_projection_rmse": 0.004784422530097569,
+      "unconstrained_projection_rmse_fraction_of_target": 0.1946993794677831
+    },
+    "3d": {
+      "actuator_centers": [
+        [
+          -0.76,
+          -0.76
+        ],
+        [
+          -0.76,
+          -0.38
+        ],
+        [
+          -0.76,
+          0.0
+        ],
+        [
+          -0.76,
+          0.3800000000000001
+        ],
+        [
+          -0.76,
+          0.76
+        ],
+        [
+          -0.38,
+          -0.76
+        ],
+        [
+          -0.38,
+          -0.38
+        ],
+        [
+          -0.38,
+          0.0
+        ],
+        [
+          -0.38,
+          0.3800000000000001
+        ],
+        [
+          -0.38,
+          0.76
+        ],
+        [
+          0.0,
+          -0.76
+        ],
+        [
+          0.0,
+          -0.38
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.3800000000000001
+        ],
+        [
+          0.0,
+          0.76
+        ],
+        [
+          0.3800000000000001,
+          -0.76
+        ],
+        [
+          0.3800000000000001,
+          -0.38
+        ],
+        [
+          0.3800000000000001,
+          0.0
+        ],
+        [
+          0.3800000000000001,
+          0.3800000000000001
+        ],
+        [
+          0.3800000000000001,
+          0.76
+        ],
+        [
+          0.76,
+          -0.76
+        ],
+        [
+          0.76,
+          -0.38
+        ],
+        [
+          0.76,
+          0.0
+        ],
+        [
+          0.76,
+          0.3800000000000001
+        ],
+        [
+          0.76,
+          0.76
+        ]
+      ],
+      "actuator_width": 0.1,
+      "artifacts": {
+        "metric_comparison_early_png": "3d/metric-comparison-early.png",
+        "metric_comparison_png": "3d/metric-comparison.png",
+        "model_npz": "3d/model.npz"
+      },
+      "bump_filter_sigma_grid": 4.179999999999997,
+      "comparison": {
+        "best_state_metrics": {
+          "l1": {
+            "bump_highpass_rms": 0.005060246557431986,
+            "bump_laplacian_rms": 1.2352218474368613,
+            "linf": 0.0230329933869742,
+            "mae": 0.003952070620436338,
+            "rmse": 0.0063436693967225295
+          },
+          "l2": {
+            "bump_highpass_rms": 0.005161665598949487,
+            "bump_laplacian_rms": 1.2687614464018027,
+            "linf": 0.02297833100263031,
+            "mae": 0.003993610819237707,
+            "rmse": 0.0063234498652065966
+          },
+          "linf": {
+            "bump_highpass_rms": 0.006082294590809901,
+            "bump_laplacian_rms": 1.4034607227942117,
+            "linf": 0.02287898064040595,
+            "mae": 0.004490613397084451,
+            "rmse": 0.006837861957635016
+          }
+        },
+        "winner_by_metric": {
+          "linf": "linf",
+          "mae": "l1",
+          "rmse": "l2"
+        }
+      },
+      "dimension": "3d",
+      "grid_shape": [
+        41,
+        41
+      ],
+      "interpretation": "fixed-rim belly height surface embedded in x-z-height space",
+      "n_controls": 25,
+      "n_interior_points": 1521,
+      "n_points": 1681,
+      "orthogonality_max_abs": 3.814363568308401e-17,
+      "response_rank": 25,
+      "rest_height_max": 0.22999999999999998,
+      "rest_height_min": 0.05,
+      "target_bumpiness": {
+        "extrema_2d": -1,
+        "highpass_peak_to_valley": 0.00853343292659402,
+        "highpass_rms": 0.0021685819661289205,
+        "laplacian_rms": 0.12043022977728766
+      },
+      "target_depth": 0.035,
+      "target_height_max": 0.19499999999999998,
+      "target_height_min": 0.05,
+      "target_kind": "continuous smooth equilibrium load",
+      "unconstrained_projection_controls": [
+        0.030621651663545486,
+        0.14419179226093368,
+        0.21402991448392011,
+        0.14419179226093345,
+        0.030621651663546152,
+        0.14419179226093387,
+        0.678915425465291,
+        1.0077276360767204,
+        0.6789154254652906,
+        0.14419179226093393,
+        0.21402991448392014,
+        1.0077276360767211,
+        1.4957894781826027,
+        1.0077276360767222,
+        0.21402991448392011,
+        0.14419179226093343,
+        0.6789154254652906,
+        1.007727636076722,
+        0.6789154254652914,
+        0.14419179226093295,
+        0.030621651663545194,
+        0.14419179226093365,
+        0.2140299144839204,
+        0.14419179226093295,
+        0.03062165166354521
+      ],
+      "unconstrained_projection_linf": 0.025137199883311256,
+      "unconstrained_projection_mae": 0.0038719335103182986,
+      "unconstrained_projection_rmse": 0.0060306077176925385,
+      "unconstrained_projection_rmse_fraction_of_target": 0.4470701121451657
+    }
+  },
+  "schema_version": 1,
+  "scope": "reduced fixed-rim linear surface-equilibrium surrogate with local actuator loads; not volumetric FEM or a calibrated anatomical tissue model",
+  "status": "ok",
+  "target_construction": "smooth continuous-load equilibrium target fitted by a finite set of narrow local actuator responses; its nonzero orthogonal projection residual certifies that it lies outside their response span",
+  "validation": {
+    "all_case_checks_pass": true,
+    "case_checks_passed": 42,
+    "case_checks_total": 42,
+    "each_loss_wins_its_metric": true,
+    "expected_metric_winners": {
+      "2d": {
+        "linf": "linf",
+        "mae": "l1",
+        "rmse": "l2"
+      },
+      "3d": {
+        "linf": "linf",
+        "mae": "l1",
+        "rmse": "l2"
+      }
+    }
+  }
+}

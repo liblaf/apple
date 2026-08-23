@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "best_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l1/best.png",
+    "control_evolution_png": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l1/control-evolution.png",
+    "evolution_mp4": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l1/evolution.mp4",
+    "history_npz": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l1/history.npz",
+    "trace_csv": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/22/unreachable-belly-losses/data/10-unreachable-belly-losses/2d/l1/trace.csv"
+  },
+  "best": {
+    "bound_hits": 0,
+    "controls": [
+      0.596017323353269,
+      0.4977762060535446,
+      0.49601966531312924
+    ],
+    "linf": 0.04986591131282652,
+    "mae": 0.009499987254040334,
+    "objective": 0.009499987254040334,
+    "rmse": 0.015446501493425406,
+    "step": 598
+  },
+  "dimension": "2d",
+  "evaluations": 601,
+  "final": {
+    "controls": [
+      0.5960686611119332,
+      0.4978089392245438,
+      0.4960122343847011
+    ],
+    "linf": 0.049863846919678725,
+    "mae": 0.009500030379497783,
+    "objective": 0.009500030379497783,
+    "rmse": 0.015446286411180359,
+    "step": 600
+  },
+  "initial": {
+    "controls": [
+      0.05,
+      0.05,
+      0.05
+    ],
+    "linf": 0.08046000830605209,
+    "mae": 0.02660714019288468,
+    "objective": 0.02660714019288468,
+    "rmse": 0.031720111042745316,
+    "step": 0
+  },
+  "loss": "l1",
+  "loss_definition": "L1 / MAE",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 1.4435027785933419e-08,
+    "relative": 1.5194809565185508e-06
+  },
+  "reference": {
+    "controls": [
+      0.5960195576011547,
+      0.49780281143468447,
+      0.4960195576011547
+    ],
+    "linf": 0.04986443522724404,
+    "mae": 0.009499972819012548,
+    "objective": 0.009499972819012548,
+    "rmse": 0.01544625535248532,
+    "solver": "scipy.optimize.linprog-highs",
+    "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+  },
+  "updates": 600,
+  "validation": {
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 0,
+  "worst_point_ties_max": 1
+}

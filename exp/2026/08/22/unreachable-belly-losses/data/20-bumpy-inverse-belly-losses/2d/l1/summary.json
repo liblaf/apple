@@ -1,0 +1,139 @@
+{
+  "artifacts": {
+    "best_png": "2d/l1/best.png",
+    "bumpiness_evolution_png": "2d/l1/bumpiness-evolution.png",
+    "control_evolution_png": "2d/l1/control-evolution.png",
+    "evolution_mp4": "2d/l1/evolution.mp4",
+    "history_npz": "2d/l1/history.npz",
+    "summary_json": "2d/l1/summary.json",
+    "trace_csv": "2d/l1/trace.csv"
+  },
+  "best": {
+    "bound_hits": 0,
+    "controls": [
+      0.05727707462929759,
+      0.30100441413247003,
+      0.6038001123440587,
+      0.8218767328862185,
+      0.9005574091217533,
+      0.821876732886211,
+      0.6038001123440698,
+      0.3010044141325031,
+      0.05727707462936589
+    ],
+    "linf": 0.013495580773352972,
+    "mae": 0.0035513901890417087,
+    "objective": 0.0035513901890417087,
+    "rmse": 0.004951467094115898,
+    "step": 496
+  },
+  "bumpiness": {
+    "best": {
+      "extrema_2d": 17,
+      "highpass_peak_to_valley": 0.019337457060732793,
+      "highpass_rms": 0.004500814433369841,
+      "laplacian_rms": 3.955619152612831
+    },
+    "best_highpass_ratio_to_target": 5.521760031419511,
+    "final": {
+      "extrema_2d": 17,
+      "highpass_peak_to_valley": 0.019335071861028955,
+      "highpass_rms": 0.004500728170958897,
+      "laplacian_rms": 3.955593801476264
+    },
+    "initial": {
+      "extrema_2d": 0,
+      "highpass_peak_to_valley": 0.0,
+      "highpass_rms": 0.0,
+      "laplacian_rms": 0.0
+    },
+    "reference": {
+      "extrema_2d": 17,
+      "highpass_peak_to_valley": 0.01933595763383127,
+      "highpass_rms": 0.004500775608670077,
+      "laplacian_rms": 3.9555929783502264
+    },
+    "target": {
+      "extrema_2d": 1,
+      "highpass_peak_to_valley": 0.002263896946182004,
+      "highpass_rms": 0.0008151050403783648,
+      "laplacian_rms": 0.13839828973956453
+    }
+  },
+  "dimension": "2d",
+  "evaluations": 501,
+  "final": {
+    "controls": [
+      0.0573617617033946,
+      0.3009744809892265,
+      0.6037942708073074,
+      0.8219155899765332,
+      0.9004834070910583,
+      0.8219155899765257,
+      0.6037942708073185,
+      0.3009744809892596,
+      0.0573617617034629
+    ],
+    "linf": 0.013496196975493532,
+    "mae": 0.0035514283943397264,
+    "objective": 0.0035514283943397264,
+    "rmse": 0.004951462422853086,
+    "step": 500
+  },
+  "initial": {
+    "controls": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "linf": 0.04,
+    "mae": 0.020129600341337307,
+    "objective": 0.020129600341337307,
+    "rmse": 0.02457338355764635,
+    "step": 0
+  },
+  "loss": "l1",
+  "loss_definition": "L1 / MAE",
+  "optimizer": "projected Adam with cosine learning-rate decay",
+  "optimizer_gap_to_reference": {
+    "absolute": 1.768158157909594e-08,
+    "relative": 4.9788022917768915e-06
+  },
+  "reference": {
+    "controls": [
+      0.05729035094732119,
+      0.3010051021824705,
+      0.6038216062901635,
+      0.8218773517666873,
+      0.9005030788507383,
+      0.8218773517666879,
+      0.6038216062901635,
+      0.3010051021824699,
+      0.05729035094732115
+    ],
+    "linf": 0.013496421726751268,
+    "mae": 0.0035513725074601296,
+    "objective": 0.0035513725074601296,
+    "rmse": 0.004951551386248205,
+    "solver": "scipy.optimize.linprog-highs",
+    "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+  },
+  "updates": 500,
+  "validation": {
+    "best_bumpier_than_smooth_target": true,
+    "best_improves_initial": true,
+    "best_not_below_reference": true,
+    "bumpiness_emerges": true,
+    "controls_within_bounds": true,
+    "finite_history": true,
+    "target_residual_nonzero": true
+  },
+  "worst_point_switches": 11,
+  "worst_point_ties_max": 2
+}

@@ -1,0 +1,144 @@
+{
+  "comparison": {
+    "inputs": [
+      {
+        "name": "baseline-per-cell",
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/baseline-per-cell/frames/step-0500.vtu",
+        "sha256": "a31364e1bef0e839781aafb1e68dccd5bbc7a27c34d81cfbd59acfb97afb2f4c"
+      },
+      {
+        "name": "smoothed-per-cell",
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/smoothed-per-cell/frames/step-0347.vtu",
+        "sha256": "d5b9c8a08c7519b60ecd213a6c894a229cd8211b4df9fbaf426727dc78a48c3e"
+      },
+      {
+        "name": "shared-muscle",
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/shared-muscle/frames/step-0254.vtu",
+        "sha256": "4b82b755fced18da08abd005672ee36c3cb22b5b0506e143acc00ba006d69f5a"
+      }
+    ],
+    "screenshot": {
+      "height": 1200,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/final-comparison.png",
+      "sha256": "475982f58bf81edd982a31ff8c316e7e60b4e0813bb2379891d2709f48e72502",
+      "size_bytes": 857983,
+      "width": 1600
+    },
+    "state": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/final-comparison.pvsm",
+      "sha256": "6c08da5f5ad297821f7d462cd15bd393a1f003a4ee193d8dac908c68b4e6ba82",
+      "size_bytes": 1378355
+    }
+  },
+  "complete": true,
+  "contract": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/paraview-contract.json",
+    "sha256": "050575bceb2a0b520df9f76dd206a68c2a0f3ca1d9e07654fc5fc88a36401635"
+  },
+  "design": "unreachable-layered-plane-strain-strip-inverse",
+  "evolution": {
+    "frame_count": 15,
+    "frames": {
+      "directory": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-frames",
+      "first_sha256": "31a742a777964c887d498232910844534f616f4bb91e7b179216b6686f753ca5",
+      "last_sha256": "c4fc8b13622a1acaa85fbfea64e24737d2beb1a2ddfa8807f1422b98759ae168"
+    },
+    "series": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/baseline-per-cell/history.vtu.series",
+    "state": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution.pvsm",
+      "sha256": "396e17fc4041b76b3f43cbd76658b6f9d2f8e895f2e349eb5c3e01828b343786",
+      "size_bytes": 1046387
+    },
+    "stills": {
+      "final": {
+        "height": 900,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-final.png",
+        "sha256": "c4fc8b13622a1acaa85fbfea64e24737d2beb1a2ddfa8807f1422b98759ae168",
+        "size_bytes": 560742,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-frames/evolution_014.png",
+        "time": 500.0,
+        "width": 1600
+      },
+      "initial": {
+        "height": 900,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-initial.png",
+        "sha256": "31a742a777964c887d498232910844534f616f4bb91e7b179216b6686f753ca5",
+        "size_bytes": 174274,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-frames/evolution_000.png",
+        "time": 0.0,
+        "width": 1600
+      },
+      "middle": {
+        "height": 900,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-middle.png",
+        "sha256": "b37c524f2b9b28e5d8a683cf8050694784fd8cf8f1779a80f7b39c208219a0be",
+        "size_bytes": 556839,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution-frames/evolution_007.png",
+        "time": 50.0,
+        "width": 1600
+      }
+    },
+    "time_values": [
+      0.0,
+      1.0,
+      2.0,
+      5.0,
+      10.0,
+      20.0,
+      30.0,
+      50.0,
+      75.0,
+      100.0,
+      150.0,
+      200.0,
+      300.0,
+      400.0,
+      500.0
+    ],
+    "video": {
+      "ffprobe": {
+        "format": {
+          "duration": "3.750000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "height": 900,
+            "nb_frames": "15",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "4/1",
+            "width": 1600
+          }
+        ]
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/evolution.mp4",
+      "sha256": "d6834bc9a28026c109f4c1d70e60934c0c4b7dc953a9187ea2916aa084d3baf4",
+      "size_bytes": 505270
+    }
+  },
+  "native_paraview_rendering": true,
+  "paraview_version": "6.1.1",
+  "schema_version": 1,
+  "setup": {
+    "input": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/10-layered-strip-inverse/baseline-per-cell/frames/step-0500.vtu",
+      "sha256": "a31364e1bef0e839781aafb1e68dccd5bbc7a27c34d81cfbd59acfb97afb2f4c"
+    },
+    "screenshot": {
+      "height": 560,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/setup-materials.png",
+      "sha256": "bd12a26a00860b562034c0834d81c743aee7bd10b22918e550f3cd5ad5e50236",
+      "size_bytes": 36387,
+      "width": 1600
+    },
+    "state": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/23/unreachable-layered-strip-2d/data/20-paraview/setup-materials.pvsm",
+      "sha256": "8cd9b519aa241ab9c3e140f024ac6b52e6c629f5595801b318bacb6daeeaf70e",
+      "size_bytes": 515231
+    }
+  },
+  "status": "ok",
+  "video_note": "ffmpeg encodes only PNG frames rendered by ParaView"
+}

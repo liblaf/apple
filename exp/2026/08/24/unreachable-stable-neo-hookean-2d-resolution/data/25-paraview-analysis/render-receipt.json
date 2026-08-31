@@ -1,0 +1,96 @@
+{
+  "analysis_dir": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/15-resolution-analysis",
+  "complete": true,
+  "design": "exact-plane-strain-stable-neo-hookean-active-resolution-study",
+  "initial_tangent_singular_value_spectra": {
+    "analysis_aggregate": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/15-resolution-analysis/tangent-singular-values.csv",
+      "sha256": "8453691d8c3fd99e149e4a3fcd159eb184ab51108d7ff914e669579960754add",
+      "size_bytes": 21455
+    },
+    "maximum_index": 397,
+    "numerical_tangent_csvs": {
+      "100x10": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/tangent-100x10-singular-values.csv",
+        "sha256": "c5a127babc2185ddbed227fd04ffa57f4d5bdf1f748d38734e6fd9051571f6f1",
+        "size_bytes": 9311
+      },
+      "200x20": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/tangent-200x20-singular-values.csv",
+        "sha256": "712430a6a8ffbf3546c5c80c2c4e6b291ed53225a36ded0b1a92bb3b366ffeb6",
+        "size_bytes": 19516
+      },
+      "50x5": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/tangent-50x5-singular-values.csv",
+        "sha256": "febdb20b7d6aa7f8cdd4f2d6a83d8088967c13315264965b74f8abee1bf90e8d",
+        "size_bytes": 2262
+      }
+    },
+    "png": {
+      "height": 850,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/initial-tangent-singular-value-spectra.png",
+      "sha256": "9bb9464f30c16f5cc42262fa642f2fb6a0c965fd262c4c9dd47b4407a2afaa2b",
+      "size_bytes": 88184,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/initial-tangent-singular-value-spectra.pvsm",
+      "sha256": "7ca9827e6d857cfe49e378d09cf8ee2854875a196d99c78f77a01390a98cad81",
+      "size_bytes": 76064
+    },
+    "singular_value_range": [
+      1.517544402817656e-21,
+      0.06679334668885184
+    ]
+  },
+  "matched_data_loss_bumpiness": {
+    "derived_variant_csvs": {
+      "free": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/matched-data-loss-progress-0p75-free.csv",
+        "sha256": "244c3fa25bb6a7c778fd38bc76e7d54fa26ed7624f92d6a883ff75ebc4a53d10",
+        "size_bytes": 209
+      },
+      "regularized": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/matched-data-loss-progress-0p75-regularized.csv",
+        "sha256": "4c349ece0593c7fc9932beb64da22016ae2ed5c4f32c0c34d1b38698190d5466",
+        "size_bytes": 210
+      },
+      "tied": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/matched-data-loss-progress-0p75-tied.csv",
+        "sha256": "5f91d96d6b9a8e6a01292c5a0b04d3d9e150a13c9bc9461466ac39f198459c9e",
+        "size_bytes": 208
+      }
+    },
+    "highpass_range": [
+      0.0,
+      0.001946996060419486
+    ],
+    "neighbor_jump_range": [
+      0.0,
+      0.16939729451828706
+    ],
+    "png": {
+      "height": 1200,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/matched-loss-bumpiness-progress-0p75.png",
+      "sha256": "7831bc764d4aa5e6bc66f5e545f947007d9174b9dc180d2ddffd3ea9deba271f",
+      "size_bytes": 98384,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/25-paraview-analysis/matched-loss-bumpiness-progress-0p75.pvsm",
+      "sha256": "fc9c39551f3644e2d15fd7ebedc537cb28d80ef92c1654d94ae1e3d11302f7ad",
+      "size_bytes": 141347
+    },
+    "source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/15-resolution-analysis/matched-data-loss-evolution.csv",
+      "sha256": "5bba21fead23512fd2d482b06721b01a77416d613e632c0645c50cd70ae6508d",
+      "size_bytes": 11719
+    }
+  },
+  "native_paraview_rendering": true,
+  "numerical_dir": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution",
+  "paraview_version": "6.1.1",
+  "progress_fraction": 0.75,
+  "schema_version": 1,
+  "status": "ok"
+}

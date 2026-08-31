@@ -1,0 +1,447 @@
+{
+  "admissibility_transition": {
+    "det_f_range": [
+      -0.1646599433975696,
+      12.281604576682756
+    ],
+    "first_invalid_step": 10,
+    "global_best_orientation_preserving": false,
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best-admissible-prefix.vtu",
+        "sha256": "65b7e87069a827f4a8016c351d318317a433b1741677904d25cc569691ef771c",
+        "size_bytes": 106445
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best.vtu",
+        "sha256": "857b69ed9ff4a84a1a0288cb27d59e8f9c3c1f1f3ea543ac469f157d708b1bb3",
+        "size_bytes": 106877
+      }
+    ],
+    "png": {
+      "height": 1005,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/admissibility-transition.png",
+      "requested_height": 1000,
+      "requested_width": 1800,
+      "sha256": "926d79bc277460b553a5a7a2a12b27a72db3906a470c107f10da118a0b56d084",
+      "size_bytes": 778939,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/admissibility-transition.pvsm",
+      "sha256": "d96f3741a5d53a619513ae5a9fa9f60a135620f7b7ba420adc78c5cb32b4576d",
+      "size_bytes": 491607
+    },
+    "verified_comparison_step": 9
+  },
+  "complete": true,
+  "design": "exact-plane-strain-stable-neo-hookean-active-resolution-study",
+  "determinant_history": {
+    "determinant_range": [
+      -62.81748683068078,
+      1.0
+    ],
+    "first_invalid_step": 10,
+    "png": {
+      "height": 850,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/determinant-history.png",
+      "requested_height": 850,
+      "requested_width": 1800,
+      "sha256": "d0e272fe47c4638feb0ec4c81f56ec3724e6808b5bf3bae2191a4fa1a0fa42fd",
+      "size_bytes": 58370,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/determinant-history.pvsm",
+      "sha256": "33e70edce125832e4f06168ddb609bf6049fdae7b031bd672f856fa24977e9a5",
+      "size_bytes": 164742
+    },
+    "trace": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/trace.csv",
+      "sha256": "e8de78a872679242d162f883a424f7f41136b1731bcdde8c1d46d652e8f80d89",
+      "size_bytes": 12133
+    },
+    "zero_line": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/determinant-history-zero-line.csv",
+      "sha256": "c465ad018a57cc28bbd9bbf8ce1c847d63a89887fe219bab52dd3eccca6ad19d",
+      "size_bytes": 30
+    }
+  },
+  "evolution": {
+    "activation_yy_range": [
+      -1.073323163076869,
+      1.073323163076869
+    ],
+    "displacement_y_range": [
+      -0.05617010625910728,
+      0.12856943524456727
+    ],
+    "first_invalid_step": 10,
+    "frame_count": 31,
+    "frames": {
+      "directory": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-frames",
+      "first_sha256": "9b827ae9a29d2329f03d25ff2af50fe9e7f3e9cce9b91d0fa77e556627c43c82",
+      "last_sha256": "f766ce92b61a413c7588689b0cc83d677da6dbaf4049368e7e2f2c1bef7a158f"
+    },
+    "no_interpolation": true,
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution.pvsm",
+      "sha256": "3c05cab55cd4697befd1308c7100977867a30ac68c33191921a108949f8abbbe",
+      "size_bytes": 751161
+    },
+    "rendered_frame_height": 1200,
+    "rendered_frame_width": 1800,
+    "requested_frame_height": 1200,
+    "requested_frame_width": 1800,
+    "series": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/history.vtu.series",
+      "sha256": "d272582eec6fe915046b93e26fe4b864f87cead0a66ef2b09059ffe867fea043",
+      "size_bytes": 2212
+    },
+    "step_by_step_video": {
+      "duration_seconds": 15.5,
+      "ffprobe": {
+        "format": {
+          "duration": "15.500000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "height": 1200,
+            "nb_frames": "31",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "2/1",
+            "width": 1800
+          }
+        ]
+      },
+      "fps": 2,
+      "frame_count": 31,
+      "no_interpolation": true,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-step-by-step.mp4",
+      "sha256": "27ddce23ce59598e6cdd0fba979ae5ada8703907286ec20953578e3f069c7850",
+      "size_bytes": 747777
+    },
+    "stills": {
+      "final": {
+        "height": 1200,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-final.png",
+        "sha256": "f766ce92b61a413c7588689b0cc83d677da6dbaf4049368e7e2f2c1bef7a158f",
+        "size_bytes": 143710,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-frames/evolution_030.png",
+        "time": 30.0,
+        "width": 1800
+      },
+      "initial": {
+        "height": 1200,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-initial.png",
+        "sha256": "9b827ae9a29d2329f03d25ff2af50fe9e7f3e9cce9b91d0fa77e556627c43c82",
+        "size_bytes": 61992,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-frames/evolution_000.png",
+        "time": 0.0,
+        "width": 1800
+      },
+      "middle": {
+        "height": 1200,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-middle.png",
+        "sha256": "ea1be3aeb32badb59d79661e18df2c37ce460187acd9a5a1c3026531eec5aaf8",
+        "size_bytes": 132326,
+        "source_frame": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution-frames/evolution_015.png",
+        "time": 15.0,
+        "width": 1800
+      }
+    },
+    "time_values": [
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      12.0,
+      13.0,
+      14.0,
+      15.0,
+      16.0,
+      17.0,
+      18.0,
+      19.0,
+      20.0,
+      21.0,
+      22.0,
+      23.0,
+      24.0,
+      25.0,
+      26.0,
+      27.0,
+      28.0,
+      29.0,
+      30.0
+    ],
+    "verified_comparison_step": 9,
+    "video": {
+      "ffprobe": {
+        "format": {
+          "duration": "3.100000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "height": 1200,
+            "nb_frames": "31",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "10/1",
+            "width": 1800
+          }
+        ]
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/evolution.mp4",
+      "sha256": "a367f545aa280b7d9a741935bdd13c24f51645ce812fc3c715c2f8afa8904600",
+      "size_bytes": 480330
+    }
+  },
+  "free_resolution_cases": [
+    "50x5-free",
+    "100x10-free",
+    "200x20-free"
+  ],
+  "free_resolution_geometry": {
+    "displacement_y_range": [
+      -0.02462197729291819,
+      0.14389407441194108
+    ],
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/50x5-free/best-admissible-prefix.vtu",
+        "sha256": "7d53a89e604afa3ea49d5665f1faa5d63ca2744521a5fd507f3ea8b1a9c75361",
+        "size_bytes": 31107
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best-admissible-prefix.vtu",
+        "sha256": "65b7e87069a827f4a8016c351d318317a433b1741677904d25cc569691ef771c",
+        "size_bytes": 106445
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/200x20-free/best-admissible-prefix.vtu",
+        "sha256": "8e954baa90297712f4f5ecb5dbb4f21719001df804189f87c5f49a11627a1f7e",
+        "size_bytes": 405242
+      }
+    ],
+    "png": {
+      "height": 1500,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-geometry.png",
+      "requested_height": 1500,
+      "requested_width": 1800,
+      "sha256": "b849667b6ace9098886d2c63317511f56bdf371ddf3c457d75bad105baa123e5",
+      "size_bytes": 1234226,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-geometry.pvsm",
+      "sha256": "029f9d74464cfca70424440ddb163967a488f1fb3d8a470aacb319c5bd78715a",
+      "size_bytes": 1401443
+    }
+  },
+  "free_resolution_signed_activation_xy": {
+    "activation_xy_range": [
+      -0.4428615982625805,
+      0.4428615982625805
+    ],
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/50x5-free/best-admissible-prefix.vtu",
+        "sha256": "7d53a89e604afa3ea49d5665f1faa5d63ca2744521a5fd507f3ea8b1a9c75361",
+        "size_bytes": 31107
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best-admissible-prefix.vtu",
+        "sha256": "65b7e87069a827f4a8016c351d318317a433b1741677904d25cc569691ef771c",
+        "size_bytes": 106445
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/200x20-free/best-admissible-prefix.vtu",
+        "sha256": "8e954baa90297712f4f5ecb5dbb4f21719001df804189f87c5f49a11627a1f7e",
+        "size_bytes": 405242
+      }
+    ],
+    "png": {
+      "height": 1500,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-signed-activation-xy.png",
+      "requested_height": 1500,
+      "requested_width": 1800,
+      "sha256": "17bb75198eaca9222c6899ca45994cac084b73fe9d34aa6787d0ab8b52c6a97d",
+      "size_bytes": 277087,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-signed-activation-xy.pvsm",
+      "sha256": "c1ac96accfe11142bc9e10986a1b6f26c6e4e44c0aa5ac44d08b967c8baff487",
+      "size_bytes": 710258
+    }
+  },
+  "free_tied_regularized_control_comparison": {
+    "displacement_y_range": [
+      -0.02462197729291819,
+      0.14389407441194108
+    ],
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best-admissible-prefix.vtu",
+        "sha256": "65b7e87069a827f4a8016c351d318317a433b1741677904d25cc569691ef771c",
+        "size_bytes": 106445
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-tied/best-admissible-prefix.vtu",
+        "sha256": "5e80263258cbe61e99dc2b7b1074f5b3befd4671d5e5b19e71ad2749b4bbd10b",
+        "size_bytes": 104025
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-regularized/best-admissible-prefix.vtu",
+        "sha256": "a12241c17e097194aba67c67525687af089fcb29c522ff89664195dfbeff1eac",
+        "size_bytes": 106834
+      }
+    ],
+    "png": {
+      "height": 1500,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-tied-regularized-control-comparison.png",
+      "requested_height": 1500,
+      "requested_width": 1800,
+      "sha256": "837c4abd8a62c16609489996d37e2d630f098fa3be8f89780d5d8c3e15bf445d",
+      "size_bytes": 209962,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-tied-regularized-control-comparison.pvsm",
+      "sha256": "a1c7b9105d1b2e7ea39e5fb7d8c0960f795e76435a187b09f2b9aefbe235180a",
+      "size_bytes": 1401842
+    }
+  },
+  "median_control_comparison_resolution": [
+    100,
+    10
+  ],
+  "native_paraview_rendering": true,
+  "paraview_version": "6.1.1",
+  "schema_version": 1,
+  "setup": {
+    "input": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/best-admissible-prefix.vtu",
+      "sha256": "65b7e87069a827f4a8016c351d318317a433b1741677904d25cc569691ef771c",
+      "size_bytes": 106445
+    },
+    "png": {
+      "height": 700,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/setup-materials.png",
+      "requested_height": 700,
+      "requested_width": 1800,
+      "sha256": "13e1eeade4b8d6253860be17dd71ae46abcee050819d149418e2beb37aa58519",
+      "size_bytes": 67173,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/setup-materials.pvsm",
+      "sha256": "b7852e4f25ae12afaa977a4143ad6664e914b8d12109b62a127f83d1ab8cfaf4",
+      "size_bytes": 490927
+    }
+  },
+  "shared_admissible_prefix_activation_xy_range": [
+    -0.4428615982625805,
+    0.4428615982625805
+  ],
+  "shared_admissible_prefix_displacement_y_range": [
+    -0.02462197729291819,
+    0.14389407441194108
+  ],
+  "spatial_spectra": {
+    "common_nyquist": 24.48979591836735,
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/50x5-free/top-spectrum-best-admissible-prefix.csv",
+        "sha256": "63c433683ef2f5544f5d1f6d82d59f46bb22414bf7d3491b7bb44a4b1386ca5c",
+        "size_bytes": 1483
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/top-spectrum-best-admissible-prefix.csv",
+        "sha256": "1d47f10303946f06986a79dc17673e2f3a6a0cfe01784b30d51553be8f6a8384",
+        "size_bytes": 3008
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/200x20-free/top-spectrum-best-admissible-prefix.csv",
+        "sha256": "4ed717bb675cbeb4e6aee36b73dfea4b46b49132b9af03e43a65ab15255b96e0",
+        "size_bytes": 5973
+      }
+    ],
+    "png": {
+      "height": 800,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-spatial-spectra.png",
+      "requested_height": 800,
+      "requested_width": 1800,
+      "sha256": "7498a307a61ad8b79994ddb14cb2420c0e53a2d2c2fba1531063d4f9051346ad",
+      "size_bytes": 88886,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-spatial-spectra.pvsm",
+      "sha256": "b8984a875ea4c7c01f4d4e604b1840d2f8fcb092bdf75be91ca686cc3fb4ac9a",
+      "size_bytes": 77806
+    }
+  },
+  "status": "ok",
+  "summary": {
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/summary.json",
+    "sha256": "1f8dfc4ad03c1aa6935d5ba0f4e5b26b6ed541267a07ea6559470619f6a666cf",
+    "size_bytes": 55546
+  },
+  "top_profiles": {
+    "highpass_y_range": [
+      -0.024212760591390638,
+      0.024212760591390638
+    ],
+    "inputs": [
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/50x5-free/top-profile-best-admissible-prefix.csv",
+        "sha256": "c5c0853ee7712f01b13952ecbf2a63ecc7a9b6d7f63f54437a230fc3d5234ad1",
+        "size_bytes": 4750
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/100x10-free/top-profile-best-admissible-prefix.csv",
+        "sha256": "c1c8574db2186b71be57051b347ef4494b3502367be64fd278e51990051e9b3b",
+        "size_bytes": 9682
+      },
+      {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/10-stable-neo-hookean-resolution/200x20-free/top-profile-best-admissible-prefix.csv",
+        "sha256": "48cce156b92e68e522d8a4d01b32877bd72748a4c93bdbfdb73198d8609c0aca",
+        "size_bytes": 19658
+      }
+    ],
+    "png": {
+      "height": 1200,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-top-profiles.png",
+      "requested_height": 1200,
+      "requested_width": 1800,
+      "sha256": "798d26fd3bd13fc9dc65fd535489c5a8a053298bb9beb26172fcb473cec1b2a9",
+      "size_bytes": 110526,
+      "width": 1800
+    },
+    "pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/24/unreachable-stable-neo-hookean-2d-resolution/data/20-paraview/free-resolution-top-profiles.pvsm",
+      "sha256": "b54515cf288156f27ddb5d6b8c94f2d8174823ccbf1a0619277b9e17f9f1dea2",
+      "size_bytes": 160309
+    },
+    "top_y_range": [
+      0.00041872177308722384,
+      0.1
+    ]
+  },
+  "video_note": "ffmpeg encodes only PNG frames rendered by ParaView"
+}

@@ -1,0 +1,17 @@
+{
+  "accepted_frame_count": 802,
+  "case": "h020-shared",
+  "control_count": 3,
+  "controls_rms": 0.7974740342902649,
+  "controls_sha256": "a13e350df3dd3fcef2d7e813a3139e2801f8dcb2a0680d7de6e74017ab712544",
+  "equilibrium_residual_rms": 4.216179531488509e-06,
+  "error": "RuntimeError('refinement forward failed: iterations=1000, failure=None')",
+  "forward_converged": false,
+  "forward_failure": null,
+  "forward_iterations": 1000,
+  "optimizer_phase": "lbfgs_unbounded",
+  "partial_series": "history.vtu.series",
+  "partial_trace": "trace.csv",
+  "refinement_function_evaluations": 1,
+  "stage": "forward_nonconvergence"
+}

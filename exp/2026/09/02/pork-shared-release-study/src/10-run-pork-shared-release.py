@@ -92,11 +92,13 @@ class Config(cherries.BaseConfig):
     model_config = ps.SettingsConfigDict(cli_parse_args=True, cli_kebab_case=True)
     output_dir: Path = cherries.output("10-pork-shared-release-high-targets", mkdir=True)
     cases: str = "all"
-    max_steps: int = 600
+    # Canonical horizon from the validated OFAT runner.  Shorter runs are
+    # explicitly pilots and must override this value on the command line.
+    max_steps: int = 1200
     learning_rate: float = 0.03
     lr_decay: float = 0.99
     forward_tolerance: float = 1e-8
-    forward_max_iterations: int = 1000
+    forward_max_iterations: int = 3000
     refinement_max_iterations: int = 1000
     refinement_max_function_evaluations: int = 100000
     refinement_max_restarts: int = 100
@@ -130,6 +132,44 @@ def write_json(path: Path, data: Any) -> None:
         return value
 
     path.write_text(json.dumps(clean(data), indent=2, sort_keys=True) + "\n")
+
+
+def file_digest(path: Path) -> dict[str, Any]:
+    return {
+        "path": str(path.resolve()),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "bytes": path.stat().st_size,
+    }
+
+
+def strict_observation(
+    case: Case, controls: np.ndarray, initial_u: np.ndarray, cfg: Config
+) -> tuple[Any, dict[str, Any]]:
+    """Strict forward/adjoint receipt used to make release branch choice explicit."""
+    global _GROUPS, _SHARED
+    _SHARED = case.activation_mode == "shared"
+    mesh = build_mesh(case)
+    _GROUPS = group_map(mesh, _SHARED)
+    strict_cfg = cfg.model_copy(update={"forward_tolerance": cfg.refinement_forward_tolerance})
+    state = core.solve(mesh, controls, "stable", initial_u, strict_cfg)
+    if not state.converged:
+        raise RuntimeError(f"strict handoff forward failure: {state.failure!r}")
+    value, du, _ = loss(mesh, state.u, case.height, "l2", case.length)
+    _, _, _, mixed, *_ = assembly(mesh, state.u, controls, "stable", False, True)
+    gradient = np.asarray(mixed.T @ spla.spsolve(state.h, -du)).ravel()
+    if not (np.isfinite(value) and np.isfinite(gradient).all()):
+        raise FloatingPointError("non-finite strict handoff inverse result")
+    return state, {
+        "objective": float(value),
+        "gradient_inf": float(np.linalg.norm(gradient, np.inf)),
+        "gradient_rms": float(np.linalg.norm(gradient) / math.sqrt(len(gradient))),
+        "equilibrium_residual_rms": float(np.linalg.norm(state.r) / math.sqrt(mesh.nfree)),
+        "forward_iterations": int(state.iterations),
+        "min_det_f": float(state.det_f.min()),
+        "min_det_ainv": float(state.det_a.min()),
+        "min_det_g": float(state.det_g.min()),
+        "displacement_sha256": hashlib.sha256(state.u.tobytes()).hexdigest(),
+    }
 
 
 def _edges(tri: np.ndarray, muscle: np.ndarray) -> tuple[tuple[int, int], ...]:
@@ -275,6 +315,26 @@ def group_map(mesh: Any, shared: bool) -> np.ndarray:
     return out
 
 
+def determinant_modes(mesh: Any, state: Any) -> dict[str, float]:
+    """Report every observed orientation mode without preventing it."""
+    detf = np.asarray(state.det_f)
+    deta = np.asarray(state.det_a)
+    detg = np.asarray(state.det_g)
+
+    def fractions(mask: np.ndarray, name: str) -> dict[str, float]:
+        return {
+            f"{name}_cell_fraction": float(mask.mean()),
+            f"{name}_rest_measure_fraction": float(mesh.area[mask].sum() / mesh.area.sum()),
+        }
+
+    return {
+        **fractions(deta < 0, "ainv_negative"),
+        **fractions(detg < 0, "g_negative"),
+        # det(F)<0 and det(Ainv)<0 gives the documented double-inversion mode.
+        **fractions((detf < 0) & (deta < 0), "double_inverted"),
+    }
+
+
 def run_case(
     case: Case,
     cfg: Config,
@@ -398,6 +458,7 @@ def run_case(
             "negative_det_f_mean": float(
                 np.sum(mesh.area * np.maximum(-detf, 0.0)) / mesh.area.sum()
             ),
+            **determinant_modes(mesh, state),
             **metrics(mesh, u, a, case.height, case.length),
         }
         row.update(
@@ -453,6 +514,8 @@ def run_case(
     accepted_state = state
     refinement_callback_count = 0
     refinement_function_evaluation_count = 0
+    refinement_forward_evaluation_count = 0
+    refinement_adjoint_evaluation_count = 0
     refinement_trial_forward_failures = 0
     refinement_trial_max_forward_iterations = 0
     refinement_trial_max_equilibrium_residual_rms = 0.0
@@ -498,6 +561,8 @@ def run_case(
         controls: np.ndarray, initial: np.ndarray
     ) -> tuple[Any, float, np.ndarray]:
         nonlocal refinement_trial_forward_failures
+        nonlocal refinement_forward_evaluation_count, refinement_adjoint_evaluation_count
+        refinement_forward_evaluation_count += 1
         try:
             state_at_controls = core.solve(
                 mesh, controls, "stable", initial, refinement_cfg
@@ -527,6 +592,7 @@ def run_case(
             gradient_at_controls = np.asarray(
                 mixed.T @ spla.spsolve(state_at_controls.h, -du)
             ).ravel()
+            refinement_adjoint_evaluation_count += 1
         except Exception as error:
             persist_refinement_failure(
                 "inverse_or_adjoint_exception", error, controls, state_at_controls
@@ -592,6 +658,7 @@ def run_case(
             "negative_det_f_mean": float(
                 np.sum(mesh.area * np.maximum(-detf, 0.0)) / mesh.area.sum()
             ),
+            **determinant_modes(mesh, state_at_controls),
             **metrics(mesh, accepted_u, accepted_a, case.height, case.length),
         }
         row.update(
@@ -956,6 +1023,18 @@ def run_case(
             "schedule": "fixed Adam exploration then objective-normalized, automatically restarted unbounded L-BFGS refinement",
             "updates": cfg.max_steps + refinement_callback_count,
             "evaluations": len(rows),
+            "cost": {
+                "accepted_trace_states": len(rows),
+                "adam_objective_forward_adjoint_evaluations": cfg.max_steps + 1,
+                "strict_refinement_forward_adjoint_evaluations": 1,
+                "lbfgs_function_calls": refinement_function_evaluation_count,
+                "lbfgs_actual_forward_evaluations": refinement_forward_evaluation_count - 1,
+                "lbfgs_actual_adjoint_evaluations": refinement_adjoint_evaluation_count - 1,
+                "lbfgs_rejected_forward_adjoint_evaluations": max(
+                    0, refinement_forward_evaluation_count - (1 + refinement_callback_count)
+                ),
+                "note": "Rejected L-BFGS trials are counted separately from exact accepted trace states.",
+            },
             "failures": {
                 "forward": sum(not r["forward_converged"] for r in rows),
                 "inverse": sum(not r["evaluation_success"] for r in rows),
@@ -983,6 +1062,13 @@ def run_case(
                 "objective_scale": refinement_objective_scale,
                 "accepted_iterations": refinement_callback_count,
                 "function_evaluations": refinement_function_evaluation_count,
+                "forward_evaluations": refinement_forward_evaluation_count,
+                "adjoint_evaluations": refinement_adjoint_evaluation_count,
+                "rejected_forward_adjoint_evaluations": max(
+                    0,
+                    refinement_forward_evaluation_count
+                    - (1 + refinement_callback_count),
+                ),
                 "callback_matches_accepted_iterations": bool(
                     refinement_callback_count
                     == sum(item["accepted_iterations"] for item in refinement_attempts)
@@ -1061,6 +1147,25 @@ def run_case(
                 r["inverted_rest_measure_fraction"] for r in rows
             ),
             "peak_negative_det_f_mean": max(r["negative_det_f_mean"] for r in rows),
+            "orientation_modes": {
+                mode: {
+                    "first_step": next(
+                        (r["step"] for r in rows if r[f"{mode}_cell_fraction"] > 0),
+                        None,
+                    ),
+                    "last_step": next(
+                        (r["step"] for r in reversed(rows) if r[f"{mode}_cell_fraction"] > 0),
+                        None,
+                    ),
+                    "peak_cell_fraction": max(r[f"{mode}_cell_fraction"] for r in rows),
+                    "peak_rest_measure_fraction": max(
+                        r[f"{mode}_rest_measure_fraction"] for r in rows
+                    ),
+                    "final_cell_fraction": rows[-1][f"{mode}_cell_fraction"],
+                    "final_rest_measure_fraction": rows[-1][f"{mode}_rest_measure_fraction"],
+                }
+                for mode in ("ainv_negative", "g_negative", "double_inverted")
+            },
         },
         "metrics": {
             "best": rows[best[1]],
@@ -1068,6 +1173,14 @@ def run_case(
             "best_orientation_preserving": rows[best_op[1]],
         },
         "paraview": {"fps": 30, "frames": len(rows), "series": "history.vtu.series"},
+        "reproducibility": {
+            "runner": file_digest(Path(__file__)),
+            "equilibrium_core": file_digest(_SOURCE),
+            "config": cfg.model_dump(mode="json"),
+            "config_sha256": hashlib.sha256(
+                json.dumps(cfg.model_dump(mode="json"), sort_keys=True, default=str).encode()
+            ).hexdigest(),
+        },
         "artifacts": {
             "series": "history.vtu.series",
             "target": "target.vtu",
@@ -1178,14 +1291,50 @@ def main(cfg: Config) -> None:
         seed = np.load(source)
         shared_controls = np.asarray(seed["controls"], dtype=float)
         shared_u = np.asarray(seed["displacement_free"], dtype=float)
+        shared_case = available[shared["case"]["name"]]
+        shared_state, shared_strict = strict_observation(
+            shared_case, shared_controls, shared_u, cfg
+        )
+        shared_final = shared["metrics"]["final"]
+        shared_u_delta = float(np.linalg.norm(shared_state.u - shared_u, np.inf))
+        shared_objective_delta = abs(shared_strict["objective"] - shared_final["objective"])
+        if shared_u_delta > 1e-8 or shared_objective_delta > 1e-10:
+            raise RuntimeError(
+                "stored shared endpoint did not reproduce under strict handoff: "
+                f"u_inf={shared_u_delta}, objective={shared_objective_delta}"
+            )
         mesh = build_mesh(case)
         expanded = np.tile(shared_controls, int(mesh.muscle.sum()))
+        shared_u_state, shared_u_branch = strict_observation(
+            case, expanded, shared_state.u, cfg
+        )
+        branch_u_delta = float(np.linalg.norm(shared_u_state.u - shared_state.u, np.inf))
+        branch_objective_delta = abs(
+            shared_u_branch["objective"] - shared_strict["objective"]
+        )
+        branch_det_deltas = {
+            name: abs(shared_u_branch[name] - shared_strict[name])
+            for name in ("min_det_f", "min_det_ainv", "min_det_g")
+        }
+        if (
+            branch_u_delta > 1e-8
+            or branch_objective_delta > 1e-10
+            or max(branch_det_deltas.values()) > 1e-8
+        ):
+            raise RuntimeError(
+                "tiled per-cell controls failed to reproduce the strict shared branch: "
+                f"u_inf={branch_u_delta}, objective={branch_objective_delta}, "
+                f"dets={branch_det_deltas}"
+            )
+        zero_u_state, zero_u_branch = strict_observation(
+            case, expanded, np.zeros(mesh.nfree), cfg
+        )
         use_shared_displacement = case.protocol == "shared_then_release"
         report = run_case(
             case,
             cfg,
             initial_controls=expanded,
-            initial_u=shared_u if use_shared_displacement else None,
+            initial_u=shared_u_state.u if use_shared_displacement else None,
             initialization=(
                 f"expanded converged shared activation from {source.relative_to(cfg.output_dir)}; "
                 + (
@@ -1209,12 +1358,52 @@ def main(cfg: Config) -> None:
             ),
             "optimizer_restart": True,
             "dimension_change": [int(shared_controls.size), int(expanded.size)],
+            "handoff": {
+                "strict_tolerance": cfg.refinement_forward_tolerance,
+                "shared_endpoint_reproduction": {
+                    "strict": shared_strict,
+                    "stored_u_inf_delta": shared_u_delta,
+                    "stored_objective_delta": shared_objective_delta,
+                    "asserted": True,
+                },
+                "tiled_shared_u_branch": {
+                    "strict": shared_u_branch,
+                    "u_inf_delta_from_shared": branch_u_delta,
+                    "objective_delta_from_shared": branch_objective_delta,
+                    "determinant_deltas_from_shared": branch_det_deltas,
+                    "asserted": True,
+                },
+                "tiled_zero_u_branch": {
+                    "strict": zero_u_branch,
+                    "u_inf_delta_from_shared_u_branch": float(
+                        np.linalg.norm(zero_u_state.u - shared_u_state.u, np.inf)
+                    ),
+                    "objective_gap_from_shared_u_branch": float(
+                        zero_u_branch["objective"] - shared_u_branch["objective"]
+                    ),
+                    "determinant_deltas_from_shared_u_branch": {
+                        name: float(zero_u_branch[name] - shared_u_branch[name])
+                        for name in ("min_det_f", "min_det_ainv", "min_det_g")
+                    },
+                    "asserted": False,
+                },
+                "strict_forward_adjoint_evaluations": 3,
+            },
             "cost": {
                 "shared_evaluations": int(shared["inverse"]["evaluations"]),
                 "release_evaluations": int(report["inverse"]["evaluations"]),
                 "end_to_end_evaluations": int(
                     shared["inverse"]["evaluations"]
                     + report["inverse"]["evaluations"]
+                ),
+                "end_to_end_forward_adjoint_evaluations": int(
+                    shared["inverse"]["cost"]["adam_objective_forward_adjoint_evaluations"]
+                    + shared["inverse"]["cost"]["strict_refinement_forward_adjoint_evaluations"]
+                    + shared["inverse"]["cost"]["lbfgs_actual_forward_evaluations"]
+                    + report["inverse"]["cost"]["adam_objective_forward_adjoint_evaluations"]
+                    + report["inverse"]["cost"]["strict_refinement_forward_adjoint_evaluations"]
+                    + report["inverse"]["cost"]["lbfgs_actual_forward_evaluations"]
+                    + 3
                 ),
                 "comparison_note": (
                     "direct is a conditional endpoint comparator; shared-plus-release "

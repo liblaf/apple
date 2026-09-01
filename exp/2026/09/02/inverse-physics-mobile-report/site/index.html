@@ -986,6 +986,82 @@
         <section class="section" id="face">
           <p class="eyebrow" style="color: var(--teal)">3D face receipt</p>
           <h2>The same route appears in facial muscle</h2>
+          <div class="card">
+            <h3>Upper mouth: Orbicularis oris, id254</h3>
+            <p>
+              The active muscle nearest the saved bumpy upper-lip surface is
+              Orbicularis oris (id254). The whole selected muscle and a fixed,
+              surface-anchored local section show the same determinant route.
+            </p>
+          </div>
+
+          <div class="timeline" aria-label="Upper-mouth determinant timeline">
+            <div class="event">
+              <strong>Step 21 · activation inversion begins</strong>
+              <span>det A⁻¹ and det G first become negative.</span>
+            </div>
+            <div class="event">
+              <strong>Step 52 · physical flip follows</strong>
+              <span>det F and the double-inverted state first appear.</span>
+            </div>
+            <div class="event">
+              <strong>Step 194 · saved best checkpoint</strong>
+              <span>
+                The local section has 4 detF-negative and 4 double-inverted
+                tetrahedra.
+              </span>
+            </div>
+          </div>
+
+          <figure>
+            <a href="assets/upper-mouth-context.png" target="_blank">
+              <img
+                src="assets/upper-mouth-context.png"
+                alt="Upper-mouth context showing the selected Orbicularis oris muscle and its fixed local section"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Surface-anchored section.</strong> Orange marks the
+              whole selected Orbicularis oris; magenta marks the exact local
+              material section below the upper lip.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="assets/upper-mouth-mechanism.png" target="_blank">
+              <img
+                src="assets/upper-mouth-mechanism.png"
+                alt="Orbicularis oris local section at step 194 colored by detF, detAinv, and detG"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Step 194 mechanism.</strong> The three panels show
+              detF, detA⁻¹, and detG; magenta marks double-inverted cells.
+            </figcaption>
+          </figure>
+
+          <div class="video-card">
+            <video controls playsinline preload="metadata">
+              <source src="assets/upper-mouth-evolution.mp4" type="video/mp4" />
+            </video>
+            <div class="video-copy">
+              <strong>Upper-mouth section · exact 201-step receipt</strong
+              ><br />
+              One saved inverse state per 30 FPS frame; no interpolation or
+              duplication. <a href="assets/upper-mouth-evolution.mp4">Open video</a>
+            </div>
+          </div>
+
+          <div class="caveat">
+            This is post-hoc mechanistic evidence, not a causal surface claim.
+            The historical inverse run was unconverged and recorded 6 forward
+            failures.
+          </div>
+
           <p class="section-intro">
             A fixed 31-tetrahedron slab was tracked through all 201 saved steps
             of Zygomaticus major muscle id64 in the visibly bumpy no-skin run.
@@ -1586,6 +1662,11 @@
             <li>
               <a href="records/3d-face-section-report.md"
                 >3D human-face muscle-section receipt</a
+              >
+            </li>
+            <li>
+              <a href="records/3d-upper-mouth-muscle-report.md"
+                >3D upper-mouth Orbicularis oris folding receipt</a
               >
             </li>
           </ul>

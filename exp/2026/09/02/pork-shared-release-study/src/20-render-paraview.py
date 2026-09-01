@@ -14,6 +14,7 @@ import json
 import math
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,12 @@ import paraview.simple as pvs
 FPS = 30
 PNG_SIZE = (1800, 1000)
 HISTORY_NAMES = ("history.vtu.series", "inverse.vtkhdf")
+CANONICAL_CASES = (
+    "h020-direct",
+    "h020-shared",
+    "h020-shared-release",
+    "h020-shared-release_zero_u",
+)
 ACTIVATION_ARRAYS = ("ActivationYY", "ActivationInv", "Activation")
 DETERMINANT_ARRAYS = ("DetF", "DetG", "DetAinv")
 
@@ -34,6 +41,7 @@ class Source:
     label: str
     case_name: str
     summary: dict[str, Any]
+    manifest: list[dict[str, Any]]
 
 
 def digest(path: Path) -> dict[str, Any]:
@@ -86,6 +94,55 @@ def sibling_summary(path: Path) -> dict[str, Any]:
     return payload
 
 
+def canonical_sources(root: Path) -> list[Source]:
+    """Reject every partial, duplicate, or noncanonical source before rendering."""
+    root_summary_path = root / "summary.json"
+    if not root_summary_path.is_file():
+        raise FileNotFoundError(root_summary_path)
+    root_summary = json.loads(root_summary_path.read_text(encoding="utf-8"))
+    if not isinstance(root_summary, dict) or not isinstance(root_summary.get("cases"), list):
+        raise TypeError(f"invalid canonical root summary: {root_summary_path}")
+    root_names = tuple(item.get("case", {}).get("name") for item in root_summary["cases"])
+    if root_names != CANONICAL_CASES:
+        raise ValueError(f"canonical root cases must be {CANONICAL_CASES}, got {root_names}")
+    found = [path.name for path in root.iterdir() if (path / "history.vtu.series").is_file()]
+    if set(found) != set(CANONICAL_CASES) or len(found) != len(CANONICAL_CASES):
+        raise ValueError(f"history directories must be exactly {CANONICAL_CASES}, got {found}")
+    sources: list[Source] = []
+    for case_name in CANONICAL_CASES:
+        case_dir = root / case_name
+        summary_path = case_dir / "summary.json"
+        if not summary_path.is_file():
+            raise FileNotFoundError(summary_path)
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        if not isinstance(summary, dict) or summary.get("case", {}).get("name") != case_name:
+            raise ValueError(f"invalid case summary: {summary_path}")
+        inverse = summary.get("inverse")
+        if not isinstance(inverse, dict) or not isinstance(inverse.get("evaluations"), int):
+            raise TypeError(f"case lacks complete inverse receipt: {summary_path}")
+        series_path = case_dir / "history.vtu.series"
+        series = json.loads(series_path.read_text(encoding="utf-8"))
+        entries = series.get("files") if isinstance(series, dict) else None
+        if not isinstance(entries, list) or len(entries) != inverse["evaluations"]:
+            raise ValueError(f"incomplete history series: {series_path}")
+        manifest: list[dict[str, Any]] = []
+        for step, entry in enumerate(entries):
+            if not isinstance(entry, dict) or entry.get("time") != float(step):
+                raise ValueError(f"nonconsecutive series time at {series_path}:{step}")
+            expected = f"frames/step-{step:04d}.vtu"
+            if entry.get("name") != expected:
+                raise ValueError(f"unexpected series path at {series_path}:{step}: {entry}")
+            frame = case_dir / expected
+            if not frame.is_file():
+                raise FileNotFoundError(frame)
+            manifest.append({"step": step, "time": float(step), **digest(frame)})
+        final = case_dir / "final.vtu"
+        if not final.is_file() or digest(final)["sha256"] != manifest[-1]["sha256"]:
+            raise ValueError(f"final endpoint does not byte-match last history state: {case_dir}")
+        sources.append(Source(series_path.resolve(), f"2d__{case_name}", case_name, summary, manifest))
+    return sources
+
+
 def discover(input_roots: list[Path]) -> list[Source]:
     found: list[Source] = []
     for input_root in input_roots:
@@ -99,7 +156,7 @@ def discover(input_roots: list[Path]) -> list[Source]:
                 case_name = str(
                     canonical_name or summary.get("name") or path.parent.name
                 )
-                found.append(Source(path.resolve(), case_name, case_name, summary))
+                found.append(Source(path.resolve(), case_name, case_name, summary, []))
     if not found:
         expected = ", ".join(HISTORY_NAMES)
         raise FileNotFoundError(
@@ -206,6 +263,7 @@ def deduplicate(sources: list[Source], dimensions: dict[Path, int]) -> list[Sour
                 f"{dimension}d__{case_name}",
                 chosen.case_name,
                 chosen.summary,
+                chosen.manifest,
             )
         )
     return selected
@@ -442,6 +500,10 @@ def encode(frames_dir: Path, frames: list[Path], output: Path) -> dict[str, Any]
             "libx264",
             "-crf",
             "18",
+            "-profile:v",
+            "high",
+            "-level:v",
+            "4.1",
             "-pix_fmt",
             "yuv420p",
             "-movflags",
@@ -459,7 +521,7 @@ def encode(frames_dir: Path, frames: list[Path], output: Path) -> dict[str, Any]
                 "-select_streams",
                 "v:0",
                 "-show_entries",
-                "stream=codec_name,pix_fmt,nb_frames,r_frame_rate,width,height",
+                "stream=codec_name,profile,level,pix_fmt,nb_frames,r_frame_rate,width,height",
                 "-show_entries",
                 "format=duration",
                 "-of",
@@ -477,6 +539,7 @@ def encode(frames_dir: Path, frames: list[Path], output: Path) -> dict[str, Any]
     if (
         stream["codec_name"] != "h264"
         or stream["pix_fmt"] != "yuv420p"
+        or stream.get("profile") != "High"
         or int(stream["nb_frames"]) != len(frames)
         or stream["r_frame_rate"] != "30/1"
         or not math.isclose(
@@ -623,6 +686,8 @@ def render(
             f"expected {expected_times[:3]}...{expected_times[-3:]}, "
             f"got {times[:3]}...{times[-3:]}"
         )
+    if [item["time"] for item in source.manifest] != times:
+        raise ValueError(f"ParaView times differ from validated source manifest: {source.path}")
     inverse = source.summary.get("inverse")
     nested_inverse = inverse if isinstance(inverse, dict) else {}
     refinement = source.summary.get("refinement", nested_inverse.get("refinement", {}))
@@ -739,6 +804,19 @@ def render(
         )
     if not all(frame.stat().st_size > 20_000 for frame in frames):
         raise ValueError("ParaView produced an empty/invalid PNG frame")
+    png_manifest = [
+        {"step": step, **digest(frame)} for step, frame in enumerate(frames)
+    ]
+    if len(png_manifest) != len(source.manifest):
+        raise RuntimeError("PNG/source manifest cardinalities differ")
+    mapping = [
+        {"step": item["step"], "source_sha256": item["sha256"], "png_sha256": png["sha256"]}
+        for item, png in zip(source.manifest, png_manifest, strict=True)
+    ]
+    final_shape = output / "final-shape.png"
+    shutil.copy2(frames[-1], final_shape)
+    if digest(final_shape)["sha256"] != png_manifest[-1]["sha256"]:
+        raise RuntimeError("final-shape PNG differs from exact last rendered frame")
     video = encode(frames_dir, frames, output / "evolution.mp4")
     receipt = {
         "status": "ok",
@@ -754,6 +832,16 @@ def render(
             "trial_forward_failures", failures.get("refinement_trial_forward")
         ),
         "png_frame_count": len(frames),
+        "source_manifest": source.manifest,
+        "png_manifest": png_manifest,
+        "source_to_png_sha256_mapping": mapping,
+        "final_shape": {
+            "path": "final-shape.png",
+            "png_sha256": png_manifest[-1]["sha256"],
+            "source_step": source.manifest[-1]["step"],
+            "source_vtu_sha256": source.manifest[-1]["sha256"],
+            "endpoint_cross_check": "canonical preflight required final.vtu byte-equal to last history VTU",
+        },
         "no_interpolation_or_duplication": True,
         "camera": {
             "deformed_and_target_bounds": list(bounds),
@@ -771,39 +859,69 @@ def main() -> None:
     parser.add_argument(
         "--input-root",
         required=True,
-        help="one input directory or a comma-separated list of input directories",
+        help="the completed canonical h020 output directory",
     )
     parser.add_argument("--output-root", required=True, type=Path)
     args = parser.parse_args()
-    input_roots = [
-        Path(value).resolve() for value in args.input_root.split(",") if value
-    ]
-    if not input_roots:
-        raise ValueError("--input-root must include at least one directory")
-    for input_root in input_roots:
-        if not input_root.is_dir():
-            raise NotADirectoryError(input_root)
+    if "," in args.input_root:
+        raise ValueError("canonical renderer accepts exactly one input root")
+    input_root = Path(args.input_root).resolve()
+    if not input_root.is_dir():
+        raise NotADirectoryError(input_root)
     output_root = args.output_root.resolve()
     if output_root.exists() and any(output_root.iterdir()):
         raise FileExistsError(f"output root must be empty: {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
-    candidates = discover(input_roots)
-    candidate_dimensions = infer_source_dimensions(candidates)
-    sources = deduplicate(candidates, candidate_dimensions)
+    sources = canonical_sources(input_root)
     dimensions, scalar_ranges, camera_bounds = scan_ranges(sources)
+    if set(dimensions.values()) != {2}:
+        raise ValueError(f"canonical matrix must be 2-D, got {dimensions}")
+    shared_bounds = None
+    for bounds in camera_bounds.values():
+        shared_bounds = bounds if shared_bounds is None else union_bounds(shared_bounds, bounds)
+    if shared_bounds is None:
+        raise RuntimeError("canonical matrix has no camera bounds")
     receipts = [
         render(
             source,
             output_root,
             dimensions[source.path],
             scalar_ranges,
-            camera_bounds[source.path],
+            shared_bounds,
         )
         for source in sources
     ]
     write_json(
         output_root / "render-receipt.json",
-        {"status": "ok", "fps": FPS, "case_count": len(receipts), "cases": receipts},
+        {
+            "status": "ok",
+            "canonical_cases": list(CANONICAL_CASES),
+            "fps": FPS,
+            "case_count": len(receipts),
+            "shared_union_camera": {
+                "bounds": list(shared_bounds),
+                **camera_spec(2, shared_bounds, 3),
+            },
+            "shared_scalar_ranges": {
+                name: list(value)
+                for (dimension, name), value in scalar_ranges.items()
+                if dimension == 2
+            },
+            "software": {
+                "pvpython": sys.executable,
+                "paraview_version": paraview_version(),
+                "pyvista": "not used",
+                "ffmpeg": subprocess.run(
+                    [shutil.which("ffmpeg") or "ffmpeg", "-version"],
+                    check=True, capture_output=True, text=True
+                ).stdout.splitlines()[0],
+                "ffprobe": subprocess.run(
+                    [shutil.which("ffprobe") or "ffprobe", "-version"],
+                    check=True, capture_output=True, text=True
+                ).stdout.splitlines()[0],
+            },
+            "cases": receipts,
+        },
     )
 
 

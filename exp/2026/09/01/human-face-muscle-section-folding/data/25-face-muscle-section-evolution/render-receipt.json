@@ -1,0 +1,122 @@
+{
+  "arrays": [
+    "DetF",
+    "DetAinv",
+    "DetG",
+    "DoubleInverted",
+    "ActivationNorm"
+  ],
+  "camera": {
+    "focal_point": [
+      -0.004200877106589237,
+      -0.004294297999254102,
+      0.003416084728827106
+    ],
+    "parallel_projection": true,
+    "parallel_scale": 0.01624985791908854,
+    "position": [
+      0.06394368836055626,
+      0.050221354374462304,
+      0.04771005228247169
+    ],
+    "view_up": [
+      0,
+      0,
+      1
+    ]
+  },
+  "dimensions": {
+    "png_size": [
+      3000,
+      1000
+    ],
+    "section_cells": 31
+  },
+  "inverse_steps": {
+    "exact_consecutive": true,
+    "first": 0,
+    "last": 200
+  },
+  "outputs": {
+    "all_png_frames_sha256": "6aefee61ff98ed0e353486d46d0faa88c9a2560b7fb92ef0e161f91114eb92b7",
+    "pvsm": {
+      "bytes": 340401,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/25-face-muscle-section-evolution/face-muscle-section-evolution.pvsm",
+      "sha256": "84bd9f3b5e8357e16020330634bff32b98b4db12802f949c1586540f3ae0f15e"
+    },
+    "video": {
+      "bytes": 909308,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/25-face-muscle-section-evolution/face-muscle-section-evolution.mp4",
+      "sha256": "cd75a6a559b7ed91e0d0e99f0c65bb1fb0089822fd8d88e4d91aad97708d55d0"
+    }
+  },
+  "primary_case": "20-human-face-smile-no-skin-lr3",
+  "render_contract": {
+    "double_inverted_overlay": "magenta fill with black edges",
+    "fps": 30,
+    "no_deformation_exaggeration": true,
+    "no_interpolation_or_duplication": true,
+    "png_frame_count": 201,
+    "reference_wireframe": true,
+    "source_frame_count": 201,
+    "video_frame_count": 201
+  },
+  "scalar_ranges": {
+    "DetAinv": [
+      -3.85355672687129,
+      3.85355672687129
+    ],
+    "DetF": [
+      -4.734351510872528,
+      4.734351510872528
+    ],
+    "DetG": [
+      -1.3601294482269952,
+      1.3601294482269952
+    ]
+  },
+  "sources": {
+    "all_history_frames_sha256": "9c37cbc87cb6d8af6c6c038724746053be1414b2164f87a41ca5fe09301ba929",
+    "history_receipt": {
+      "bytes": 19245,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/15-face-muscle-section-history/receipt.json",
+      "sha256": "5af4ed1ce2c4b329046a2008315dba597e3f348711af92ba95f1bef01879a19f"
+    },
+    "history_series": {
+      "bytes": 13610,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/15-face-muscle-section-history/history.vtu.series",
+      "sha256": "b07ea5702e3f1d8bc0530043346dd816ff8486a3506e0cdeddd4e3c37d8c9d8f"
+    },
+    "history_summary": {
+      "bytes": 19245,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/15-face-muscle-section-history/summary.json",
+      "sha256": "5af4ed1ce2c4b329046a2008315dba597e3f348711af92ba95f1bef01879a19f"
+    },
+    "history_validation": {
+      "connectivity_and_reference_points_constant": true,
+      "frame_194_matches_primary_best_section": true,
+      "missing_states": 0,
+      "nonfinite_states": 0
+    },
+    "reference_section": {
+      "bytes": 7060,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-section-reference.vtu",
+      "sha256": "fa98e79d711306cebe8bdab2eeda73d3c5ff9800025376a8b199e6053f932925"
+    }
+  },
+  "status": "ok",
+  "video_probe": {
+    "format": {
+      "duration": "6.700000"
+    },
+    "stream": {
+      "avg_frame_rate": "30/1",
+      "codec_name": "h264",
+      "duration": "6.700000",
+      "nb_frames": "201",
+      "nb_read_frames": "201",
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "30/1"
+    }
+  }
+}

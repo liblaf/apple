@@ -1,0 +1,17 @@
+{
+  "accepted_frame_count": 846,
+  "case": "h020-direct",
+  "control_count": 1200,
+  "controls_rms": 61.25061829521881,
+  "controls_sha256": "a64bab73240f9123fd477e3f86f6fa0a8c6756179de01031d272e662b685819b",
+  "equilibrium_residual_rms": 0.34592252386485506,
+  "error": "RuntimeError('refinement forward failed: iterations=1000, failure=None')",
+  "forward_converged": false,
+  "forward_failure": null,
+  "forward_iterations": 1000,
+  "optimizer_phase": "lbfgs_unbounded",
+  "partial_series": "history.vtu.series",
+  "partial_trace": "trace.csv",
+  "refinement_function_evaluations": 325,
+  "stage": "forward_nonconvergence"
+}

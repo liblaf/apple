@@ -1,0 +1,298 @@
+{
+  "case_count": 8,
+  "cases": [
+    {
+      "final_highpass_rms": 0.0012017043967853045,
+      "final_target_rms": 0.001559104595262405,
+      "first_inversion_step": 20,
+      "name": "baseline",
+      "points": 1111,
+      "source": "data/10-pork-2d/baseline/final.vtu",
+      "source_sha256": "401164dcac4344e78c842bf4387420f50132577c7f94b62289b9d8179f2c8705",
+      "title": "Baseline \u00b7 Stable NH \u00b7 L2 \u00b7 100\u00d710 \u00b7 h=0.050",
+      "triangles": 2000
+    },
+    {
+      "final_highpass_rms": 0.00025601334200089844,
+      "final_target_rms": 0.00027992454795271226,
+      "first_inversion_step": null,
+      "name": "height-low",
+      "points": 1111,
+      "source": "data/10-pork-2d/height-low/final.vtu",
+      "source_sha256": "3204ccc2c9cb6b3b87c9f7b26fc8db55075dbc108de0937c643aeb66f2e3ac1a",
+      "title": "Height 0.025",
+      "triangles": 2000
+    },
+    {
+      "final_highpass_rms": 0.00325589932308236,
+      "final_target_rms": 0.004714343255683737,
+      "first_inversion_step": 18,
+      "name": "height-high",
+      "points": 1111,
+      "source": "data/10-pork-2d/height-high/final.vtu",
+      "source_sha256": "f7ae8ee45b0b45947b953327f7271f80062dfae7463966086f6bb00a053da814",
+      "title": "Height 0.100",
+      "triangles": 2000
+    },
+    {
+      "final_highpass_rms": 0.0006914561460163961,
+      "final_target_rms": 0.0008708226827523248,
+      "first_inversion_step": 23,
+      "name": "loss-l1",
+      "points": 1111,
+      "source": "data/10-pork-2d/loss-l1/final.vtu",
+      "source_sha256": "c42880a462267071a1fdec1c2fcb02bd83d05d04d9a9c6d2b317fdefbc70821a",
+      "title": "Loss L1",
+      "triangles": 2000
+    },
+    {
+      "final_highpass_rms": 0.0016249900070376907,
+      "final_target_rms": 0.002762893949266216,
+      "first_inversion_step": 24,
+      "name": "loss-linf",
+      "points": 1111,
+      "source": "data/10-pork-2d/loss-linf/final.vtu",
+      "source_sha256": "919e4fc24b88867290344b1e1fcc0d3ef0238ba74d7b935e7456bdfaaf5a1326",
+      "title": "Loss L\u221e",
+      "triangles": 2000
+    },
+    {
+      "final_highpass_rms": 0.0003283652772992906,
+      "final_target_rms": 0.0001467674306355512,
+      "first_inversion_step": 41,
+      "name": "mesh-medium",
+      "points": 306,
+      "source": "data/10-pork-2d/mesh-medium/final.vtu",
+      "source_sha256": "dbc070c560963129ee6e721e8f075f584b8c84849aaff216d3f9b309754ead86",
+      "title": "Mesh 50\u00d75",
+      "triangles": 500
+    },
+    {
+      "final_highpass_rms": 0.000586854020347687,
+      "final_target_rms": 0.0007832851457527393,
+      "first_inversion_step": 20,
+      "name": "mesh-dense",
+      "points": 4221,
+      "source": "data/10-pork-2d/mesh-dense/final.vtu",
+      "source_sha256": "ed648b1bafa568944dff2608ac5f2b6d4987d6c05f573f0019948ffc06ef319e",
+      "title": "Mesh 200\u00d720",
+      "triangles": 8000
+    },
+    {
+      "final_highpass_rms": 0.00034580625659631515,
+      "final_target_rms": 0.00014708664447047695,
+      "first_inversion_step": 16,
+      "name": "energy-linear",
+      "points": 1111,
+      "source": "data/10-pork-2d/energy-linear/final.vtu",
+      "source_sha256": "6e8c7c88cd0478abd7e73d3169e59a06f2aa27f997c9a3659022375d01332166",
+      "title": "Linear elasticity",
+      "triangles": 2000
+    }
+  ],
+  "comparison": {
+    "mode": "RGBA",
+    "path": "data/50-2d-final-shapes/all-2d-final-shapes.png",
+    "pixels": [
+      5280,
+      1100
+    ],
+    "sha256": "ddc53dbb57d9df28253837f4c330a052cfba8164831a77db15a81dde15bbae1b",
+    "size_bytes": 2212469
+  },
+  "selected_state": "final.vtu",
+  "shared_physical_axes": true,
+  "standalone": [
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/baseline.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "c489e060a1520b8c2a7f75adab5d67c511374c7b32979a48345afd5a53e67076",
+      "size_bytes": 633577
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/height-low.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "1d0b6cbe082a4c38c6d947a3b33f273183e93d0cce014b6f42b706331ed1f857",
+      "size_bytes": 456817
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/height-high.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "459fc314cda2978fb76c05be00343b29e9a297954e73c2dd607ba9bf7d66327a",
+      "size_bytes": 797045
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/loss-l1.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "182a071bf71f812554aec3a383d4f0d1631f8aa051ff25b58dbacd75973f6a9d",
+      "size_bytes": 606361
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/loss-linf.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "4d39fcc594f0c85102b3247cdc6b2ad24f9e7323085f75faa4671071ba6de1df",
+      "size_bytes": 664384
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/mesh-medium.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "a070bf850f04ae3453c704364406df6afc7dd8ce412ac8c967e38485a97557e5",
+      "size_bytes": 414467
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/mesh-dense.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "4b46855feb755e682b3624b9a8f5de1273510651904d9b51723e19110f7691bb",
+      "size_bytes": 963745
+    },
+    {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/cases/energy-linear.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "8baaa168a11c88fcbe4bf9a1a4875c73a5a69434d8e9a5234cca5888e525de33",
+      "size_bytes": 541449
+    }
+  ],
+  "status": "ok",
+  "target_direction": {
+    "comparison": {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/target-direction/target-up-vs-down.png",
+      "pixels": [
+        3960,
+        836
+      ],
+      "sha256": "c88ad0fa3aa06e1c4c3c0b2a895825942c5eaad2d411b9d67019309d6f88c875",
+      "size_bytes": 811458
+    },
+    "down_case": {
+      "achieved_center_displacement_y": -0.019244076671926846,
+      "achieved_requested_fraction": 0.3848815334385369,
+      "final_activation_jump_rms": 0.5070508208879483,
+      "final_activation_rms": 1.1062364222992787,
+      "final_center_y": 0.08075592332807316,
+      "final_curvature_rms": 13.714044193438646,
+      "final_highpass_rms": 0.0018307837788623783,
+      "final_min_det_ainv": 0.4175729762924999,
+      "final_min_det_f": 0.07289478687117883,
+      "final_min_det_g": 0.07289478687117883,
+      "final_target_rms": 0.02011998952857649,
+      "first_inversion_step": 29,
+      "forward_failure_count": 0,
+      "inverse_evaluation_failure_count": 0,
+      "name": "height-down",
+      "physical_stationarity_gate": false,
+      "points": 1111,
+      "refinement_trial_forward_failure_count": 0,
+      "requested_center_displacement_y": -0.05,
+      "source": "data/60-pork-2d-target-down/height-down/final.vtu",
+      "source_sha256": "97ebca24fc26f6edf17571c6382b5fc58d5ac4c14c0b1b1aece3967d4ff4fe6f",
+      "tail_gate_1pct": true,
+      "tail_relative_range": 0.0003366611142759049,
+      "target_center_y": 0.05,
+      "title": "Target down \u00b7 Stable NH \u00b7 L2 \u00b7 100\u00d710 \u00b7 h=-0.050",
+      "trajectory_min_det_ainv": 0.2175694473640463,
+      "trajectory_min_det_f": -0.37791387626934636,
+      "trajectory_min_det_g": -0.37791387626934636,
+      "triangles": 2000
+    },
+    "down_over_up_ratios": {
+      "final_activation_jump_rms": 1.9772178826168552,
+      "final_activation_rms": 3.2801974924602413,
+      "final_curvature_rms": 1.3748876515410582,
+      "final_highpass_rms": 1.523489290510988,
+      "final_target_rms": 12.904836269301223
+    },
+    "down_standalone": {
+      "mode": "RGBA",
+      "path": "data/50-2d-final-shapes/target-direction/height-down.png",
+      "pixels": [
+        2640,
+        836
+      ],
+      "sha256": "8320d3c2c5f1e0209d66a7abd295949f34f577b42afbcb9e8c4c609581a31f95",
+      "size_bytes": 465475
+    },
+    "shared_physical_axes": true,
+    "up_case": {
+      "achieved_center_displacement_y": 0.05065666271795782,
+      "achieved_requested_fraction": 1.0131332543591565,
+      "final_activation_jump_rms": 0.2564466088162548,
+      "final_activation_rms": 0.33724689590856616,
+      "final_center_y": 0.15065666271795783,
+      "final_curvature_rms": 9.974665332157945,
+      "final_highpass_rms": 0.0012017043967853045,
+      "final_min_det_ainv": -0.7568919982127278,
+      "final_min_det_f": -11.044786189710377,
+      "final_min_det_g": -0.09403320564987329,
+      "final_target_rms": 0.001559104595262405,
+      "first_inversion_step": 20,
+      "forward_failure_count": 0,
+      "inverse_evaluation_failure_count": 0,
+      "name": "baseline",
+      "physical_stationarity_gate": false,
+      "points": 1111,
+      "refinement_trial_forward_failure_count": 0,
+      "requested_center_displacement_y": 0.05,
+      "source": "data/10-pork-2d/baseline/final.vtu",
+      "source_sha256": "401164dcac4344e78c842bf4387420f50132577c7f94b62289b9d8179f2c8705",
+      "tail_gate_1pct": false,
+      "tail_relative_range": 0.07790289091206326,
+      "target_center_y": 0.15000000000000002,
+      "title": "Baseline \u00b7 Stable NH \u00b7 L2 \u00b7 100\u00d710 \u00b7 h=0.050",
+      "trajectory_min_det_ainv": -0.7568919982127278,
+      "trajectory_min_det_f": -26.306130311479063,
+      "trajectory_min_det_g": -0.12028620045900883,
+      "triangles": 2000
+    },
+    "vertical_exaggeration": 1.0,
+    "x_limits": [
+      -0.02,
+      1.02
+    ],
+    "y_limits": [
+      -0.005,
+      0.15884001336716286
+    ]
+  },
+  "vertical_exaggeration": 1.0,
+  "x_limits": [
+    -0.02,
+    1.02
+  ],
+  "y_limits": [
+    -0.006213870131559647,
+    0.21748545460458762
+  ]
+}

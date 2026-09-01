@@ -1,0 +1,71 @@
+{
+  "frame_count": 201,
+  "history_dir": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/15-face-muscle-section-history",
+  "last_step": {
+    "ainv_negative_cells": 1,
+    "ainv_negative_rest_volume_fraction": 0.03648901996430297,
+    "cells": 31,
+    "double_inverted_cells": 1,
+    "double_inverted_rest_volume_fraction": 0.03648901996430297,
+    "f_negative_cells": 1,
+    "f_negative_rest_volume_fraction": 0.03648901996430297,
+    "g_negative_cells": 0,
+    "g_negative_rest_volume_fraction": 0.0,
+    "min_det_ainv": -0.40852557879206824,
+    "min_det_f": -1.2738030726670293,
+    "min_det_g": 0.41105965307858233,
+    "rest_volume": 2.1318705758442154e-08,
+    "step": 200
+  },
+  "onset_persistence": {
+    "ainv_negative": {
+      "first_onset_step": 91,
+      "last_present_step": 200,
+      "persistent_through_last": true
+    },
+    "double_inverted": {
+      "first_onset_step": 105,
+      "last_present_step": 200,
+      "persistent_through_last": true
+    },
+    "f_negative": {
+      "first_onset_step": 105,
+      "last_present_step": 200,
+      "persistent_through_last": true
+    },
+    "g_negative": {
+      "first_onset_step": 91,
+      "last_present_step": 104,
+      "persistent_through_last": false
+    }
+  },
+  "section_cells": 31,
+  "section_rest_volume": 2.1318705758442154e-08,
+  "sign_convention": {
+    "ainv_negative": "DetAinv < 0",
+    "double_inverted": "DetF < 0 and DetAinv < 0",
+    "f_negative": "DetF < 0",
+    "g_negative": "DetG < 0"
+  },
+  "step_194": {
+    "ainv_negative_cells": 1,
+    "ainv_negative_rest_volume_fraction": 0.03648901996430297,
+    "cells": 31,
+    "double_inverted_cells": 1,
+    "double_inverted_rest_volume_fraction": 0.03648901996430297,
+    "f_negative_cells": 1,
+    "f_negative_rest_volume_fraction": 0.03648901996430297,
+    "g_negative_cells": 0,
+    "g_negative_rest_volume_fraction": 0.0,
+    "min_det_ainv": -0.40883252668457987,
+    "min_det_f": -1.2732700831380714,
+    "min_det_g": 0.4245445942264014,
+    "rest_volume": 2.1318705758442154e-08,
+    "step": 194
+  },
+  "steps": {
+    "first": 0,
+    "last": 200,
+    "required_confirmation": 194
+  }
+}

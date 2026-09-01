@@ -1,0 +1,434 @@
+{
+  "method": "current src60 mechanics; strict 1e-10 solves; fixed stored-Adam seed versus base-endpoint local continuation",
+  "epsilons": [
+    0.001,
+    1e-05,
+    1e-07
+  ],
+  "directions": [
+    "minus_gradient",
+    "fixed_random"
+  ],
+  "endpoints": [
+    {
+      "case": "l010-band-per_cell-nu49",
+      "source": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-per_cell-nu49",
+      "control_dofs": 120,
+      "adam_seed": "data/60-pork-folding-2d/l010-band-per_cell-nu49/frames/step-1200.vtu",
+      "base": {
+        "objective": 8.962179678299594e-06,
+        "gradient_l2": 7.617013667861376e-05,
+        "gradient_inf": 4.483735965155959e-05,
+        "residual_rms": 5.633027065579816e-11,
+        "iterations": 7,
+        "min_det_f": -3.7556431765463163,
+        "hessian_inertia": {
+          "dimension": 180,
+          "negative": 0,
+          "near_zero": 0,
+          "positive": 180,
+          "minimum_eigenvalue": 8.825305266335886e-05,
+          "maximum_eigenvalue": 6.801619069607107
+        }
+      },
+      "derivatives": [
+        {
+          "direction": "minus_gradient",
+          "epsilon": 0.001,
+          "adjoint_directional_derivative": -7.617013667861379e-05,
+          "fixed_seed_central_difference": 0.0020959821670359135,
+          "local_continuation_central_difference": 0.0020740355225011527,
+          "fixed_seed_relative_error": 1.0363410232570498,
+          "local_continuation_relative_error": 1.0367255699587814,
+          "branch_objective_gap_minus": -4.3918320388274906e-08,
+          "branch_objective_gap_plus": -2.5031318753594278e-11,
+          "fixed_seed_minus": {
+            "objective": 8.97948095272868e-06,
+            "residual_rms": 2.055319079177172e-12,
+            "iterations": 5
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3171445286800506e-05,
+            "residual_rms": 5.587662280501069e-13,
+            "iterations": 6
+          },
+          "local_minus": {
+            "objective": 9.023399273116954e-06,
+            "residual_rms": 2.7246241327565636e-12,
+            "iterations": 5
+          },
+          "local_plus": {
+            "objective": 1.317147031811926e-05,
+            "residual_rms": 2.941624292834047e-11,
+            "iterations": 18
+          }
+        },
+        {
+          "direction": "minus_gradient",
+          "epsilon": 1e-05,
+          "adjoint_directional_derivative": -7.617013667861379e-05,
+          "fixed_seed_central_difference": 0.21043104613494748,
+          "local_continuation_central_difference": -7.610940226714319e-05,
+          "fixed_seed_relative_error": 1.0003619719527022,
+          "local_continuation_relative_error": 0.0007973520085287024,
+          "branch_objective_gap_minus": -4.170652126946257e-12,
+          "branch_objective_gap_plus": 4.210138940092166e-06,
+          "fixed_seed_minus": {
+            "objective": 8.962879540299216e-06,
+            "residual_rms": 1.0965255744114495e-12,
+            "iterations": 7
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3171500462998166e-05,
+            "residual_rms": 1.484969167839442e-11,
+            "iterations": 9
+          },
+          "local_minus": {
+            "objective": 8.962883710951343e-06,
+            "residual_rms": 5.5854603702273635e-12,
+            "iterations": 2
+          },
+          "local_plus": {
+            "objective": 8.961361522906e-06,
+            "residual_rms": 9.358562280685116e-12,
+            "iterations": 2
+          }
+        },
+        {
+          "direction": "minus_gradient",
+          "epsilon": 1e-07,
+          "adjoint_directional_derivative": -7.617013667861379e-05,
+          "fixed_seed_central_difference": 21.04677769923664,
+          "local_continuation_central_difference": 0.0,
+          "fixed_seed_relative_error": 1.0000036190878132,
+          "local_continuation_relative_error": 1.0,
+          "branch_objective_gap_minus": 5.887700393617987e-12,
+          "branch_objective_gap_plus": 4.209361427547721e-06,
+          "fixed_seed_minus": {
+            "objective": 8.962185565999988e-06,
+            "residual_rms": 5.469540160056895e-11,
+            "iterations": 7
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3171541105847315e-05,
+            "residual_rms": 6.643120188592384e-11,
+            "iterations": 9
+          },
+          "local_minus": {
+            "objective": 8.962179678299594e-06,
+            "residual_rms": 6.965078726438108e-11,
+            "iterations": 1
+          },
+          "local_plus": {
+            "objective": 8.962179678299594e-06,
+            "residual_rms": 5.990391548247457e-11,
+            "iterations": 1
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 0.001,
+          "adjoint_directional_derivative": 7.308668983518874e-07,
+          "fixed_seed_central_difference": 0.0021046031564566636,
+          "local_continuation_central_difference": 7.312685147895423e-07,
+          "fixed_seed_relative_error": 0.9996527293536981,
+          "local_continuation_relative_error": 0.0005492051545122015,
+          "branch_objective_gap_minus": 1.242461484783912e-12,
+          "branch_objective_gap_plus": 4.207745018345233e-06,
+          "fixed_seed_minus": {
+            "objective": 8.961409059417222e-06,
+            "residual_rms": 1.251342767266727e-12,
+            "iterations": 6
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3170615372330549e-05,
+            "residual_rms": 1.0152020477420244e-13,
+            "iterations": 9
+          },
+          "local_minus": {
+            "objective": 8.961407816955737e-06,
+            "residual_rms": 4.105968738263228e-15,
+            "iterations": 3
+          },
+          "local_plus": {
+            "objective": 8.962870353985316e-06,
+            "residual_rms": 4.024499159642972e-15,
+            "iterations": 3
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 1e-05,
+          "adjoint_directional_derivative": 7.308668983518874e-07,
+          "fixed_seed_central_difference": 0.21046810477617103,
+          "local_continuation_central_difference": 7.302408446505125e-07,
+          "fixed_seed_relative_error": 0.9999965274220569,
+          "local_continuation_relative_error": 0.0008565905813858831,
+          "branch_objective_gap_minus": 5.498596371415244e-11,
+          "branch_objective_gap_plus": 4.209402476670242e-06,
+          "fixed_seed_minus": {
+            "objective": 8.962167995225422e-06,
+            "residual_rms": 5.220061008282781e-11,
+            "iterations": 7
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3171530090748843e-05,
+            "residual_rms": 6.416754588310161e-11,
+            "iterations": 9
+          },
+          "local_minus": {
+            "objective": 8.962113009261708e-06,
+            "residual_rms": 1.3416279819249422e-13,
+            "iterations": 2
+          },
+          "local_plus": {
+            "objective": 8.962127614078601e-06,
+            "residual_rms": 1.2640770991687593e-13,
+            "iterations": 2
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 1e-07,
+          "adjoint_directional_derivative": 7.308668983518874e-07,
+          "fixed_seed_central_difference": 21.04681102365077,
+          "local_continuation_central_difference": 0.0,
+          "fixed_seed_relative_error": 0.9999999652742215,
+          "local_continuation_relative_error": 1.0,
+          "branch_objective_gap_minus": -1.183311956043766e-13,
+          "branch_objective_gap_plus": 4.209362086398958e-06,
+          "fixed_seed_minus": {
+            "objective": 8.962179559968399e-06,
+            "residual_rms": 5.628758219469462e-11,
+            "iterations": 7
+          },
+          "fixed_seed_plus": {
+            "objective": 1.3171541764698553e-05,
+            "residual_rms": 6.734396027315803e-11,
+            "iterations": 9
+          },
+          "local_minus": {
+            "objective": 8.962179678299594e-06,
+            "residual_rms": 7.233791050585449e-11,
+            "iterations": 1
+          },
+          "local_plus": {
+            "objective": 8.962179678299594e-06,
+            "residual_rms": 7.08716240438979e-11,
+            "iterations": 1
+          }
+        }
+      ]
+    },
+    {
+      "case": "l010-band-shared-nu49",
+      "source": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-shared-nu49",
+      "control_dofs": 3,
+      "adam_seed": "data/60-pork-folding-2d/l010-band-shared-nu49/frames/step-1200.vtu",
+      "base": {
+        "objective": 3.060693866156394e-05,
+        "gradient_l2": 3.502089285599072e-09,
+        "gradient_inf": 3.087386405938638e-09,
+        "residual_rms": 2.6959378023307476e-12,
+        "iterations": 12,
+        "min_det_f": 0.6929932759911911,
+        "hessian_inertia": {
+          "dimension": 180,
+          "negative": 0,
+          "near_zero": 0,
+          "positive": 180,
+          "minimum_eigenvalue": 0.0004934886283166092,
+          "maximum_eigenvalue": 1.9233067054363364
+        }
+      },
+      "derivatives": [
+        {
+          "direction": "minus_gradient",
+          "epsilon": 0.001,
+          "adjoint_directional_derivative": -3.5020892855990714e-09,
+          "fixed_seed_central_difference": -4.345007581404688e-07,
+          "local_continuation_central_difference": -4.3533545291443406e-07,
+          "fixed_seed_relative_error": 0.9919399696778736,
+          "local_continuation_relative_error": 0.9919554236574263,
+          "branch_objective_gap_minus": -3.5682259623697095e-12,
+          "branch_objective_gap_plus": -1.8988364144391888e-12,
+          "fixed_seed_minus": {
+            "objective": 3.066511208152287e-05,
+            "residual_rms": 1.8135808246928697e-12,
+            "iterations": 12
+          },
+          "fixed_seed_plus": {
+            "objective": 3.0664243080006586e-05,
+            "residual_rms": 5.013881356450109e-13,
+            "iterations": 11
+          },
+          "local_minus": {
+            "objective": 3.066511564974883e-05,
+            "residual_rms": 5.776174113968973e-12,
+            "iterations": 3
+          },
+          "local_plus": {
+            "objective": 3.0664244978843e-05,
+            "residual_rms": 5.425111618879251e-12,
+            "iterations": 3
+          }
+        },
+        {
+          "direction": "minus_gradient",
+          "epsilon": 1e-05,
+          "adjoint_directional_derivative": -3.5020892855990714e-09,
+          "fixed_seed_central_difference": -1.458797272297632e-07,
+          "local_continuation_central_difference": -3.6075184045537483e-09,
+          "fixed_seed_relative_error": 0.9759933107080518,
+          "local_continuation_relative_error": 0.029224831901507244,
+          "branch_objective_gap_minus": 1.6213803032388147e-14,
+          "branch_objective_gap_plus": -2.8292303734718006e-12,
+          "fixed_seed_minus": {
+            "objective": 3.060694439647787e-05,
+            "residual_rms": 2.702862045830074e-14,
+            "iterations": 11
+          },
+          "fixed_seed_plus": {
+            "objective": 3.060694147888332e-05,
+            "residual_rms": 9.837896298596931e-11,
+            "iterations": 10
+          },
+          "local_minus": {
+            "objective": 3.0606944380264065e-05,
+            "residual_rms": 1.987762429994229e-12,
+            "iterations": 2
+          },
+          "local_plus": {
+            "objective": 3.0606944308113697e-05,
+            "residual_rms": 1.9865820865766138e-12,
+            "iterations": 2
+          }
+        },
+        {
+          "direction": "minus_gradient",
+          "epsilon": 1e-07,
+          "adjoint_directional_derivative": -3.5020892855990714e-09,
+          "fixed_seed_central_difference": -2.5093679948361407e-05,
+          "local_continuation_central_difference": -3.502921694029104e-09,
+          "fixed_seed_relative_error": 0.9998604393898063,
+          "local_continuation_relative_error": 0.00023763261150018148,
+          "branch_objective_gap_minus": -4.8201392421724776e-15,
+          "branch_objective_gap_plus": -5.022855544575648e-12,
+          "fixed_seed_minus": {
+            "objective": 3.060693858865582e-05,
+            "residual_rms": 2.7604727612251898e-14,
+            "iterations": 21
+          },
+          "fixed_seed_plus": {
+            "objective": 3.060693356991983e-05,
+            "residual_rms": 2.5311497087425074e-12,
+            "iterations": 15
+          },
+          "local_minus": {
+            "objective": 3.0606938593475956e-05,
+            "residual_rms": 1.9884979877656973e-16,
+            "iterations": 2
+          },
+          "local_plus": {
+            "objective": 3.060693859277537e-05,
+            "residual_rms": 1.9854055476362273e-16,
+            "iterations": 2
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 0.001,
+          "adjoint_directional_derivative": -2.900097523961214e-10,
+          "fixed_seed_central_difference": -7.915781840227808e-09,
+          "local_continuation_central_difference": 4.892506315172778e-10,
+          "fixed_seed_relative_error": 0.9633630943538264,
+          "local_continuation_relative_error": 1.5927631641409128,
+          "branch_objective_gap_minus": -4.427475096616118e-16,
+          "branch_objective_gap_plus": -1.6810507690999833e-11,
+          "fixed_seed_minus": {
+            "objective": 3.060734092430151e-05,
+            "residual_rms": 1.645729668072298e-14,
+            "iterations": 11
+          },
+          "fixed_seed_plus": {
+            "objective": 3.060732509273783e-05,
+            "residual_rms": 6.583897625460224e-12,
+            "iterations": 17
+          },
+          "local_minus": {
+            "objective": 3.060734092474426e-05,
+            "residual_rms": 8.119039626863836e-16,
+            "iterations": 3
+          },
+          "local_plus": {
+            "objective": 3.060734190324552e-05,
+            "residual_rms": 8.143817407222946e-16,
+            "iterations": 3
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 1e-05,
+          "adjoint_directional_derivative": -2.900097523961214e-10,
+          "fixed_seed_central_difference": 3.146493013513572e-06,
+          "local_continuation_central_difference": -2.9059735303857415e-10,
+          "fixed_seed_relative_error": 1.0000921692027125,
+          "local_continuation_relative_error": 0.0020220440286485746,
+          "branch_objective_gap_minus": -4.472236993170904e-13,
+          "branch_objective_gap_plus": 6.248844851801513e-11,
+          "fixed_seed_minus": {
+            "objective": 3.060693819155352e-05,
+            "residual_rms": 3.0086032535342824e-13,
+            "iterations": 17
+          },
+          "fixed_seed_plus": {
+            "objective": 3.060700112141379e-05,
+            "residual_rms": 1.908180369125723e-11,
+            "iterations": 12
+          },
+          "local_minus": {
+            "objective": 3.0606938638777216e-05,
+            "residual_rms": 4.421293381524799e-14,
+            "iterations": 2
+          },
+          "local_plus": {
+            "objective": 3.060693863296527e-05,
+            "residual_rms": 4.4210062202290546e-14,
+            "iterations": 2
+          }
+        },
+        {
+          "direction": "fixed_random",
+          "epsilon": 1e-07,
+          "adjoint_directional_derivative": -2.900097523961214e-10,
+          "fixed_seed_central_difference": 8.987714137384875e-08,
+          "local_continuation_central_difference": 0.0,
+          "fixed_seed_relative_error": 1.00322673538525,
+          "local_continuation_relative_error": 1.0,
+          "branch_objective_gap_minus": -7.013263396676156e-15,
+          "branch_objective_gap_plus": 1.0962164878093594e-14,
+          "fixed_seed_minus": {
+            "objective": 3.060693865455068e-05,
+            "residual_rms": 2.6908014951374723e-12,
+            "iterations": 12
+          },
+          "fixed_seed_plus": {
+            "objective": 3.0606938672526105e-05,
+            "residual_rms": 2.7060044326617658e-12,
+            "iterations": 12
+          },
+          "local_minus": {
+            "objective": 3.060693866156394e-05,
+            "residual_rms": 1.05251842263793e-11,
+            "iterations": 1
+          },
+          "local_plus": {
+            "objective": 3.060693866156394e-05,
+            "residual_rms": 1.0174508077993665e-11,
+            "iterations": 1
+          }
+        }
+      ]
+    }
+  ]
+}

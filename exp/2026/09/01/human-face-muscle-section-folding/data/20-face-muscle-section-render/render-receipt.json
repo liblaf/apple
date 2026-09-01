@@ -1,0 +1,129 @@
+{
+  "arrays": [
+    "DetF",
+    "DetAinv",
+    "DetG",
+    "DoubleInverted",
+    "ActivationNorm"
+  ],
+  "camera": {
+    "focal_point": [
+      -0.004163268980485735,
+      -0.004256058314800296,
+      0.0032947202866518257
+    ],
+    "parallel_projection": true,
+    "parallel_scale": 0.0162032238427202,
+    "position": [
+      0.06378573423092154,
+      0.05010314425432553,
+      0.047461572374066556
+    ],
+    "view_up": [
+      0,
+      0,
+      1
+    ]
+  },
+  "comparator_best_step": 192,
+  "comparator_case": "20-human-face-smile-skin-estimated-plus-tightening-lr1",
+  "dimensions": {
+    "png_size": {
+      "comparison": [
+        2400,
+        1100
+      ],
+      "context": [
+        2600,
+        1800
+      ],
+      "mechanism": [
+        3000,
+        1000
+      ]
+    },
+    "section_cells": 31
+  },
+  "no_exaggeration": true,
+  "outputs": {
+    "face-context-id64.png": {
+      "bytes": 552648,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/20-face-muscle-section-render/face-context-id64.png",
+      "sha256": "ccb8634b12b89a252822b7df08a1b923f704d01fd2e341452ef71a5f6f92bd13"
+    },
+    "matched-section-comparison.png": {
+      "bytes": 99865,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/20-face-muscle-section-render/matched-section-comparison.png",
+      "sha256": "7ccb52964b4d2187793e597412c48daa15eb9ef77d2f1800ae4211f986337a4e"
+    },
+    "primary-mechanism.png": {
+      "bytes": 125251,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/20-face-muscle-section-render/primary-mechanism.png",
+      "sha256": "ec81d39e76fc2b9faff0aa406a675b47c836856cf181e94e83cc8fea378d4350"
+    }
+  },
+  "primary_best_step": 194,
+  "primary_case": "20-human-face-smile-no-skin-lr3",
+  "scalar_ranges": {
+    "DetAinv": [
+      -1.3459509937974352,
+      11.039757746026059
+    ],
+    "DetF": [
+      -1.2732700831380714,
+      4.623500254839386
+    ],
+    "DetG": [
+      0.0,
+      1.2704140285930654
+    ]
+  },
+  "sources": {
+    "20-human-face-smile-no-skin-lr3-all-muscle-deformed.vtu": {
+      "bytes": 22546323,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-all-muscle-deformed.vtu",
+      "sha256": "af8b31733e1a68427fb015cd58d1a178d1932e2ebb96e1ff92920666ac609eec"
+    },
+    "20-human-face-smile-no-skin-lr3-all-muscle-reference.vtu": {
+      "bytes": 22546289,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-all-muscle-reference.vtu",
+      "sha256": "614670d046c38c85d3f6ab4cad1aa03859e180978619e498beedd1c9c23e5a8f"
+    },
+    "20-human-face-smile-no-skin-lr3-section-deformed.vtu": {
+      "bytes": 7056,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-section-deformed.vtu",
+      "sha256": "98b5f3052dc601f163fd1bf275dde51c97b9dd9174b7a5f37df4ae13f5364fab"
+    },
+    "20-human-face-smile-no-skin-lr3-section-reference.vtu": {
+      "bytes": 7060,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-section-reference.vtu",
+      "sha256": "fa98e79d711306cebe8bdab2eeda73d3c5ff9800025376a8b199e6053f932925"
+    },
+    "20-human-face-smile-skin-estimated-plus-tightening-lr1-all-muscle-deformed.vtu": {
+      "bytes": 22685243,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-skin-estimated-plus-tightening-lr1-all-muscle-deformed.vtu",
+      "sha256": "f9a75490af28a00909500f9f725bafc1f2fce6b3517f2fd3697a03d5f333e870"
+    },
+    "20-human-face-smile-skin-estimated-plus-tightening-lr1-all-muscle-reference.vtu": {
+      "bytes": 22685378,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-skin-estimated-plus-tightening-lr1-all-muscle-reference.vtu",
+      "sha256": "ef00caafca5216b98f142d4bf77d6e76d5555c25b1c0bf712ee270b69a5c3757"
+    },
+    "20-human-face-smile-skin-estimated-plus-tightening-lr1-section-deformed.vtu": {
+      "bytes": 7057,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-skin-estimated-plus-tightening-lr1-section-deformed.vtu",
+      "sha256": "a0c93a1a08297242325b9c04dbc4a46bee5a6fc84064e9764f9ead0e1c4abae1"
+    },
+    "20-human-face-smile-skin-estimated-plus-tightening-lr1-section-reference.vtu": {
+      "bytes": 7059,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-skin-estimated-plus-tightening-lr1-section-reference.vtu",
+      "sha256": "dbd3b1ebaea1a2c155675a8a67ab88bd922c8ecd7e6063e75f738a9d66a5ff3b"
+    },
+    "builder_summary": {
+      "bytes": 18884,
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/01/human-face-muscle-section-folding/data/10-face-muscle-section/summary.json",
+      "sha256": "71abb18878ab55bb9c3f1cd6c159ee3c14024e13cb9100bf521a96ba89eda5d6"
+    }
+  },
+  "status": "ok"
+}

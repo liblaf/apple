@@ -1,0 +1,156 @@
+{
+  "activation": {
+    "bounds": null,
+    "cell_to_group_sha256": "55f385cf2332d9056aaed6f496e7bebd2df52c6a9547ce2144b309432d4b0290",
+    "cells_per_group_max": 1,
+    "cells_per_group_min": 1,
+    "det_constraint": null,
+    "group_count": 2000,
+    "raw_activation_dofs": 6000,
+    "raw_dofs_per_group": 3,
+    "regularizer": null,
+    "sharing_id": "per_cell"
+  },
+  "case": {
+    "activation_mode": "per_cell",
+    "domain_id": "L1",
+    "height": 0.05,
+    "length": 1.0,
+    "muscle_layout": "full",
+    "name": "l100-full-per_cell-nu49",
+    "poisson": 0.49
+  },
+  "counts": {
+    "activation_dofs": 6000,
+    "fat_triangles": 0,
+    "free_dofs": 1980,
+    "muscle_triangles": 2000,
+    "triangles": 2000
+  },
+  "geometry": {
+    "domain": [
+      1.0,
+      0.1
+    ],
+    "fixed": "bottom and sides, xy",
+    "target": "uy=h*4*(x/L)*(1-x/L)",
+    "top_and_interior": "free"
+  },
+  "inverse": {
+    "best_loss": 0.00031538545127787846,
+    "best_orientation_preserving_loss": 0.00031538545127787846,
+    "best_orientation_preserving_step": 3,
+    "best_step": 3,
+    "evaluations": 4,
+    "failures": {
+      "forward": 0,
+      "nonfinite": 0
+    },
+    "minimum_det_ainv": 0.8225617123362716,
+    "minimum_det_f": 0.9287520165417894,
+    "minimum_det_g": 0.8532712030209548,
+    "schedule": "fixed",
+    "tail": {
+      "inverse_converged_1pct_tail_gate": false,
+      "relative_range": 3.2703343729914143,
+      "window": 4
+    },
+    "updates": 3
+  },
+  "materials": {
+    "fat": {
+      "E_MPa": 0.003,
+      "nu": 0.49
+    },
+    "muscle": {
+      "E_MPa": 0.03,
+      "nu": 0.49
+    },
+    "skin_energy": null
+  },
+  "metrics": {
+    "best": {
+      "activation_neighbor_jump_rms": 0.020588323978455836,
+      "activation_rms": 0.08105143397517163,
+      "equilibrium_residual_rms": 3.7920625583098103e-10,
+      "evaluation_success": 1,
+      "forward_converged": 1,
+      "forward_failure": "",
+      "forward_iterations": 5,
+      "gradient_rms": 1.978045175285927e-06,
+      "inverted_cell_fraction": 0.0,
+      "inverted_rest_measure_fraction": 0.0,
+      "line_search_failures": 0,
+      "min_det_ainv": 0.8225617123362716,
+      "min_det_f": 0.9287520165417894,
+      "min_det_g": 0.8532712030209548,
+      "negative_det_f_mean": 0.0,
+      "objective": 0.00031538545127787846,
+      "step": 3,
+      "top_curvature_rms": 2.035889644775588,
+      "top_error_rms": 0.016937791494978538,
+      "top_highpass_rms": 0.00051530043326601,
+      "top_slope_rms": 0.09904928993086873,
+      "top_target_mae": 0.014021269460977545,
+      "top_target_max": 0.025602866655346175,
+      "top_target_rms": 0.016937791494978538
+    },
+    "best_orientation_preserving": {
+      "activation_neighbor_jump_rms": 0.020588323978455836,
+      "activation_rms": 0.08105143397517163,
+      "equilibrium_residual_rms": 3.7920625583098103e-10,
+      "evaluation_success": 1,
+      "forward_converged": 1,
+      "forward_failure": "",
+      "forward_iterations": 5,
+      "gradient_rms": 1.978045175285927e-06,
+      "inverted_cell_fraction": 0.0,
+      "inverted_rest_measure_fraction": 0.0,
+      "line_search_failures": 0,
+      "min_det_ainv": 0.8225617123362716,
+      "min_det_f": 0.9287520165417894,
+      "min_det_g": 0.8532712030209548,
+      "negative_det_f_mean": 0.0,
+      "objective": 0.00031538545127787846,
+      "step": 3,
+      "top_curvature_rms": 2.035889644775588,
+      "top_error_rms": 0.016937791494978538,
+      "top_highpass_rms": 0.00051530043326601,
+      "top_slope_rms": 0.09904928993086873,
+      "top_target_mae": 0.014021269460977545,
+      "top_target_max": 0.025602866655346175,
+      "top_target_rms": 0.016937791494978538
+    },
+    "final": {
+      "activation_neighbor_jump_rms": 0.020588323978455836,
+      "activation_rms": 0.08105143397517163,
+      "equilibrium_residual_rms": 3.7920625583098103e-10,
+      "evaluation_success": 1,
+      "forward_converged": 1,
+      "forward_failure": "",
+      "forward_iterations": 5,
+      "gradient_rms": 1.978045175285927e-06,
+      "inverted_cell_fraction": 0.0,
+      "inverted_rest_measure_fraction": 0.0,
+      "line_search_failures": 0,
+      "min_det_ainv": 0.8225617123362716,
+      "min_det_f": 0.9287520165417894,
+      "min_det_g": 0.8532712030209548,
+      "negative_det_f_mean": 0.0,
+      "objective": 0.00031538545127787846,
+      "step": 3,
+      "top_curvature_rms": 2.035889644775588,
+      "top_error_rms": 0.016937791494978538,
+      "top_highpass_rms": 0.00051530043326601,
+      "top_slope_rms": 0.09904928993086873,
+      "top_target_mae": 0.014021269460977545,
+      "top_target_max": 0.025602866655346175,
+      "top_target_rms": 0.016937791494978538
+    }
+  },
+  "paraview": {
+    "fps": 30,
+    "frames": 4,
+    "series": "history.vtu.series"
+  }
+}

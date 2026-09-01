@@ -1,0 +1,1125 @@
+{
+  "reports": [
+    {
+      "case": "l010-band-shared-nu49",
+      "schedule": [
+        0.003,
+        0.001,
+        0.0003,
+        0.0001
+      ],
+      "moments": "reset at each cycle",
+      "constraints": "none; no activation bounds, determinant guards, or repairs",
+      "production_initial_forward_tolerance_1e-8": {
+        "objective": 7.460515474416267e-05,
+        "gradient_rms": 7.400718855894299e-06,
+        "gradient_inf": 1.1152710886302221e-05,
+        "target_rms": 0.008637427553627449,
+        "min_det_f": 0.651896410055052,
+        "min_det_g": 0.4471338428856369,
+        "min_det_ainv": 0.30149571425606125,
+        "forward_iterations": 1,
+        "forward_tolerance": 1e-08
+      },
+      "production_initial_forward_tolerance_1e-10": {
+        "objective": 7.460385337119863e-05,
+        "gradient_rms": 7.3943113300791475e-06,
+        "gradient_inf": 1.1147839145907932e-05,
+        "target_rms": 0.00863735221993399,
+        "min_det_f": 0.6518807324243668,
+        "min_det_g": 0.4471089227610278,
+        "min_det_ainv": 0.30149571425606125,
+        "forward_iterations": 2,
+        "forward_tolerance": 1e-10
+      },
+      "final_controls": [
+        0.21561092136098847,
+        -0.6291652343467317,
+        0.4153865256045216
+      ],
+      "cycles": [
+        {
+          "base_learning_rate": 0.003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              -0.2724836833463281,
+              -0.5465996465470242,
+              0.16840558440123238
+            ],
+            "objective": 7.460385337119863e-05,
+            "gradient_rms": 7.3943113300791475e-06,
+            "gradient_inf": 1.1147839145907932e-05,
+            "target_rms": 0.00863735221993399,
+            "min_det_f": 0.6518807324243668,
+            "min_det_g": 0.4471089227610278,
+            "min_det_ainv": 0.30149571425606125,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.0637208704596164,
+              -0.5917841753524781,
+              0.38945906108196304
+            ],
+            "objective": 3.28885493934382e-05,
+            "gradient_rms": 2.9061583096100502e-05,
+            "gradient_inf": 4.805961444617925e-05,
+            "target_rms": 0.005734853912126987,
+            "min_det_f": 0.6789544254096483,
+            "min_det_g": 0.2257762655026384,
+            "min_det_ainv": 0.28254933207060795,
+            "forward_iterations": 3,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.5875820284937338,
+          "minimum_det_g": 0.21842893862156634,
+          "minimum_det_ainv": 0.28048516691672243,
+          "final_100_relative_loss_span": 0.14634998262439983,
+          "final_100_mean_update_rms": 0.0005816967291491871,
+          "final_100_max_update_rms": 0.0010919099834492524
+        },
+        {
+          "base_learning_rate": 0.001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.0637208704596164,
+              -0.5917841753524781,
+              0.38945906108196304
+            ],
+            "objective": 3.28885493934382e-05,
+            "gradient_rms": 2.9061583096100502e-05,
+            "gradient_inf": 4.805961444617925e-05,
+            "target_rms": 0.005734853912126987,
+            "min_det_f": 0.6789544254096483,
+            "min_det_g": 0.2257762655026384,
+            "min_det_ainv": 0.28254933207060795,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.15242488238676966,
+              -0.595414857282982,
+              0.43113786569837226
+            ],
+            "objective": 3.119200343856897e-05,
+            "gradient_rms": 2.320042251563728e-06,
+            "gradient_inf": 3.3466092361986177e-06,
+            "target_rms": 0.00558498016456361,
+            "min_det_f": 0.7122341650374188,
+            "min_det_g": 0.20011042820258731,
+            "min_det_ainv": 0.2803741262721462,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.6789544254096483,
+          "minimum_det_g": 0.19924169870932848,
+          "minimum_det_ainv": 0.2803741262721462,
+          "final_100_relative_loss_span": 0.0021336175559984677,
+          "final_100_mean_update_rms": 0.00010143056834252756,
+          "final_100_max_update_rms": 0.00011382510091697584
+        },
+        {
+          "base_learning_rate": 0.0003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.15242488238676966,
+              -0.595414857282982,
+              0.43113786569837226
+            ],
+            "objective": 3.119200343856897e-05,
+            "gradient_rms": 2.320042251563728e-06,
+            "gradient_inf": 3.3466092361986177e-06,
+            "target_rms": 0.00558498016456361,
+            "min_det_f": 0.7122341650374188,
+            "min_det_g": 0.20011042820258731,
+            "min_det_ainv": 0.2803741262721462,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.2002164199508773,
+              -0.6220158903708808,
+              0.41822266114350964
+            ],
+            "objective": 3.09730376912391e-05,
+            "gradient_rms": 2.3429583671510384e-06,
+            "gradient_inf": 4.046090340626793e-06,
+            "target_rms": 0.005565342549317077,
+            "min_det_f": 0.7040644553879848,
+            "min_det_g": 0.2026905789160944,
+            "min_det_ainv": 0.27875254056342247,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.7040644553879848,
+          "minimum_det_g": 0.20011042820258731,
+          "minimum_det_ainv": 0.27875254056342247,
+          "final_100_relative_loss_span": 0.0011715561975993655,
+          "final_100_mean_update_rms": 5.594736448214126e-05,
+          "final_100_max_update_rms": 7.185569786607464e-05
+        },
+        {
+          "base_learning_rate": 0.0001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.2002164199508773,
+              -0.6220158903708808,
+              0.41822266114350964
+            ],
+            "objective": 3.09730376912391e-05,
+            "gradient_rms": 2.3429583671510384e-06,
+            "gradient_inf": 4.046090340626793e-06,
+            "target_rms": 0.005565342549317077,
+            "min_det_f": 0.7040644553879848,
+            "min_det_g": 0.2026905789160944,
+            "min_det_ainv": 0.27875254056342247,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.21561092136098847,
+              -0.6291652343467317,
+              0.4153865256045216
+            ],
+            "objective": 3.0910530930385425e-05,
+            "gradient_rms": 2.2082539929126865e-06,
+            "gradient_inf": 3.820184268907642e-06,
+            "target_rms": 0.005559723997680588,
+            "min_det_f": 0.7026291379187166,
+            "min_det_g": 0.20283692196381156,
+            "min_det_ainv": 0.2782448254946599,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.7026291379187166,
+          "minimum_det_g": 0.2025739709579904,
+          "minimum_det_ainv": 0.2782448254946599,
+          "final_100_relative_loss_span": 0.00035869604442585165,
+          "final_100_mean_update_rms": 1.8392504761743656e-05,
+          "final_100_max_update_rms": 2.3401296356726003e-05
+        }
+      ]
+    },
+    {
+      "case": "l010-full-shared-nu35",
+      "schedule": [
+        0.003,
+        0.001,
+        0.0003,
+        0.0001
+      ],
+      "moments": "reset at each cycle",
+      "constraints": "none; no activation bounds, determinant guards, or repairs",
+      "production_initial_forward_tolerance_1e-8": {
+        "objective": 6.118973587583564e-05,
+        "gradient_rms": 6.80793428048578e-05,
+        "gradient_inf": 0.00010317521302883483,
+        "target_rms": 0.00782238684007865,
+        "min_det_f": 0.16685912160909125,
+        "min_det_g": 0.041217192962939894,
+        "min_det_ainv": 0.24701791886152533,
+        "forward_iterations": 1,
+        "forward_tolerance": 1e-08
+      },
+      "production_initial_forward_tolerance_1e-10": {
+        "objective": 6.117595633478824e-05,
+        "gradient_rms": 6.811380676408956e-05,
+        "gradient_inf": 0.00010325855589562358,
+        "target_rms": 0.007821506014495433,
+        "min_det_f": 0.1669157072515407,
+        "min_det_g": 0.04123117063057521,
+        "min_det_ainv": 0.24701791886152533,
+        "forward_iterations": 2,
+        "forward_tolerance": 1e-10
+      },
+      "final_controls": [
+        0.18314443649012396,
+        -0.8749398715169312,
+        0.0009500593724160432
+      ],
+      "cycles": [
+        {
+          "base_learning_rate": 0.003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.14739074408098135,
+              -0.7847117821219729,
+              0.001337774798899713
+            ],
+            "objective": 6.117595633478824e-05,
+            "gradient_rms": 6.811380676408956e-05,
+            "gradient_inf": 0.00010325855589562358,
+            "target_rms": 0.007821506014495433,
+            "min_det_f": 0.1669157072515407,
+            "min_det_g": 0.04123117063057521,
+            "min_det_ainv": 0.24701791886152533,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.18314416290966803,
+              -0.8749390329204636,
+              0.0009469439168979564
+            ],
+            "objective": 5.276568416508628e-05,
+            "gradient_rms": 3.2243477304574786e-08,
+            "gradient_inf": 5.583933149801981e-08,
+            "target_rms": 0.007263999185372082,
+            "min_det_f": 0.23519630983665432,
+            "min_det_g": 0.03480064711774956,
+            "min_det_ainv": 0.14796425650520986,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.1609528330254459,
+          "minimum_det_g": 0.03367606104885794,
+          "minimum_det_ainv": 0.1444439008190102,
+          "final_100_relative_loss_span": 1.1868184814912627e-08,
+          "final_100_mean_update_rms": 7.934669120829487e-07,
+          "final_100_max_update_rms": 1.7928039231951307e-06
+        },
+        {
+          "base_learning_rate": 0.001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.18314416290966803,
+              -0.8749390329204636,
+              0.0009469439168979564
+            ],
+            "objective": 5.276568416508628e-05,
+            "gradient_rms": 3.2243477304574786e-08,
+            "gradient_inf": 5.583933149801981e-08,
+            "target_rms": 0.007263999185372082,
+            "min_det_f": 0.23519630983665432,
+            "min_det_g": 0.03480064711774956,
+            "min_det_ainv": 0.14796425650520986,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.18314741744395444,
+              -0.8749419255577363,
+              0.0009469938588859146
+            ],
+            "objective": 5.276568423742811e-05,
+            "gradient_rms": 4.641499755830874e-08,
+            "gradient_inf": 7.518144649653873e-08,
+            "target_rms": 0.007263999190351559,
+            "min_det_f": 0.23522279185333056,
+            "min_det_g": 0.03480385619634029,
+            "min_det_ainv": 0.14796124100950928,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.2300955656890692,
+          "minimum_det_g": 0.03402324303725541,
+          "minimum_det_ainv": 0.14729760883689394,
+          "final_100_relative_loss_span": 9.696870026481771e-09,
+          "final_100_mean_update_rms": 1.2315857044826783e-06,
+          "final_100_max_update_rms": 1.450816189274044e-06
+        },
+        {
+          "base_learning_rate": 0.0003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.18314741744395444,
+              -0.8749419255577363,
+              0.0009469938588859146
+            ],
+            "objective": 5.276568423742811e-05,
+            "gradient_rms": 4.641499755830874e-08,
+            "gradient_inf": 7.518144649653873e-08,
+            "target_rms": 0.007263999190351559,
+            "min_det_f": 0.23522279185333056,
+            "min_det_g": 0.03480385619634029,
+            "min_det_ainv": 0.14796124100950928,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.1831415559711458,
+              -0.8749364290723735,
+              0.0009502738772577269
+            ],
+            "objective": 5.276568420750203e-05,
+            "gradient_rms": 3.814439141244167e-08,
+            "gradient_inf": 6.107677033926671e-08,
+            "target_rms": 0.007263999188291669,
+            "min_det_f": 0.23518926573570534,
+            "min_det_g": 0.03480025123135096,
+            "min_det_ainv": 0.14796700488217798,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.23232913912654923,
+          "minimum_det_g": 0.03442818056793668,
+          "minimum_det_ainv": 0.1477977807452104,
+          "final_100_relative_loss_span": 1.043843446084532e-08,
+          "final_100_mean_update_rms": 1.1154317332203242e-06,
+          "final_100_max_update_rms": 1.3134059016275846e-06
+        },
+        {
+          "base_learning_rate": 0.0001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.1831415559711458,
+              -0.8749364290723735,
+              0.0009502738772577269
+            ],
+            "objective": 5.276568420750203e-05,
+            "gradient_rms": 3.814439141244167e-08,
+            "gradient_inf": 6.107677033926671e-08,
+            "target_rms": 0.007263999188291669,
+            "min_det_f": 0.23518926573570534,
+            "min_det_g": 0.03480025123135096,
+            "min_det_ainv": 0.14796700488217798,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.18314443649012396,
+              -0.8749398715169312,
+              0.0009500593724160432
+            ],
+            "objective": 5.2765684409307006e-05,
+            "gradient_rms": 1.0796456473601092e-07,
+            "gradient_inf": 1.8692043074011416e-07,
+            "target_rms": 0.0072639992021824315,
+            "min_det_f": 0.23517809857108443,
+            "min_det_g": 0.034797725818727976,
+            "min_det_ainv": 0.14796329262867183,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.23448559034038577,
+          "minimum_det_g": 0.03470602627410401,
+          "minimum_det_ainv": 0.1478941116028127,
+          "final_100_relative_loss_span": 7.548187026961685e-09,
+          "final_100_mean_update_rms": 9.759724119534038e-07,
+          "final_100_max_update_rms": 1.3270819556900812e-06
+        }
+      ]
+    },
+    {
+      "case": "l100-band-shared-nu35",
+      "schedule": [
+        0.003,
+        0.001,
+        0.0003,
+        0.0001
+      ],
+      "moments": "reset at each cycle",
+      "constraints": "none; no activation bounds, determinant guards, or repairs",
+      "production_initial_forward_tolerance_1e-8": {
+        "objective": 9.375309079984626e-05,
+        "gradient_rms": 3.272410088239586e-05,
+        "gradient_inf": 4.404419929526883e-05,
+        "target_rms": 0.0096826179724208,
+        "min_det_f": 0.5358840196240249,
+        "min_det_g": 0.3921977478359786,
+        "min_det_ainv": 0.4104836181578335,
+        "forward_iterations": 1,
+        "forward_tolerance": 1e-08
+      },
+      "production_initial_forward_tolerance_1e-10": {
+        "objective": 9.368346647838054e-05,
+        "gradient_rms": 3.284812774453382e-05,
+        "gradient_inf": 4.421978594670567e-05,
+        "target_rms": 0.009679021979434727,
+        "min_det_f": 0.5363858472388843,
+        "min_det_g": 0.39242037286589854,
+        "min_det_ainv": 0.4104836181578335,
+        "forward_iterations": 2,
+        "forward_tolerance": 1e-10
+      },
+      "final_controls": [
+        1.1541755393216615,
+        -0.7999171974218772,
+        0.0002168653226375674
+      ],
+      "cycles": [
+        {
+          "base_learning_rate": 0.003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.5091079877401203,
+              -0.7279958198848742,
+              0.0002505047011326845
+            ],
+            "objective": 9.368346647838054e-05,
+            "gradient_rms": 3.284812774453382e-05,
+            "gradient_inf": 4.421978594670567e-05,
+            "target_rms": 0.009679021979434727,
+            "min_det_f": 0.5363858472388843,
+            "min_det_g": 0.39242037286589854,
+            "min_det_ainv": 0.4104836181578335,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.9409875056043988,
+              -0.7797618573160626,
+              0.0002440836255047929
+            ],
+            "objective": 7.625536069015208e-05,
+            "gradient_rms": 1.8922951801051768e-05,
+            "gradient_inf": 3.2726788397593566e-05,
+            "target_rms": 0.008732431545116864,
+            "min_det_f": 0.5822739521142877,
+            "min_det_g": 0.42085483699708487,
+            "min_det_ainv": 0.42747942363022506,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.5131911760143284,
+          "minimum_det_g": 0.3800943224216816,
+          "minimum_det_ainv": 0.4067539778066987,
+          "final_100_relative_loss_span": 0.03355203100105674,
+          "final_100_mean_update_rms": 0.0004417241111795925,
+          "final_100_max_update_rms": 0.0005653867290598655
+        },
+        {
+          "base_learning_rate": 0.001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.9409875056043988,
+              -0.7797618573160626,
+              0.0002440836255047929
+            ],
+            "objective": 7.625536069015208e-05,
+            "gradient_rms": 1.8922951801051768e-05,
+            "gradient_inf": 3.2726788397593566e-05,
+            "target_rms": 0.008732431545116864,
+            "min_det_f": 0.5822739521142877,
+            "min_det_g": 0.42085483699708487,
+            "min_det_ainv": 0.42747942363022506,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              1.0923596267328417,
+              -0.7943748868563874,
+              0.00022438624393223498
+            ],
+            "objective": 7.16014735616562e-05,
+            "gradient_rms": 1.6513817021773084e-05,
+            "gradient_inf": 2.8583941753984052e-05,
+            "target_rms": 0.008461765392733139,
+            "min_det_f": 0.5932306831933366,
+            "min_det_g": 0.4247584027653686,
+            "min_det_ainv": 0.43024163463488124,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.5796838451289067,
+          "minimum_det_g": 0.4192061270307338,
+          "minimum_det_ainv": 0.4257684181979067,
+          "final_100_relative_loss_span": 0.011084176042588234,
+          "final_100_mean_update_rms": 0.00016051254812987897,
+          "final_100_max_update_rms": 0.0002042007435366174
+        },
+        {
+          "base_learning_rate": 0.0003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              1.0923596267328417,
+              -0.7943748868563874,
+              0.00022438624393223498
+            ],
+            "objective": 7.16014735616562e-05,
+            "gradient_rms": 1.6513817021773084e-05,
+            "gradient_inf": 2.8583941753984052e-05,
+            "target_rms": 0.008461765392733139,
+            "min_det_f": 0.5932306831933366,
+            "min_det_g": 0.4247584027653686,
+            "min_det_ainv": 0.43024163463488124,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              1.1386636054432289,
+              -0.7985486315001973,
+              0.00021872158914982242
+            ],
+            "objective": 7.030104113239772e-05,
+            "gradient_rms": 1.5860032701359887e-05,
+            "gradient_inf": 2.746821062436023e-05,
+            "target_rms": 0.008384571612932752,
+            "min_det_f": 0.5961625262224174,
+            "min_det_g": 0.4255335239492747,
+            "min_det_ainv": 0.4308366622381271,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.592063463763806,
+          "minimum_det_g": 0.4241414627838841,
+          "minimum_det_ainv": 0.4296815294827897,
+          "final_100_relative_loss_span": 0.003320258056706108,
+          "final_100_mean_update_rms": 4.9642218852003336e-05,
+          "final_100_max_update_rms": 6.302084829412158e-05
+        },
+        {
+          "base_learning_rate": 0.0001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              1.1386636054432289,
+              -0.7985486315001973,
+              0.00021872158914982242
+            ],
+            "objective": 7.030104113239772e-05,
+            "gradient_rms": 1.5860032701359887e-05,
+            "gradient_inf": 2.746821062436023e-05,
+            "target_rms": 0.008384571612932752,
+            "min_det_f": 0.5961625262224174,
+            "min_det_g": 0.4255335239492747,
+            "min_det_ainv": 0.4308366622381271,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              1.1541755393216615,
+              -0.7999171974218772,
+              0.0002168653226375674
+            ],
+            "objective": 6.987746698066041e-05,
+            "gradient_rms": 1.5649012960951365e-05,
+            "gradient_inf": 2.71046401900353e-05,
+            "target_rms": 0.008359274309451773,
+            "min_det_f": 0.5971067631356067,
+            "min_det_g": 0.4257566176087775,
+            "min_det_ainv": 0.4310134321221491,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 0.5955907637036059,
+          "minimum_det_g": 0.42528335096857317,
+          "minimum_det_ainv": 0.4306489471433911,
+          "final_100_relative_loss_span": 0.0011046898223351729,
+          "final_100_mean_update_rms": 1.669031365415586e-05,
+          "final_100_max_update_rms": 2.1175014702657748e-05
+        }
+      ]
+    },
+    {
+      "case": "l100-full-shared-nu49",
+      "schedule": [
+        0.003,
+        0.001,
+        0.0003,
+        0.0001
+      ],
+      "moments": "reset at each cycle",
+      "constraints": "none; no activation bounds, determinant guards, or repairs",
+      "production_initial_forward_tolerance_1e-8": {
+        "objective": 0.00017337538948278432,
+        "gradient_rms": 3.3965896763390445e-05,
+        "gradient_inf": 4.388910291978623e-05,
+        "target_rms": 0.01316720887214843,
+        "min_det_f": 1.0,
+        "min_det_g": 0.7434116807219787,
+        "min_det_ainv": 0.7434116807219787,
+        "forward_iterations": 1,
+        "forward_tolerance": 1e-08
+      },
+      "production_initial_forward_tolerance_1e-10": {
+        "objective": 0.00017336279659254818,
+        "gradient_rms": 3.3530799050176095e-05,
+        "gradient_inf": 4.365362322100307e-05,
+        "target_rms": 0.013166730672135288,
+        "min_det_f": 1.0,
+        "min_det_g": 0.7434116807219787,
+        "min_det_ainv": 0.7434116807219787,
+        "forward_iterations": 2,
+        "forward_tolerance": 1e-10
+      },
+      "final_controls": [
+        0.6004759284803687,
+        -0.5297824371335271,
+        0.002118662490802014
+      ],
+      "cycles": [
+        {
+          "base_learning_rate": 0.003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              -0.07530283312055766,
+              -0.19602700625433284,
+              0.004457447949593396
+            ],
+            "objective": 0.00017336279659254818,
+            "gradient_rms": 3.3530799050176095e-05,
+            "gradient_inf": 4.365362322100307e-05,
+            "target_rms": 0.013166730672135288,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7434116807219787,
+            "min_det_ainv": 0.7434116807219787,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.3848471482344119,
+              -0.4574415365529098,
+              0.002442658839356553
+            ],
+            "objective": 0.0001419926659887393,
+            "gradient_rms": 3.4388558868815934e-05,
+            "gradient_inf": 5.953631801099363e-05,
+            "target_rms": 0.011916067555562921,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7513545742729418,
+            "min_det_ainv": 0.7513545742729418,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 1.0,
+          "minimum_det_g": 0.7430584046504604,
+          "minimum_det_ainv": 0.7430584046504604,
+          "final_100_relative_loss_span": 0.03513237581554819,
+          "final_100_mean_update_rms": 0.0005123665903813656,
+          "final_100_max_update_rms": 0.0006608980714841907
+        },
+        {
+          "base_learning_rate": 0.001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.3848471482344119,
+              -0.4574415365529098,
+              0.002442658839356553
+            ],
+            "objective": 0.0001419926659887393,
+            "gradient_rms": 3.4388558868815934e-05,
+            "gradient_inf": 5.953631801099363e-05,
+            "target_rms": 0.011916067555562921,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7513545742729418,
+            "min_det_ainv": 0.7513545742729418,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.5382583944739506,
+              -0.5108942408170295,
+              0.0021928837441918527
+            ],
+            "objective": 0.00013308817481715493,
+            "gradient_rms": 3.1627766808649876e-05,
+            "gradient_inf": 5.458148386607162e-05,
+            "target_rms": 0.01153638482442203,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7523662311096435,
+            "min_det_ainv": 0.7523662311096435,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 1.0,
+          "minimum_det_g": 0.750522315408751,
+          "minimum_det_ainv": 0.750522315408751,
+          "final_100_relative_loss_span": 0.012074826629133352,
+          "final_100_mean_update_rms": 0.00017501033686332087,
+          "final_100_max_update_rms": 0.00022271323101967608
+        },
+        {
+          "base_learning_rate": 0.0003,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.5382583944739506,
+              -0.5108942408170295,
+              0.0021928837441918527
+            ],
+            "objective": 0.00013308817481715493,
+            "gradient_rms": 3.1627766808649876e-05,
+            "gradient_inf": 5.458148386607162e-05,
+            "target_rms": 0.01153638482442203,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7523662311096435,
+            "min_det_ainv": 0.7523662311096435,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.5849189261410813,
+              -0.5251947306546877,
+              0.002136083095574148
+            ],
+            "objective": 0.00013049792432327762,
+            "gradient_rms": 3.1509738087127454e-05,
+            "gradient_inf": 5.455780632757885e-05,
+            "target_rms": 0.011423568808532543,
+            "min_det_f": 1.0,
+            "min_det_g": 0.752523294765908,
+            "min_det_ainv": 0.752523294765908,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 1.0,
+          "minimum_det_g": 0.7520533391848161,
+          "minimum_det_ainv": 0.7520533391848161,
+          "final_100_relative_loss_span": 0.0036132197941746258,
+          "final_100_mean_update_rms": 5.2253874117081665e-05,
+          "final_100_max_update_rms": 6.634368460407098e-05
+        },
+        {
+          "base_learning_rate": 0.0001,
+          "decay": 0.995,
+          "updates": 300,
+          "evaluations": 301,
+          "initial": {
+            "step": 0,
+            "controls": [
+              0.5849189261410813,
+              -0.5251947306546877,
+              0.002136083095574148
+            ],
+            "objective": 0.00013049792432327762,
+            "gradient_rms": 3.1509738087127454e-05,
+            "gradient_inf": 5.455780632757885e-05,
+            "target_rms": 0.011423568808532543,
+            "min_det_f": 1.0,
+            "min_det_g": 0.752523294765908,
+            "min_det_ainv": 0.752523294765908,
+            "forward_iterations": 1,
+            "forward_tolerance": 1e-10
+          },
+          "final": {
+            "step": 300,
+            "controls": [
+              0.6004759284803687,
+              -0.5297824371335271,
+              0.002118662490802014
+            ],
+            "objective": 0.0001296452315874952,
+            "gradient_rms": 3.1467462676579783e-05,
+            "gradient_inf": 5.450116678365915e-05,
+            "target_rms": 0.011386185998282972,
+            "min_det_f": 1.0,
+            "min_det_g": 0.7525674017857444,
+            "min_det_ainv": 0.7525674017857444,
+            "forward_iterations": 2,
+            "forward_tolerance": 1e-10
+          },
+          "minimum_det_f": 1.0,
+          "minimum_det_g": 0.7524136118090522,
+          "minimum_det_ainv": 0.7524136118090522,
+          "final_100_relative_loss_span": 0.0012040288324470553,
+          "final_100_mean_update_rms": 1.7395772537684193e-05,
+          "final_100_max_update_rms": 2.207086364606564e-05
+        }
+      ]
+    }
+  ],
+  "repeated_003": {
+    "case": "l100-full-shared-nu49",
+    "schedule": [
+      0.003,
+      0.003,
+      0.003,
+      0.003
+    ],
+    "moments": "reset at each cycle",
+    "constraints": "none; no activation bounds, determinant guards, or repairs",
+    "production_initial_forward_tolerance_1e-8": {
+      "objective": 0.00017337538948278432,
+      "gradient_rms": 3.3965896763390445e-05,
+      "gradient_inf": 4.388910291978623e-05,
+      "target_rms": 0.01316720887214843,
+      "min_det_f": 1.0,
+      "min_det_g": 0.7434116807219787,
+      "min_det_ainv": 0.7434116807219787,
+      "forward_iterations": 1,
+      "forward_tolerance": 1e-08
+    },
+    "production_initial_forward_tolerance_1e-10": {
+      "objective": 0.00017336279659254818,
+      "gradient_rms": 3.3530799050176095e-05,
+      "gradient_inf": 4.365362322100307e-05,
+      "target_rms": 0.013166730672135288,
+      "min_det_f": 1.0,
+      "min_det_g": 0.7434116807219787,
+      "min_det_ainv": 0.7434116807219787,
+      "forward_iterations": 2,
+      "forward_tolerance": 1e-10
+    },
+    "final_controls": [
+      1.4727668002854661,
+      -0.6961422569299712,
+      0.0016313720098894925
+    ],
+    "cycles": [
+      {
+        "base_learning_rate": 0.003,
+        "decay": 0.995,
+        "updates": 300,
+        "evaluations": 301,
+        "initial": {
+          "step": 0,
+          "controls": [
+            -0.07530283312055766,
+            -0.19602700625433284,
+            0.004457447949593396
+          ],
+          "objective": 0.00017336279659254818,
+          "gradient_rms": 3.3530799050176095e-05,
+          "gradient_inf": 4.365362322100307e-05,
+          "target_rms": 0.013166730672135288,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7434116807219787,
+          "min_det_ainv": 0.7434116807219787,
+          "forward_iterations": 1,
+          "forward_tolerance": 1e-10
+        },
+        "final": {
+          "step": 300,
+          "controls": [
+            0.3848471482344119,
+            -0.4574415365529098,
+            0.002442658839356553
+          ],
+          "objective": 0.0001419926659887393,
+          "gradient_rms": 3.4388558868815934e-05,
+          "gradient_inf": 5.953631801099363e-05,
+          "target_rms": 0.011916067555562921,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7513545742729418,
+          "min_det_ainv": 0.7513545742729418,
+          "forward_iterations": 2,
+          "forward_tolerance": 1e-10
+        },
+        "minimum_det_f": 1.0,
+        "minimum_det_g": 0.7430584046504604,
+        "minimum_det_ainv": 0.7430584046504604,
+        "final_100_relative_loss_span": 0.03513237581554819,
+        "final_100_mean_update_rms": 0.0005123665903813656,
+        "final_100_max_update_rms": 0.0006608980714841907
+      },
+      {
+        "base_learning_rate": 0.003,
+        "decay": 0.995,
+        "updates": 300,
+        "evaluations": 301,
+        "initial": {
+          "step": 0,
+          "controls": [
+            0.3848471482344119,
+            -0.4574415365529098,
+            0.002442658839356553
+          ],
+          "objective": 0.0001419926659887393,
+          "gradient_rms": 3.4388558868815934e-05,
+          "gradient_inf": 5.953631801099363e-05,
+          "target_rms": 0.011916067555562921,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7513545742729418,
+          "min_det_ainv": 0.7513545742729418,
+          "forward_iterations": 1,
+          "forward_tolerance": 1e-10
+        },
+        "final": {
+          "step": 300,
+          "controls": [
+            0.7805798979827934,
+            -0.5771290866132285,
+            0.001958600423714116
+          ],
+          "objective": 0.00012014266488972827,
+          "gradient_rms": 2.8634321956194764e-05,
+          "gradient_inf": 4.872787215270462e-05,
+          "target_rms": 0.010960960947368086,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7529516117024885,
+          "min_det_ainv": 0.7529516117024885,
+          "forward_iterations": 2,
+          "forward_tolerance": 1e-10
+        },
+        "minimum_det_f": 1.0,
+        "minimum_det_g": 0.7488477531644417,
+        "minimum_det_ainv": 0.7488477531644417,
+        "final_100_relative_loss_span": 0.03522691606115878,
+        "final_100_mean_update_rms": 0.0004927285324920019,
+        "final_100_max_update_rms": 0.0006239570227530209
+      },
+      {
+        "base_learning_rate": 0.003,
+        "decay": 0.995,
+        "updates": 300,
+        "evaluations": 301,
+        "initial": {
+          "step": 0,
+          "controls": [
+            0.7805798979827934,
+            -0.5771290866132285,
+            0.001958600423714116
+          ],
+          "objective": 0.00012014266488972827,
+          "gradient_rms": 2.8634321956194764e-05,
+          "gradient_inf": 4.872787215270462e-05,
+          "target_rms": 0.010960960947368086,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7529516117024885,
+          "min_det_ainv": 0.7529516117024885,
+          "forward_iterations": 1,
+          "forward_tolerance": 1e-10
+        },
+        "final": {
+          "step": 300,
+          "controls": [
+            1.1448697984053078,
+            -0.6491969827172427,
+            0.0017646195669982266
+          ],
+          "objective": 0.00010309685741935927,
+          "gradient_rms": 2.4137575125326835e-05,
+          "gradient_inf": 4.054283085011741e-05,
+          "target_rms": 0.010153662266362776,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7524236830770252,
+          "min_det_ainv": 0.7524236830770252,
+          "forward_iterations": 2,
+          "forward_tolerance": 1e-10
+        },
+        "minimum_det_f": 1.0,
+        "minimum_det_g": 0.7488784832706179,
+        "minimum_det_ainv": 0.7488784832706179,
+        "final_100_relative_loss_span": 0.032217765525727894,
+        "final_100_mean_update_rms": 0.0004554822473575854,
+        "final_100_max_update_rms": 0.0005745533063815741
+      },
+      {
+        "base_learning_rate": 0.003,
+        "decay": 0.995,
+        "updates": 300,
+        "evaluations": 301,
+        "initial": {
+          "step": 0,
+          "controls": [
+            1.1448697984053078,
+            -0.6491969827172427,
+            0.0017646195669982266
+          ],
+          "objective": 0.00010309685741935927,
+          "gradient_rms": 2.4137575125326835e-05,
+          "gradient_inf": 4.054283085011741e-05,
+          "target_rms": 0.010153662266362776,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7524236830770252,
+          "min_det_ainv": 0.7524236830770252,
+          "forward_iterations": 1,
+          "forward_tolerance": 1e-10
+        },
+        "final": {
+          "step": 300,
+          "controls": [
+            1.4727668002854661,
+            -0.6961422569299712,
+            0.0016313720098894925
+          ],
+          "objective": 9.075694217984694e-05,
+          "gradient_rms": 1.9312234852344343e-05,
+          "gradient_inf": 3.172691857585954e-05,
+          "target_rms": 0.009526643804606475,
+          "min_det_f": 1.0,
+          "min_det_g": 0.7513666776986038,
+          "min_det_ainv": 0.7513666776986038,
+          "forward_iterations": 2,
+          "forward_tolerance": 1e-10
+        },
+        "minimum_det_f": 1.0,
+        "minimum_det_g": 0.7470408571089084,
+        "minimum_det_ainv": 0.7470408571089084,
+        "final_100_relative_loss_span": 0.02655452648961708,
+        "final_100_mean_update_rms": 0.0004175530622733579,
+        "final_100_max_update_rms": 0.000523068763468208
+      }
+    ]
+  },
+  "failures": []
+}

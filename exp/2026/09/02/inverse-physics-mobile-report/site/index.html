@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#173b3a" />
+    <meta
+      name="description"
+      content="Mobile visual report on folding in 2D pork inverse physics and a 3D human-face muscle section."
+    />
+    <title>Why inverse physics gets bumpy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1a2928;
+        --muted: #5c6967;
+        --paper: #f4f2ec;
+        --card: #fffdfa;
+        --line: #d8d4ca;
+        --teal: #176b68;
+        --teal-dark: #173b3a;
+        --muscle: #a54b59;
+        --fat: #d8b17d;
+        --warn: #9a4a20;
+        --good: #2d6a4f;
+        --shadow: 0 10px 30px rgb(23 59 58 / 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background: var(--paper);
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(
+            circle at 100% 0,
+            rgb(216 177 125 / 0.17),
+            transparent 22rem
+          ),
+          var(--paper);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+          sans-serif;
+        font-size: 17px;
+        line-height: 1.56;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--teal);
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.17em;
+      }
+
+      img,
+      video {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      img {
+        background: #fff;
+      }
+
+      .page {
+        width: min(100%, 900px);
+        margin: 0 auto;
+        padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+      }
+
+      .hero {
+        color: #f8f5ee;
+        background:
+          linear-gradient(145deg, rgb(23 59 58 / 0.96), rgb(18 74 71 / 0.91)),
+          var(--teal-dark);
+        padding: calc(2.2rem + env(safe-area-inset-top))
+          max(1.25rem, env(safe-area-inset-right)) 2.5rem
+          max(1.25rem, env(safe-area-inset-left));
+      }
+
+      .eyebrow {
+        margin: 0 0 0.7rem;
+        color: #c8e0dc;
+        font-size: 0.75rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin-top: 0;
+        font-family:
+          ui-rounded,
+          "SF Pro Rounded",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.11;
+        text-wrap: balance;
+      }
+
+      h1 {
+        max-width: 13ch;
+        margin-bottom: 1rem;
+        font-size: clamp(2.65rem, 12vw, 5rem);
+        letter-spacing: -0.045em;
+      }
+
+      h2 {
+        margin-bottom: 0.85rem;
+        font-size: clamp(1.9rem, 8vw, 3.1rem);
+        letter-spacing: -0.035em;
+      }
+
+      h3 {
+        margin-bottom: 0.55rem;
+        font-size: 1.25rem;
+        letter-spacing: -0.015em;
+      }
+
+      p {
+        margin: 0.65rem 0 0;
+      }
+
+      .hero .lede {
+        max-width: 42rem;
+        margin: 0;
+        color: #eef5f2;
+        font-size: clamp(1.12rem, 4.5vw, 1.38rem);
+        line-height: 1.43;
+      }
+
+      .hero-meta {
+        margin-top: 1.4rem;
+        color: #c8d8d4;
+        font-size: 0.85rem;
+      }
+
+      .nav {
+        position: sticky;
+        z-index: 10;
+        top: 0;
+        display: flex;
+        gap: 0.45rem;
+        overflow-x: auto;
+        padding: 0.65rem max(1rem, env(safe-area-inset-right)) 0.65rem
+          max(1rem, env(safe-area-inset-left));
+        border-bottom: 1px solid rgb(23 59 58 / 0.12);
+        background: rgb(244 242 236 / 0.92);
+        box-shadow: 0 6px 22px rgb(23 59 58 / 0.06);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        scrollbar-width: none;
+      }
+
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav a {
+        flex: 0 0 auto;
+        padding: 0.43rem 0.72rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--ink);
+        background: #fffefa;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      main {
+        padding-inline: max(1rem, env(safe-area-inset-left));
+      }
+
+      .section {
+        padding-top: 3.5rem;
+        scroll-margin-top: 4rem;
+      }
+
+      .section-intro {
+        max-width: 44rem;
+        color: var(--muted);
+        font-size: 1.02rem;
+      }
+
+      .answer {
+        margin-top: 0.8rem;
+        padding: 1.25rem;
+        border-left: 0.35rem solid var(--muscle);
+        border-radius: 0.3rem 1rem 1rem 0.3rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        font-size: 1.2rem;
+        font-weight: 680;
+        line-height: 1.42;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-top: 1rem;
+      }
+
+      .stat {
+        min-height: 7rem;
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+      }
+
+      .stat strong {
+        display: block;
+        color: var(--teal-dark);
+        font-size: clamp(1.55rem, 7vw, 2.2rem);
+        line-height: 1;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 0.55rem;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.25;
+      }
+
+      .card {
+        margin-top: 1rem;
+        padding: 1.15rem;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .card > :first-child,
+      figure > :first-child {
+        margin-top: 0;
+      }
+
+      .model-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--teal-dark);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .pill.muscle {
+        background: var(--muscle);
+      }
+
+      .pill.neutral {
+        color: var(--ink);
+        background: #e8e4da;
+      }
+
+      .mechanism {
+        display: grid;
+        gap: 0.55rem;
+        margin-top: 1rem;
+      }
+
+      .mechanism-step {
+        position: relative;
+        padding: 0.95rem 1rem;
+        border-radius: 0.85rem;
+        color: #fff;
+        background: var(--teal-dark);
+      }
+
+      .mechanism-step:nth-child(2) {
+        background: var(--muscle);
+      }
+
+      .mechanism-step:nth-child(3) {
+        color: var(--ink);
+        background: #ead8b8;
+      }
+
+      .mechanism-step code {
+        display: block;
+        color: inherit;
+        font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+        font-size: 1.12rem;
+        font-weight: 750;
+      }
+
+      .mechanism-step span {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.8rem;
+        opacity: 0.84;
+      }
+
+      figure {
+        margin: 1rem 0 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      figure a {
+        display: block;
+      }
+
+      figcaption {
+        padding: 0.78rem 0.9rem 0.9rem;
+        color: var(--muted);
+        background: var(--card);
+        font-size: 0.78rem;
+        line-height: 1.4;
+      }
+
+      figcaption strong {
+        color: var(--ink);
+      }
+
+      .comparison {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .metric-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0.5rem;
+        align-items: baseline;
+        margin-top: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.79rem;
+      }
+
+      .metric-row strong {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric-row .bad {
+        color: var(--warn);
+      }
+
+      .metric-row .good {
+        color: var(--good);
+      }
+
+      .video-card {
+        margin-top: 1rem;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: #171a19;
+        box-shadow: var(--shadow);
+      }
+
+      .video-copy {
+        padding: 0.8rem 0.9rem 0.95rem;
+        color: #e9efed;
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+
+      .video-copy strong {
+        color: #fff;
+      }
+
+      .video-copy a {
+        color: #b8ded8;
+      }
+
+      .factor-list {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+
+      .factor {
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 0.9rem;
+        background: var(--card);
+      }
+
+      .factor p {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.75rem;
+      }
+
+      .chip {
+        padding: 0.38rem 0.58rem;
+        border: 1px solid var(--line);
+        border-radius: 0.55rem;
+        background: #f3efe6;
+        font-size: 0.73rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mechanism-gallery {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .timeline {
+        position: relative;
+        display: grid;
+        gap: 0.75rem;
+        margin: 1.2rem 0 0;
+        padding-left: 1.4rem;
+      }
+
+      .timeline::before {
+        position: absolute;
+        top: 0.3rem;
+        bottom: 0.3rem;
+        left: 0.38rem;
+        width: 2px;
+        content: "";
+        background: var(--line);
+      }
+
+      .event {
+        position: relative;
+        padding: 0.85rem 0.95rem;
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        background: var(--card);
+      }
+
+      .event::before {
+        position: absolute;
+        top: 1.05rem;
+        left: -1.34rem;
+        width: 0.68rem;
+        height: 0.68rem;
+        border: 3px solid var(--paper);
+        border-radius: 50%;
+        content: "";
+        background: var(--muscle);
+      }
+
+      .event strong {
+        display: block;
+        color: var(--teal-dark);
+      }
+
+      .event span {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .caveat {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid #e1b991;
+        border-radius: 0.9rem;
+        background: #fff3e3;
+        color: #663b20;
+        font-size: 0.9rem;
+      }
+
+      details {
+        margin-top: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      summary {
+        padding: 1rem;
+        cursor: pointer;
+        font-weight: 750;
+        list-style-position: inside;
+      }
+
+      .details-body {
+        padding: 0 1rem 1rem;
+        border-top: 1px solid var(--line);
+      }
+
+      .gallery {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .gallery figure {
+        margin-top: 0.85rem;
+        box-shadow: none;
+      }
+
+      .case-label {
+        display: inline-block;
+        margin-bottom: 0.25rem;
+        color: var(--teal-dark);
+        font-weight: 800;
+      }
+
+      .source-links {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .source-links a {
+        display: block;
+        padding: 0.72rem 0.8rem;
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        background: var(--card);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .footer {
+        margin-top: 3.5rem;
+        padding: 1.3rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.74rem;
+      }
+
+      .footer strong {
+        color: var(--ink);
+      }
+
+      @media (min-width: 700px) {
+        main {
+          padding-inline: 2rem;
+        }
+
+        .hero {
+          padding-inline: 2.5rem;
+        }
+
+        .stats {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .comparison,
+        .gallery,
+        .factor-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .mechanism {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .mechanism-gallery {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">Inverse physics research brief · mobile edition</p>
+        <h1>Why inverse physics gets bumpy</h1>
+        <p class="lede">
+          Unbounded, independent activation can fit the observed surface while
+          folding the unobserved muscle. The 2D study establishes that route;
+          the 3D face history shows the same route occurred there too.
+        </p>
+        <p class="hero-meta">
+          2D controlled experiments + 3D face-section audit · exact-state
+          animations at 30 FPS · 2 September 2026
+        </p>
+      </header>
+
+      <nav class="nav" aria-label="Report sections">
+        <a href="#answer">Answer</a>
+        <a href="#pork">2D pork</a>
+        <a href="#factors">Factors</a>
+        <a href="#down">Push down</a>
+        <a href="#face">3D face</a>
+        <a href="#gallery">All shapes</a>
+        <a href="#limits">Limits</a>
+      </nav>
+
+      <main>
+        <section class="section" id="answer">
+          <p class="eyebrow" style="color: var(--teal)">Question answered</p>
+          <h2>Same mechanism, not a single-cause verdict</h2>
+          <div class="answer">
+            Yes—the bumpy no-skin face contains the same double-inversion route
+            seen in the curly 2D muscle. No—the evidence does not show that this
+            route alone caused every visible facial bump.
+          </div>
+
+          <div class="stats" aria-label="Experiment summary">
+            <div class="stat">
+              <strong>16/16</strong>
+              <span>2D folding-factor cases completed</span>
+            </div>
+            <div class="stat">
+              <strong>21,875</strong>
+              <span>exact 2D optimization states recorded</span>
+            </div>
+            <div class="stat">
+              <strong>0</strong>
+              <span>accepted forward, inverse, or adjoint failures</span>
+            </div>
+            <div class="stat">
+              <strong>201</strong>
+              <span>saved face-section steps inspected</span>
+            </div>
+          </div>
+
+          <figure>
+            <a href="assets/face-bumpy.png" target="_blank">
+              <img
+                src="assets/face-bumpy.png"
+                alt="Historical no-skin face endpoint with strong bumpy folds around the cheeks and mouth"
+                fetchpriority="high"
+              />
+            </a>
+            <figcaption>
+              <strong>The motivating endpoint.</strong> Historical no-skin face
+              result, shown literally without deformation exaggeration. Tap any
+              figure for its full-resolution image.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="pork">
+          <p class="eyebrow" style="color: var(--teal)">
+            Controlled 2D evidence
+          </p>
+          <h2>Why the muscle layer curls</h2>
+          <p class="section-intro">
+            The loss observes the free top boundary. Interior geometry is not
+            observed. Giving every active triangle its own unbounded 3-DoF
+            activation lets the optimizer create locally incompatible maps that
+            improve the top fit while folding the muscle underneath.
+          </p>
+
+          <div class="model-strip" aria-label="Model choices">
+            <span class="pill muscle">muscle + fat only</span>
+            <span class="pill">bottom and sides fixed</span>
+            <span class="pill">top and interior free</span>
+            <span class="pill neutral">no skin</span>
+            <span class="pill neutral">no activation bounds</span>
+            <span class="pill neutral">no inversion barrier</span>
+            <span class="pill neutral">no contact or repair</span>
+          </div>
+
+          <div class="card">
+            <h3>Two flips can hide inside one elastic determinant</h3>
+            <p>
+              For an active element,
+              <strong>det G = det F × det A⁻¹</strong>. A physical flip and an
+              activation-map flip can multiply back to a positive elastic
+              determinant. The Stable Neo-Hookean term therefore has no built-in
+              reason to reject every visibly folded state.
+            </p>
+            <div class="mechanism" aria-label="Double inversion mechanism">
+              <div class="mechanism-step">
+                <code>det F &lt; 0</code>
+                <span>physical element flips</span>
+              </div>
+              <div class="mechanism-step">
+                <code>det A⁻¹ &lt; 0</code>
+                <span>activation map flips too</span>
+              </div>
+              <div class="mechanism-step">
+                <code>det G &gt; 0</code>
+                <span>the product becomes positive again</span>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 2rem">
+            The cleanest contrast: local vs shared activation
+          </h3>
+          <p class="section-intro">
+            These two cases use the same short 0.1 × 0.1 domain, middle muscle
+            band, ν=.35, target, material, mesh, and inverse protocol. Only the
+            activation sharing changes.
+          </p>
+
+          <div class="comparison">
+            <div>
+              <figure>
+                <a href="assets/pork-per-cell.png" target="_blank">
+                  <img
+                    src="assets/pork-per-cell.png"
+                    alt="Severely folded short pork model with independent activation per muscle triangle"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+                <figcaption>
+                  <strong>Independent per triangle.</strong> The top fits well,
+                  but the middle muscle folds through itself. Endpoint is
+                  horizon-limited, not certified stationary.
+                </figcaption>
+              </figure>
+              <div class="metric-row" aria-label="Per-cell metrics">
+                <span>fit RMS · arc ratio · inverted area</span>
+                <strong class="bad">.000957 · 2.919×</strong>
+                <strong class="bad">11.5%</strong>
+              </div>
+            </div>
+
+            <div>
+              <figure>
+                <a href="assets/pork-shared.png" target="_blank">
+                  <img
+                    src="assets/pork-shared.png"
+                    alt="Smooth short pork model with one activation shared by all muscle triangles"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+                <figcaption>
+                  <strong>One shared activation.</strong> The layer stays
+                  coherent and finishes orientation-positive, at the cost of a
+                  visibly worse target fit.
+                </figcaption>
+              </figure>
+              <div class="metric-row" aria-label="Shared metrics">
+                <span>fit RMS · arc ratio · inverted area</span>
+                <strong class="good">.01642 · 1.019×</strong>
+                <strong class="good">0%</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="comparison">
+            <div class="video-card">
+              <video
+                controls
+                playsinline
+                preload="metadata"
+                poster="assets/pork-per-cell.png"
+              >
+                <source src="assets/pork-per-cell.mp4" type="video/mp4" />
+              </video>
+              <div class="video-copy">
+                <strong>Independent activation · exact progress</strong><br />
+                One frame per recorded inverse state, played at 30 FPS.
+                <a href="assets/pork-per-cell.mp4">Open video</a>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <video
+                controls
+                playsinline
+                preload="metadata"
+                poster="assets/pork-shared.png"
+              >
+                <source src="assets/pork-shared.mp4" type="video/mp4" />
+              </video>
+              <div class="video-copy">
+                <strong>Shared activation · exact progress</strong><br />
+                The same 30 FPS receipt with a single shared control.
+                <a href="assets/pork-shared.mp4">Open video</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="factors">
+          <p class="eyebrow" style="color: var(--teal)">Factor study</p>
+          <h2>What changes the bumpiness?</h2>
+          <p class="section-intro">
+            Target height has the clearest matched trend. Loss, mesh, material
+            model, length, muscle extent, sharing, and Poisson ratio all change
+            the result, but none by itself is a universal cure.
+          </p>
+
+          <div class="factor-list">
+            <article class="factor">
+              <h3>Target height</h3>
+              <p>
+                The lower upward parabola is much smoother and ends
+                orientation-positive. Doubling the height makes folding far more
+                severe. None of the three height endpoints passed the
+                practical-stationarity gate.
+              </p>
+              <div class="chips">
+                <span class="chip">h=.025 · detF +.479</span>
+                <span class="chip">h=.050 · detF −11.04</span>
+                <span class="chip">h=.100 · detF −45.33</span>
+              </div>
+            </article>
+
+            <article class="factor">
+              <h3>Loss</h3>
+              <p>
+                L1 finishes smoother than the L2 baseline; L∞ finishes rougher.
+                L1 and L∞ still end inverted and nonstationary, so a norm change
+                does not remove the mechanism.
+              </p>
+              <div class="chips">
+                <span class="chip">L1 roughness .000692</span>
+                <span class="chip">L2 roughness .001202</span>
+                <span class="chip">L∞ roughness .001625</span>
+              </div>
+            </article>
+
+            <article class="factor">
+              <h3>Mesh resolution</h3>
+              <p>
+                The 50×5 case is smooth and stationary. The 200×20 case runs the
+                full Adam + L-BFGS protocol, has zero solver failures, yet
+                remains nonstationary and inverted. More cells also mean more
+                independent controls and harder conditioning.
+              </p>
+              <div class="chips">
+                <span class="chip">50×5 · detF +.640</span>
+                <span class="chip">100×10 · detF −11.04</span>
+                <span class="chip">200×20 · detF −21.45</span>
+              </div>
+            </article>
+
+            <article class="factor">
+              <h3>Elasticity</h3>
+              <p>
+                Linear elasticity is smooth and stationary in this matched run;
+                Stable Neo-Hookean is not. Linear elasticity still crosses a
+                negative determinant during its trajectory, so this is not a
+                physical guarantee.
+              </p>
+              <div class="chips">
+                <span class="chip">linear · detF +.009</span>
+                <span class="chip">Stable NH · detF −11.04</span>
+                <span class="chip">ν fixed at .49</span>
+              </div>
+            </article>
+
+            <article class="factor">
+              <h3>Length and muscle extent</h3>
+              <p>
+                A short 0.1 × 0.1 body is not automatically safer: keeping h=.05
+                makes its target 10× steeper and 100× more curved than the 1 ×
+                0.1 target. Full-muscle cases are smoother on average, but a
+                stationary full/per-cell case still ends inverted.
+              </p>
+            </article>
+
+            <article class="factor">
+              <h3>Poisson ratio</h3>
+              <p>
+                ν=.35 and ν=.49 change fold incidence, area, and local severity
+                in different directions. Compressibility changes the symptom; it
+                does not remove the unconstrained local activation route.
+              </p>
+            </article>
+          </div>
+
+          <figure>
+            <a href="assets/fit-vs-activation-jump.png" target="_blank">
+              <img
+                src="assets/fit-vs-activation-jump.png"
+                alt="Scatter plot comparing final target fit, activation discontinuity, and inverted area across 2D cases"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>A useful diagnostic.</strong> The worst local activation
+              discontinuity is also the severe folded short-band/per-cell case.
+              Association does not by itself establish a general causal law.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="down">
+          <p class="eyebrow" style="color: var(--teal)">Direction check</p>
+          <h2>What if the target is pushed down?</h2>
+          <div class="answer" style="border-left-color: var(--teal)">
+            Downward motion is not the upward result with its sign reversed. The
+            fixed-boundary nonlinear problem selects a different branch.
+          </div>
+          <p class="section-intro">
+            The downward case reaches only 38.5% of the requested center
+            displacement and has about 12.9× the upward target RMS. It
+            transiently inverts from steps 29–105, then finishes
+            orientation-positive with min detF=.0729. Both endpoints are
+            horizon-limited.
+          </p>
+
+          <div class="comparison">
+            <figure>
+              <a href="assets/ofat-finals/baseline.png" target="_blank">
+                <img
+                  src="assets/ofat-finals/baseline.png"
+                  alt="Final 2D pork shape for the upward parabola target"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>Target up, h=+.05.</strong> Reaches 101.3% of the
+                requested center displacement; final min detF −11.04.
+              </figcaption>
+            </figure>
+            <figure>
+              <a href="assets/height-down.png" target="_blank">
+                <img
+                  src="assets/height-down.png"
+                  alt="Final 2D pork shape for the downward parabola target"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>Target down, h=−.05.</strong> Reaches 38.5% of the
+                requested center displacement; final min detF +.0729.
+              </figcaption>
+            </figure>
+          </div>
+          <p style="color: var(--muted); font-size: 0.82rem">
+            Same model, initialization, mesh, loss, and inverse protocol.
+            <a href="assets/target-up-vs-down.png" target="_blank"
+              >Open the full matched comparison.</a
+            >
+          </p>
+
+          <div class="video-card">
+            <video
+              controls
+              playsinline
+              preload="metadata"
+              poster="assets/height-down.png"
+            >
+              <source src="assets/pork-down.mp4" type="video/mp4" />
+            </video>
+            <div class="video-copy">
+              <strong>Downward target · exact progress</strong><br />
+              1,211 recorded states, one per frame at 30 FPS (40.37 s).
+              <a href="assets/pork-down.mp4">Open video</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="face">
+          <p class="eyebrow" style="color: var(--teal)">3D face receipt</p>
+          <h2>The same route appears in facial muscle</h2>
+          <p class="section-intro">
+            A fixed 31-tetrahedron slab was tracked through all 201 saved steps
+            of Zygomaticus major muscle id64 in the visibly bumpy no-skin run.
+            No constraint, repair, or rerun was added.
+          </p>
+
+          <div class="timeline" aria-label="Face section determinant timeline">
+            <div class="event">
+              <strong>Step 91 · activation inversion begins</strong>
+              <span
+                >det A⁻¹ becomes negative; det G is temporarily negative.</span
+              >
+            </div>
+            <div class="event">
+              <strong>Step 105 · physical flip follows</strong>
+              <span>
+                det F becomes negative; the double-inverted state persists
+                through step 200 while det G returns positive.
+              </span>
+            </div>
+            <div class="event">
+              <strong>Step 194 · best saved checkpoint</strong>
+              <span>
+                min detF −1.2733 · min detA⁻¹ −.4088 · min detG +.4245 · one
+                double-inverted tetrahedron.
+              </span>
+            </div>
+          </div>
+
+          <div class="mechanism-gallery">
+            <figure>
+              <a href="assets/face-mechanism-detf.png" target="_blank">
+                <img
+                  src="assets/face-mechanism-detf.png"
+                  alt="Deformed face muscle section colored by physical deformation determinant detF"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>detF.</strong> Physical deformation; min −1.2733.
+              </figcaption>
+            </figure>
+            <figure>
+              <a href="assets/face-mechanism-detainv.png" target="_blank">
+                <img
+                  src="assets/face-mechanism-detainv.png"
+                  alt="Deformed face muscle section colored by activation map determinant detAinv"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>detA⁻¹.</strong> Activation map; min −.4088.
+              </figcaption>
+            </figure>
+            <figure>
+              <a href="assets/face-mechanism-detg.png" target="_blank">
+                <img
+                  src="assets/face-mechanism-detg.png"
+                  alt="Deformed face muscle section colored by elastic determinant detG"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>detG.</strong> Elastic product; min +.4245.
+              </figcaption>
+            </figure>
+          </div>
+          <p style="color: var(--muted); font-size: 0.82rem">
+            Step 194, literal geometry. Tap any panel to zoom, or
+            <a href="assets/face-mechanism.png" target="_blank"
+              >open the full three-panel figure.</a
+            >
+          </p>
+
+          <div class="video-card">
+            <video controls playsinline preload="metadata">
+              <source src="assets/face-evolution.mp4" type="video/mp4" />
+            </video>
+            <div class="video-copy">
+              <strong>Face muscle section · exact 201-step receipt</strong
+              ><br />
+              30 FPS, 6.7 s. On iPhone, use full screen and landscape
+              orientation for the three determinant panels.
+              <a href="assets/face-evolution.mp4">Open video</a>
+            </div>
+          </div>
+
+          <figure>
+            <a href="assets/face-context.png" target="_blank">
+              <img
+                src="assets/face-context.png"
+                alt="Transparent rest face locator showing Zygomaticus major muscle id64 in red"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Where the section came from.</strong> Zygomaticus major
+              id64 is highlighted in red inside the rest/global face.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="gallery">
+          <p class="eyebrow" style="color: var(--teal)">
+            Complete visual record
+          </p>
+          <h2>All 2D final shapes</h2>
+          <p class="section-intro">
+            The galleries below show literal final geometry with no vertical
+            exaggeration. They are collapsed for a faster initial phone read;
+            open either set and tap any case to zoom.
+          </p>
+
+          <details>
+            <summary>8 one-factor-at-a-time final shapes</summary>
+            <div class="details-body">
+              <div class="gallery">
+                <figure>
+                  <a href="assets/ofat-finals/baseline.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/baseline.png"
+                      alt="Baseline 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">Baseline · Stable NH · L2</span
+                    ><br />RMS .001559 · final detF −11.04 · nonstationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/height-low.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/height-low.png"
+                      alt="Low target height 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">Low target · h=.025</span><br />RMS
+                    .000280 · final detF +.479 · nonstationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/height-high.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/height-high.png"
+                      alt="High target height 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">High target · h=.100</span
+                    ><br />RMS .004714 · final detF −45.33 · nonstationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/loss-l1.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/loss-l1.png"
+                      alt="L1 loss 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">L1 loss</span><br />RMS .000871 ·
+                    final detF −13.81 · nonstationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/loss-linf.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/loss-linf.png"
+                      alt="L infinity loss 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">L∞ loss</span><br />RMS .002763 ·
+                    final detF −12.01 · nonstationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/mesh-medium.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/mesh-medium.png"
+                      alt="50 by 5 mesh 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">50×5 mesh</span><br />RMS .000147 ·
+                    final detF +.640 · stationary
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a href="assets/ofat-finals/mesh-dense.png" target="_blank">
+                    <img
+                      src="assets/ofat-finals/mesh-dense.png"
+                      alt="200 by 20 mesh 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">200×20 mesh</span><br />RMS .000783
+                    · final detF −21.45 · nonstationary after full protocol
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/ofat-finals/energy-linear.png"
+                    target="_blank"
+                  >
+                    <img
+                      src="assets/ofat-finals/energy-linear.png"
+                      alt="Linear elasticity 2D final shape"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <figcaption>
+                    <span class="case-label">Linear elasticity</span><br />RMS
+                    .000147 · final detF +.009 · stationary
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          </details>
+
+          <details>
+            <summary>16 folding-factor final shapes</summary>
+            <div class="details-body">
+              <p style="color: var(--muted); font-size: 0.85rem">
+                Case names encode length (l010=.1, l100=1), muscle extent,
+                activation sharing, and ν. “Gate FAIL” means the retained
+                endpoint is horizon-limited—not that its forward solve failed.
+              </p>
+              <div class="gallery">
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-band-per_cell-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-band-per_cell-nu35.png"
+                      alt="Length 0.1 band per-cell nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label"
+                      >l=.1 · band · per-cell · ν=.35</span
+                    ><br />Horizon-limited · final inverted area 11.5%
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-band-per_cell-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-band-per_cell-nu49.png"
+                      alt="Length 0.1 band per-cell nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label"
+                      >l=.1 · band · per-cell · ν=.49</span
+                    ><br />Horizon-limited · final inverted area .5%
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-band-shared-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-band-shared-nu35.png"
+                      alt="Length 0.1 band shared nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=.1 · band · shared · ν=.35</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-band-shared-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-band-shared-nu49.png"
+                      alt="Length 0.1 band shared nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=.1 · band · shared · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-full-per_cell-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-full-per_cell-nu35.png"
+                      alt="Length 0.1 full muscle per-cell nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label"
+                      >l=.1 · full · per-cell · ν=.35</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-full-per_cell-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-full-per_cell-nu49.png"
+                      alt="Length 0.1 full muscle per-cell nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label"
+                      >l=.1 · full · per-cell · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-full-shared-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-full-shared-nu35.png"
+                      alt="Length 0.1 full muscle shared nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=.1 · full · shared · ν=.35</span
+                    ><br />Stationary · transient inversion only
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l010-full-shared-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l010-full-shared-nu49.png"
+                      alt="Length 0.1 full muscle shared nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=.1 · full · shared · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-band-per_cell-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-band-per_cell-nu35.png"
+                      alt="Length 1 band per-cell nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · band · per-cell · ν=.35</span
+                    ><br />Stationary · final inverted area 2.4%
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-band-per_cell-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-band-per_cell-nu49.png"
+                      alt="Length 1 band per-cell nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · band · per-cell · ν=.49</span
+                    ><br />Horizon-limited · final inverted area .7%
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-band-shared-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-band-shared-nu35.png"
+                      alt="Length 1 band shared nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · band · shared · ν=.35</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-band-shared-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-band-shared-nu49.png"
+                      alt="Length 1 band shared nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · band · shared · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-full-per_cell-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-full-per_cell-nu35.png"
+                      alt="Length 1 full muscle per-cell nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · full · per-cell · ν=.35</span
+                    ><br />Stationary · final inverted area .1%
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-full-per_cell-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-full-per_cell-nu49.png"
+                      alt="Length 1 full muscle per-cell nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · full · per-cell · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-full-shared-nu35.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-full-shared-nu35.png"
+                      alt="Length 1 full muscle shared nu 0.35 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · full · shared · ν=.35</span
+                    ><br />Stationary · transient inversion only
+                  </figcaption>
+                </figure>
+                <figure>
+                  <a
+                    href="assets/folding-finals/l100-full-shared-nu49.png"
+                    target="_blank"
+                    ><img
+                      src="assets/folding-finals/l100-full-shared-nu49.png"
+                      alt="Length 1 full muscle shared nu 0.49 final shape"
+                      loading="lazy"
+                      decoding="async"
+                  /></a>
+                  <figcaption>
+                    <span class="case-label">l=1 · full · shared · ν=.49</span
+                    ><br />Stationary · no final inversion
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="section" id="limits">
+          <p class="eyebrow" style="color: var(--teal)">Interpretation</p>
+          <h2>What the evidence does—and does not—say</h2>
+
+          <div class="card">
+            <h3>Supported</h3>
+            <p>
+              Independent, unbounded activation provides a concrete route to
+              folded muscle and rough visible geometry. Shared activation and
+              full-muscle controls usually improve coherence, with a fit
+              tradeoff. The same double-inversion sequence occurred in the
+              historical bumpy face muscle section.
+            </p>
+          </div>
+
+          <div class="caveat">
+            <strong>Not established:</strong> inversion count is not monotone
+            with visible bumpiness. The historically smoother skin + tightening
+            comparator actually has more active-muscle flipped cells (974 vs
+            110) and more zygomaticus double inversions (24 vs 4). Skin,
+            prestrain, force transmission, fold location, branch selection, and
+            optimizer history can all change what reaches the surface.
+          </div>
+
+          <figure>
+            <a href="assets/face-smoother.png" target="_blank">
+              <img
+                src="assets/face-smoother.png"
+                alt="Historical smoother face endpoint with skin and tightening"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Historical smoother context.</strong> Useful as a visual
+              comparator, not a controlled causal counterfactual.
+            </figcaption>
+          </figure>
+
+          <div class="comparison">
+            <figure>
+              <a href="assets/face-section-bumpy.png" target="_blank">
+                <img
+                  src="assets/face-section-bumpy.png"
+                  alt="Muscle section from the bumpy no-skin face checkpoint"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>Bumpy primary.</strong> No-skin lr3 checkpoint.
+              </figcaption>
+            </figure>
+            <figure>
+              <a href="assets/face-section-smoother.png" target="_blank">
+                <img
+                  src="assets/face-section-smoother.png"
+                  alt="Matched muscle section from the historically smoother face checkpoint"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <figcaption>
+                <strong>Historically smoother context.</strong> Not causal
+                proof.
+              </figcaption>
+            </figure>
+          </div>
+          <p style="color: var(--muted); font-size: 0.82rem">
+            Both saved best checkpoints contain a double-inverted tetrahedron;
+            the source inverse runs were not converged.
+            <a href="assets/face-section-comparison.png" target="_blank"
+              >Open the full matched figure.</a
+            >
+          </p>
+
+          <div class="answer" style="margin-top: 1.5rem">
+            Takeaway: the optimizer can fit what we observe while folding what
+            we do not. The 2D model demonstrates the mechanism under controlled
+            changes; the face history confirms its presence, not exclusivity.
+          </div>
+
+          <h3 style="margin-top: 2rem">Full research records</h3>
+          <ul class="source-links">
+            <li>
+              <a href="records/2d-ofat-report.md"
+                >2D target, loss, mesh, and elasticity study</a
+              >
+            </li>
+            <li>
+              <a href="records/2d-target-direction-report.md"
+                >2D upward versus downward target study</a
+              >
+            </li>
+            <li>
+              <a href="records/2d-folding-factorial-report.md"
+                >Complete 2⁴ folding-factor study</a
+              >
+            </li>
+            <li>
+              <a href="records/3d-face-section-report.md"
+                >3D human-face muscle-section receipt</a
+              >
+            </li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <strong>Reading contract.</strong> “Stationary” is the stated local
+        practical gate, not a global-optimum or reachability certificate.
+        “Horizon-limited” means the declared optimizer protocol did not
+        establish that gate. “Unreachable Target” is a benchmark name, not a
+        proof of mathematical infeasibility. No activation bounds, determinant
+        constraints, inversion repair, skin energy, or hidden failed trials were
+        added to make these figures look cleaner.
+      </footer>
+    </div>
+  </body>
+</html>

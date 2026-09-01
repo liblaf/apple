@@ -1,0 +1,2254 @@
+{
+  "accepted_forward_failure_case_count": 0,
+  "all_final_shapes_contact_sheet": {
+    "geometry_axis_groups": [
+      {
+        "accepted_forward_failure_case_count": 0,
+        "case_count": 8,
+        "equal_aspect": true,
+        "failure_case_count": 0,
+        "geometry": "long",
+        "no_vertical_exaggeration": true,
+        "practical_stationarity_gate_pass_count": 7,
+        "refinement_trial_forward_failure_case_count": 0,
+        "shared_axes": {
+          "x": [
+            -0.03,
+            1.03
+          ],
+          "y": [
+            -0.012088325909603955,
+            0.16319239977965339
+          ]
+        }
+      },
+      {
+        "accepted_forward_failure_case_count": 0,
+        "case_count": 8,
+        "equal_aspect": true,
+        "failure_case_count": 0,
+        "geometry": "short",
+        "no_vertical_exaggeration": true,
+        "practical_stationarity_gate_pass_count": 6,
+        "refinement_trial_forward_failure_case_count": 0,
+        "shared_axes": {
+          "x": [
+            -0.03822546976417963,
+            0.13371533421553394
+          ],
+          "y": [
+            -0.012027154087961036,
+            0.162366580187474
+          ]
+        }
+      }
+    ],
+    "height": 2000,
+    "mode": "RGBA",
+    "path": "data/90-folding-final-shapes/contact-sheets/all-16-final-shapes.png",
+    "semantics": "all 16 literal final states; each geometry has its own shared physical axes so short and long specimens remain legible",
+    "sha256": "88f24ba38738b18d177162ebb2704e9bfe0ab4ede07917f5b83d094195a996b4",
+    "width": 3200
+  },
+  "case_count": 16,
+  "cases": [
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-per_cell-nu35/final.vtu",
+        "sha256": "e43aea8667a0fef3ca0229ccf83e699c3dad612a2220ddde273cacbfe0657b1d"
+      },
+      "geometry": "long",
+      "name": "l100-band-per_cell-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-band-per_cell-nu35.png",
+        "sha256": "5f2e114cacad2e9fd69994f4db6161573da244eae9b901aefc5f18a53b7870cf",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-per_cell-nu35/summary.json",
+        "sha256": "6953ca744ebfba8d73f49d0eb6a7b5248fefd05072b1624e974dff677c256009"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-per_cell-nu49/final.vtu",
+        "sha256": "bbccfa4124607f9a949b625ad5c11551555c4b81ca31487ac9ad08c1bd98b2c0"
+      },
+      "geometry": "long",
+      "name": "l100-band-per_cell-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-band-per_cell-nu49.png",
+        "sha256": "c00c850e12856cb40d1422c58732a33fd764e80d895be723b6aa3864887d066a",
+        "width": 1200
+      },
+      "practical_stationarity_gate": false,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate FAIL \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-per_cell-nu49/summary.json",
+        "sha256": "66b0eb30d4b98a99a46ac5ffb8469099d6b469117d836423c71719f761829dab"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-shared-nu35/final.vtu",
+        "sha256": "7bcf3e9221a4501accaf7a54e4dd6751e3142f46658e6422ddad6eb2b814d07b"
+      },
+      "geometry": "long",
+      "name": "l100-band-shared-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-band-shared-nu35.png",
+        "sha256": "6d8da3f1b915270682f8a977fdbc8df92a17214758137ae2561b93bcf8e6f095",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-shared-nu35/summary.json",
+        "sha256": "9e504923e5ba9a40e95f51d65979036b7504745ca8afa6f137d020897819efd9"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-shared-nu49/final.vtu",
+        "sha256": "8dd0590f3de4acde57c92b81aad076dba8180a07f4c94d9eddfe5c779624ed37"
+      },
+      "geometry": "long",
+      "name": "l100-band-shared-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-band-shared-nu49.png",
+        "sha256": "9bddd0481c3a330a71d219e576a7fbacb3c8f8258b8b592f4e3695f4c0ac51d3",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-band-shared-nu49/summary.json",
+        "sha256": "473826203e3725fe2cd9fa63892a61324fcd516e1e3375cbee4f753200e4ee04"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-per_cell-nu35/final.vtu",
+        "sha256": "1d3eefdca4646ba0d83e5b05a45b9e6188526e592656cd9c7fdc4d0b198e85c2"
+      },
+      "geometry": "long",
+      "name": "l100-full-per_cell-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-full-per_cell-nu35.png",
+        "sha256": "e58f40856c5abbe457480c8b2104b170fe1ea8c132e2c9ef0c909d753771d3ae",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-per_cell-nu35/summary.json",
+        "sha256": "0cb2bdec16938142292ce8af17f77bed9d23e94f95f4c87a5e82868883489011"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-per_cell-nu49/final.vtu",
+        "sha256": "8297e3195cf86ddbd6ba878210a81e3223569c1d8a3e0c6c9f924d11f21eaee7"
+      },
+      "geometry": "long",
+      "name": "l100-full-per_cell-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-full-per_cell-nu49.png",
+        "sha256": "5715147a1105eb24369e71f9dbc2f90df3309b52989baff3b257bbdccb58e133",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-per_cell-nu49/summary.json",
+        "sha256": "5edbca4702ca85b1b82f9c997bca1c8cbefcbf9d52174247461f880fdd66e5b8"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-shared-nu35/final.vtu",
+        "sha256": "3c0c5d2643cb3da4c0d220b557de5f575ebcfa469c1e8a576fa4f0ae93ef7f2f"
+      },
+      "geometry": "long",
+      "name": "l100-full-shared-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-full-shared-nu35.png",
+        "sha256": "837fe2536077b1d1918bd2e45b0239fb5c77fbff4823320079bce6792dc00048",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-shared-nu35/summary.json",
+        "sha256": "826435dd3ea6fc5471eabee65536c5d8bfaa0f7efb792c31598a004199f9f33c"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-shared-nu49/final.vtu",
+        "sha256": "77d9811410c7cc5df79c81cf46cb38a0e1e535c8ca4341801bf9e0096ba5ca74"
+      },
+      "geometry": "long",
+      "name": "l100-full-shared-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l100-full-shared-nu49.png",
+        "sha256": "d38502d5f77eee6204c88f9272cfcb52236f3ed00bc40bae12d82685943d871c",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03,
+          1.03
+        ],
+        "y": [
+          -0.012088325909603955,
+          0.16319239977965339
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l100-full-shared-nu49/summary.json",
+        "sha256": "9d878623eaee87858abf463445a8d765bfa31e4ce2f942736d73444f02fc7e56"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-per_cell-nu35/final.vtu",
+        "sha256": "07c43835d702fa35427a07c2cd2df4aa2a49caff4749268a90837ce9454e93fd"
+      },
+      "geometry": "short",
+      "name": "l010-band-per_cell-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-band-per_cell-nu35.png",
+        "sha256": "ba0f3f8992d343557342536fe08af66f4f431263368455da440f1173fa0426db",
+        "width": 1200
+      },
+      "practical_stationarity_gate": false,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate FAIL \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-per_cell-nu35/summary.json",
+        "sha256": "d81c60515e8b98383979273ea210ecd5a5eb38318a54f9e85eb18c861d304baf"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-per_cell-nu49/final.vtu",
+        "sha256": "956e3fbf41c5dd3313d187017ec0ff57cae35185260cd0032cdfdb2982454234"
+      },
+      "geometry": "short",
+      "name": "l010-band-per_cell-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-band-per_cell-nu49.png",
+        "sha256": "a36c32529422a943a9fbb2a12801fcf57041eb06db84f8ce0ba1401c58d3dffc",
+        "width": 1200
+      },
+      "practical_stationarity_gate": false,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate FAIL \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-per_cell-nu49/summary.json",
+        "sha256": "e11fcbb11350ee91f0a64cfc42227aa5a55b6f84dc1fd3c54de91cff90b823b8"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-shared-nu35/final.vtu",
+        "sha256": "632cb48d7f825fde0096088ceeeb11577e0f83acc76394cec214c868089fdf89"
+      },
+      "geometry": "short",
+      "name": "l010-band-shared-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-band-shared-nu35.png",
+        "sha256": "6686e142ee2632e1da0618948a01f82012151c5eb19444141118dfe8c816de2b",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-shared-nu35/summary.json",
+        "sha256": "84c2b44fc221ef78aadcdf72aa16fb10592b88c3a8ce41e8e34890a6abd9f704"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-shared-nu49/final.vtu",
+        "sha256": "2f683ecc8f013fc96ccfb21fb5e51d43f1f921d777d520daecad67cbde392606"
+      },
+      "geometry": "short",
+      "name": "l010-band-shared-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-band-shared-nu49.png",
+        "sha256": "36f48e4b817c001a618c4f76c1a58a46b70882a9c88650f41a6c5f75191b9768",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-band-shared-nu49/summary.json",
+        "sha256": "7df87fb96dc7cf7484ac636be86477d62de4d064d89fa0e52bd39a1f1280cdfa"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-per_cell-nu35/final.vtu",
+        "sha256": "db976f9c7e37587d66d43c3247fe972119e05ed80574872c17e1da9baa10a843"
+      },
+      "geometry": "short",
+      "name": "l010-full-per_cell-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-full-per_cell-nu35.png",
+        "sha256": "4d608bf1582fa3ba08eaf20dfac4277c1edf0c5bc74846398f1b01724b3c3ec6",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-per_cell-nu35/summary.json",
+        "sha256": "7a37583abfb891773de1b3cdedd2970d24b399d481f9bebbe9eb762b9783eb92"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-per_cell-nu49/final.vtu",
+        "sha256": "3ddaa24fa2782f9817f32f6b22270686267a198b1dc4765f51bcb4bc66093726"
+      },
+      "geometry": "short",
+      "name": "l010-full-per_cell-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-full-per_cell-nu49.png",
+        "sha256": "757aa1263735f635057383c4b1f99d14b4126b04abf963cd9b768883b4a536b9",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-per_cell-nu49/summary.json",
+        "sha256": "20a5f89533d7199c5b4b043aea929a754f148d88d1e13212f09c2be4c0e0e51a"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-shared-nu35/final.vtu",
+        "sha256": "531fc5940c4c482c4324343ebd07f7a5c3392a2f74264ecbeebb5a34d3883d9a"
+      },
+      "geometry": "short",
+      "name": "l010-full-shared-nu35",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-full-shared-nu35.png",
+        "sha256": "a624c9f5cd7cf3f7b09d383e6dfcd86f21fc972208f16181390a97b368753e4b",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-shared-nu35/summary.json",
+        "sha256": "40ec3455543a3bcbd84c5a2ea160a25d7fc7eef95feffc5b4575bf6ee96abf17"
+      },
+      "trial_forward_failure_count": 0
+    },
+    {
+      "accepted_forward_failure_count": 0,
+      "failure_count": 0,
+      "failure_counts": {
+        "adjoint": 0,
+        "forward": 0,
+        "inverse": 0,
+        "nonfinite": 0,
+        "refinement_trial_forward": 0
+      },
+      "final_vtu": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-shared-nu49/final.vtu",
+        "sha256": "745f137f45d627eb7a81974985269570236fb85d748a85a1fc3f401de84467dc"
+      },
+      "geometry": "short",
+      "name": "l010-full-shared-nu49",
+      "no_vertical_exaggeration": true,
+      "png": {
+        "height": 560,
+        "mode": "RGBA",
+        "path": "data/90-folding-final-shapes/finals/l010-full-shared-nu49.png",
+        "sha256": "c331cc74d34da41ab121cb9a59ec42a0e5559f4304efce0d78b17dc77327fda5",
+        "width": 1200
+      },
+      "practical_stationarity_gate": true,
+      "shared_axes": {
+        "x": [
+          -0.03822546976417963,
+          0.13371533421553394
+        ],
+        "y": [
+          -0.012027154087961036,
+          0.162366580187474
+        ]
+      },
+      "status_label": "gate OK \u00b7 fwd=0 trial=0",
+      "summary": {
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/60-pork-folding-2d/l010-full-shared-nu49/summary.json",
+        "sha256": "44074aeba8fc2496c2ca62e23231912430b2c768e3e3dd9ee7c06976233b51c7"
+      },
+      "trial_forward_failure_count": 0
+    }
+  ],
+  "factor_pair_sheet_count": 4,
+  "factor_pair_sheets": [
+    {
+      "axis_sharing": "physical axes are shared within each matched pair",
+      "factor": "geometry",
+      "height": 1600,
+      "matched_pair_axes": [
+        {
+          "case_names": [
+            "l100-band-per_cell-nu35",
+            "l010-band-per_cell-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu35",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.06435999721279073,
+              1.0310007766178482
+            ],
+            "y": [
+              -0.012027154087961036,
+              0.162366580187474
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-per_cell-nu49",
+            "l010-band-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012088325909603955,
+              0.16319239977965339
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-shared-nu35",
+            "l010-band-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-shared-nu49",
+            "l010-band-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-per_cell-nu35",
+            "l010-full-per_cell-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000207525365,
+              0.16200000280159244
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-per_cell-nu49",
+            "l010-full-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000010301364994,
+              0.16200013906842742
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-shared-nu35",
+            "l010-full-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-shared-nu49",
+            "l010-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        }
+      ],
+      "mode": "RGBA",
+      "no_vertical_exaggeration": true,
+      "path": "data/90-folding-final-shapes/factor-pairs/geometry-pairs.png",
+      "sha256": "c28d2e1d2f57fb6e405843d76cf8a7d5adf121a3f7a18c58b2109fa08695a924",
+      "width": 3000
+    },
+    {
+      "axis_sharing": "physical axes are shared within each matched pair",
+      "factor": "muscle_extent",
+      "height": 1600,
+      "matched_pair_axes": [
+        {
+          "case_names": [
+            "l100-band-per_cell-nu35",
+            "l100-full-per_cell-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000721302868647,
+              0.16200973758872672
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-per_cell-nu49",
+            "l100-full-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012088325909603955,
+              0.16319239977965339
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-shared-nu35",
+            "l100-full-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-shared-nu49",
+            "l100-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-per_cell-nu35",
+            "l010-full-per_cell-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu35",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03822546976417963,
+              0.13371533421553394
+            ],
+            "y": [
+              -0.012027154087961036,
+              0.162366580187474
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-per_cell-nu49",
+            "l010-full-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003236449471776915,
+              0.11111809853100742
+            ],
+            "y": [
+              -0.012000000001028814,
+              0.162000000013889
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-shared-nu35",
+            "l010-full-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-shared-nu49",
+            "l010-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        }
+      ],
+      "mode": "RGBA",
+      "no_vertical_exaggeration": true,
+      "path": "data/90-folding-final-shapes/factor-pairs/muscle_extent-pairs.png",
+      "sha256": "889e8cf4feabbd03724534aa4b8eca34afabe79ec52961dde4d7c46c1c02e1a5",
+      "width": 3000
+    },
+    {
+      "axis_sharing": "physical axes are shared within each matched pair",
+      "factor": "activation_sharing",
+      "height": 1600,
+      "matched_pair_axes": [
+        {
+          "case_names": [
+            "l100-band-per_cell-nu35",
+            "l100-band-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000721302868647,
+              0.16200973758872672
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-per_cell-nu49",
+            "l100-band-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012088325909603955,
+              0.16319239977965339
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-per_cell-nu35",
+            "l100-full-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000207525365,
+              0.16200000280159244
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-per_cell-nu49",
+            "l100-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000010301364994,
+              0.16200013906842742
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-per_cell-nu35",
+            "l010-band-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu35",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03822546976417963,
+              0.13371533421553394
+            ],
+            "y": [
+              -0.012027154087961036,
+              0.162366580187474
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-per_cell-nu49",
+            "l010-band-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003236449471776915,
+              0.11111809853100742
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-full-per_cell-nu35",
+            "l010-full-shared-nu35"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-full-per_cell-nu49",
+            "l010-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000001028814,
+              0.162000000013889
+            ]
+          }
+        }
+      ],
+      "mode": "RGBA",
+      "no_vertical_exaggeration": true,
+      "path": "data/90-folding-final-shapes/factor-pairs/activation_sharing-pairs.png",
+      "sha256": "3717ca5349b41c94348493424ef309a29092fa25f80ab8bf3e57679ec35bedfe",
+      "width": 3000
+    },
+    {
+      "axis_sharing": "physical axes are shared within each matched pair",
+      "factor": "poisson",
+      "height": 1600,
+      "matched_pair_axes": [
+        {
+          "case_names": [
+            "l100-band-per_cell-nu35",
+            "l100-band-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012088325909603955,
+              0.16319239977965339
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-band-shared-nu35",
+            "l100-band-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-per_cell-nu35",
+            "l100-full-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000010301364994,
+              0.16200013906842742
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l100-full-shared-nu35",
+            "l100-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l100-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03,
+              1.03
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-per_cell-nu35",
+            "l010-band-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu35",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-per_cell-nu49",
+              "practical_stationarity_gate": false,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.03822546976417963,
+              0.13371533421553394
+            ],
+            "y": [
+              -0.012027154087961036,
+              0.162366580187474
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-band-shared-nu35",
+            "l010-band-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-band-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-full-per_cell-nu35",
+            "l010-full-per_cell-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-per_cell-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000001028814,
+              0.162000000013889
+            ]
+          }
+        },
+        {
+          "case_names": [
+            "l010-full-shared-nu35",
+            "l010-full-shared-nu49"
+          ],
+          "case_statuses": [
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu35",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            },
+            {
+              "accepted_forward_failure_count": 0,
+              "failure_counts": {
+                "adjoint": 0,
+                "forward": 0,
+                "inverse": 0,
+                "nonfinite": 0,
+                "refinement_trial_forward": 0
+              },
+              "name": "l010-full-shared-nu49",
+              "practical_stationarity_gate": true,
+              "trial_forward_failure_count": 0
+            }
+          ],
+          "equal_aspect": true,
+          "no_vertical_exaggeration": true,
+          "shared_axes": {
+            "x": [
+              -0.003,
+              0.10300000000000001
+            ],
+            "y": [
+              -0.012000000000000002,
+              0.16200000000000003
+            ]
+          }
+        }
+      ],
+      "mode": "RGBA",
+      "no_vertical_exaggeration": true,
+      "path": "data/90-folding-final-shapes/factor-pairs/poisson-pairs.png",
+      "sha256": "16476f64d75b4244f715d520b2c7f13075f92351956f4eb95061e13bfb5eebce",
+      "width": 3000
+    }
+  ],
+  "practical_stationarity_gate_pass_count": 13,
+  "refinement_trial_forward_failure_case_count": 0,
+  "status_label_semantics": "gate is practical stationarity; fwd is accepted forward-solve failures; trial is rejected refinement-trial forward-solve failures"
+}

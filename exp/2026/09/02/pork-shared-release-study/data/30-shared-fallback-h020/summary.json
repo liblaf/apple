@@ -1,0 +1,67 @@
+{
+  "canonical_attempt": {
+    "final_state": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-shared/final-state.npz",
+      "sha256": "a49a6308b990652c197489cf0def8f828e097550eac519e50575d8085f7db2c4"
+    },
+    "runner_source": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/src/20-run-canonical-h020.py",
+      "sha256": "0860bf31f9ca433cd5b1221fb91e6e8ed7ca61305fb330e0cbc6cc66c7aeef50"
+    },
+    "stationary": false,
+    "summary": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-shared/summary.json",
+      "sha256": "d6568c65f941b1027f228ba9e7d60103512f7a5504693dea229bb3507cdf3a6c"
+    }
+  },
+  "fallback": {
+    "accepted_states": 67,
+    "bounds": null,
+    "cost": {
+      "aggregate_adjoint_evaluations": 1001,
+      "aggregate_forward_evaluations": 1001,
+      "strict_seed_forward_adjoint": 1,
+      "trial_adjoint_evaluations": 1000,
+      "trial_forward_evaluations_including_failed": 1000
+    },
+    "determinant_constraint": null,
+    "failed_trials": 0,
+    "method": "unbounded inverse-BFGS with accepted-u Armijo continuation",
+    "rejected_trials": 934,
+    "seed_strict_u_inf_delta": 0.0,
+    "skin": null,
+    "source_sha256": "e7a8a0d9d685ebf37a72b43bdd28de6463eb5b28eccb16ba3f4ed7d0add1b9c3",
+    "stationarity": false,
+    "termination": "no_progress_restart_limit",
+    "trial_evaluations": 1000
+  },
+  "final": {
+    "activation_sha256": "1c3ed6f0d8c4695704a63f7e4e625159e4eaad01a000193bc7b360e9f455711e",
+    "ainv_negative_rest_measure_fraction": 0.0,
+    "displacement_sha256": "9a40068d6fb95eaea68507858170beb617575fa2a09171f9846d31df09739449",
+    "double_inverted_rest_measure_fraction": 0.0,
+    "equilibrium_residual_rms": 7.528900448335522e-11,
+    "forward_iterations": 1,
+    "g_negative_rest_measure_fraction": 0.002500000000000003,
+    "gradient_inf": 0.009799699895923995,
+    "gradient_rms": 0.007124262200562335,
+    "inverted_rest_measure_fraction": 0.002500000000000003,
+    "min_det_ainv": 0.08849666911534775,
+    "min_det_f": -0.13486258751710722,
+    "min_det_g": -0.13486258751710722,
+    "objective": 0.010043806396672387,
+    "phase": "inverse_bfgs",
+    "step": 66
+  },
+  "initial_seed": {
+    "controls_sha256": "b1a0aaf38fd3e00c9008c4f05a808e5f989eecb4594769c0e7c266de588c57db",
+    "displacement_sha256": "c7ea7abdbe23954ecbc049c60bdd272b0be901a4bea45757b7de15948b64d324",
+    "path": "initial-seed.npz"
+  },
+  "releases": {
+    "eligible": false,
+    "failed_trial_eligibility_cap": 10,
+    "rule": "release requires fallback stationarity and failed trials at or below the explicit cap; both use tiled controls, strict receipts, and fresh optimizer moments"
+  },
+  "stationary_seed": null
+}

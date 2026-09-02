@@ -1,0 +1,117 @@
+{
+  "exploratory": [
+    "h020-shared-release"
+  ],
+  "nonstationary": {
+    "h020-direct": true,
+    "h020-shared": true,
+    "h020-shared-release": true
+  },
+  "output": {
+    "bytes": 146625,
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/62-focused-h020-loss-curves/loss-curves.png",
+    "sha256": "776176135f8f74fc80efb3bcec2cf136ce032b5bfae8802c1ac5bd1940ff8f9c"
+  },
+  "purpose": "visualization only; no forward or inverse physics imports or solves",
+  "release_handoff": {
+    "exact_objective_match": true,
+    "release_boundary_cumulative_step": 1218,
+    "release_initial_objective": 0.010195090404751478,
+    "shared_final_objective": 0.010195090404751478
+  },
+  "render_contract": {
+    "metric_colormap": false,
+    "panels": [
+      "local saved-step comparison",
+      "cumulative shared-to-release"
+    ],
+    "physics_run": false,
+    "style": "monochrome black/dark-gray solid-dashed-dotted lines",
+    "y_axis": "log L2 objective"
+  },
+  "renderer_source": {
+    "bytes": 12178,
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/src/62-plot-focused-h020-losses.py",
+    "sha256": "3c346f744db425cf79d205ba8caac4a36295151355f5a5eb88bba02111d31879"
+  },
+  "scope": {
+    "excluded": [
+      "h020-shared-release_zero_u",
+      "all mismatched experiments"
+    ],
+    "geometry": "long L=1 band muscle",
+    "height": 0.2,
+    "included_cases": [
+      "h020-direct",
+      "h020-shared",
+      "h020-shared-release"
+    ],
+    "poisson": 0.49
+  },
+  "series": [
+    {
+      "case": "h020-direct",
+      "classification": "canonical",
+      "final_objective": 0.00017848541874669488,
+      "first_step": 0,
+      "last_step": 1226,
+      "line_style": "-",
+      "rows": 1227,
+      "source": {
+        "summary": {
+          "bytes": 19755,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-direct/summary.json",
+          "sha256": "e18f9190487ac2ca5af96c1e8078600a1b3ad6e714e20e173d65fdc17f148189"
+        },
+        "trace": {
+          "bytes": 838168,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-direct/trace.csv",
+          "sha256": "c3c112ed894ac96fbac0f74a4804fce0c2a005502d0eebe9f1b1c7b2b793a396"
+        }
+      }
+    },
+    {
+      "case": "h020-shared",
+      "classification": "canonical",
+      "final_objective": 0.010195090404751478,
+      "first_step": 0,
+      "last_step": 1218,
+      "line_style": "--",
+      "rows": 1219,
+      "source": {
+        "summary": {
+          "bytes": 19058,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-shared/summary.json",
+          "sha256": "d6568c65f941b1027f228ba9e7d60103512f7a5504693dea229bb3507cdf3a6c"
+        },
+        "trace": {
+          "bytes": 755983,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-shared/trace.csv",
+          "sha256": "4fa1a5e30d6075a6bf95d11fed7dfb8e5d6fb173dc1254a0dd0ec23aa1aa5cbe"
+        }
+      }
+    },
+    {
+      "case": "h020-shared-release",
+      "classification": "NONSTATIONARY/EXPLORATORY",
+      "final_objective": 0.0001612783357435108,
+      "first_step": 0,
+      "last_step": 1225,
+      "line_style": ":",
+      "rows": 1226,
+      "source": {
+        "summary": {
+          "bytes": 23036,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/40-exploratory-release-h020/h020-shared-release/summary.json",
+          "sha256": "4ae12fa42859cacb32d857a4b980af27983fa0f4989df07218b9380f994873e1"
+        },
+        "trace": {
+          "bytes": 840369,
+          "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/40-exploratory-release-h020/h020-shared-release/trace.csv",
+          "sha256": "c1dfe6f6f799ca68caecece7ba858f1ee0e48c2d561b93d80b917990ec169066"
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}

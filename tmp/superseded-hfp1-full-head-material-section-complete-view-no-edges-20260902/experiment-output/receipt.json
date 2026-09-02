@@ -1,0 +1,107 @@
+{
+  "complete": true,
+  "contract": {
+    "identity": {
+      "sha256": "07e6b5e0fd7a72c7b3cfbc9ec5e633d5aa4ce10f597a31b8b96873032d5a313b",
+      "size_bytes": 73031
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/contract.json"
+  },
+  "design": "hfp1-full-head-dominant-material-fixed-y-section-evolution",
+  "history": {
+    "final_frame_matches_endpoint_exactly": true,
+    "one_frame_per_recorded_step": true,
+    "ordered_png_sha256": "da6bf0e80c15dfc0af08230aab96f7a11cb01dd0d97159fbe63897888f45cc69",
+    "png_frame_count": 41,
+    "source_frame_count": 41,
+    "video_frame_count": 41
+  },
+  "outputs": {
+    "poster": {
+      "identity": {
+        "sha256": "aaca76eafdd1cf2cbcf893916e90e0129478fda718c1e591e2b9bfa607fb56fa",
+        "size_bytes": 112108
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution-poster.png"
+    },
+    "pvsm": {
+      "identity": {
+        "sha256": "8d5500547d8c1b696ab17218b10f53c31e4f79ed0832fd6f87bbd8a45e3fd288",
+        "size_bytes": 515966
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution.pvsm"
+    },
+    "video": {
+      "identity": {
+        "sha256": "0182b4915caf239fb2993b11e47d2def26c34095ab3e37acffcc9014170aca41",
+        "size_bytes": 226378
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution.mp4"
+    },
+    "video_probe": {
+      "format": {
+        "duration": "1.366667"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "avg_frame_rate": "30/1",
+          "codec_name": "h264",
+          "duration": "1.366667",
+          "height": 1200,
+          "nb_frames": "41",
+          "nb_read_frames": "41",
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "width": 1200
+        }
+      ]
+    }
+  },
+  "renderer_receipt": {
+    "identity": {
+      "sha256": "813fe623186fa7e6266ed2e6e730e4ff8dcef460fa02f566eeb7de1fb5875b41",
+      "size_bytes": 29165
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/renderer-receipt.json"
+  },
+  "schema_version": 1,
+  "sources": {
+    "endpoint": {
+      "identity": {
+        "sha256": "f93bf583819048b5d81a674c4f409450e3cd1200e0d3811b3dc98811480d53dd",
+        "size_bytes": 147652097
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1.vtu"
+    },
+    "history": {
+      "identity": {
+        "sha256": "27f016f4a4b5cc4f54552ea7410c0a2feb758c646b24265e01680f31e29b86ce",
+        "size_bytes": 2072672205
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-steps.vtkhdf"
+    },
+    "skin": {
+      "identity": {
+        "sha256": "89e0b349b1ba8002bc654325ba2f025c492b6e096c242c4c194ddede72cd117d",
+        "size_bytes": 2072304
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp"
+    },
+    "summary": {
+      "identity": {
+        "sha256": "73238e1a1cdb4f8f398b4d1430874abd22ef768d564225d4e3b07307bdb41540",
+        "size_bytes": 111700
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-summary-final.json"
+    }
+  },
+  "trajectory": {
+    "identity": {
+      "sha256": "94a60c213d17966e3aa09e35a911a5a0c01ce36081ccda7f044e67b61d93ef8b",
+      "size_bytes": 7779
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/trajectory.csv"
+  }
+}

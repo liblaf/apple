@@ -1,0 +1,1023 @@
+{
+  "TimestepValues": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    9.0,
+    10.0,
+    11.0,
+    12.0,
+    13.0,
+    14.0,
+    15.0,
+    16.0,
+    17.0,
+    18.0,
+    19.0,
+    20.0,
+    21.0,
+    22.0,
+    23.0,
+    24.0,
+    25.0,
+    26.0,
+    27.0,
+    28.0,
+    29.0,
+    30.0,
+    31.0,
+    32.0,
+    33.0,
+    34.0,
+    35.0,
+    36.0,
+    37.0,
+    38.0,
+    39.0,
+    40.0
+  ],
+  "camera": {
+    "focus": [
+      1.4069534809392557,
+      2.1730086794286745,
+      0.05
+    ],
+    "look_direction": [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "parallel_scale": 0.075,
+    "position": [
+      1.4069534809392557,
+      2.4730086794286743,
+      0.05
+    ],
+    "projection": "parallel",
+    "scope": "complete full-head section fit with a slight Orbicularis-oris bias",
+    "view_up": [
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "cell_edges_rendered": false,
+  "complete": true,
+  "design": "hfp1-full-head-dominant-material-fixed-y-section-evolution",
+  "determinant_metrics_rendered": false,
+  "filled_material_surface": true,
+  "frame_count": 41,
+  "frames": [
+    {
+      "identity": {
+        "sha256": "864592bad2bc7d571f0bc33652524fb8b89c3db0623b59a263560c8acfa4c357",
+        "size_bytes": 106832
+      },
+      "material_section": {
+        "cells": 16732,
+        "dominant_counts": {
+          "Aponeurosis": 251,
+          "Fat": 13778,
+          "Muscle": 2703
+        },
+        "points": 11388
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-000.png",
+      "skin_section": {
+        "cells": 285,
+        "components": 1,
+        "points": 286
+      },
+      "step": 0
+    },
+    {
+      "identity": {
+        "sha256": "36e2abaa31337072b87eded56aa338b621ca74a94af4bb534d0fc5d3116f3146",
+        "size_bytes": 105755
+      },
+      "material_section": {
+        "cells": 16755,
+        "dominant_counts": {
+          "Aponeurosis": 246,
+          "Fat": 13801,
+          "Muscle": 2708
+        },
+        "points": 11404
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-001.png",
+      "skin_section": {
+        "cells": 287,
+        "components": 1,
+        "points": 288
+      },
+      "step": 1
+    },
+    {
+      "identity": {
+        "sha256": "413d062504b5e0a6721e00700bd238e8fce6954f95d780b3b4d9f9ddb8530a14",
+        "size_bytes": 105964
+      },
+      "material_section": {
+        "cells": 16756,
+        "dominant_counts": {
+          "Aponeurosis": 243,
+          "Fat": 13779,
+          "Muscle": 2734
+        },
+        "points": 11404
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-002.png",
+      "skin_section": {
+        "cells": 286,
+        "components": 1,
+        "points": 287
+      },
+      "step": 2
+    },
+    {
+      "identity": {
+        "sha256": "01fbba7caf0e50b55fa3a060095d508b031a08ba1c11510a7b21a2439ad0e453",
+        "size_bytes": 105620
+      },
+      "material_section": {
+        "cells": 16803,
+        "dominant_counts": {
+          "Aponeurosis": 235,
+          "Fat": 13797,
+          "Muscle": 2771
+        },
+        "points": 11442
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-003.png",
+      "skin_section": {
+        "cells": 284,
+        "components": 1,
+        "points": 285
+      },
+      "step": 3
+    },
+    {
+      "identity": {
+        "sha256": "9c9f4998097b71347d1fa932005cd447e646c18653a997c196ec2c86076a64ed",
+        "size_bytes": 105841
+      },
+      "material_section": {
+        "cells": 16831,
+        "dominant_counts": {
+          "Aponeurosis": 211,
+          "Fat": 13817,
+          "Muscle": 2803
+        },
+        "points": 11462
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-004.png",
+      "skin_section": {
+        "cells": 285,
+        "components": 1,
+        "points": 286
+      },
+      "step": 4
+    },
+    {
+      "identity": {
+        "sha256": "10cd4859b8c182c513d029cff349054f15920302ea44566b153a92dad6b098aa",
+        "size_bytes": 106676
+      },
+      "material_section": {
+        "cells": 16853,
+        "dominant_counts": {
+          "Aponeurosis": 207,
+          "Fat": 13837,
+          "Muscle": 2809
+        },
+        "points": 11477
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-005.png",
+      "skin_section": {
+        "cells": 281,
+        "components": 1,
+        "points": 282
+      },
+      "step": 5
+    },
+    {
+      "identity": {
+        "sha256": "62c0905f47fb783c8fdcb82b87ca7139143188ec2508bddf75dbec5417382a77",
+        "size_bytes": 106760
+      },
+      "material_section": {
+        "cells": 16928,
+        "dominant_counts": {
+          "Aponeurosis": 208,
+          "Fat": 13862,
+          "Muscle": 2858
+        },
+        "points": 11521
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-006.png",
+      "skin_section": {
+        "cells": 285,
+        "components": 1,
+        "points": 286
+      },
+      "step": 6
+    },
+    {
+      "identity": {
+        "sha256": "698d5e6421436d59ba72ce7ea358804b21af75b09f6a06f898b778017271a2ba",
+        "size_bytes": 107379
+      },
+      "material_section": {
+        "cells": 16995,
+        "dominant_counts": {
+          "Aponeurosis": 203,
+          "Fat": 13908,
+          "Muscle": 2884
+        },
+        "points": 11566
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-007.png",
+      "skin_section": {
+        "cells": 290,
+        "components": 1,
+        "points": 291
+      },
+      "step": 7
+    },
+    {
+      "identity": {
+        "sha256": "a3562ae5102b4506b3afef639361540de91b09c0e645267fd94d80c52815cc95",
+        "size_bytes": 107345
+      },
+      "material_section": {
+        "cells": 17079,
+        "dominant_counts": {
+          "Aponeurosis": 195,
+          "Fat": 13947,
+          "Muscle": 2937
+        },
+        "points": 11620
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-008.png",
+      "skin_section": {
+        "cells": 289,
+        "components": 1,
+        "points": 290
+      },
+      "step": 8
+    },
+    {
+      "identity": {
+        "sha256": "84fab3d3922f5baf35220c5194c0d392aa3cde1b760701c6030ba67fd47efefc",
+        "size_bytes": 108040
+      },
+      "material_section": {
+        "cells": 17132,
+        "dominant_counts": {
+          "Aponeurosis": 185,
+          "Fat": 13980,
+          "Muscle": 2967
+        },
+        "points": 11666
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-009.png",
+      "skin_section": {
+        "cells": 297,
+        "components": 1,
+        "points": 298
+      },
+      "step": 9
+    },
+    {
+      "identity": {
+        "sha256": "e94148feb4a05180b23513a690f6e504e3405abf0de6313aa7f94ef6080b5ef7",
+        "size_bytes": 107248
+      },
+      "material_section": {
+        "cells": 17227,
+        "dominant_counts": {
+          "Aponeurosis": 180,
+          "Fat": 14029,
+          "Muscle": 3018
+        },
+        "points": 11727
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-010.png",
+      "skin_section": {
+        "cells": 297,
+        "components": 1,
+        "points": 298
+      },
+      "step": 10
+    },
+    {
+      "identity": {
+        "sha256": "3443a6f25d5e15964c47a15a94a204f883a456384bb1f47d104e100b1d50bbe3",
+        "size_bytes": 108075
+      },
+      "material_section": {
+        "cells": 17261,
+        "dominant_counts": {
+          "Aponeurosis": 175,
+          "Fat": 14036,
+          "Muscle": 3050
+        },
+        "points": 11745
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-011.png",
+      "skin_section": {
+        "cells": 293,
+        "components": 1,
+        "points": 294
+      },
+      "step": 11
+    },
+    {
+      "identity": {
+        "sha256": "1ca3dd0f916a8855f173d9b51b58eacb8d1d5f94d2bf89c19f82829c806a5708",
+        "size_bytes": 108119
+      },
+      "material_section": {
+        "cells": 17343,
+        "dominant_counts": {
+          "Aponeurosis": 171,
+          "Fat": 14065,
+          "Muscle": 3107
+        },
+        "points": 11798
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-012.png",
+      "skin_section": {
+        "cells": 293,
+        "components": 1,
+        "points": 294
+      },
+      "step": 12
+    },
+    {
+      "identity": {
+        "sha256": "8bba87849e6796a1540e08dc4db006af9cfe205460bd8dbf066d3e7023de765d",
+        "size_bytes": 108220
+      },
+      "material_section": {
+        "cells": 17368,
+        "dominant_counts": {
+          "Aponeurosis": 170,
+          "Fat": 14065,
+          "Muscle": 3133
+        },
+        "points": 11813
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-013.png",
+      "skin_section": {
+        "cells": 296,
+        "components": 1,
+        "points": 297
+      },
+      "step": 13
+    },
+    {
+      "identity": {
+        "sha256": "5ebd80f1b909f0b410759b63c555bf46b1e4d5d4a4fcd4575dd506ab5b0e30c5",
+        "size_bytes": 108486
+      },
+      "material_section": {
+        "cells": 17419,
+        "dominant_counts": {
+          "Aponeurosis": 169,
+          "Fat": 14068,
+          "Muscle": 3182
+        },
+        "points": 11846
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-014.png",
+      "skin_section": {
+        "cells": 295,
+        "components": 1,
+        "points": 296
+      },
+      "step": 14
+    },
+    {
+      "identity": {
+        "sha256": "7b33ceb511754dcb2998355491b98267637554ec4fad72c2dc64f4fb1c1268b7",
+        "size_bytes": 109015
+      },
+      "material_section": {
+        "cells": 17491,
+        "dominant_counts": {
+          "Aponeurosis": 170,
+          "Fat": 14099,
+          "Muscle": 3222
+        },
+        "points": 11889
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-015.png",
+      "skin_section": {
+        "cells": 292,
+        "components": 1,
+        "points": 293
+      },
+      "step": 15
+    },
+    {
+      "identity": {
+        "sha256": "205b4d85038d8833f3a0bd7a3bf9ed0a8dd2639aae269e274cbf896d69330998",
+        "size_bytes": 109475
+      },
+      "material_section": {
+        "cells": 17525,
+        "dominant_counts": {
+          "Aponeurosis": 165,
+          "Fat": 14104,
+          "Muscle": 3256
+        },
+        "points": 11923
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-016.png",
+      "skin_section": {
+        "cells": 291,
+        "components": 1,
+        "points": 292
+      },
+      "step": 16
+    },
+    {
+      "identity": {
+        "sha256": "38e22bc3f91c04713f51b36bd43992e91655e38eea20e53a18f4c2636217fe83",
+        "size_bytes": 109315
+      },
+      "material_section": {
+        "cells": 17554,
+        "dominant_counts": {
+          "Aponeurosis": 153,
+          "Fat": 14133,
+          "Muscle": 3268
+        },
+        "points": 11947
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-017.png",
+      "skin_section": {
+        "cells": 296,
+        "components": 1,
+        "points": 297
+      },
+      "step": 17
+    },
+    {
+      "identity": {
+        "sha256": "79db396f2500d5dff6792cc38a669c3e5ab87168bf977b25029187dfd3a66043",
+        "size_bytes": 110540
+      },
+      "material_section": {
+        "cells": 17605,
+        "dominant_counts": {
+          "Aponeurosis": 150,
+          "Fat": 14164,
+          "Muscle": 3291
+        },
+        "points": 11987
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-018.png",
+      "skin_section": {
+        "cells": 292,
+        "components": 1,
+        "points": 293
+      },
+      "step": 18
+    },
+    {
+      "identity": {
+        "sha256": "ad724fff8c72f8c84c2ef04acf6a4793947e7e28ec042b6df49b02fec2edc93a",
+        "size_bytes": 109301
+      },
+      "material_section": {
+        "cells": 17658,
+        "dominant_counts": {
+          "Aponeurosis": 146,
+          "Fat": 14193,
+          "Muscle": 3319
+        },
+        "points": 12026
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-019.png",
+      "skin_section": {
+        "cells": 298,
+        "components": 1,
+        "points": 299
+      },
+      "step": 19
+    },
+    {
+      "identity": {
+        "sha256": "adeb4004f159968e4f986f10793bd8698c88cecfd7c1f5965b9255a6427a8240",
+        "size_bytes": 109292
+      },
+      "material_section": {
+        "cells": 17695,
+        "dominant_counts": {
+          "Aponeurosis": 143,
+          "Fat": 14204,
+          "Muscle": 3348
+        },
+        "points": 12054
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-020.png",
+      "skin_section": {
+        "cells": 303,
+        "components": 1,
+        "points": 304
+      },
+      "step": 20
+    },
+    {
+      "identity": {
+        "sha256": "e61122d755e994700d08f36e2114737f53d1388ff242374a852f4040ef116267",
+        "size_bytes": 109316
+      },
+      "material_section": {
+        "cells": 17789,
+        "dominant_counts": {
+          "Aponeurosis": 141,
+          "Fat": 14256,
+          "Muscle": 3392
+        },
+        "points": 12108
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-021.png",
+      "skin_section": {
+        "cells": 307,
+        "components": 1,
+        "points": 308
+      },
+      "step": 21
+    },
+    {
+      "identity": {
+        "sha256": "3e2b89ff139c35f7951934e75b5fbc727110faf02d4c08bf991fd5c02a0666cc",
+        "size_bytes": 109955
+      },
+      "material_section": {
+        "cells": 17794,
+        "dominant_counts": {
+          "Aponeurosis": 145,
+          "Fat": 14226,
+          "Muscle": 3423
+        },
+        "points": 12105
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-022.png",
+      "skin_section": {
+        "cells": 306,
+        "components": 1,
+        "points": 307
+      },
+      "step": 22
+    },
+    {
+      "identity": {
+        "sha256": "cd9a67cda4eab42a7062f9291db48ea6397f6ec459dfd54793c8ff6d8dbfa182",
+        "size_bytes": 110825
+      },
+      "material_section": {
+        "cells": 17881,
+        "dominant_counts": {
+          "Aponeurosis": 148,
+          "Fat": 14310,
+          "Muscle": 3423
+        },
+        "points": 12156
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-023.png",
+      "skin_section": {
+        "cells": 305,
+        "components": 1,
+        "points": 306
+      },
+      "step": 23
+    },
+    {
+      "identity": {
+        "sha256": "7d2da19b9eddb6d04c9cbbcc92f6410f2c1f3366a5207c2b32cb0a3fc75e38d7",
+        "size_bytes": 110438
+      },
+      "material_section": {
+        "cells": 17922,
+        "dominant_counts": {
+          "Aponeurosis": 147,
+          "Fat": 14366,
+          "Muscle": 3409
+        },
+        "points": 12189
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-024.png",
+      "skin_section": {
+        "cells": 311,
+        "components": 1,
+        "points": 312
+      },
+      "step": 24
+    },
+    {
+      "identity": {
+        "sha256": "601cf27e0fb6f6c98e755ed4f392adf21c2dcb3e91e955f4af6b34192c88259b",
+        "size_bytes": 111041
+      },
+      "material_section": {
+        "cells": 17969,
+        "dominant_counts": {
+          "Aponeurosis": 145,
+          "Fat": 14349,
+          "Muscle": 3475
+        },
+        "points": 12229
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-025.png",
+      "skin_section": {
+        "cells": 317,
+        "components": 1,
+        "points": 318
+      },
+      "step": 25
+    },
+    {
+      "identity": {
+        "sha256": "6fe649598b7a64d9b593e59dbfd56c8cb78b573b173780d3142af7612d5288cc",
+        "size_bytes": 111325
+      },
+      "material_section": {
+        "cells": 18056,
+        "dominant_counts": {
+          "Aponeurosis": 145,
+          "Fat": 14368,
+          "Muscle": 3543
+        },
+        "points": 12290
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-026.png",
+      "skin_section": {
+        "cells": 316,
+        "components": 1,
+        "points": 317
+      },
+      "step": 26
+    },
+    {
+      "identity": {
+        "sha256": "0004046a8e623a5056e2a791afce3863360c6b5a98001dfc20e38baa4bb94369",
+        "size_bytes": 110935
+      },
+      "material_section": {
+        "cells": 18075,
+        "dominant_counts": {
+          "Aponeurosis": 147,
+          "Fat": 14372,
+          "Muscle": 3556
+        },
+        "points": 12304
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-027.png",
+      "skin_section": {
+        "cells": 322,
+        "components": 1,
+        "points": 323
+      },
+      "step": 27
+    },
+    {
+      "identity": {
+        "sha256": "3fd94392b5f453ec5b18879334ac3d2a7b3874911df750d0f651dc7d675c48e1",
+        "size_bytes": 111262
+      },
+      "material_section": {
+        "cells": 18074,
+        "dominant_counts": {
+          "Aponeurosis": 145,
+          "Fat": 14374,
+          "Muscle": 3555
+        },
+        "points": 12304
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-028.png",
+      "skin_section": {
+        "cells": 322,
+        "components": 1,
+        "points": 323
+      },
+      "step": 28
+    },
+    {
+      "identity": {
+        "sha256": "bd54d09f9ea5fbb28fe4ee462eef47beafcc21d659d811dbbdb29e2ba5a1c1dc",
+        "size_bytes": 110626
+      },
+      "material_section": {
+        "cells": 18126,
+        "dominant_counts": {
+          "Aponeurosis": 146,
+          "Fat": 14432,
+          "Muscle": 3548
+        },
+        "points": 12341
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-029.png",
+      "skin_section": {
+        "cells": 321,
+        "components": 1,
+        "points": 322
+      },
+      "step": 29
+    },
+    {
+      "identity": {
+        "sha256": "df6e66ae7775512b467e3c7218cd947b28f4fcecf7f60004a80baf2cbc0f2dd1",
+        "size_bytes": 111032
+      },
+      "material_section": {
+        "cells": 18165,
+        "dominant_counts": {
+          "Aponeurosis": 144,
+          "Fat": 14468,
+          "Muscle": 3553
+        },
+        "points": 12373
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-030.png",
+      "skin_section": {
+        "cells": 329,
+        "components": 1,
+        "points": 330
+      },
+      "step": 30
+    },
+    {
+      "identity": {
+        "sha256": "cc6bc5f6124094f94f719195ebed9f27b55d2d74a364af9e01bd627161ab6289",
+        "size_bytes": 111387
+      },
+      "material_section": {
+        "cells": 18147,
+        "dominant_counts": {
+          "Aponeurosis": 142,
+          "Fat": 14443,
+          "Muscle": 3562
+        },
+        "points": 12363
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-031.png",
+      "skin_section": {
+        "cells": 326,
+        "components": 1,
+        "points": 327
+      },
+      "step": 31
+    },
+    {
+      "identity": {
+        "sha256": "4ae4070f61a9195edba7d443cd4520a854d5c4632edb12e44a3ada1c17843ab1",
+        "size_bytes": 111421
+      },
+      "material_section": {
+        "cells": 18220,
+        "dominant_counts": {
+          "Aponeurosis": 144,
+          "Fat": 14492,
+          "Muscle": 3584
+        },
+        "points": 12402
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-032.png",
+      "skin_section": {
+        "cells": 321,
+        "components": 1,
+        "points": 322
+      },
+      "step": 32
+    },
+    {
+      "identity": {
+        "sha256": "056e464917191dd1521c6d7d7d4bfa73c39ba43f801e90f016fad8dc5f234e09",
+        "size_bytes": 111251
+      },
+      "material_section": {
+        "cells": 18286,
+        "dominant_counts": {
+          "Aponeurosis": 144,
+          "Fat": 14544,
+          "Muscle": 3598
+        },
+        "points": 12438
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-033.png",
+      "skin_section": {
+        "cells": 323,
+        "components": 1,
+        "points": 324
+      },
+      "step": 33
+    },
+    {
+      "identity": {
+        "sha256": "297f2e0bb702b0ad743d6dc229f5ae5d557bbcdd2cfb6f6c5a5dc90400b4b335",
+        "size_bytes": 111558
+      },
+      "material_section": {
+        "cells": 18390,
+        "dominant_counts": {
+          "Aponeurosis": 145,
+          "Fat": 14593,
+          "Muscle": 3652
+        },
+        "points": 12498
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-034.png",
+      "skin_section": {
+        "cells": 320,
+        "components": 1,
+        "points": 321
+      },
+      "step": 34
+    },
+    {
+      "identity": {
+        "sha256": "c42f384c2c3f5806bd7cf344fa8c8ab499edaa1273afbab968e311082cf0d123",
+        "size_bytes": 111962
+      },
+      "material_section": {
+        "cells": 18400,
+        "dominant_counts": {
+          "Aponeurosis": 147,
+          "Fat": 14622,
+          "Muscle": 3631
+        },
+        "points": 12501
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-035.png",
+      "skin_section": {
+        "cells": 319,
+        "components": 1,
+        "points": 320
+      },
+      "step": 35
+    },
+    {
+      "identity": {
+        "sha256": "096cf9cfac0366f699c413f7860e1a39b621b4fdf0f4c237fe0d90c5b7d129c5",
+        "size_bytes": 111994
+      },
+      "material_section": {
+        "cells": 18403,
+        "dominant_counts": {
+          "Aponeurosis": 148,
+          "Fat": 14610,
+          "Muscle": 3645
+        },
+        "points": 12503
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-036.png",
+      "skin_section": {
+        "cells": 314,
+        "components": 1,
+        "points": 315
+      },
+      "step": 36
+    },
+    {
+      "identity": {
+        "sha256": "8c42e9e445bb45ae320609b08a50289f3edff02b65636963870a0a316d04bfbc",
+        "size_bytes": 112008
+      },
+      "material_section": {
+        "cells": 18423,
+        "dominant_counts": {
+          "Aponeurosis": 150,
+          "Fat": 14614,
+          "Muscle": 3659
+        },
+        "points": 12519
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-037.png",
+      "skin_section": {
+        "cells": 316,
+        "components": 1,
+        "points": 317
+      },
+      "step": 37
+    },
+    {
+      "identity": {
+        "sha256": "4d243724296f1a7d53e72ec9a8486cd128397836db77a11f6288102a6d72c175",
+        "size_bytes": 112684
+      },
+      "material_section": {
+        "cells": 18395,
+        "dominant_counts": {
+          "Aponeurosis": 150,
+          "Fat": 14600,
+          "Muscle": 3645
+        },
+        "points": 12500
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-038.png",
+      "skin_section": {
+        "cells": 316,
+        "components": 1,
+        "points": 317
+      },
+      "step": 38
+    },
+    {
+      "identity": {
+        "sha256": "00cd17d7bbdf05b8925d2f2c0ee5575a79b6d5cc4b2e81d2d861f619c0afb018",
+        "size_bytes": 112960
+      },
+      "material_section": {
+        "cells": 18379,
+        "dominant_counts": {
+          "Aponeurosis": 146,
+          "Fat": 14579,
+          "Muscle": 3654
+        },
+        "points": 12492
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-039.png",
+      "skin_section": {
+        "cells": 317,
+        "components": 1,
+        "points": 318
+      },
+      "step": 39
+    },
+    {
+      "identity": {
+        "sha256": "aaca76eafdd1cf2cbcf893916e90e0129478fda718c1e591e2b9bfa607fb56fa",
+        "size_bytes": 112108
+      },
+      "material_section": {
+        "cells": 18440,
+        "dominant_counts": {
+          "Aponeurosis": 150,
+          "Fat": 14617,
+          "Muscle": 3673
+        },
+        "points": 12530
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/frames/frame-040.png",
+      "skin_section": {
+        "cells": 319,
+        "components": 1,
+        "points": 320
+      },
+      "step": 40
+    }
+  ],
+  "ordered_png_sha256": "da6bf0e80c15dfc0af08230aab96f7a11cb01dd0d97159fbe63897888f45cc69",
+  "paraview_version": "6.1.1",
+  "plane": {
+    "anchor": {
+      "definition": "Y coordinate of the initial full-Orbicularis maximum-Z vertex",
+      "global_point_id": 52222,
+      "point_m": [
+        1.4077719415114796,
+        2.1730086794286745,
+        0.09695972390415916
+      ],
+      "step": 0
+    },
+    "fixed_for_all_frames": true,
+    "normal": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "origin": [
+      0.0,
+      2.1730086794286745,
+      0.0
+    ]
+  },
+  "pvsm": {
+    "identity": {
+      "sha256": "8d5500547d8c1b696ab17218b10f53c31e4f79ed0832fd6f87bbd8a45e3fd288",
+      "size_bytes": 515966
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution.pvsm"
+  },
+  "schema_version": 1,
+  "skin": {
+    "line_width_px": 1.5,
+    "not_a_volume_material": true,
+    "rgb": [
+      0.0,
+      0.38,
+      0.38
+    ],
+    "semantics": "separate Koiter skin membrane intersected by the same plane"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "complete": true,
+  "contract": {
+    "identity": {
+      "sha256": "bfcaacc896c7c2e3b084133dad7097e64e9cbed78a03ebad35ae2c7f1e14a1bd",
+      "size_bytes": 73580
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/contract.json"
+  },
+  "design": "hfp1-full-head-dominant-material-fixed-y-section-evolution",
+  "history": {
+    "final_frame_matches_endpoint_exactly": true,
+    "one_frame_per_recorded_step": true,
+    "ordered_png_sha256": "de05ffd6918da4af246d158c47b114d11a1c60c14a5222425d1cc35704bd5df5",
+    "png_frame_count": 41,
+    "source_frame_count": 41,
+    "video_frame_count": 41
+  },
+  "outputs": {
+    "poster": {
+      "identity": {
+        "sha256": "990573ee46a35eb6fe108bb75ecaf6837bac2de19ee84d43a70c85ad4cfbabbc",
+        "size_bytes": 637676
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution-poster.png"
+    },
+    "pvsm": {
+      "identity": {
+        "sha256": "1d8ee950ef741195b0e4dfb4bb531321aa5903b0eea65152a81a2c1bbf907fd1",
+        "size_bytes": 397881
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution.pvsm"
+    },
+    "video": {
+      "identity": {
+        "sha256": "c90edaa1997c6a393a320ca58f31ce2b055a4432d4de666f8ca2d360c5daa4fb",
+        "size_bytes": 1878085
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/60-hfp1-full-head-material-section-evolution.mp4"
+    },
+    "video_probe": {
+      "decoded_frame_sha256": [
+        "a584c6c9ea17ee867b4eb64673f7a1200ca3e42cb8bb175f381b4be689042187",
+        "73db318a518b64e214eb31c4d3c4697de4d0105288bf1ec8130d1c2e0e37f708",
+        "3cfa632ee188a89038f47b88df89cfed5fa3f1515859e62dc65ef22a2fe3efa5",
+        "4ed0233564779a77c8a6b5edb82ffdc3838ee74a7081905d6323b7dd5ac1b7d2",
+        "656e742a5a067758fb85730cb9a056934472d89696e0415f1c292ea8d9aa7b0d",
+        "31eefb56ec1258ac8dde1ea663519810bfafcd2531b6be1d60823dd177d6d8ca",
+        "d8e0adc82539f2de71dddc9d1bf45006442624d63a3e39d826a722f2e0eab728",
+        "1eae193322737febaf3a1d1b5ff0e6f193131dc4364c3e6914a2c0bc09a250a7",
+        "40bcfaee3ba41868fb14adf1a6268e484ae311ec50200d71b3fc412f10254e33",
+        "07b052a754c6af6bfcb99410d500b22cad6e70962aff59e13375a1d878945e1c",
+        "355661801987aad21bc93e99a3a839769b45f001bde8e66d5d6806fb80456af2",
+        "ec6a969a1471b9bcc1b9284446492b963a23f7eb96dc686a8c2d9ac21cbc8451",
+        "c8b0f5e41488e08cff8b7d6daf1b3ab7b1609798cd43f54848a677ee06d1d633",
+        "2314ea5db4a9e1d750bf55b12d3c86389cfbf7c4fed61fba9b530a8596755df5",
+        "b7376b9ce19bf6c721ff2eb3a7d358533c6be346882111d222fc2afbb371d1f4",
+        "bb34d68bb136bc8e7322c8da5fc3e85829379d6158bceb5bca129197dd1afc73",
+        "a24fd053395f4522591503a3fec1df93213057d15dcb32c82c932db454226455",
+        "37b2a07d33aa9e9f364146077f8cc16e6561b415bcb1fe4f0f4be051f9490679",
+        "368e3868d3def7996909c91cbc1b1d8f3a8739a1e501107c6106233eacfe82c9",
+        "d8bece48e38f335d18838f60ab86ddec3c96e2ee0cf7a2033c9d19a6ad9f62e6",
+        "6c91786147a26d0d65df1cb0018a7c9685c356ab36c4ce8932286b33e14b7198",
+        "c2c2383ffd111a417819efb0e48e78cd1b2fbe0e88ab46391f980546cd1d3953",
+        "9c3df45012d1b73975dbe6690dcb51cc3a9cfd542134cf4c4d3e9a018373c483",
+        "0c9fe1dd4523eca2971a32570fd2127cb47ab4321b7fd59496dcb39dc0b7e9be",
+        "8b6ce1618179548e083bfdffe99a40c5977ba7384705c63a804c988d3475b7d9",
+        "5c4ab9ea9b647eaf24a2ce26ff2d27bd0b3764e6ad1f2f863e527cab5694f826",
+        "ff6281991d18bd0ac4689052273786911e05981cdc07f2e606c3b43a44bf3699",
+        "c6602ce81ef64a70e75450a4320eff78782d213df8a1f58a88df79ed2d318f59",
+        "942f72d7f9d02b3f94f605020b1b45e58b0811f0216199593830cf9820039084",
+        "0908d7c4ecd72863b5c7725f9da0419b15ad3d8956260ec0bef77041dd49b6e9",
+        "4e28b12144b02528034a2925827c081e2f8d095855144e96b7f2264d7ddd4bcb",
+        "37536df37b42c74c80ce6f2c5439ea4e1f33ac39b1b50f2e7a657047efbe5a9c",
+        "d524be50c61e3ecf0da3a09b500f35fa79fa3a3980655d5f86374d6f5dd91120",
+        "73524f743e9c361f4b1aee4e2cb1bcbc757039c971ddc6f9154721d57a785002",
+        "57322d165f3183d7f6e42fd5597b385a0d1598fea076a259c6183acfc61bf88b",
+        "08707b0d14cff5eabb7bdc4822d801682c2e016e0485892ed53de9f49d6cfca9",
+        "0b744df5d0d170d41b72a3267d1ac1ebfc0a584b1b42eb4161e1ad133f3d2df0",
+        "b52eb156270afeb31a3297c98de27ad76e8d591ea0f4e41708055f5dea273b3e",
+        "5b4423656bcf59bf9baf85769a41cbc22946168828181b731ae4785bbf261ef5",
+        "79a70dc4b5b2b182ecf3cf1b55caa2dbe06e5e4480b22c317965a43b42e982c3",
+        "924fd4f309aef0444a3d861f1c55e58a929742bc9f5a50940a466356163f874c"
+      ],
+      "decoded_frames_unique": true,
+      "format": {
+        "duration": "1.366667"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "avg_frame_rate": "30/1",
+          "codec_name": "h264",
+          "duration": "1.366667",
+          "height": 1200,
+          "nb_frames": "41",
+          "nb_read_frames": "41",
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "width": 1200
+        }
+      ]
+    }
+  },
+  "renderer_receipt": {
+    "identity": {
+      "sha256": "fea72da762dba4160404c2bf4da8c1edf522eb6688a1e2acc7965507676a8720",
+      "size_bytes": 33315
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/renderer-receipt.json"
+  },
+  "schema_version": 1,
+  "sources": {
+    "endpoint": {
+      "identity": {
+        "sha256": "f93bf583819048b5d81a674c4f409450e3cd1200e0d3811b3dc98811480d53dd",
+        "size_bytes": 147652097
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1.vtu"
+    },
+    "history": {
+      "identity": {
+        "sha256": "27f016f4a4b5cc4f54552ea7410c0a2feb758c646b24265e01680f31e29b86ce",
+        "size_bytes": 2072672205
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-steps.vtkhdf"
+    },
+    "skin": {
+      "identity": {
+        "sha256": "89e0b349b1ba8002bc654325ba2f025c492b6e096c242c4c194ddede72cd117d",
+        "size_bytes": 2072304
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/10-prepared-material-cases-v2/skin-hfp1-selective-efat-c020.vtp"
+    },
+    "summary": {
+      "identity": {
+        "sha256": "73238e1a1cdb4f8f398b4d1430874abd22ef768d564225d4e3b07307bdb41540",
+        "size_bytes": 111700
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-summary-final.json"
+    }
+  },
+  "trajectory": {
+    "identity": {
+      "sha256": "94a60c213d17966e3aa09e35a911a5a0c01ce36081ccda7f044e67b61d93ef8b",
+      "size_bytes": 7779
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/trajectory.csv"
+  }
+}

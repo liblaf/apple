@@ -1205,6 +1205,81 @@
             </figcaption>
           </figure>
 
+          <div class="card">
+            <h3>Full muscle · head-superior view</h3>
+            <p>
+              The corrected HFP1 endpoint at step 40 provides a whole-muscle
+              check without the local-section crop. The camera looks from
+              anatomical +Y toward −Y; +Z is up. It found 29 detF-negative,
+              58 detA⁻¹-negative, and 27 double-inverted tetrahedra across the
+              10,484-tetrahedron Orbicularis oris selection.
+            </p>
+          </div>
+
+          <figure>
+            <a href="assets/hfp1-orbicularis-oris-topdown-context.png" target="_blank">
+              <img
+                src="assets/hfp1-orbicularis-oris-topdown-context.png"
+                alt="Complete HFP1 Orbicularis oris in the translucent face from a head-superior view"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Complete Orbicularis oris.</strong> Red is the full
+              selected muscle in the translucent HFP1 face; no spatial crop or
+              deformation exaggeration was used.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <a href="assets/hfp1-orbicularis-oris-topdown-determinants.png" target="_blank">
+              <img
+                src="assets/hfp1-orbicularis-oris-topdown-determinants.png"
+                alt="Complete HFP1 Orbicularis oris from above colored by detF, detAinv, and detG"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Whole-muscle determinant check.</strong> Gray is the
+              reference wireframe, color is the deformed muscle, and magenta
+              locates surface-visible double-inverted tetrahedra.
+            </figcaption>
+          </figure>
+
+          <div class="video-card">
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="assets/hfp1-full-head-material-section-evolution-poster.png"
+            >
+              <source
+                src="assets/hfp1-full-head-material-section-evolution.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <div class="video-copy">
+              <strong>Full-head section, camera-only mouth crop · exact 41-step evolution</strong
+              ><br />
+              Steps 0–40, one saved inverse state per 30 FPS frame (1.37 s).
+              The same fixed plane,
+              <code>Y = 2.1730086794</code>, through the initial muscle's
+              maximum-Z vertex sections the complete 1,146,517-tetrahedron
+              head first. Only the camera is then cropped to an expanded view
+              of the all-state Orbicularis bounds; this is not a muscle-only
+              extraction. Gold, red, and blue are the display-only argmax of
+              the continuous fat, muscle, and aponeurosis fractions. Opaque
+              fills plus thin dark cell edges expose the tetrahedron/plane cut
+              shapes, while the thin teal curve is the separate skin membrane.
+              No determinant panel is shown.
+              <a href="assets/hfp1-full-head-material-section-evolution.mp4"
+                >Open video</a
+              >
+            </div>
+          </div>
+
           <div class="video-card">
             <video
               controls
@@ -1848,6 +1923,23 @@
             <li>
               <a href="records/3d-upper-mouth-muscle-report.md"
                 >3D upper-mouth Orbicularis oris folding receipt</a
+              >
+            </li>
+            <li>
+              <a href="records/3d-hfp1-orbicularis-oris-topdown-report.md"
+                >3D HFP1 full Orbicularis oris head-superior receipt</a
+              >
+            </li>
+            <li>
+              <a
+                href="records/3d-hfp1-orbicularis-oris-topdown-evolution-report.md"
+                >3D HFP1 max-Z coplanar muscle-and-skin evolution receipt</a
+              >
+            </li>
+            <li>
+              <a
+                href="records/3d-hfp1-full-head-material-section-evolution-report.md"
+                >3D HFP1 full-head filled material-section evolution receipt</a
               >
             </li>
           </ul>

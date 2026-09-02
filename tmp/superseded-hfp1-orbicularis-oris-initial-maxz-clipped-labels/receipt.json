@@ -1,0 +1,299 @@
+{
+  "camera": {
+    "focus": [
+      1.4067350332694464,
+      2.1613644938873366,
+      0.08153530579422003
+    ],
+    "look_direction": [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "orientation": "+Y camera looking toward -Y; +Z is anterior/up in image",
+    "parallel_scale": 0.023524020112167608,
+    "position": [
+      1.4067350332694464,
+      2.4613644938873365,
+      0.08153530579422003
+    ],
+    "projection": "parallel",
+    "view_up": [
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "case": {
+    "evaluations": 41,
+    "id": "HFP1",
+    "inverse_converged": false,
+    "physics_rerun": false,
+    "source_case": "20-hfp1",
+    "sources": {
+      "context": {
+        "identity": {
+          "sha256": "a595a874ca4ce42c2884a8f6c7705e857cfbe51531a44537ea0c49020972249f",
+          "size_bytes": 2634336
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/26-paraview-fat-floor-terminal/inputs/hfp1.vtp"
+      },
+      "endpoint": {
+        "identity": {
+          "sha256": "f93bf583819048b5d81a674c4f409450e3cd1200e0d3811b3dc98811480d53dd",
+          "size_bytes": 147652097
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1.vtu"
+      },
+      "history": {
+        "identity": {
+          "sha256": "27f016f4a4b5cc4f54552ea7410c0a2feb758c646b24265e01680f31e29b86ce",
+          "size_bytes": 2072672205
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-steps.vtkhdf"
+      },
+      "summary": {
+        "identity": {
+          "sha256": "73238e1a1cdb4f8f398b4d1430874abd22ef768d564225d4e3b07307bdb41540",
+          "size_bytes": 111700
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/human-face-smile-fat-floor-skin-energy-prestrain-inverse/data/20-hfp1-summary-final.json"
+      }
+    },
+    "steps": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+    ],
+    "stop_reason": "step_limit_smooth_decrease"
+  },
+  "complete": true,
+  "contract": {
+    "identity": {
+      "sha256": "3b1df5953ce1854541733fdb245878830054d60d257f96d08d1cee0d4bd94a89",
+      "size_bytes": 72266
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/contract.json"
+  },
+  "design": "hfp1-full-orbicularis-oris-superior-initial-max-z-lip-section-evolution",
+  "history": {
+    "exact_consecutive": true,
+    "final_frame_matches_endpoint_exactly": true,
+    "first_step": 0,
+    "last_step": 40,
+    "no_interpolation_or_duplication": true,
+    "one_frame_per_recorded_step": true,
+    "ordered_muscle_vtu_sha256": "803897097653ac496dc0328633498ac7f0a5109f41a693527816f7d0b0bac03c",
+    "ordered_png_sha256": "442e6e12238f07c2a609ce0a2e2039befc8d3deb94772ce8090c84d2449ed1ab",
+    "ordered_skin_vtp_sha256": "159ebe918045e02151589a232f4cb2d3fa85a7970af9c0beeabd1ac4458258cf",
+    "png_frame_count": 41,
+    "source_frame_count": 41,
+    "video_frame_count": 41
+  },
+  "outputs": {
+    "poster": {
+      "identity": {
+        "sha256": "62c2b556708f1a2e7f71480f55b29eccf4965fe44cfdbff777173482149c24ae",
+        "size_bytes": 898857
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/50-hfp1-orbicularis-oris-topdown-evolution-poster.png"
+    },
+    "pvsm": {
+      "identity": {
+        "sha256": "56aec1899389d2d5aca39c30ec45e694d446797c836665844110027e10aaa3ff",
+        "size_bytes": 1807117
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/50-hfp1-orbicularis-oris-topdown-evolution.pvsm"
+    },
+    "video": {
+      "identity": {
+        "sha256": "0778f70c5f368bed33ebd0f92bd378e02daab8e75aaa47e67d099d4a98797c6a",
+        "size_bytes": 1539375
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/50-hfp1-orbicularis-oris-topdown-evolution.mp4"
+    },
+    "video_probe": {
+      "format": {
+        "duration": "1.366667"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "avg_frame_rate": "30/1",
+          "codec_name": "h264",
+          "duration": "1.366667",
+          "height": 1800,
+          "nb_frames": "41",
+          "nb_read_frames": "41",
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "width": 1200
+        }
+      ]
+    }
+  },
+  "purpose": "post-hoc saved-state visualization; no physics rerun",
+  "renderer_receipt": {
+    "identity": {
+      "sha256": "7108fb5b90e29ad6c6b4a58884c091e53db44db11d75d6c0af0140db92d4d3fd",
+      "size_bytes": 22287
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/renderer-receipt.json"
+  },
+  "scalar_ranges": {
+    "DetAinv": [
+      -2.71868352538119,
+      7.747029375212328
+    ],
+    "DetF": [
+      -4.454225077664327,
+      13.766413370594814
+    ],
+    "DetG": [
+      -0.3216534208092621,
+      1.5473975633011643
+    ]
+  },
+  "schema_version": 1,
+  "selection": {
+    "cells": 10484,
+    "muscle_id": 254,
+    "muscle_name": "Orbicularis oris001_Head_muscles_0",
+    "points": 3248,
+    "predicate": "ActivationMask && MuscleId == 254 && MuscleFraction >= 0.5",
+    "spatial_crop": false
+  },
+  "skin_section": {
+    "all_lip_arcs_retained": true,
+    "all_state_muscle_plane_offset_range_m": [
+      0.009141227806539476,
+      0.009475916279221064
+    ],
+    "anchor": {
+      "definition": "maximum Z point of the full selected Orbicularis at the initial saved frame; its Y coordinate fixes the section plane",
+      "global_point_id": 52222,
+      "point_m": [
+        1.4077719415114796,
+        2.1730086794286745,
+        0.09695972390415916
+      ],
+      "step": 0
+    },
+    "camera_side_of_all_muscle_states": false,
+    "definition": "semantic IsLip external surface intersected each step by the fixed Y-plane through the initial full-Orbicularis maximum-Z point",
+    "dynamic_deformed_surface_each_step": true,
+    "frame_camera_view_point_count_range": [
+      94,
+      141
+    ],
+    "frame_cell_count_range": [
+      93,
+      140
+    ],
+    "frame_component_count_range": [
+      1,
+      1
+    ],
+    "frame_point_count_range": [
+      94,
+      141
+    ],
+    "muscle_display_complete": true,
+    "muscle_display_cut_at_same_plane": false,
+    "nasal_geometry_excluded_by_semantic_mask": true,
+    "normal": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "plane_cut_is_not_surface_silhouette": true,
+    "plane_y_m": 2.1730086794286745,
+    "render_color": "teal",
+    "surface_selection": {
+      "nasal_geometry_included": false,
+      "points": 2275,
+      "predicate": "all three external-surface triangle vertices have IsLip == true",
+      "triangles": 4296
+    }
+  },
+  "trajectory": {
+    "first": {
+      "det_ainv_min": 1.0,
+      "det_ainv_negative_cells": 0,
+      "det_f_min": 0.953218528812609,
+      "det_f_negative_cells": 0,
+      "det_g_min": 0.953218528812609,
+      "det_g_negative_cells": 0,
+      "double_inverted_cells": 0,
+      "skin_section_camera_view_points": 94,
+      "skin_section_cells": 93,
+      "skin_section_components": 1,
+      "skin_section_points": 94,
+      "step": 0
+    },
+    "identity": {
+      "sha256": "d664741633925bbf22429dc21c9ed729737f641206629152e3dcd2b6c97751ed",
+      "size_bytes": 3744
+    },
+    "last": {
+      "det_ainv_min": -2.71868352538119,
+      "det_ainv_negative_cells": 58,
+      "det_f_min": -4.454225077664327,
+      "det_f_negative_cells": 29,
+      "det_g_min": -0.22670610060129576,
+      "det_g_negative_cells": 33,
+      "double_inverted_cells": 27,
+      "skin_section_camera_view_points": 137,
+      "skin_section_cells": 136,
+      "skin_section_components": 1,
+      "skin_section_points": 137,
+      "step": 40
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/50-hfp1-orbicularis-oris-topdown-evolution/trajectory.csv"
+  },
+  "visualization": {
+    "camera_scope": "mouth-from-full-orbicularis-bounds",
+    "full_orbicularis_metrics_in_labels": true,
+    "geometry_mode": "full-muscle-with-initial-max-z-lip-skin-section",
+    "skin_line_uses_true_fixed_plane_without_display_offset": true
+  }
+}

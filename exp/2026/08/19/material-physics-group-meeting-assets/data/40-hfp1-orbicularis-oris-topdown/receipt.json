@@ -1,0 +1,197 @@
+{
+  "complete": true,
+  "contract": {
+    "identity": {
+      "sha256": "773c1d1f2683f6f994a109393d441c1fbdd3eebd9e7f336d59d181bc8733983b",
+      "size_bytes": 6732
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/contract.json"
+  },
+  "design": "hfp1-step40-full-orbicularis-oris-superior-view",
+  "outputs": {
+    "context_png": {
+      "mode": "RGB",
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-context.png",
+      "resolution": [
+        1800,
+        1400
+      ],
+      "sha256": "1347b280e21d5046b64c8dbc931763936bd1d40ba69ff59edd4070799bb6b4bb",
+      "size_bytes": 337540
+    },
+    "context_pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-context.pvsm",
+      "sha256": "6432a91be88b3664c9073c8e824825de8263aa17580dfc33eaefb0dba837dd38",
+      "size_bytes": 356971
+    },
+    "determinants_png": {
+      "mode": "RGB",
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-determinants.png",
+      "resolution": [
+        2700,
+        1000
+      ],
+      "sha256": "3800d60ca2daa1782948304645aa49967092d3949ec2043a885a5c0bafdda248",
+      "size_bytes": 962904
+    },
+    "determinants_pvsm": {
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-determinants.pvsm",
+      "sha256": "3978dd805d1c5e9ccd23355f2336a380860e26f7ed6a31040fea6228b90e82f7",
+      "size_bytes": 1451559
+    }
+  },
+  "renderer_receipt": {
+    "identity": {
+      "sha256": "4b39d08296dad4b4e7d32aa77c0cf9296ea8d43cf92119128dc925bb53d153cb",
+      "size_bytes": 4361
+    },
+    "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/renderer-receipt.json",
+    "summary": {
+      "camera": {
+        "context": {
+          "focus": [
+            1.4068914326453033,
+            2.2111215033405163,
+            0.044714363868934334
+          ],
+          "look_direction": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "orientation": "+Y camera looking toward -Y; +Z is anterior/up in image",
+          "parallel_scale": 0.07680632304897211,
+          "position": [
+            1.4068914326453033,
+            2.511121503340516,
+            0.044714363868934334
+          ],
+          "projection": "parallel",
+          "view_up": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "muscle": {
+          "focus": [
+            1.4067350332694464,
+            2.1617627925540495,
+            0.08137724451291252
+          ],
+          "look_direction": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "orientation": "+Y camera looking toward -Y; +Z is anterior/up in image",
+          "parallel_scale": 0.017708973921212706,
+          "position": [
+            1.4067350332694464,
+            2.4617627925540493,
+            0.08137724451291252
+          ],
+          "projection": "parallel",
+          "view_up": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "complete": true,
+      "contract": {
+        "identity": {
+          "sha256": "773c1d1f2683f6f994a109393d441c1fbdd3eebd9e7f336d59d181bc8733983b",
+          "size_bytes": 6732
+        },
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/contract.json"
+      },
+      "design": "hfp1-step40-full-orbicularis-oris-superior-view",
+      "metrics": {
+        "DetAinv": {
+          "maximum": 7.747029375212328,
+          "minimum": -2.71868352538119,
+          "negative_cells": 58,
+          "negative_rest_volume_fraction": 0.010261335199778465
+        },
+        "DetF": {
+          "maximum": 10.636190659291133,
+          "minimum": -4.454225077664327,
+          "negative_cells": 29,
+          "negative_rest_volume_fraction": 0.004865204392146392
+        },
+        "DetG": {
+          "maximum": 1.5473975633011643,
+          "minimum": -0.22670610060129576,
+          "negative_cells": 33,
+          "negative_rest_volume_fraction": 0.006004273389561374
+        },
+        "cells": 10484,
+        "double_inverted_cells": 27,
+        "double_inverted_rest_volume_fraction": 0.004561133101181741,
+        "rest_volume_m3": 4.602553254573433e-06
+      },
+      "native_paraview_rendering": true,
+      "outputs": {
+        "context": {
+          "png": {
+            "identity": {
+              "sha256": "1347b280e21d5046b64c8dbc931763936bd1d40ba69ff59edd4070799bb6b4bb",
+              "size_bytes": 337540
+            },
+            "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-context.png"
+          },
+          "pvsm": {
+            "identity": {
+              "sha256": "6432a91be88b3664c9073c8e824825de8263aa17580dfc33eaefb0dba837dd38",
+              "size_bytes": 356971
+            },
+            "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-context.pvsm"
+          }
+        },
+        "determinants": {
+          "png": {
+            "identity": {
+              "sha256": "3800d60ca2daa1782948304645aa49967092d3949ec2043a885a5c0bafdda248",
+              "size_bytes": 962904
+            },
+            "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-determinants.png"
+          },
+          "pvsm": {
+            "identity": {
+              "sha256": "3978dd805d1c5e9ccd23355f2336a380860e26f7ed6a31040fea6228b90e82f7",
+              "size_bytes": 1451559
+            },
+            "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/40-hfp1-orbicularis-oris-topdown/40-hfp1-orbicularis-oris-topdown-determinants.pvsm"
+          }
+        }
+      },
+      "paraview_version": "6.1.1",
+      "scalar_ranges": {
+        "DetAinv": [
+          -2.71868352538119,
+          7.747029375212328
+        ],
+        "DetF": [
+          -4.454225077664327,
+          10.636190659291133
+        ],
+        "DetG": [
+          -0.22670610060129576,
+          1.5473975633011643
+        ]
+      },
+      "schema_version": 1,
+      "selection": {
+        "cells": 10484,
+        "muscle_id": 254,
+        "muscle_name": "Orbicularis oris001_Head_muscles_0",
+        "points": 3248,
+        "predicate": "ActivationMask && MuscleId == 254 && MuscleFraction >= 0.5",
+        "spatial_crop": false
+      }
+    }
+  },
+  "schema_version": 1
+}

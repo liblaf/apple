@@ -374,6 +374,42 @@
         color: var(--good);
       }
 
+      .compact-table {
+        margin-top: 1rem;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .compact-table table {
+        width: 100%;
+        min-width: 39rem;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+        line-height: 1.3;
+      }
+
+      .compact-table th,
+      .compact-table td {
+        padding: 0.7rem;
+        border-bottom: 1px solid var(--line);
+        text-align: right;
+        vertical-align: top;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .compact-table th:first-child,
+      .compact-table td:first-child {
+        text-align: left;
+        font-weight: 750;
+      }
+
+      .compact-table tr:last-child td {
+        border-bottom: 0;
+      }
+
       .video-card {
         margin-top: 1rem;
         overflow: hidden;
@@ -618,6 +654,7 @@
         <a href="#answer">Answer</a>
         <a href="#pork">2D pork</a>
         <a href="#factors">Factors</a>
+        <a href="#h020">h=.20</a>
         <a href="#down">Push down</a>
         <a href="#face">3D face</a>
         <a href="#gallery">All shapes</a>
@@ -778,7 +815,7 @@
               <video
                 controls
                 playsinline
-                preload="metadata"
+                preload="none"
                 poster="assets/pork-per-cell.png"
               >
                 <source src="assets/pork-per-cell.mp4" type="video/mp4" />
@@ -794,7 +831,7 @@
               <video
                 controls
                 playsinline
-                preload="metadata"
+                preload="none"
                 poster="assets/pork-shared.png"
               >
                 <source src="assets/pork-shared.mp4" type="video/mp4" />
@@ -914,6 +951,130 @@
           </figure>
         </section>
 
+        <section class="section" id="h020">
+          <p class="eyebrow" style="color: var(--teal)">
+            High-target continuation
+          </p>
+          <h2>At h=.20, none of the four paths settles</h2>
+          <div class="answer" style="border-left-color: var(--warn)">
+            h=.20 doubles the prior high target (h=.10). It already reaches a
+            trajectory minimum detF of −363.6, so h=.30 was not run. These are
+            retained negative convergence results—not early-cut runs.
+          </div>
+          <p class="section-intro">
+            All four band-muscle paths had zero forward and adjoint failures,
+            yet none passed the strict stationarity gate. The shared-control
+            fallback completed 1,000 strict trials with zero failures and was
+            still nonstationary.
+          </p>
+
+          <div class="compact-table" role="region" aria-label="h equals .20 result summary" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>path</th>
+                  <th>final top RMS</th>
+                  <th>trajectory min detF</th>
+                  <th>final double-inverted area</th>
+                  <th>stationary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>direct</td>
+                  <td>.01336</td>
+                  <td>−118.4</td>
+                  <td>3.55%</td>
+                  <td>no</td>
+                </tr>
+                <tr>
+                  <td>shared</td>
+                  <td>.10097</td>
+                  <td>−.361</td>
+                  <td>0</td>
+                  <td>no</td>
+                </tr>
+                <tr>
+                  <td>shared-u</td>
+                  <td>.01270</td>
+                  <td>−363.6</td>
+                  <td>3.8%</td>
+                  <td>no · exploratory</td>
+                </tr>
+                <tr>
+                  <td>zero-u</td>
+                  <td>.01067</td>
+                  <td>−295.0</td>
+                  <td>3.2%</td>
+                  <td>no · exploratory</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <h3>Uniform control can still buckle the whole strip</h3>
+            <p>
+              The locked shared path buckles globally despite uniform
+              activation; its Ainv remains orientation-positive. Releasing the
+              same activation into per-cell controls produces Ainv and
+              double-inversion by saved step 4.
+            </p>
+            <p>
+              The two releases begin with identical tiled activation but select
+              different first equilibria: objective .010195 for shared-u and
+              .009808 for zero-u. Their final endpoints therefore cannot be
+              read as a control-only comparison.
+            </p>
+          </div>
+
+          <div class="comparison">
+            <figure>
+              <a href="assets/h020-direct-final.png" target="_blank">
+                <img src="assets/h020-direct-final.png" alt="h equals .20 direct-control final pork shape" loading="lazy" decoding="async" />
+              </a>
+              <figcaption><strong>Direct.</strong> Independent controls from the start.</figcaption>
+            </figure>
+            <figure>
+              <a href="assets/h020-shared-final.png" target="_blank">
+                <img src="assets/h020-shared-final.png" alt="h equals .20 shared-control final pork shape" loading="lazy" decoding="async" />
+              </a>
+              <figcaption><strong>Shared.</strong> One control, global buckle, positive Ainv.</figcaption>
+            </figure>
+            <figure>
+              <a href="assets/h020-shared-u-final.png" target="_blank">
+                <img src="assets/h020-shared-u-final.png" alt="h equals .20 shared displacement seed release final pork shape" loading="lazy" decoding="async" />
+              </a>
+              <figcaption><strong>Shared-u.</strong> Exploratory release from the stored displacement.</figcaption>
+            </figure>
+            <figure>
+              <a href="assets/h020-zero-u-final.png" target="_blank">
+                <img src="assets/h020-zero-u-final.png" alt="h equals .20 zero displacement seed release final pork shape" loading="lazy" decoding="async" />
+              </a>
+              <figcaption><strong>Zero-u.</strong> Exploratory release from zero displacement.</figcaption>
+            </figure>
+          </div>
+
+          <div class="comparison">
+            <div class="video-card">
+              <video controls playsinline preload="none" poster="assets/h020-direct-final.png"><source src="assets/h020-direct-evolution.mp4" type="video/mp4" /></video>
+              <div class="video-copy"><strong>Direct · exact evolution</strong><br /><a href="assets/h020-direct-evolution.mp4">Open video</a></div>
+            </div>
+            <div class="video-card">
+              <video controls playsinline preload="none" poster="assets/h020-shared-final.png"><source src="assets/h020-shared-evolution.mp4" type="video/mp4" /></video>
+              <div class="video-copy"><strong>Shared · exact evolution</strong><br /><a href="assets/h020-shared-evolution.mp4">Open video</a></div>
+            </div>
+            <div class="video-card">
+              <video controls playsinline preload="none" poster="assets/h020-shared-u-final.png"><source src="assets/h020-shared-u-evolution.mp4" type="video/mp4" /></video>
+              <div class="video-copy"><strong>Shared-u · exploratory evolution</strong><br /><a href="assets/h020-shared-u-evolution.mp4">Open video</a></div>
+            </div>
+            <div class="video-card">
+              <video controls playsinline preload="none" poster="assets/h020-zero-u-final.png"><source src="assets/h020-zero-u-evolution.mp4" type="video/mp4" /></video>
+              <div class="video-copy"><strong>Zero-u · exploratory evolution</strong><br /><a href="assets/h020-zero-u-evolution.mp4">Open video</a></div>
+            </div>
+          </div>
+        </section>
+
         <section class="section" id="down">
           <p class="eyebrow" style="color: var(--teal)">Direction check</p>
           <h2>What if the target is pushed down?</h2>
@@ -970,7 +1131,7 @@
             <video
               controls
               playsinline
-              preload="metadata"
+              preload="none"
               poster="assets/height-down.png"
             >
               <source src="assets/pork-down.mp4" type="video/mp4" />
@@ -1045,7 +1206,12 @@
           </figure>
 
           <div class="video-card">
-            <video controls playsinline preload="metadata">
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="assets/upper-mouth-mechanism.png"
+            >
               <source src="assets/upper-mouth-evolution.mp4" type="video/mp4" />
             </video>
             <div class="video-copy">
@@ -1140,7 +1306,12 @@
           </p>
 
           <div class="video-card">
-            <video controls playsinline preload="metadata">
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="assets/face-mechanism.png"
+            >
               <source src="assets/face-evolution.mp4" type="video/mp4" />
             </video>
             <div class="video-copy">
@@ -1178,6 +1349,11 @@
             exaggeration. They are collapsed for a faster initial phone read;
             open either set and tap any case to zoom.
           </p>
+          <div class="caveat">
+            The older gallery includes full-muscle variants. They are archival
+            context only and are not interpreted as part of the h=.20
+            band-muscle continuation study above.
+          </div>
 
           <details>
             <summary>8 one-factor-at-a-time final shapes</summary>
@@ -1657,6 +1833,11 @@
             <li>
               <a href="records/2d-folding-factorial-report.md"
                 >Complete 2⁴ folding-factor study</a
+              >
+            </li>
+            <li>
+              <a href="records/2d-h020-shared-release-report.md"
+                >2D h=.20 shared-control release receipt</a
               >
             </li>
             <li>

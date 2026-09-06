@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#173b3a" />
+    <meta name="description" content="Focused mobile report: saved h=.20 2D pork inverse-physics controls." />
+    <title>2D pork h=.20 · focused saved-result report</title>
+    <style>
+      :root { color-scheme: light; --ink:#1a2928; --muted:#5c6967; --paper:#f4f2ec; --card:#fffdfa; --line:#d8d4ca; --teal:#176b68; --deep:#173b3a; --muscle:#a54b59; --fat:#d8b17d; --warn:#9a4a20; --shadow:0 10px 30px rgb(23 59 58 / .08); }
+      * { box-sizing:border-box; }
+      html { scroll-behavior:smooth; background:var(--paper); }
+      body { margin:0; color:var(--ink); background:radial-gradient(circle at 100% 0,rgb(216 177 125 / .18),transparent 22rem),var(--paper); font:17px/1.56 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+      a { color:var(--teal); text-decoration-thickness:.08em; text-underline-offset:.17em; }
+      img,video { display:block; width:100%; height:auto; }
+      img { background:#fff; }
+      .page { width:min(100%,900px); margin:auto; padding-bottom:calc(4rem + env(safe-area-inset-bottom)); }
+      .hero { padding:calc(2.2rem + env(safe-area-inset-top)) max(1.25rem,env(safe-area-inset-right)) 2.4rem max(1.25rem,env(safe-area-inset-left)); color:#f8f5ee; background:linear-gradient(145deg,rgb(23 59 58 / .96),rgb(18 74 71 / .91)),var(--deep); }
+      .eyebrow { margin:0 0 .7rem; color:#c8e0dc; font-size:.75rem; font-weight:750; letter-spacing:.11em; text-transform:uppercase; }
+      h1,h2,h3 { margin-top:0; font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.11; text-wrap:balance; }
+      h1 { max-width:13ch; margin-bottom:1rem; font-size:clamp(2.55rem,12vw,4.8rem); letter-spacing:-.045em; }
+      h2 { margin-bottom:.85rem; font-size:clamp(1.9rem,8vw,3.1rem); letter-spacing:-.035em; }
+      h3 { margin-bottom:.45rem; font-size:1.2rem; }
+      p { margin:.65rem 0 0; }
+      .lede { max-width:43rem; margin:0; color:#eef5f2; font-size:clamp(1.1rem,4.5vw,1.35rem); line-height:1.43; }
+      .meta { margin-top:1.35rem; color:#c8d8d4; font-size:.84rem; }
+      .nav { position:sticky; z-index:2; top:0; display:flex; gap:.45rem; overflow-x:auto; padding:.65rem max(1rem,env(safe-area-inset-right)) .65rem max(1rem,env(safe-area-inset-left)); border-bottom:1px solid rgb(23 59 58 / .12); background:rgb(244 242 236 / .92); box-shadow:0 6px 22px rgb(23 59 58 / .06); backdrop-filter:blur(18px); scrollbar-width:none; }
+      .nav::-webkit-scrollbar { display:none; }
+      .nav a { flex:0 0 auto; padding:.43rem .72rem; border:1px solid var(--line); border-radius:999px; color:var(--ink); background:#fffefa; font-size:.78rem; font-weight:700; text-decoration:none; }
+      main { padding-inline:max(1rem,env(safe-area-inset-left)); }
+      .section { padding-top:3.25rem; scroll-margin-top:4rem; }
+      .intro { max-width:44rem; color:var(--muted); }
+      .answer,.card,figure,.table-wrap,.video-card { margin-top:1rem; border:1px solid var(--line); border-radius:1rem; background:var(--card); box-shadow:var(--shadow); }
+      .answer { padding:1.2rem; border-left:.35rem solid var(--muscle); border-radius:.3rem 1rem 1rem .3rem; font-size:1.14rem; font-weight:680; line-height:1.43; }
+      .card { padding:1.1rem; }
+      .pills { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.9rem; }
+      .pill { padding:.36rem .63rem; border-radius:999px; color:#fff; background:var(--deep); font-size:.72rem; font-weight:700; line-height:1.15; }
+      .pill.muscle { background:var(--muscle); } .pill.neutral { color:var(--ink); background:#e8e4da; }
+      .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem; margin-top:1rem; }
+      .stat { min-height:7rem; padding:1rem; border:1px solid var(--line); border-radius:1rem; background:var(--card); }
+      .stat strong { display:block; color:var(--deep); font-size:clamp(1.45rem,7vw,2.1rem); line-height:1; font-variant-numeric:tabular-nums; }
+      .stat span { display:block; margin-top:.55rem; color:var(--muted); font-size:.76rem; line-height:1.25; }
+      figure { margin:1rem 0 0; overflow:hidden; background:#fff; }
+      figure a { display:block; } figcaption { padding:.78rem .9rem .9rem; color:var(--muted); background:var(--card); font-size:.79rem; line-height:1.4; } figcaption strong { color:var(--ink); }
+      .table-wrap { overflow-x:auto; }
+      table { width:100%; min-width:42rem; border-collapse:collapse; font-size:.78rem; line-height:1.3; }
+      th,td { padding:.7rem; border-bottom:1px solid var(--line); text-align:right; vertical-align:top; font-variant-numeric:tabular-nums; }
+      th:first-child,td:first-child { text-align:left; font-weight:750; } tr:last-child td { border-bottom:0; }
+      .warn { color:var(--warn); font-weight:700; }
+      .video-card { overflow:hidden; background:#171a19; }
+      .video-copy { padding:.8rem .9rem .95rem; color:#e9efed; font-size:.8rem; line-height:1.4; } .video-copy strong { color:#fff; } .video-copy a { color:#b8ded8; }
+      .note { color:var(--muted); font-size:.84rem; }
+      footer { margin-top:3rem; padding:1.5rem 0 0; border-top:1px solid var(--line); color:var(--muted); font-size:.8rem; }
+      @media (min-width:680px) { .media-grid,.video-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; } .media-grid figure,.video-grid .video-card { margin-top:1rem; } }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">Saved result only · 2D inverse physics</p>
+        <h1>Streaky pork at h=.20</h1>
+        <p class="lede">A focused comparison of the exact saved 1 × .1, y=.04–.06 muscle-band runs: direct independent control, one shared control, and shared-to-independent warm start.</p>
+        <p class="meta">Material-only filled framework · fat gold, muscle red · 30 FPS · no physics run was started for this report.</p>
+      </header>
+
+      <nav class="nav" aria-label="Report sections">
+        <a href="#result">Result</a><a href="#shapes">Shapes</a><a href="#loss">Loss</a><a href="#square">Shared control</a><a href="#videos">Videos</a><a href="#limits">Limits</a>
+      </nav>
+
+      <main>
+        <section class="section" id="result">
+          <p class="eyebrow" style="color:var(--teal)">Scope and answer</p>
+          <h2>Warm-starting improves fit, not validity</h2>
+          <div class="answer">The shared-to-independent release reaches the closest saved final surface, but all three exact saved histories stop before the strict inverse-gradient stationarity gate. The close, bumpy surface is therefore an exploratory state—not a converged optimum.</div>
+          <div class="stats">
+            <div class="stat"><strong>.01270</strong><span>shared → independent final top RMS error</span></div>
+            <div class="stat"><strong>3.90%</strong><span>its final inverted-triangle fraction</span></div>
+            <div class="stat"><strong>.00804</strong><span>best shared-only L2 loss (step 16)</span></div>
+            <div class="stat"><strong>0</strong><span>exact h=.20, ν=.35 saved runs</span></div>
+          </div>
+          <div class="card">
+            <h3>Controlled model</h3>
+            <div class="pills"><span class="pill">1 × .1 domain</span><span class="pill muscle">muscle y=.04–.06</span><span class="pill">Stable Neo-Hookean</span><span class="pill">E<sub>muscle</sub>=10×E<sub>fat</sub></span><span class="pill neutral">ν=.49</span><span class="pill neutral">L2 top-surface loss</span></div>
+            <p class="note">100 × 10 cells / 2,000 triangles; 400 muscle and 1,600 fat. Bottom and side vertices are fixed; the top and interior are free. The h=.20 target is a parabola with fixed endpoints. In 2D a symmetric activation has <strong>3 DoF per triangle</strong>, not the 6 DoF used for a 3D tetrahedron. No skin energy, activation bounds, determinant constraint, inversion repair, contact, or barrier was added.</p>
+          </div>
+        </section>
+
+        <section class="section" id="shapes">
+          <p class="eyebrow" style="color:var(--teal)">Final saved states</p>
+          <h2>The fit comes with folding</h2>
+          <p class="intro">Each panel uses only fat/muscle color and a filled triangle framework. The pink line is the target. The fourth panel deliberately records the unavailable ν=.35 comparison rather than substituting a different experiment.</p>
+          <figure>
+            <a href="assets/h020-focused-final-comparison.png" target="_blank"><img src="assets/h020-focused-final-comparison.png" alt="Final material-only comparison of direct, shared, and shared-to-independent h=.20 2D pork states; nu .35 marked unavailable" /></a>
+            <figcaption><strong>Exact saved final states.</strong> Direct and released controls fit substantially better than shared-only control, while their muscle bands contain visible self-overlap/folding.</figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>saved history</th><th>controls</th><th>final / best L2</th><th>top RMS</th><th>final inverted</th></tr></thead>
+              <tbody>
+                <tr><td>direct independent</td><td>1,200</td><td>.000178 / .000178</td><td>.01336</td><td>3.80%</td></tr>
+                <tr><td>shared</td><td>1 shared 3-vector</td><td>.010195 / .008040</td><td>.10097</td><td>.10%</td></tr>
+                <tr><td>shared → independent</td><td>3 → 1,200</td><td>.000161 / .000161</td><td>.01270</td><td class="warn">3.90%</td></tr>
+                <tr><td>ν=.35 exact h=.20</td><td colspan="4" class="warn">not run / no matching saved history</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="loss">
+          <p class="eyebrow" style="color:var(--teal)">Optimization history</p>
+          <h2>The loss curve keeps the handoff honest</h2>
+          <p class="intro">The lower panel joins the shared prefix to its independent release. It shows a genuine warm start: the release begins exactly at the saved shared final state, then improves. It does not establish convergence.</p>
+          <figure>
+            <a href="assets/h020-focused-loss-curves.png" target="_blank"><img src="assets/h020-focused-loss-curves.png" alt="Log-scale loss curves for direct, shared, and shared-to-independent saved h=.20 histories" /></a>
+            <figcaption><strong>Saved L2 histories.</strong> Both direct and released paths finish with inverse-gradient norms above the strict stationarity threshold; the shared path also stops after rising from its early best loss.</figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="square">
+          <p class="eyebrow" style="color:var(--teal)">What “shared” means</p>
+          <h2>One activation for every muscle triangle</h2>
+          <p class="intro">The shared run uses one symmetric 2D activation vector for all 400 muscle triangles. This square is the affine deformation preferred by that activation alone, not the equilibrium deformation of the pork body.</p>
+          <figure>
+            <a href="assets/h020-focused-shared-activation-square.png" target="_blank"><img src="assets/h020-focused-shared-activation-square.png" alt="Rest unit square and shared activation preferred deformed square" /></a>
+            <figcaption><strong>Active-preferred square.</strong> It makes the shared-control assumption tangible: every muscle element asks for the same anisotropic affine transformation, while the surrounding fat and fixed boundaries determine the actual equilibrium.</figcaption>
+          </figure>
+        </section>
+
+        <section class="section" id="videos">
+          <p class="eyebrow" style="color:var(--teal)">Every saved step · 30 FPS</p>
+          <h2>Three histories, no alternate branch</h2>
+          <p class="intro">These videos render one image per saved optimization state. They intentionally include only the three requested histories; the previously explored zero-displacement release is excluded.</p>
+          <div class="video-grid">
+            <div class="video-card"><video controls playsinline preload="metadata" poster="assets/h020-focused-direct-final.png"><source src="assets/h020-focused-direct.mp4" type="video/mp4" /></video><div class="video-copy"><strong>Direct independent</strong><br />1,227 saved states · <a href="assets/h020-focused-direct.mp4">open video</a></div></div>
+            <div class="video-card"><video controls playsinline preload="metadata" poster="assets/h020-focused-shared-final.png"><source src="assets/h020-focused-shared.mp4" type="video/mp4" /></video><div class="video-copy"><strong>Shared only</strong><br />1,219 saved states · <a href="assets/h020-focused-shared.mp4">open video</a></div></div>
+            <div class="video-card"><video controls playsinline preload="metadata" poster="assets/h020-focused-shared-release-final.png"><source src="assets/h020-focused-shared-release.mp4" type="video/mp4" /></video><div class="video-copy"><strong>Shared → independent</strong><br />1,226 saved states · <a href="assets/h020-focused-shared-release.mp4">open video</a></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="limits">
+          <p class="eyebrow" style="color:var(--teal)">Interpretation boundary</p>
+          <h2>What this page does and does not compare</h2>
+          <div class="card">
+            <p><strong>Included:</strong> exactly matched saved h=.20, ν=.49 band-model histories and their material-only renders.</p>
+            <p><strong>Not available:</strong> an exact ν=.35 h=.20 history. It is shown as missing, not inferred from a different height or geometry.</p>
+            <p><strong>Not a convergence claim:</strong> all included histories failed the strict inverse-stationarity gate and their refinement restarted/stalled. The extreme deformation and folding are observations requiring further constrained or regularized studies, not evidence of physical muscle behavior.</p>
+            <p><a href="records/2d-h020-band-control-study-existing-results.md">Open the focused evidence record</a> · <a href="records/2d-h020-experiments-for-later-consideration.md">Experiments for later consideration (separate)</a> · <a href="index.html">Return to the broader archive</a></p>
+          </div>
+        </section>
+      </main>
+
+      <footer>Focused h=.20 saved-result report · material colors only · generated from existing states, with no new physics run.</footer>
+    </div>
+  </body>
+</html>

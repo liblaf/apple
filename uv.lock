@@ -1670,10 +1670,10 @@ dependencies = [
     { name = "scipy" },
 ]
 wheels = [
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0ad998d774726ffa92b56dbec37e70921169e650c048fcd9e8022486696cc6fc" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1d9d9ea50fa556e0144853bce216b9f35072752b380d92b3f82fde3a00a83cf0" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:2e9050a320bc9074fb8dc9fde46d664661947bbcaf89e16cb11b9be35a6484c3" },
-    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:153f772c610364bd1bbf4419242e8a3e7af7bd5a34a2fccea06a9e537aa66064" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7c3fb6fd0bf8bf74b7d09d53d2e7ebe0745424ee488bd4318991e500ffc98389" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:94c0a5ab4f8e12764a96457c118cfe7b23ef6a1ff3552a54cd91b9cc1654b783" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c8be573eafd56cdec91c0fbed5cc55dc1de66ce7c19cb5ab35406ff4b9e068fb" },
+    { url = "https://github.com/liblaf/mirrors-ipc-toolkit/releases/download/latest/ipctk-1.6.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:21b9f6b802ccac11a57092a68352b31e6840634101e07bc355bb0f01957b2990" },
 ]
 
 [[package]]

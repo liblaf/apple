@@ -25,7 +25,7 @@
       0.08153530579422003
     ],
     "projection": "parallel",
-    "scope": "expanded Orbicularis-oris region; display crop only after full-head sectioning",
+    "scope": "expanded Orbicularis-oris region; display crop only after the full-head initial crinkle clip",
     "view_up": [
       0.0,
       0.0,
@@ -83,2014 +83,2063 @@
     "stop_reason": "step_limit_smooth_decrease"
   },
   "complete": true,
-  "design": "hfp1-full-head-dominant-material-fixed-y-section-evolution",
+  "crinkle_union_bounds_m": [
+    1.3451348154345881,
+    1.4689473780830882,
+    2.110828902932927,
+    2.182122865309264,
+    -0.02446428876198042,
+    0.10129456819534544
+  ],
+  "design": "hfp1-initial-frame-negative-y-crinkle-clip-evolution",
   "frames": [
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346445148079029,
-          1.4676825867078067,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.10056717297035135
+          1.3460589769585278,
+          1.4680545835837444,
+          2.110828902932927,
+          2.175718904044661,
+          -0.02446428876198042,
+          0.10129456819534544
         ],
-        "cells": 16732,
-        "dominant_areas_m2": {
-          "Aponeurosis": 0.00010134169632638725,
-          "Fat": 0.00616916519029799,
-          "Muscle": 0.00119545598059377
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16732,
+        "currently_touching_or_straddling_plane_tetrahedra": 16743,
         "dominant_counts": {
-          "Aponeurosis": 251,
-          "Fat": 13778,
-          "Muscle": 2703
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "5c324f89f984402a5c02627ff6ff48b5af01862856627e6f7ea261f461a45beb",
-          "size_bytes": 513384
+          "sha256": "b055fa1608dd483d893522c1ca665dfe62c011a8fe621a385a356493ce28a1b5",
+          "size_bytes": 10763367
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-000.vtp",
-        "points": 11388,
-        "source_tets": 16732
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-000.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
           1.346445148079029,
           1.4676825867078067,
           2.1730086794286745,
-          2.1730086794286745,
-          0.007350733832447197,
-          0.10056717297035135
+          2.173008679428675,
+          0.007350733832447196,
+          0.10056717297035134
         ],
-        "cells": 285,
         "components": 1,
         "identity": {
-          "sha256": "f48d02d6ff660b58994b9551d975075fe3171de266afd373012acf94550abacd",
-          "size_bytes": 9797
+          "sha256": "91298a988fac17a9112abcac3b6badaf336288a16e0fcf5dec473a37c58530f0",
+          "size_bytes": 11712
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-000.vtp",
-        "points": 286
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 4.440892098500626e-16,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-000.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 0
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346426447534337,
-          1.4676924136584932,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09962466008932755
+          1.3460155646626268,
+          1.4680759300652753,
+          2.110828902932927,
+          2.1759901810072835,
+          -0.02446428876198042,
+          0.10019856119875784
         ],
-        "cells": 16755,
-        "dominant_areas_m2": {
-          "Aponeurosis": 9.662304146817099e-05,
-          "Fat": 0.0061681949499823845,
-          "Muscle": 0.0011961905221958146
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16701,
+        "currently_touching_or_straddling_plane_tetrahedra": 16701,
         "dominant_counts": {
-          "Aponeurosis": 246,
-          "Fat": 13801,
-          "Muscle": 2708
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "b46ba439a0dc37663825888717daa990073d5917d4a64b1ee2a4d975592ac3a4",
-          "size_bytes": 514028
+          "sha256": "30354cdfa0ab8f287da260fed1cf56e39a9c12d3a461d3b60ec6c7429d5f7b83",
+          "size_bytes": 10764007
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-001.vtp",
-        "points": 11404,
-        "source_tets": 16755
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-001.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346426447534337,
-          1.4676924136584932,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007332587864522353,
-          0.09962466008932755
+          1.3464163669024953,
+          1.4677093366694807,
+          2.1728042641689442,
+          2.1733563957772777,
+          0.007337932510073043,
+          0.09963305094167112
         ],
-        "cells": 287,
         "components": 1,
         "identity": {
-          "sha256": "721a179d2b9982669bb1035c2003f7a671211d92b31c7d03678aac5b8e4ea70a",
-          "size_bytes": 9857
+          "sha256": "2183e7723fac53c0844fe65da11525a5004b8cfb92909dc38db334d1c25e2fbb",
+          "size_bytes": 14071
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-001.vtp",
-        "points": 288
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0003477163486031998,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-001.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 1
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3464101675173616,
-          1.467702168330305,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09865316129233566
+          1.34597703214897,
+          1.468094820072821,
+          2.110828902932927,
+          2.1762672089444,
+          -0.02446428876198042,
+          0.09902648521355344
         ],
-        "cells": 16756,
-        "dominant_areas_m2": {
-          "Aponeurosis": 9.102418966244649e-05,
-          "Fat": 0.006168703975477084,
-          "Muscle": 0.001197393154804324
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16667,
+        "currently_touching_or_straddling_plane_tetrahedra": 16667,
         "dominant_counts": {
-          "Aponeurosis": 243,
-          "Fat": 13779,
-          "Muscle": 2734
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "c4d410ebf88faa88ec452e38a6d643fc2c30530f5607e6ab080f9e660f8aa446",
-          "size_bytes": 513932
+          "sha256": "7258b440d8a0bad543a58891b9420a64dae1d122ece9114475aefb62b9d51c01",
+          "size_bytes": 10763958
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-002.vtp",
-        "points": 11404,
-        "source_tets": 16756
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-002.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3464101675173616,
-          1.467702168330305,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007317437432188682,
-          0.09865316129233566
+          1.346377273338398,
+          1.4677333840006515,
+          2.1726490228166333,
+          2.173695266131605,
+          0.007327996110400508,
+          0.0986386997547797
         ],
-        "cells": 286,
         "components": 1,
         "identity": {
-          "sha256": "3fa8fd9b5e630f6df5d893047e4f6f3caff5f293c6c20b6fb150161a04f62e90",
-          "size_bytes": 9837
+          "sha256": "d3c47da008547a644e44a7e084e3a372f82b7400051a17e76468df732a605bf1",
+          "size_bytes": 14092
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-002.vtp",
-        "points": 287
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0006865867029306472,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-002.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 2
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3463931372558322,
-          1.4677128554102954,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09775150529365849
+          1.345941863070735,
+          1.468111599572073,
+          2.110828902932927,
+          2.1765490731172226,
+          -0.02446428876198042,
+          0.09795635368496863
         ],
-        "cells": 16803,
-        "dominant_areas_m2": {
-          "Aponeurosis": 8.62527315028434e-05,
-          "Fat": 0.006170045897064311,
-          "Muscle": 0.0011994984366023487
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16696,
+        "currently_touching_or_straddling_plane_tetrahedra": 16696,
         "dominant_counts": {
-          "Aponeurosis": 235,
-          "Fat": 13797,
-          "Muscle": 2771
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "ef26afc3092a79bea9d83f81edb109dcfd2a5e914635fbd5a06468aa6a77bd2d",
-          "size_bytes": 515708
+          "sha256": "632545f42c29bc9e910e92e6d06472fb3ee720a2e4b2d7ca636779e95d140316",
+          "size_bytes": 10764011
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-003.vtp",
-        "points": 11442,
-        "source_tets": 16803
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-003.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3463931372558322,
-          1.4677128554102954,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007304738591113624,
-          0.09775150529365849
+          1.346336470855685,
+          1.4677549025255965,
+          2.1726407624775237,
+          2.1740237302639587,
+          0.00732025368395107,
+          0.09770881823699415
         ],
-        "cells": 284,
         "components": 1,
         "identity": {
-          "sha256": "23c33605d9a9c3869dd3273ccc107c940b16a2745fb90d63cbd4fdf5e582e8f8",
-          "size_bytes": 9765
+          "sha256": "eebfe96d0dc12c7b059b39ec87e769ee9955d1bd7c51d5d6cdd9e26667499656",
+          "size_bytes": 14112
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-003.vtp",
-        "points": 285
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0010150508352841925,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-003.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 3
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3463751280347298,
-          1.467722520438388,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09696367058433876
+          1.3459096601510325,
+          1.4681269237043069,
+          2.110828902932927,
+          2.1768309004633952,
+          -0.02446428876198042,
+          0.09714210154263259
         ],
-        "cells": 16831,
-        "dominant_areas_m2": {
-          "Aponeurosis": 8.574025214280571e-05,
-          "Fat": 0.006170850951628386,
-          "Muscle": 0.0011997202761371882
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16750,
+        "currently_touching_or_straddling_plane_tetrahedra": 16750,
         "dominant_counts": {
-          "Aponeurosis": 211,
-          "Fat": 13817,
-          "Muscle": 2803
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "aeb2cf734dc75d2bac38efc4f3eadb203280ff0caf9e9aa92ee67912944ffde1",
-          "size_bytes": 516528
+          "sha256": "b801ff3ee58a9cb5dbdbdb621a6ab6bbfb4353517f178745e3c01531b98c9660",
+          "size_bytes": 10764383
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-004.vtp",
-        "points": 11462,
-        "source_tets": 16831
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-004.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3463751280347298,
-          1.467722520438388,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007294156113393749,
-          0.09696367058433876
+          1.3462979737700238,
+          1.4677749192203386,
+          2.1727685480766996,
+          2.174338799100337,
+          0.007314420569515861,
+          0.09691776459265543
         ],
-        "cells": 285,
         "components": 1,
         "identity": {
-          "sha256": "50ee429d9a502e2a6186a614fd6c4311d3156044c13f213728ebfdd12037ecc0",
-          "size_bytes": 9757
+          "sha256": "bf251b791cbb939167e12be9c18e724d47f5f839249d2e8c1ab3b5156a9d61f4",
+          "size_bytes": 14123
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-004.vtp",
-        "points": 286
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.001330119671662633,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-004.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 4
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346353550685498,
-          1.4677313335067166,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09631425198689861
+          1.3458798680800677,
+          1.4681415609558477,
+          2.110828902932927,
+          2.1771096417768145,
+          -0.02446428876198042,
+          0.09660302888021711
         ],
-        "cells": 16853,
-        "dominant_areas_m2": {
-          "Aponeurosis": 8.452211253061773e-05,
-          "Fat": 0.006170802031199166,
-          "Muscle": 0.0012030176631858958
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16771,
+        "currently_touching_or_straddling_plane_tetrahedra": 16771,
         "dominant_counts": {
-          "Aponeurosis": 207,
-          "Fat": 13837,
-          "Muscle": 2809
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "f1b36feb100c433918a93527bffcadfa5b1bd2a6b1dc483ff56e027308611d60",
-          "size_bytes": 517237
+          "sha256": "dfd48e9e5434d3d9f962811906e66976fd98993e57ce0ee5b5e9f9fa7bbe4208",
+          "size_bytes": 10764523
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-005.vtp",
-        "points": 11477,
-        "source_tets": 16853
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-005.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346353550685498,
-          1.4677313335067166,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007285054752541933,
-          0.09631425198689861
+          1.3462577578989983,
+          1.4677944617464835,
+          2.1728268448859596,
+          2.1746382660939605,
+          0.007309813169394632,
+          0.09630977262945586
         ],
-        "cells": 281,
         "components": 1,
         "identity": {
-          "sha256": "0a873152700c9940d275b8bba9fd18b08a137ca26022967e01ea5b99616decca",
-          "size_bytes": 9666
+          "sha256": "f8621aeef436d658d0d27a564aadc68661081249468674db3db493fb00a11eae",
+          "size_bytes": 14119
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-005.vtp",
-        "points": 282
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0016295866652860092,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-005.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 5
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346335168915125,
-          1.467739784610933,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0958308480034948
+          1.3458523861839835,
+          1.4681560212361238,
+          2.110828902932927,
+          2.1773835913812785,
+          -0.02446428876198042,
+          0.09622161464953934
         ],
-        "cells": 16928,
-        "dominant_areas_m2": {
-          "Aponeurosis": 8.251137688026868e-05,
-          "Fat": 0.006172507313463948,
-          "Muscle": 0.0012056277105970009
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16824,
+        "currently_touching_or_straddling_plane_tetrahedra": 16824,
         "dominant_counts": {
-          "Aponeurosis": 208,
-          "Fat": 13862,
-          "Muscle": 2858
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "ec11a7b6f6e39a70059de5e41fff639b8ae89357ff85c1c54ab6ed93ebb89337",
-          "size_bytes": 519584
+          "sha256": "191eb7ac07c075cb3b7f865ddc30217f34cc00c36bcf23800c3ecf9fd4bbef77",
+          "size_bytes": 10764571
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-006.vtp",
-        "points": 11521,
-        "source_tets": 16928
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-006.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346335168915125,
-          1.467739784610933,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007276781504334145,
-          0.0958308480034948
+          1.3462212042385073,
+          1.4678225638803157,
+          2.1728580865277625,
+          2.1749257029624633,
+          0.007305836138804879,
+          0.09587882780119589
         ],
-        "cells": 285,
         "components": 1,
         "identity": {
-          "sha256": "421848c5d97a9b42a95453c5b92bfbef061393a89d36d5c41280480ee06cfea2",
-          "size_bytes": 9765
+          "sha256": "6cfa247364230d750c49b90851118860ad103a9954363cd5c26cc265298e1327",
+          "size_bytes": 14124
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-006.vtp",
-        "points": 286
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0019170235337888641,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-006.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 6
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3463188382774645,
-          1.4677478969045803,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09553728874218442
+          1.3458259315843615,
+          1.4681700445413672,
+          2.110828902932927,
+          2.177651532191017,
+          -0.02446428876198042,
+          0.09594496383355208
         ],
-        "cells": 16995,
-        "dominant_areas_m2": {
-          "Aponeurosis": 8.014612730856206e-05,
-          "Fat": 0.00617037220744999,
-          "Muscle": 0.0012135081866742447
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16895,
+        "currently_touching_or_straddling_plane_tetrahedra": 16895,
         "dominant_counts": {
-          "Aponeurosis": 203,
-          "Fat": 13908,
-          "Muscle": 2884
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "e4ebd4685d53b332c9d1f3df105eb4cfeda287bf32c4c0a7b0a2e75073cb2ee7",
-          "size_bytes": 521543
+          "sha256": "0716750f2455ec7aba00fc017172cbd742b445eafd00a8dcd180e9d423e0fcf0",
+          "size_bytes": 10765010
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-007.vtp",
-        "points": 11566,
-        "source_tets": 16995
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-007.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3463188382774645,
-          1.4677478969045803,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007269088489414069,
-          0.09553728874218442
+          1.346186886249906,
+          1.467856629818224,
+          2.172919207430958,
+          2.17520104731335,
+          0.00730239870678588,
+          0.0955459120641596
         ],
-        "cells": 290,
         "components": 1,
         "identity": {
-          "sha256": "f9a13d1cd8aefb8ae3377aa0cc07859a5b9890ec9692524e5cb9230fd01ed016",
-          "size_bytes": 9888
+          "sha256": "ae80b92fcd8a3c287d968d97c1c137a7fb657ac91af819b657f76762ed680d57",
+          "size_bytes": 14135
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-007.vtp",
-        "points": 291
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0021923678846755834,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-007.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 7
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3463027937771284,
-          1.4677559984257036,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09540128194906167
+          1.3458002966723555,
+          1.468184085834573,
+          2.110828902932927,
+          2.1779117953832094,
+          -0.02446428876198042,
+          0.09581688876856995
         ],
-        "cells": 17079,
-        "dominant_areas_m2": {
-          "Aponeurosis": 7.67580813413363e-05,
-          "Fat": 0.006167410855500981,
-          "Muscle": 0.0012230237322274936
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 16982,
+        "currently_touching_or_straddling_plane_tetrahedra": 16982,
         "dominant_counts": {
-          "Aponeurosis": 195,
-          "Fat": 13947,
-          "Muscle": 2937
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "f0d43e4d6a0d41f772310c04f07ced585509c037940ae37900e6f3e6193025f0",
-          "size_bytes": 524597
+          "sha256": "faca03ff017f4295adfe4d94a9f06859b0f3fad852063cbb4e2ab5b535c70e67",
+          "size_bytes": 10764923
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-008.vtp",
-        "points": 11620,
-        "source_tets": 17079
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-008.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3463027937771284,
-          1.4677559984257036,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007261468829038322,
-          0.09540128194906167
+          1.3461539733790158,
+          1.4678951077197073,
+          2.1730085471200464,
+          2.175464738940426,
+          0.007298734029946732,
+          0.09542060543964008
         ],
-        "cells": 289,
         "components": 1,
         "identity": {
-          "sha256": "27776ee1a87b0a226b46d254b163f46d46d6ef5e92e575d773a5d34d918c38e5",
-          "size_bytes": 9858
+          "sha256": "80db605855d135ba2c5a728e4802c1212e6c9d440269bfc5a096ee9ff70072ee",
+          "size_bytes": 14128
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-008.vtp",
-        "points": 290
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0024560595117515405,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-008.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 8
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462912744193454,
-          1.4677635946062126,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09531170737185944
+          1.345775762843054,
+          1.4681975272127077,
+          2.110828902932927,
+          2.1781971008074166,
+          -0.02446428876198042,
+          0.09578267937128679
         ],
-        "cells": 17132,
-        "dominant_areas_m2": {
-          "Aponeurosis": 7.227554453132117e-05,
-          "Fat": 0.006165613320349941,
-          "Muscle": 0.0012328957767091223
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17016,
+        "currently_touching_or_straddling_plane_tetrahedra": 17016,
         "dominant_counts": {
-          "Aponeurosis": 185,
-          "Fat": 13980,
-          "Muscle": 2967
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "99d6d748d8eefeaf320e8cec1a9ccf2d8b0122ab9f07dfbd7b862d541b859632",
-          "size_bytes": 526276
+          "sha256": "24ff4d2249814d81f4ad6df2cc712ede3816f134f1c1f22c75f63d3a374ee7c4",
+          "size_bytes": 10764922
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-009.vtp",
-        "points": 11666,
-        "source_tets": 17132
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-009.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462912744193454,
-          1.4677635946062126,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007254670843509427,
-          0.09531170737185944
+          1.3461231730801062,
+          1.46793459193456,
+          2.173183655896433,
+          2.175717968312134,
+          0.007295763994876003,
+          0.0955060270404068
         ],
-        "cells": 297,
         "components": 1,
         "identity": {
-          "sha256": "5f6b3525466d2be98feb1c716627e900966858f58476ce4ba951ee339a6bcc3f",
-          "size_bytes": 10021
+          "sha256": "af1d305cf968000d51893d435ce2d7504c3e6a3637b014876951b36f23839162",
+          "size_bytes": 14116
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-009.vtp",
-        "points": 298
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0027092888834596707,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-009.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 9
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462821750108378,
-          1.467770298760785,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09520972377002113
+          1.345752226985086,
+          1.4682217018562083,
+          2.110828902932927,
+          2.1785473275360543,
+          -0.02446428876198042,
+          0.09558729064050343
         ],
-        "cells": 17227,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.959709387465107e-05,
-          "Fat": 0.006160226858247483,
-          "Muscle": 0.0012480291542503587
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17133,
+        "currently_touching_or_straddling_plane_tetrahedra": 17133,
         "dominant_counts": {
-          "Aponeurosis": 180,
-          "Fat": 14029,
-          "Muscle": 3018
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "dbcd4804fc37988bb2723444cb3be17a0bb6e21a2727f0ec6ea372cf14171717",
-          "size_bytes": 528863
+          "sha256": "a00e756afe6b18ce0a5589cc183849cbd32978a1dc5a669f453cc04ea4352c80",
+          "size_bytes": 10765607
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-010.vtp",
-        "points": 11727,
-        "source_tets": 17227
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-010.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462821750108378,
-          1.467770298760785,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007248003728847217,
-          0.09520972377002113
+          1.3460934364240291,
+          1.4679719957267983,
+          2.1732920238628415,
+          2.175957797777253,
+          0.007292746848529808,
+          0.09531867205677128
         ],
-        "cells": 297,
         "components": 1,
         "identity": {
-          "sha256": "f10fcf215235aea5a8738d0b23af226ab7ea7c1676ae4e6dd7bfb139d188daee",
-          "size_bytes": 10028
+          "sha256": "441196eade4bbaa08754b432e05b92857c26b34175b88e2a2a4c1e5f1ed958fd",
+          "size_bytes": 14127
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-010.vtp",
-        "points": 298
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0029491183485785832,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-010.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 10
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462720224357432,
-          1.4677768111894696,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09531371715488245
+          1.345728234461464,
+          1.4682458157694898,
+          2.110828902932927,
+          2.178718158286289,
+          -0.02446428876198042,
+          0.09551197725283588
         ],
-        "cells": 17261,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.850288530877272e-05,
-          "Fat": 0.006159421452249217,
-          "Muscle": 0.0012612894687214977
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17167,
+        "currently_touching_or_straddling_plane_tetrahedra": 17167,
         "dominant_counts": {
-          "Aponeurosis": 175,
-          "Fat": 14036,
-          "Muscle": 3050
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "bb7823d543f43b16878322db5638770e40134866c7d6c9b6e267aa25cd4e53b6",
-          "size_bytes": 530067
+          "sha256": "dae6c73c39ac115ece49cf88faa0445cbbaecd670a0a928183a07ac57ca72487",
+          "size_bytes": 10765419
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-011.vtp",
-        "points": 11745,
-        "source_tets": 17261
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-011.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462720224357432,
-          1.4677768111894696,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007240286078965973,
-          0.09531371715488245
+          1.3460647609561813,
+          1.4680082179916703,
+          2.1733132303011544,
+          2.176185802044354,
+          0.007288210388453597,
+          0.09514973189461103
         ],
-        "cells": 293,
         "components": 1,
         "identity": {
-          "sha256": "d092cba12e0c6014377e9d6c65fc43db39e7e9f8f47361973d5f80f6308e4b6a",
-          "size_bytes": 9949
+          "sha256": "b75364b7b4640da059508354b86799a3d91b9f97d8dc22111c0acac4abd462c7",
+          "size_bytes": 14124
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-011.vtp",
-        "points": 294
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.003177122615679373,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-011.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 11
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462634882059354,
-          1.4677836595727893,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09541369239786801
+          1.3457068933539806,
+          1.4682696777095618,
+          2.110828902932927,
+          2.178988359008658,
+          -0.02446428876198042,
+          0.09552056532596244
         ],
-        "cells": 17343,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.823499212412946e-05,
-          "Fat": 0.006151613583041758,
-          "Muscle": 0.0012776638492952978
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17249,
+        "currently_touching_or_straddling_plane_tetrahedra": 17249,
         "dominant_counts": {
-          "Aponeurosis": 171,
-          "Fat": 14065,
-          "Muscle": 3107
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "9abd03b692b190fca0030b3828e47892cfffc80121898a4460980821b94a9df9",
-          "size_bytes": 532827
+          "sha256": "b3d40109402aeb3514331ef2f75170b3ff8e455b5183c3814cb487246c263199",
+          "size_bytes": 10765686
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-012.vtp",
-        "points": 11798,
-        "source_tets": 17343
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-012.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462634882059354,
-          1.4677836595727893,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007234011060472538,
-          0.09541369239786801
+          1.3460377616619854,
+          1.4680432114731932,
+          2.173335689747766,
+          2.1764051341413557,
+          0.007285307857904839,
+          0.09519759744970513
         ],
-        "cells": 293,
         "components": 1,
         "identity": {
-          "sha256": "57140ed08a434e634e65c580351b3a8bcebe22ba98e0d3fccbb8de2dc2d09087",
-          "size_bytes": 9949
+          "sha256": "4509c05492cdf49c62a98fb2a99af9e3ba2f3fd4392de914b7f38ff3a5529725",
+          "size_bytes": 14138
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-012.vtp",
-        "points": 294
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0033964547126812406,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-012.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 12
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462559988932121,
-          1.467789626686054,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0955467467915452
+          1.3456872456292823,
+          1.4682991338460365,
+          2.110828902932927,
+          2.1792701647440036,
+          -0.02446428876198042,
+          0.09575440869127565
         ],
-        "cells": 17368,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.820226182093874e-05,
-          "Fat": 0.006148363480322212,
-          "Muscle": 0.001283951221193961
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17274,
+        "currently_touching_or_straddling_plane_tetrahedra": 17274,
         "dominant_counts": {
-          "Aponeurosis": 170,
-          "Fat": 14065,
-          "Muscle": 3133
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "9f90860aaf8ca3766bc1b48961c89ef382b56f3a460aebb8bb018753bbc88bab",
-          "size_bytes": 533603
+          "sha256": "d9830ce1633ff093b80df95d356307cebcbe63454a67bd594fc9fdd960448ac6",
+          "size_bytes": 10765998
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-013.vtp",
-        "points": 11813,
-        "source_tets": 17368
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-013.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462559988932121,
-          1.467789626686054,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007228262542037009,
-          0.0955467467915452
+          1.3460125155809237,
+          1.4680746174869272,
+          2.173357875275327,
+          2.176613487343141,
+          0.007282882614953851,
+          0.09533135984290923
         ],
-        "cells": 296,
         "components": 1,
         "identity": {
-          "sha256": "0b11c1b8a4f6321cef3a8beafc9bba6bd5375ba0a7681f31d6fedc1e3882ace6",
-          "size_bytes": 10013
+          "sha256": "a04803f3520f8f93c1abfab343f2d7c92a10ad126e0fa1584db6d9e4408bfec3",
+          "size_bytes": 14119
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-013.vtp",
-        "points": 297
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.003604807914466601,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-013.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 13
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462523189631204,
-          1.4677958118610408,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09567647982915073
+          1.3456738338352598,
+          1.468329217674001,
+          2.110828902932927,
+          2.1794146769281255,
+          -0.02446428876198042,
+          0.09584489216721188
         ],
-        "cells": 17419,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.754878566477527e-05,
-          "Fat": 0.006147781662247304,
-          "Muscle": 0.0012925855452423291
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17325,
+        "currently_touching_or_straddling_plane_tetrahedra": 17325,
         "dominant_counts": {
-          "Aponeurosis": 169,
-          "Fat": 14068,
-          "Muscle": 3182
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "3730d9ab05cd0dff9cb3f5d1eb8979937dba527ea2df7c093ef20ed2d79dc478",
-          "size_bytes": 535488
+          "sha256": "c95e7bd9a064b2de196be9d385e4b497e2c3bbd5485249013511179863c042ed",
+          "size_bytes": 10765830
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-014.vtp",
-        "points": 11846,
-        "source_tets": 17419
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-014.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462523189631204,
-          1.4677958118610408,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.0072240797490844165,
-          0.09567647982915073
+          1.3459913827290735,
+          1.4681054988938431,
+          2.1733828519954503,
+          2.1768171504097684,
+          0.00728250529309242,
+          0.0953587823153027
         ],
-        "cells": 295,
         "components": 1,
         "identity": {
-          "sha256": "80533b5707243ef6c3590ff9b46d30059708f4288d4ac81c8b897de9fae02648",
-          "size_bytes": 9974
+          "sha256": "12a28b20ebba8801a432f29ca3dc6548d8a99031b1af177b7d8f3e0c20147707",
+          "size_bytes": 14139
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-014.vtp",
-        "points": 296
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0038084709810939366,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-014.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 14
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462439800953212,
-          1.467805322656918,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09568248894627754
+          1.3456567690431298,
+          1.4683610506614329,
+          2.110828902932927,
+          2.1795642687490564,
+          -0.02446428876198042,
+          0.09581666773504845
         ],
-        "cells": 17491,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.62731559072964e-05,
-          "Fat": 0.00614785386656164,
-          "Muscle": 0.001301488396923213
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17383,
+        "currently_touching_or_straddling_plane_tetrahedra": 17383,
         "dominant_counts": {
-          "Aponeurosis": 170,
-          "Fat": 14099,
-          "Muscle": 3222
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "3107c355f3c0c1ffac3ed324df4bad8cbb03cfc876584ac4abd059726fee20d6",
-          "size_bytes": 537890
+          "sha256": "783559386b6c1b3b104bd75c7cc76c2adee53d89f38cca078362b5adf576981a",
+          "size_bytes": 10766087
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-015.vtp",
-        "points": 11889,
-        "source_tets": 17491
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-015.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462439800953212,
-          1.467805322656918,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007218616321561722,
-          0.09568248894627754
+          1.3459680017341447,
+          1.46813856487947,
+          2.1734042972680276,
+          2.1770036295915745,
+          0.0072802531266802015,
+          0.09530699099963458
         ],
-        "cells": 292,
         "components": 1,
         "identity": {
-          "sha256": "2c433149ac59e7a96a49a7bd3999fa403d33de2f68492f7800264f22d0dfd2f5",
-          "size_bytes": 9908
+          "sha256": "31983534253182bc52af81587c677e9048a4863c8f42566b7c8f825b2e6996e9",
+          "size_bytes": 14124
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-015.vtp",
-        "points": 293
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.003994950162899968,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-015.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 15
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462388612609173,
-          1.4678151054397541,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09566322862900553
+          1.3456397540387226,
+          1.4683910445876194,
+          2.110828902932927,
+          2.1796697306588206,
+          -0.02446428876198042,
+          0.0957533520333573
         ],
-        "cells": 17525,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.36103505469014e-05,
-          "Fat": 0.006145316715960065,
-          "Muscle": 0.0013138604439241984
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17417,
+        "currently_touching_or_straddling_plane_tetrahedra": 17417,
         "dominant_counts": {
-          "Aponeurosis": 165,
-          "Fat": 14104,
-          "Muscle": 3256
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "d6a6045c75d83c396d224dc02bd0fed5a0e0271b2a0b79ee71c6114228ccc18e",
-          "size_bytes": 539020
+          "sha256": "b353e959ae41cd1ac0c6ebe23e554f59fad419148f56d26fa4819667e7153ce4",
+          "size_bytes": 10766178
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-016.vtp",
-        "points": 11923,
-        "source_tets": 17525
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-016.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462388612609173,
-          1.4678151054397541,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007215426571727999,
-          0.09566322862900553
+          1.3459480240892823,
+          1.468170042436772,
+          2.17342509775974,
+          2.1771758357693365,
+          0.0072801289170592335,
+          0.09523388659738512
         ],
-        "cells": 291,
         "components": 1,
         "identity": {
-          "sha256": "4f9b3d9ae0f030a59c721a2503dad142de4dee88c2816d4ca48c1a456f8c32a3",
-          "size_bytes": 9886
+          "sha256": "ef87ebadf44c5452eb100b24feef672cd31966cb9f620a4f6c81a827948a21af",
+          "size_bytes": 14144
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-016.vtp",
-        "points": 292
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.004167156340662004,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-016.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 16
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462420763698348,
-          1.4678218045638631,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09562389335773262
+          1.3456288743413711,
+          1.4684160807098143,
+          2.110828902932927,
+          2.1798315243400164,
+          -0.02446428876198042,
+          0.09568288859934818
         ],
-        "cells": 17554,
-        "dominant_areas_m2": {
-          "Aponeurosis": 6.151713496638189e-05,
-          "Fat": 0.006138200892636173,
-          "Muscle": 0.001327646353315669
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17446,
+        "currently_touching_or_straddling_plane_tetrahedra": 17446,
         "dominant_counts": {
-          "Aponeurosis": 153,
-          "Fat": 14133,
-          "Muscle": 3268
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "b85718d1214e0e0a9bc447e46d78d24982419aad1ecd0444a6c6ab295cbc22bd",
-          "size_bytes": 539994
+          "sha256": "08a7ee698a360347c2db0566b3a1b300a95e93775fb534a59cf3622596aaf60e",
+          "size_bytes": 10766091
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-017.vtp",
-        "points": 11947,
-        "source_tets": 17554
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-017.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462420763698348,
-          1.4678218045638631,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.00721442127813252,
-          0.09562389335773262
+          1.3459369912779422,
+          1.4681967282725639,
+          2.173444468251942,
+          2.177346890654143,
+          0.0072819729716852525,
+          0.0951921374845551
         ],
-        "cells": 296,
         "components": 1,
         "identity": {
-          "sha256": "444c790dfb7038d69c2f7f931810a9a12018b122aefd4204afced8503f11a7c4",
-          "size_bytes": 10013
+          "sha256": "653e2779254ade7b4886fae7a567be79cd0e9d4546e72521ca189a256091b3a6",
+          "size_bytes": 14144
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-017.vtp",
-        "points": 297
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.004338211225468402,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-017.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 17
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462262311847426,
-          1.4678295877871326,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09568473871707517
+          1.3455907548053962,
+          1.4684401299086183,
+          2.110828902932927,
+          2.180017830004785,
+          -0.02446428876198042,
+          0.09570905395940006
         ],
-        "cells": 17605,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.9385203888764075e-05,
-          "Fat": 0.00612798547012233,
-          "Muscle": 0.0013426859003179185
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17494,
+        "currently_touching_or_straddling_plane_tetrahedra": 17494,
         "dominant_counts": {
-          "Aponeurosis": 150,
-          "Fat": 14164,
-          "Muscle": 3291
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "8735b2374f79e9012aad70f82cb2583c9d776cb2a04100accd9b7d9e6b7bea2d",
-          "size_bytes": 541810
+          "sha256": "68e3c570e0bbb1ed12f82fd8c5f84bf1b51d39a9b23469ca7cef755a19f95f60",
+          "size_bytes": 10766118
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-018.vtp",
-        "points": 11987,
-        "source_tets": 17605
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-018.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462262311847426,
-          1.4678295877871326,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007208866653762246,
-          0.09568473871707517
+          1.3459065280427382,
+          1.468222565105354,
+          2.1734635201795838,
+          2.177508564849663,
+          0.007279265143142116,
+          0.09517750878001341
         ],
-        "cells": 292,
         "components": 1,
         "identity": {
-          "sha256": "62c93ba4a6992910aaaa00637579d30c19c153e638ce4672c7f3c8563ba60247",
-          "size_bytes": 9913
+          "sha256": "74822a1a8829b00a42b07fb2e45e1c125ea3af8dfddf3f5b01ce5a4018208207",
+          "size_bytes": 14131
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-018.vtp",
-        "points": 293
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.004499885420988559,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-018.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 18
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3462032588118598,
-          1.4678393338685403,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0957258374321446
+          1.3455625998584184,
+          1.4684640980979247,
+          2.110828902932927,
+          2.180178132185773,
+          -0.02446428876198042,
+          0.09572860548514357
         ],
-        "cells": 17658,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.795137503074417e-05,
-          "Fat": 0.006123418459724669,
-          "Muscle": 0.001354275978843713
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17541,
+        "currently_touching_or_straddling_plane_tetrahedra": 17541,
         "dominant_counts": {
-          "Aponeurosis": 146,
-          "Fat": 14193,
-          "Muscle": 3319
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "192727f8abaeb9011c2a5c1bce033739e2d618bf4506dd23062a477beff28e37",
-          "size_bytes": 543493
+          "sha256": "51b0ae442047a0ecafafd2a94116b5158c0fbee14a71c93e3191bce5cd729e53",
+          "size_bytes": 10766106
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-019.vtp",
-        "points": 12026,
-        "source_tets": 17658
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-019.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3462032588118598,
-          1.4678393338685403,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007207150978408134,
-          0.0957258374321446
+          1.3458675895883356,
+          1.4682487746213326,
+          2.173482838772551,
+          2.177651577772795,
+          0.007280566030042087,
+          0.09519661166114399
         ],
-        "cells": 298,
         "components": 1,
         "identity": {
-          "sha256": "2c586c0360b30a21def7ef589a7048d60791974dec14327d6ab961e7080c4c79",
-          "size_bytes": 10056
+          "sha256": "e741d31bb0b5de787f38e2a2bc096933821f5d4f9b2c8986de47edca3c79e4d8",
+          "size_bytes": 14143
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-019.vtp",
-        "points": 299
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.004642898344120461,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-019.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 19
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461906116732956,
-          1.4678468811490777,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09571401662603189
+          1.34553952098307,
+          1.4684946343766387,
+          2.110828902932927,
+          2.1803645682075805,
+          -0.02446428876198042,
+          0.09574647512547974
         ],
-        "cells": 17695,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.628665662698865e-05,
-          "Fat": 0.006116791279653206,
-          "Muscle": 0.0013662086105537337
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17568,
+        "currently_touching_or_straddling_plane_tetrahedra": 17568,
         "dominant_counts": {
-          "Aponeurosis": 143,
-          "Fat": 14204,
-          "Muscle": 3348
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "250b31e293e5b5ac0462a7d4f211d5c7734a56e947f0fc264080543acf49b9bf",
-          "size_bytes": 544897
+          "sha256": "1fc1b2ba256d44ed639b0227642af711284b2285b89e6c32050bd6db587ad0f0",
+          "size_bytes": 10766483
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-020.vtp",
-        "points": 12054,
-        "source_tets": 17695
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-020.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461906116732956,
-          1.4678468811490777,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007202939642262312,
-          0.09571401662603189
+          1.3458368436105237,
+          1.468275441366628,
+          2.173500579843176,
+          2.177775340808817,
+          0.0072790329764457215,
+          0.09525305749871046
         ],
-        "cells": 303,
         "components": 1,
         "identity": {
-          "sha256": "697ac1b8205d3f9e192077d43fc41c7eda1552063c722c01ff9166090aeb39f7",
-          "size_bytes": 10200
+          "sha256": "55c71a3f50a0d2b87ad56add0a0f978023fed2399569964f22ff5a131ca93049",
+          "size_bytes": 14137
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-020.vtp",
-        "points": 304
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0047666613801427005,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-020.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 20
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461712747604957,
-          1.467854026896671,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09558339830038003
+          1.34551299449451,
+          1.4685266183305445,
+          2.110828902932927,
+          2.1805168389057914,
+          -0.02446428876198042,
+          0.09562964333719091
         ],
-        "cells": 17789,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.439416953129247e-05,
-          "Fat": 0.006112155903489591,
-          "Muscle": 0.0013784290342388817
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17653,
+        "currently_touching_or_straddling_plane_tetrahedra": 17653,
         "dominant_counts": {
-          "Aponeurosis": 141,
-          "Fat": 14256,
-          "Muscle": 3392
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "37a3af31228374a09f68695e20caaa3569f1d92ac995196cd9850a934e878e66",
-          "size_bytes": 547785
+          "sha256": "b7b32a5fb7b9b1a75ae00db55061db18d5f9967acaeaf333b5a8bb99c4ecdd26",
+          "size_bytes": 10766465
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-021.vtp",
-        "points": 12108,
-        "source_tets": 17789
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-021.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461712747604957,
-          1.467854026896671,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.0071981400991360306,
-          0.09558339830038003
+          1.3458047544492984,
+          1.468302054701948,
+          2.1735165645216346,
+          2.177913229389474,
+          0.007276613740746703,
+          0.0952106720482623
         ],
-        "cells": 307,
         "components": 1,
         "identity": {
-          "sha256": "7f1166a76e63ea424690585f6c28b1f8b8890ef22721be3055d8c06532559b66",
-          "size_bytes": 10264
+          "sha256": "64750b4907b9e57fbee80027706f4ab50dd65309f8bcebaf2f896073a365a68e",
+          "size_bytes": 14167
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-021.vtp",
-        "points": 308
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.004904549960799365,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-021.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 21
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461544415609796,
-          1.467862930499481,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09549765858569052
+          1.3454895359603853,
+          1.4685601667236396,
+          2.110828902932927,
+          2.180652992436202,
+          -0.02446428876198042,
+          0.09556237700417214
         ],
-        "cells": 17794,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.286493701451474e-05,
-          "Fat": 0.006109542235596781,
-          "Muscle": 0.0013888036178855367
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17650,
+        "currently_touching_or_straddling_plane_tetrahedra": 17650,
         "dominant_counts": {
-          "Aponeurosis": 145,
-          "Fat": 14226,
-          "Muscle": 3423
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "f8264a17ce56dfad3765e25b4bb54606056254da9fd4d987bdbacf1d3afdec52",
-          "size_bytes": 547879
+          "sha256": "e3fd9c735a14c65f652d51b6943f35f1d2ae326e09f4c1d5f8c96f03ba27debe",
+          "size_bytes": 10766547
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-022.vtp",
-        "points": 12105,
-        "source_tets": 17794
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-022.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461544415609796,
-          1.467862930499481,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.0071942155876500175,
-          0.09549765858569052
+          1.345776471831369,
+          1.4683297403077797,
+          2.173533205075912,
+          2.1780487873247183,
+          0.007275158026544298,
+          0.09520873382324205
         ],
-        "cells": 306,
         "components": 1,
         "identity": {
-          "sha256": "dd478191b03fdbbec871ddcee0dddca66ff4f9d7ba4a52fbfd96d095bb47389e",
-          "size_bytes": 10262
+          "sha256": "852b75a5c4732aa2c38178ef242a6bd1eeaf8013a6b1e6489a73cf1d507323ba",
+          "size_bytes": 14168
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-022.vtp",
-        "points": 307
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005040107896043811,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-022.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 22
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461337926571029,
-          1.467874653552593,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09543556283199131
+          1.345462899149942,
+          1.4685981252961673,
+          2.110828902932927,
+          2.1808413169044623,
+          -0.02446428876198042,
+          0.09551610831905397
         ],
-        "cells": 17881,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.198900220117664e-05,
-          "Fat": 0.0061052951963242764,
-          "Muscle": 0.001399703173334696
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17726,
+        "currently_touching_or_straddling_plane_tetrahedra": 17726,
         "dominant_counts": {
-          "Aponeurosis": 148,
-          "Fat": 14310,
-          "Muscle": 3423
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "17f8221405b05f21d137df491db2bc9ac6c5f0ccebcf58931032f00ea3922177",
-          "size_bytes": 550489
+          "sha256": "f6eb237c3e29c155c348dd3a10d0073d8a434e933e4f4bfef5a42341dfbc0db1",
+          "size_bytes": 10766390
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-023.vtp",
-        "points": 12156,
-        "source_tets": 17881
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-023.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461337926571029,
-          1.467874653552593,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007190670812455217,
-          0.09543556283199131
+          1.3457413928805482,
+          1.4683602970370662,
+          2.1735482310315257,
+          2.178149918103578,
+          0.007273784156430904,
+          0.09521444731060565
         ],
-        "cells": 305,
         "components": 1,
         "identity": {
-          "sha256": "b03138c574f4e9100ab774057253583eb1721ce212525cc5a2dbc1e9fccf61d1",
-          "size_bytes": 10224
+          "sha256": "07b34b42cf55e82b4b9e1e27aac5cc76cdbdb453887ce91a798b9f0357bc322a",
+          "size_bytes": 14146
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-023.vtp",
-        "points": 306
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005141238674903459,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-023.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 23
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461200105030424,
-          1.4678819906073353,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0955272495369395
+          1.345441422704347,
+          1.4686264816536845,
+          2.110828902932927,
+          2.180878476930618,
+          -0.02446428876198042,
+          0.09563542901161351
         ],
-        "cells": 17922,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.248054400181065e-05,
-          "Fat": 0.0061061930227082895,
-          "Muscle": 0.0014113917450772392
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17767,
+        "currently_touching_or_straddling_plane_tetrahedra": 17767,
         "dominant_counts": {
-          "Aponeurosis": 147,
-          "Fat": 14366,
-          "Muscle": 3409
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "6bb9e91f345ff92c9387bc6513ea8a9104358a65df55241fe7af24b4ec1d1601",
-          "size_bytes": 551773
+          "sha256": "e1a64951b4e4fbce8d6414250df61d5a677c580b020d6b3aefb28d6a8495bec6",
+          "size_bytes": 10766563
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-024.vtp",
-        "points": 12189,
-        "source_tets": 17922
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-024.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461200105030424,
-          1.4678819906073353,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007188036789461078,
-          0.0955272495369395
+          1.3457096852339148,
+          1.4683842960142979,
+          2.1735631269676845,
+          2.1782607277390005,
+          0.007273317575550831,
+          0.09532750300442949
         ],
-        "cells": 311,
         "components": 1,
         "identity": {
-          "sha256": "701a3e4b21be61632e977573cf1b17875b04d187ad7e6eb9dee1ae18ef60580d",
-          "size_bytes": 10380
+          "sha256": "97207551b1dd6159202c389e9a880fc973a6ccd29baefc394f7913b455323c67",
+          "size_bytes": 14144
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-024.vtp",
-        "points": 312
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005252048310325996,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-024.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 24
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3461070660748944,
-          1.4678889703552083,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09548638763494649
+          1.3454195213475417,
+          1.4686514218616948,
+          2.110828902932927,
+          2.1810284351306106,
+          -0.02446428876198042,
+          0.09560720304165482
         ],
-        "cells": 17969,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.220333796493409e-05,
-          "Fat": 0.006103155426587692,
-          "Muscle": 0.0014214214241297161
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17814,
+        "currently_touching_or_straddling_plane_tetrahedra": 17814,
         "dominant_counts": {
-          "Aponeurosis": 145,
-          "Fat": 14349,
-          "Muscle": 3475
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "1b6071f5e76a4cdcb3f3dbdec4508ffb8d4f63e988bf90324069a2dda33457e5",
-          "size_bytes": 553627
+          "sha256": "c18bfd2ae93b603a246ca4ca7d397a09c953b83e93eca6359668267c99a6c0d4",
+          "size_bytes": 10766791
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-025.vtp",
-        "points": 12229,
-        "source_tets": 17969
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-025.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3461070660748944,
-          1.4678889703552083,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007185479936436375,
-          0.09548638763494649
+          1.3456784258725452,
+          1.4684057248386464,
+          2.173577409319403,
+          2.178365079571159,
+          0.007272814913016373,
+          0.09533687843214061
         ],
-        "cells": 317,
         "components": 1,
         "identity": {
-          "sha256": "42771f24ea432175ab65775b5a1b4d8ac04c08f573dbcf97399e940bbfed0b1d",
-          "size_bytes": 10514
+          "sha256": "9fc9744fe19f17817f7143df47f53bfe8d574118714e717bd33e5477ca2fc1f1",
+          "size_bytes": 14149
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-025.vtp",
-        "points": 318
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0053564001424843966,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-025.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 25
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3460962591284373,
-          1.4678979780439962,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09547340922075409
+          1.3453964290726927,
+          1.4686786081233387,
+          2.110828902932927,
+          2.1811273773015114,
+          -0.02446428876198042,
+          0.09560713708105884
         ],
-        "cells": 18056,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.1931528105481994e-05,
-          "Fat": 0.006099896091296512,
-          "Muscle": 0.0014311664717439028
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17898,
+        "currently_touching_or_straddling_plane_tetrahedra": 17898,
         "dominant_counts": {
-          "Aponeurosis": 145,
-          "Fat": 14368,
-          "Muscle": 3543
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "c0641f96fdb8929f289998800676b4977d20ec702b342856e55e6115d14d1ec3",
-          "size_bytes": 556275
+          "sha256": "eb3ec7bb5163803557f018f98715c1f60b72872af14c9b9983e5b229206b53e7",
+          "size_bytes": 10766559
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-026.vtp",
-        "points": 12290,
-        "source_tets": 18056
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-026.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3460962591284373,
-          1.4678979780439962,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007182996647307979,
-          0.09547340922075409
+          1.3456496672746612,
+          1.4684293449877934,
+          2.1735912108826616,
+          2.178456232497032,
+          0.007272284545480516,
+          0.09535337555275047
         ],
-        "cells": 316,
         "components": 1,
         "identity": {
-          "sha256": "a97c25993b77299177ea7c3e994220cdc61f05bca91f1b104edc5a5611fda8d1",
-          "size_bytes": 10510
+          "sha256": "6b18cb1b8b31da841e1b53151538856682983952d9ab4f0dff30a853d6285ea7",
+          "size_bytes": 14152
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-026.vtp",
-        "points": 317
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005447553068357536,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-026.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 26
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346090661886788,
-          1.4679077549285593,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09547192118136374
+          1.3453760521773297,
+          1.468703909017383,
+          2.110828902932927,
+          2.1812363632308203,
+          -0.02446428876198042,
+          0.09561973395966944
         ],
-        "cells": 18075,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.217337954102708e-05,
-          "Fat": 0.0060961601962858545,
-          "Muscle": 0.0014398551324921163
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17917,
+        "currently_touching_or_straddling_plane_tetrahedra": 17917,
         "dominant_counts": {
-          "Aponeurosis": 147,
-          "Fat": 14372,
-          "Muscle": 3556
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "2726aa859a54e0ae7efddbda180c9bd7af209d6b9014f0a6aa2692f170b8f321",
-          "size_bytes": 557008
+          "sha256": "0962828d00caa9062435c18fac87177d1449d5001ebea46d2ae247b0217a2bc5",
+          "size_bytes": 10766703
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-027.vtp",
-        "points": 12304,
-        "source_tets": 18075
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-027.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346090661886788,
-          1.4679077549285593,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.0071820256516641826,
-          0.09547192118136374
+          1.3456284951279796,
+          1.468452120836881,
+          2.173605613721384,
+          2.1785291259803152,
+          0.007273362033867815,
+          0.09536754913694404
         ],
-        "cells": 322,
         "components": 1,
         "identity": {
-          "sha256": "1b894d89d666e2a6f44999bd18d26a09c73d460fd3c399aeb31d34a58ba9da90",
-          "size_bytes": 10651
+          "sha256": "56d620b09a13a98a573c8e64b9fb25ffec442ae8283a68d4f4fd3c7f89fc9e5b",
+          "size_bytes": 14157
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-027.vtp",
-        "points": 323
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005520446551640745,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-027.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 27
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346081301544776,
-          1.4679161381849164,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09551758300550289
+          1.3453573084933605,
+          1.4687266172040194,
+          2.110828902932927,
+          2.1813360324308544,
+          -0.02446428876198042,
+          0.09567543621970993
         ],
-        "cells": 18074,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.227587113786805e-05,
-          "Fat": 0.00609232455889659,
-          "Muscle": 0.0014471684412882468
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17916,
+        "currently_touching_or_straddling_plane_tetrahedra": 17916,
         "dominant_counts": {
-          "Aponeurosis": 145,
-          "Fat": 14374,
-          "Muscle": 3555
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "4c1c477d8326fd81555ced4996750b1ab9db88d99eea71552c67a9b5db02529c",
-          "size_bytes": 556788
+          "sha256": "2c271fb384885bca2184acc0bd125166b0aabe1462abb00ded9de3c436976f4c",
+          "size_bytes": 10766954
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-028.vtp",
-        "points": 12304,
-        "source_tets": 18074
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-028.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346081301544776,
-          1.4679161381849164,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007180272147857923,
-          0.09551758300550289
+          1.345603748155635,
+          1.4684730712900005,
+          2.1736188684448345,
+          2.1786079033993033,
+          0.007273517020677026,
+          0.09542422154491254
         ],
-        "cells": 322,
         "components": 1,
         "identity": {
-          "sha256": "ebaa2161d1557f62b11f49a0d3a69c8168c0df9dddb59d45dec2af7cd11b2738",
-          "size_bytes": 10635
+          "sha256": "66815560ed8f6beee0bbc6682bc98501b0043a14089604a40d8b0757481714d6",
+          "size_bytes": 14148
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-028.vtp",
-        "points": 323
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005599223970628842,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-028.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 28
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3460715600772317,
-          1.4679223394691394,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09552162445430029
+          1.3453381502385962,
+          1.4687451344594606,
+          2.110828902932927,
+          2.1814254880903032,
+          -0.02446428876198042,
+          0.09567303076314497
         ],
-        "cells": 18126,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.2371213748458214e-05,
-          "Fat": 0.0060873147334017915,
-          "Muscle": 0.0014555691249115116
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17968,
+        "currently_touching_or_straddling_plane_tetrahedra": 17968,
         "dominant_counts": {
-          "Aponeurosis": 146,
-          "Fat": 14432,
-          "Muscle": 3548
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "0a6820a371263b4a1c5bf682a43b1ba42c84e1efb2cfcc0a5dd8c569086904ec",
-          "size_bytes": 558578
+          "sha256": "aba97f9ac57816c1f74f04a57c13d094e373464b40bd1ac649f7c264e24f47bb",
+          "size_bytes": 10766886
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-029.vtp",
-        "points": 12341,
-        "source_tets": 18126
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-029.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3460715600772317,
-          1.4679223394691394,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007176730114317338,
-          0.09552162445430029
+          1.3455766808832534,
+          1.4684920072881487,
+          2.1736312917225264,
+          2.1786819665774764,
+          0.007271760121775356,
+          0.09545164881471052
         ],
-        "cells": 321,
         "components": 1,
         "identity": {
-          "sha256": "38367b55839494cc0b7b39713f9c9c2c456e23ca4a7ff7b37081d443b3570348",
-          "size_bytes": 10617
+          "sha256": "a3053edd0c291166551609146b6a5b9c8c485cd57caab34f37831995c086a489",
+          "size_bytes": 14131
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-029.vtp",
-        "points": 322
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0056732871488018866,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-029.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 29
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346058996531555,
-          1.4679294120174173,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09561530394192941
+          1.345321973053657,
+          1.4687648320433246,
+          2.110828902932927,
+          2.1814955393260327,
+          -0.02446428876198042,
+          0.09578559458306327
         ],
-        "cells": 18165,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.250710852834356e-05,
-          "Fat": 0.00608593353052223,
-          "Muscle": 0.0014623835886387973
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17999,
+        "currently_touching_or_straddling_plane_tetrahedra": 17999,
         "dominant_counts": {
-          "Aponeurosis": 144,
-          "Fat": 14468,
-          "Muscle": 3553
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "5faed9e10ee3d19b8264009edb2d4c3688dbe61db7b51cf32eba9f50544db251",
-          "size_bytes": 559910
+          "sha256": "58190ccff30cb00839e9dfe0ce83acd751a91a4f92821026f3879e011e8417fe",
+          "size_bytes": 10766814
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-030.vtp",
-        "points": 12373,
-        "source_tets": 18165
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-030.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346058996531555,
-          1.4679294120174173,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007175631541910348,
-          0.09561530394192941
+          1.3455488243549283,
+          1.468511960757827,
+          2.1736439898718185,
+          2.1787576369205763,
+          0.007272514110809792,
+          0.09555200096343686
         ],
-        "cells": 329,
         "components": 1,
         "identity": {
-          "sha256": "ef94070cbf38596c2980f925133bd78c918b03772634acbfd939adf17a5734de",
-          "size_bytes": 10777
+          "sha256": "f21beea9df1b72c1cfc680b612f06f1cf1682d48d3f704111a6f75a2e626e4ff",
+          "size_bytes": 14149
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-030.vtp",
-        "points": 330
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005748957491901852,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-030.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 30
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3460415085038921,
-          1.4679502190196811,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09578638407002321
+          1.345307629471714,
+          1.4687861009810053,
+          2.110828902932927,
+          2.1815527532301666,
+          -0.02446428876198042,
+          0.09601397526616988
         ],
-        "cells": 18147,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.266493758353617e-05,
-          "Fat": 0.006083462478416795,
-          "Muscle": 0.0014688642201542345
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 17981,
+        "currently_touching_or_straddling_plane_tetrahedra": 17981,
         "dominant_counts": {
-          "Aponeurosis": 142,
-          "Fat": 14443,
-          "Muscle": 3562
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "1fa245f031f0955346db8797d04f63cbc9cad8c102ee09122da04b8cbf3ca084",
-          "size_bytes": 559425
+          "sha256": "83ed4c02fcee6d9504b040183f25bc0d18cc485c9b115bbe3e87fa2ebb86365b",
+          "size_bytes": 10766656
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-031.vtp",
-        "points": 12363,
-        "source_tets": 18147
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-031.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3460415085038921,
-          1.4679502190196811,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007175399825065678,
-          0.09578638407002321
+          1.3455215672811653,
+          1.4685332943946725,
+          2.1736566086868976,
+          2.1787866919590773,
+          0.007274122501348953,
+          0.09574093488465363
         ],
-        "cells": 326,
         "components": 1,
         "identity": {
-          "sha256": "b5476cbf8da278798134505142a2d0aa5f8665766362104dfbce6c7b44b06d02",
-          "size_bytes": 10700
+          "sha256": "f8be4768996cbf1a2d79ce6a375e5956b512466b7a62d0ffe5b5b3a425d06400",
+          "size_bytes": 14157
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-031.vtp",
-        "points": 327
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005778012530402776,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-031.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 31
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.346014825990782,
-          1.4679680815361795,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09584359720458652
+          1.3452930418115636,
+          1.4688040413825898,
+          2.110828902932927,
+          2.1816365790688566,
+          -0.02446428876198042,
+          0.09608001185572397
         ],
-        "cells": 18220,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.2757141883622117e-05,
-          "Fat": 0.006080153775826599,
-          "Muscle": 0.0014752254923166902
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18043,
+        "currently_touching_or_straddling_plane_tetrahedra": 18043,
         "dominant_counts": {
-          "Aponeurosis": 144,
-          "Fat": 14492,
-          "Muscle": 3584
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "2fe10414c2e7a802fdbfc93315a10b076b4f03f88fce9d4a274d1037181d507f",
-          "size_bytes": 561569
+          "sha256": "84355920cd4a439e28e03caf1406628302dcc04ad7261a65d425e6af743cfea3",
+          "size_bytes": 10766945
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-032.vtp",
-        "points": 12402,
-        "source_tets": 18220
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-032.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.346014825990782,
-          1.4679680815361795,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007174822552465431,
-          0.09584359720458652
+          1.345492900386743,
+          1.4685513223002244,
+          2.1736685649471856,
+          2.178811146794453,
+          0.0072752965537235224,
+          0.09580604223088196
         ],
-        "cells": 321,
         "components": 1,
         "identity": {
-          "sha256": "1a52724192d01601f5790744fe486473436fa36a9fb9c4510f894db164945f9d",
-          "size_bytes": 10608
+          "sha256": "f46282bcf4d7a28f927cf7b89661a37b94b4e965234c98b22d1673bc1e512d1c",
+          "size_bytes": 14164
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-032.vtp",
-        "points": 322
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0058024673657786074,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-032.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 32
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.345990442839769,
-          1.4679843525387772,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09579695704600436
+          1.345278917508586,
+          1.4688212519265977,
+          2.110828902932927,
+          2.18172826140182,
+          -0.02446428876198042,
+          0.09601188217368814
         ],
-        "cells": 18286,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.284814859865293e-05,
-          "Fat": 0.006078106588205024,
-          "Muscle": 0.0014807110096895532
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18109,
+        "currently_touching_or_straddling_plane_tetrahedra": 18109,
         "dominant_counts": {
-          "Aponeurosis": 144,
-          "Fat": 14544,
-          "Muscle": 3598
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "c8e98a91cc59ee0b14c8e030ec0bf130c8cc24a98475064cc9127c91c007bbef",
-          "size_bytes": 563386
+          "sha256": "71e91c2124d33ce53bc497a8660c8a7158e289759ad31e0cfb0072a949b5dc67",
+          "size_bytes": 10767027
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-033.vtp",
-        "points": 12438,
-        "source_tets": 18286
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-033.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.345990442839769,
-          1.4679843525387772,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007174170135516619,
-          0.09579695704600436
+          1.345465424934365,
+          1.4685687897123967,
+          2.173680221275629,
+          2.178859138510156,
+          0.007276363136642178,
+          0.0957697384999558
         ],
-        "cells": 323,
         "components": 1,
         "identity": {
-          "sha256": "ea81f1c294c5f205d9383ddaca231eb71ec889cdf75e9b4d85888110e1054691",
-          "size_bytes": 10637
+          "sha256": "96ee28dc17a63543c85adb32e781e6386695906f01536a41185839c85eefe5e4",
+          "size_bytes": 14168
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-033.vtp",
-        "points": 324
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005850459081481407,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-033.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 33
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3459556159476156,
-          1.4679998542022945,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09571233730302398
+          1.3452605717064272,
+          1.4688379677668741,
+          2.110828902932927,
+          2.181837127775236,
+          -0.02446428876198042,
+          0.0958770274469095
         ],
-        "cells": 18390,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.333663356661675e-05,
-          "Fat": 0.00607615257849337,
-          "Muscle": 0.0014854119484309434
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18207,
+        "currently_touching_or_straddling_plane_tetrahedra": 18207,
         "dominant_counts": {
-          "Aponeurosis": 145,
-          "Fat": 14593,
-          "Muscle": 3652
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "791db2cea50a0e59efe1ad46d3ee581d666d3fc773890ae42e92f2968fbc11a5",
-          "size_bytes": 566659
+          "sha256": "ccb3c91c690e5049e2810d782a8ba197589e2349b4160d5ec97c7e60bb79b2a7",
+          "size_bytes": 10767102
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-034.vtp",
-        "points": 12498,
-        "source_tets": 18390
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-034.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3459556159476156,
-          1.4679998542022945,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007168639314290398,
-          0.09571233730302398
+          1.3454349781130372,
+          1.4685859445083067,
+          2.17368688529254,
+          2.178915604802371,
+          0.0072717647644087455,
+          0.09570729456330537
         ],
-        "cells": 320,
         "components": 1,
         "identity": {
-          "sha256": "928c5b9884feac3bfa936ef3e95922c6f92b6ad53d62db293b42a6325900ac3e",
-          "size_bytes": 10590
+          "sha256": "9d623c244b949d1e7d85afcdfdc94c03eb78e20e361cfcb0c1ebd0f9a0d9d2e5",
+          "size_bytes": 14181
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-034.vtp",
-        "points": 321
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.0059069253736963034,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-034.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 34
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.345931018581283,
-          1.4680166765226197,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0955443462890856
+          1.345248753114746,
+          1.4688556012402434,
+          2.110828902932927,
+          2.1819216974937685,
+          -0.02446428876198042,
+          0.0956779527213794
         ],
-        "cells": 18400,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.3089400845930795e-05,
-          "Fat": 0.006072746979414463,
-          "Muscle": 0.001490007989575836
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18217,
+        "currently_touching_or_straddling_plane_tetrahedra": 18217,
         "dominant_counts": {
-          "Aponeurosis": 147,
-          "Fat": 14622,
-          "Muscle": 3631
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "f7cdedc5fc349cad4a20a1addef1b650e3a6dfdc87337429ca951c4c98788bb3",
-          "size_bytes": 566821
+          "sha256": "5aad4619ae6b5c64460ddcacaa4915f34bcaabaca117c58c1d2ce88e516b0677",
+          "size_bytes": 10766695
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-035.vtp",
-        "points": 12501,
-        "source_tets": 18400
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-035.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.345931018581283,
-          1.4680166765226197,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007169329035005104,
-          0.0955443462890856
+          1.3454095443118166,
+          1.4686034087400748,
+          2.17369768109638,
+          2.1789583389873863,
+          0.0072740234723235545,
+          0.09558042171882045
         ],
-        "cells": 319,
         "components": 1,
         "identity": {
-          "sha256": "630a0f3962187a4a4f9e8931b5a485d0718325d6a311663ab180cd74dffc54cd",
-          "size_bytes": 10568
+          "sha256": "af08be65e7d93dce426a4d01c2110b601ea6290a1143d9aea3ecd40a539a701b",
+          "size_bytes": 14169
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-035.vtp",
-        "points": 320
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005949659558711851,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-035.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 35
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3459051888067695,
-          1.4680334540668447,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09545917973114701
+          1.3452372905224006,
+          1.4688739629638823,
+          2.110828902932927,
+          2.182002886616912,
+          -0.02446428876198042,
+          0.09558820081941596
         ],
-        "cells": 18403,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.2740825925668555e-05,
-          "Fat": 0.006070661145583153,
-          "Muscle": 0.0014947663483428036
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18215,
+        "currently_touching_or_straddling_plane_tetrahedra": 18215,
         "dominant_counts": {
-          "Aponeurosis": 148,
-          "Fat": 14610,
-          "Muscle": 3645
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "ae6dc3743382bf63cd6dbe6508645ac0fcc680a51dd3d01c4145b866dcfef4e6",
-          "size_bytes": 566974
+          "sha256": "eadaea1dac4836c7a6e6de44fa20e60d9a0784064bc5c22da07643503cabb325",
+          "size_bytes": 10767115
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-036.vtp",
-        "points": 12503,
-        "source_tets": 18403
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-036.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3459051888067695,
-          1.4680334540668447,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007170201438379944,
-          0.09545917973114701
+          1.3453840569830737,
+          1.468620953207716,
+          2.1737080860736233,
+          2.178997575684222,
+          0.0072763925537586436,
+          0.09552777798551432
         ],
-        "cells": 314,
         "components": 1,
         "identity": {
-          "sha256": "ff582d381faf5eaf77fd8e376eadce49e41c18a6edc795c0936a759a6dcae1bb",
-          "size_bytes": 10453
+          "sha256": "80c7c56c18dee5f3f0794ba2db1b0cb4c8cbb2410cafae3718139abdae43da82",
+          "size_bytes": 14176
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-036.vtp",
-        "points": 315
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005988896255547438,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-036.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 36
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3458743035091647,
-          1.4680515826387193,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09548506071652502
+          1.3452091770955492,
+          1.4688997363733383,
+          2.110828902932927,
+          2.1820694328537185,
+          -0.02446428876198042,
+          0.09563473994903081
         ],
-        "cells": 18423,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.2456691473442226e-05,
-          "Fat": 0.006070107569623884,
-          "Muscle": 0.0015002925265158226
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18220,
+        "currently_touching_or_straddling_plane_tetrahedra": 18220,
         "dominant_counts": {
-          "Aponeurosis": 150,
-          "Fat": 14614,
-          "Muscle": 3659
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "3e8982d1feb8130bb2a877ccd8f4ef04b9ce2e73fd0fa276090c213de638f48c",
-          "size_bytes": 567699
+          "sha256": "5fc2fe1ae85d291233388e3f3876b97172448a0f21ea7c2331cd418967cae0c6",
+          "size_bytes": 10766986
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-037.vtp",
-        "points": 12519,
-        "source_tets": 18423
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-037.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3458743035091647,
-          1.4680515826387193,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007169880193122874,
-          0.09548506071652502
+          1.3453517997698452,
+          1.4686422614457464,
+          2.17370720884087,
+          2.1790244935200564,
+          0.007275616133628116,
+          0.09557400025643065
         ],
-        "cells": 316,
         "components": 1,
         "identity": {
-          "sha256": "a44679cba3b2648b2f571b00073ba03fc6d4bd8d158d670b90a095b96e92ad32",
-          "size_bytes": 10474
+          "sha256": "ec376c31a492ed9f19e27bfde689f9413a757ecfb37fb40c026f2aa37a5ca796",
+          "size_bytes": 14147
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-037.vtp",
-        "points": 317
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.006015814091381966,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-037.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 37
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3458378328523721,
-          1.4680776435293763,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.0955543698499991
+          1.3451768810551608,
+          1.4689212048147255,
+          2.110828902932927,
+          2.181972672034269,
+          -0.02446428876198042,
+          0.09571208692473909
         ],
-        "cells": 18395,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.2106215694194675e-05,
-          "Fat": 0.0060668191245536705,
-          "Muscle": 0.0015088869632652036
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18192,
+        "currently_touching_or_straddling_plane_tetrahedra": 18192,
         "dominant_counts": {
-          "Aponeurosis": 150,
-          "Fat": 14600,
-          "Muscle": 3645
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "478c49c612040cfba4fcdb5b57502ddcd8586bdf7d72272cb911b82f33a25344",
-          "size_bytes": 566973
+          "sha256": "3b7fd36c1ba859f9371bdbb00d887bfad68c8af98da121d0afd69117ab4bd74d",
+          "size_bytes": 10767171
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-038.vtp",
-        "points": 12500,
-        "source_tets": 18395
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-038.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3458378328523721,
-          1.4680776435293763,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007169238212576911,
-          0.0955543698499991
+          1.3453198700955222,
+          1.4686592044697264,
+          2.1737142563455016,
+          2.178919333369902,
+          0.007276030546991954,
+          0.09565516410620087
         ],
-        "cells": 316,
         "components": 1,
         "identity": {
-          "sha256": "8e4f10a5fe3c9be305e1e769ac79e4dda6fa7c5858c480af5bccdfeaa2f4521c",
-          "size_bytes": 10508
+          "sha256": "36c1f8e963f31705f3bcb139536efaa870da2021a62a290f139ddf007b4ac98f",
+          "size_bytes": 14159
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-038.vtp",
-        "points": 317
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005910653941227473,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-038.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 38
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.3458169346764735,
-          1.4680917085192817,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09560573609044316
+          1.3451550296977233,
+          1.4689351839963738,
+          2.110828902932927,
+          2.1820480711479484,
+          -0.02446428876198042,
+          0.09577154874276843
         ],
-        "cells": 18379,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.177807074863536e-05,
-          "Fat": 0.006064120896575954,
-          "Muscle": 0.0015157179921253632
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18168,
+        "currently_touching_or_straddling_plane_tetrahedra": 18168,
         "dominant_counts": {
-          "Aponeurosis": 146,
-          "Fat": 14579,
-          "Muscle": 3654
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "5b680ef2e3684eb9e167449c5fa6ba32a5362285da410e17eccf2fc7123d0229",
-          "size_bytes": 566766
+          "sha256": "51f89ac447a8b6400410a8b65fe54cc99a8ce8721af199c699f7bcb67efbeda6",
+          "size_bytes": 10767187
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-039.vtp",
-        "points": 12492,
-        "source_tets": 18379
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-039.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.3458169346764735,
-          1.4680917085192817,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007168357605156391,
-          0.09560573609044316
+          1.3452963156889648,
+          1.4686722261358516,
+          2.173723749961401,
+          2.1789452897558284,
+          0.007276580106838437,
+          0.09573341090437743
         ],
-        "cells": 317,
         "components": 1,
         "identity": {
-          "sha256": "cf4cea347175c7b587ccd369160ac246555f55d272133d2028d0d2b0aaef0f9c",
-          "size_bytes": 10529
+          "sha256": "7ebcd77d8804c1e9ad71b3937f5127da861e210632675f5cf5ed5cd8a68c2431",
+          "size_bytes": 14178
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-039.vtp",
-        "points": 318
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005936610327153868,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-039.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 39
     },
     {
-      "material_section": {
+      "material_crinkle": {
         "bounds_m": [
-          1.345802605307577,
-          1.4681043565709346,
-          2.1730086794286745,
-          2.1730086794286745,
-          -0.022516579014408237,
-          0.09560946485937845
+          1.3451348154345881,
+          1.4689473780830882,
+          2.110828902932927,
+          2.182122865309264,
+          -0.02446428876198042,
+          0.09577620031012066
         ],
-        "cells": 18440,
-        "dominant_areas_m2": {
-          "Aponeurosis": 5.135816671244443e-05,
-          "Fat": 0.006061381735266984,
-          "Muscle": 0.0015220522172712948
-        },
+        "currently_strictly_straddling_plane_tetrahedra": 18229,
+        "currently_touching_or_straddling_plane_tetrahedra": 18229,
         "dominant_counts": {
-          "Aponeurosis": 150,
-          "Fat": 14617,
-          "Muscle": 3673
+          "Aponeurosis": 4199,
+          "Fat": 360904,
+          "Muscle": 58419
         },
+        "fraction_sum_max_abs_error": 0.0,
         "identity": {
-          "sha256": "69d6c886a8cec89d049666318a26a2b52a47768cc47df46779aeb9164b50d88a",
-          "size_bytes": 568929
+          "sha256": "7170eb61ae54353c32456fe4a2ad25e18d36d534407fce6860c8732794816064",
+          "size_bytes": 10767134
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-section-step-040.vtp",
-        "points": 12530,
-        "source_tets": 18440
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/material-crinkle-step-040.vtu",
+        "points": 85619,
+        "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+        "tetrahedra": 423522,
+        "topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
       },
-      "skin_section": {
+      "skin_trace": {
         "bounds_m": [
-          1.345802605307577,
-          1.4681043565709346,
-          2.1730086794286745,
-          2.1730086794286745,
-          0.007168937850488458,
-          0.09560946485937845
+          1.3452764921618514,
+          1.4686862995473717,
+          2.1737336616053593,
+          2.1789670374381966,
+          0.007278587780862024,
+          0.09574479096684992
         ],
-        "cells": 319,
         "components": 1,
         "identity": {
-          "sha256": "7569722ff17808f9265191e102feb9f573a14610b1032fc5397ac8c80d0bd19f",
-          "size_bytes": 10544
+          "sha256": "e0230ff0ea6af2e7cffb8fe5ed83f642cd83d453b49fd9d0a12bc7a904a58eda",
+          "size_bytes": 14164
         },
-        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-section-step-040.vtp",
-        "points": 320
+        "lines": 285,
+        "max_abs_distance_from_initial_plane_m": 0.005958358009522158,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/inputs/skin-initial-trace-step-040.vtp",
+        "points": 286,
+        "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
       },
       "step": 40
     }
@@ -2098,17 +2147,24 @@
   "inputs": {
     "material_series": {
       "identity": {
-        "sha256": "36a98ee272b63bf4c72f1a32e3e0bc5eefc60c199b1048551e262adbb7831453",
+        "sha256": "d82e76669aad4357db461427b83747f3d2599a9a8c0359cdcf73b9af305c7ead",
         "size_bytes": 3486
       },
-      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/material-section-history.vtp.series"
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/material-crinkle-history.vtu.series"
+    },
+    "selection": {
+      "identity": {
+        "sha256": "a29e366900789077b14b9d21738a590d3a30c3579c7a4e90dc8f58957bc9a1c6",
+        "size_bytes": 652623
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/initial-crinkle-selection.npz"
     },
     "skin_series": {
       "identity": {
-        "sha256": "4360ed9fed85c6ff872da59fd8a393213e01debbd555e38571c5d1902fa3232d",
-        "size_bytes": 3322
+        "sha256": "f49d16aeb466bafe54a99cd7c52a0586dea464d5ec8942bf4dedbfc42e980ef7",
+        "size_bytes": 3568
       },
-      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/skin-section-history.vtp.series"
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/skin-initial-trace-history.vtp.series"
     }
   },
   "material_view": {
@@ -2172,7 +2228,6 @@
       ],
       "step": 0
     },
-    "fixed_for_all_frames": true,
     "normal": [
       0.0,
       1.0,
@@ -2182,51 +2237,90 @@
       0.0,
       2.1730086794286745,
       0.0
-    ]
+    ],
+    "reapplied_after_initial_frame": false,
+    "selection_step": 0,
+    "used_for_initial_selection_only": true
   },
   "render": {
+    "ambient": 0.55,
     "camera_crop_only": true,
     "cell_edge_rgb": [
-      0.12,
-      0.13,
-      0.15
+      0.1,
+      0.11,
+      0.13
     ],
-    "cell_edge_width_px": 0.35,
+    "cell_edge_width_px": 0.45,
     "cell_edges_rendered": true,
-    "complete_section_in_view": false,
+    "complete_crinkle_clip_in_view": false,
     "determinant_metrics_rendered": false,
-    "filled_material_polygons": true,
+    "diffuse": 0.45,
+    "external_tetra_faces_rendered": true,
     "fps": 30,
     "frame_count": 41,
-    "full_head_section_before_camera": true,
-    "internal_tet_section_edges_rendered": true,
+    "full_head_before_initial_clip": true,
     "material_representation": "Surface With Edges",
     "no_deformation_exaggeration": true,
     "no_interpolation_or_duplication": true,
     "one_panel": true,
+    "opaque_selected_volume_surface": true,
     "resolution": [
       1200,
       1200
     ]
   },
-  "schema_version": 1,
-  "section_union_bounds_m": [
-    1.345802605307577,
-    1.4681043565709346,
-    2.1730086794286745,
-    2.1730086794286745,
-    -0.022516579014408237,
-    0.10056717297035135
-  ],
+  "schema_version": 2,
+  "selection": {
+    "artifact": {
+      "identity": {
+        "sha256": "a29e366900789077b14b9d21738a590d3a30c3579c7a4e90dc8f58957bc9a1c6",
+        "size_bytes": 652623
+      },
+      "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/19/material-physics-group-meeting-assets/data/60-hfp1-full-head-material-section-evolution/initial-crinkle-selection.npz"
+    },
+    "cell_ids_fixed_across_frames": true,
+    "coordinates_only_change_after_selection": true,
+    "initial_strict_plane_straddling_tetrahedra": 16732,
+    "initial_touching_or_straddling_tetrahedra": 16743,
+    "method": "initial-frame-crinkle-clip",
+    "paraview_equivalent": {
+      "Crinkleclip": 1,
+      "Invert": 1
+    },
+    "per_frame_reclip": false,
+    "plane_normal": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "plane_y_m": 2.1730086794286745,
+    "predicate": "min(initial tetra vertex y) <= plane_y",
+    "retained_half_space": "y <= plane_y",
+    "selected_dominant_counts": {
+      "Aponeurosis": 4199,
+      "Fat": 360904,
+      "Muscle": 58419
+    },
+    "selected_points": 85619,
+    "selected_tetrahedra": 423522,
+    "selection_step": 0,
+    "source_cell_ids_sha256": "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204",
+    "tetra_topology_sha256": "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
+  },
   "skin": {
+    "fixed_lines": 285,
+    "fixed_points": 286,
     "line_width_px": 1.5,
     "not_a_volume_material": true,
+    "per_frame_reclip": false,
     "rgb": [
       0.0,
       0.38,
       0.38
     ],
-    "semantics": "separate Koiter skin membrane intersected by the same plane"
+    "selection_step": 0,
+    "semantics": "step-0 plane intersection of the separate Koiter skin membrane, advected with frozen edge interpolation weights",
+    "topology_sha256": "41caffa1bfa4d041f2601a1d4f21635d4702dc7e8f3de819e23379cf1459f036"
   },
   "topology": {
     "fraction_fields": [
@@ -2238,7 +2332,7 @@
     "full_head_points": 228660,
     "full_head_tetrahedra": 1146517,
     "mixed_tetrahedra_over_0p001_in_multiple_fractions": 232741,
-    "spatial_crop_before_section": false,
+    "spatial_crop_before_initial_clip": false,
     "whole_volume_dominant_counts": {
       "Aponeurosis": 30215,
       "Fat": 945754,

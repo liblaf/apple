@@ -1,8 +1,9 @@
-"""Render the complete HFP1 head section through the fixed mouth plane.
+"""Render a fixed initial-frame crinkle clip of the HFP1 head.
 
-This post-hoc pipeline reads the exact 41 saved inverse states, intersects the
-entire tetrahedral head and the separate skin membrane with one fixed plane,
-and delegates the one-panel categorical material render to ParaView.
+This post-hoc pipeline reads the exact 41 saved inverse states, selects the
+negative-Y crinkle-clip tetrahedra once at step 0, and advects that immutable
+cell cohort through the remaining states.  The selection plane is never
+reapplied after initialization.
 """
 
 from __future__ import annotations
@@ -28,8 +29,8 @@ from liblaf import cherries
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 1
-DESIGN = "hfp1-full-head-dominant-material-fixed-y-section-evolution"
+SCHEMA_VERSION = 2
+DESIGN = "hfp1-initial-frame-negative-y-crinkle-clip-evolution"
 STEPS = tuple(range(41))
 FPS = 30
 RESOLUTION = (1_200, 1_200)
@@ -51,10 +52,23 @@ EXPECTED_WHOLE_COUNTS = {
     "Muscle": 170_548,
     "Aponeurosis": 30_215,
 }
-EXPECTED_STEP_COUNTS = {
-    0: {"Fat": 13_778, "Muscle": 2_703, "Aponeurosis": 251},
-    40: {"Fat": 14_617, "Muscle": 3_673, "Aponeurosis": 150},
+EXPECTED_CRINKLE_TETS = 423_522
+EXPECTED_CRINKLE_POINTS = 85_619
+EXPECTED_CRINKLE_COUNTS = {
+    "Fat": 360_904,
+    "Muscle": 58_419,
+    "Aponeurosis": 4_199,
 }
+EXPECTED_INITIAL_STRICT_BOUNDARY_TETS = 16_732
+EXPECTED_INITIAL_INCLUSIVE_BOUNDARY_TETS = 16_743
+EXPECTED_SELECTION_IDS_SHA256 = (
+    "2cd6b6618b04b1b9ef5e365c26c1a4b7cf3cbf3b39c9b78000e88bbd05f8d204"
+)
+EXPECTED_SELECTION_TOPOLOGY_SHA256 = (
+    "e54791ee6386c8237475206fe07b32eebb9d253090b90dbfca3c1312ed58d18d"
+)
+EXPECTED_SKIN_TRACE_POINTS = 286
+EXPECTED_SKIN_TRACE_LINES = 285
 MATERIALS = {
     "0": {
         "name": "Fat",
@@ -83,8 +97,8 @@ MATERIALS = {
 }
 SKIN_RGB = [0.0, 0.38, 0.38]
 SKIN_LINE_WIDTH_PX = 1.5
-CELL_EDGE_RGB = [0.12, 0.13, 0.15]
-CELL_EDGE_WIDTH_PX = 0.35
+CELL_EDGE_RGB = [0.10, 0.11, 0.13]
+CELL_EDGE_WIDTH_PX = 0.45
 EXPECTED_ORBICULARIS_UNION_BOUNDS_M = [
     1.3687930653465954,
     1.4446770011922974,
@@ -143,7 +157,7 @@ def output(name: str) -> str:
 
 
 class Config(cherries.BaseConfig):
-    """Pinned sources and outputs for the full-head section render."""
+    """Pinned sources and outputs for the fixed crinkle-clip render."""
 
     model_config = ps.SettingsConfigDict(cli_parse_args=True, cli_kebab_case=True)
 
@@ -153,10 +167,13 @@ class Config(cherries.BaseConfig):
     source_skin: Path = cherries.input(SOURCE_SKIN)
     paraview_script: Path = cherries.input(PARAVIEW_SCRIPT)
     output_material_series: Path = cherries.output(
-        output("material-section-history.vtp.series"), mkdir=True
+        output("material-crinkle-history.vtu.series"), mkdir=True
     )
     output_skin_series: Path = cherries.output(
-        output("skin-section-history.vtp.series"), mkdir=True
+        output("skin-initial-trace-history.vtp.series"), mkdir=True
+    )
+    output_selection: Path = cherries.output(
+        output("initial-crinkle-selection.npz"), mkdir=True
     )
     output_trajectory: Path = cherries.output(output("trajectory.csv"), mkdir=True)
     output_contract: Path = cherries.output(output("contract.json"), mkdir=True)
@@ -247,8 +264,9 @@ def expected_paths() -> dict[str, Path]:
         "source_summary": SOURCE_SUMMARY,
         "source_skin": SOURCE_SKIN,
         "paraview_script": PARAVIEW_SCRIPT,
-        "output_material_series": OUTPUT_DIR / "material-section-history.vtp.series",
-        "output_skin_series": OUTPUT_DIR / "skin-section-history.vtp.series",
+        "output_material_series": OUTPUT_DIR / "material-crinkle-history.vtu.series",
+        "output_skin_series": OUTPUT_DIR / "skin-initial-trace-history.vtp.series",
+        "output_selection": OUTPUT_DIR / "initial-crinkle-selection.npz",
         "output_trajectory": OUTPUT_DIR / "trajectory.csv",
         "output_contract": OUTPUT_DIR / "contract.json",
         "output_renderer_receipt": OUTPUT_DIR / "renderer-receipt.json",
@@ -334,47 +352,208 @@ def line_component_count(section: pv.PolyData) -> int:
     return len({find(point) for point in used})
 
 
-def section_record(section: pv.PolyData) -> dict[str, Any]:
-    points = np.asarray(section.points, dtype=np.float64)
+def arrays_sha256(*arrays: np.ndarray) -> str:
+    digest = hashlib.sha256()
+    for source in arrays:
+        array = np.ascontiguousarray(source)
+        digest.update(array.dtype.str.encode())
+        digest.update(np.asarray(array.shape, dtype="<i8").tobytes())
+        digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def source_id_sha256(source_ids: np.ndarray) -> str:
+    return hashlib.sha256(np.asarray(source_ids, dtype="<i8").tobytes()).hexdigest()
+
+
+def tetra_topology_sha256(grid: pv.UnstructuredGrid) -> str:
+    packed = np.asarray(grid.cells, dtype=np.int64)
+    if packed.size != 5 * grid.n_cells or not np.all(packed[::5] == 4):
+        raise ValueError("crinkle selection is not packed tetrahedra")
+    local_connectivity = packed.reshape(-1, 5)[:, 1:]
+    global_point_ids = np.asarray(grid.point_data["GlobalPointId"], dtype=np.int64)
+    source_cell_ids = np.asarray(grid.cell_data["SourceCellId"], dtype=np.int64)
+    canonical = np.column_stack(
+        [source_cell_ids, global_point_ids[local_connectivity]]
+    ).astype("<i8", copy=False)
+    return hashlib.sha256(canonical.tobytes()).hexdigest()
+
+
+def build_initial_skin_trace(
+    initial_points: np.ndarray,
+    skin_global_ids: np.ndarray,
+    skin_faces: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    skin_points = initial_points[skin_global_ids]
+    signed = skin_points[:, 1] - PLANE_Y
+    if np.any(signed == 0.0):
+        raise ValueError("skin vertex lies exactly on the selection plane")
+    edge_to_point: dict[tuple[int, int], int] = {}
+    edge_endpoints: list[tuple[int, int]] = []
+    edge_weights: list[float] = []
+    segments: list[tuple[int, int]] = []
+    source_triangles: list[int] = []
+    for triangle_id, face in enumerate(skin_faces):
+        crossings: list[int] = []
+        for left_local, right_local in ((0, 1), (1, 2), (2, 0)):
+            left_skin = int(face[left_local])
+            right_skin = int(face[right_local])
+            left_signed = float(signed[left_skin])
+            right_signed = float(signed[right_skin])
+            if left_signed * right_signed >= 0.0:
+                continue
+            left_global = int(skin_global_ids[left_skin])
+            right_global = int(skin_global_ids[right_skin])
+            if left_global > right_global:
+                left_global, right_global = right_global, left_global
+            key = (left_global, right_global)
+            point_id = edge_to_point.get(key)
+            if point_id is None:
+                point_id = len(edge_endpoints)
+                edge_to_point[key] = point_id
+                edge_endpoints.append(key)
+                denominator = (
+                    initial_points[right_global, 1] - initial_points[left_global, 1]
+                )
+                weight = (PLANE_Y - initial_points[left_global, 1]) / denominator
+                if not 0.0 < weight < 1.0:
+                    raise ValueError("invalid initial skin-edge interpolation weight")
+                edge_weights.append(float(weight))
+            crossings.append(point_id)
+        if crossings:
+            if len(crossings) != 2 or crossings[0] == crossings[1]:
+                raise ValueError("initial plane has a degenerate skin intersection")
+            segments.append((crossings[0], crossings[1]))
+            source_triangles.append(triangle_id)
+    endpoints = np.asarray(edge_endpoints, dtype=np.int64)
+    weights = np.asarray(edge_weights, dtype=np.float64)
+    lines = np.asarray(segments, dtype=np.int64)
+    triangles = np.asarray(source_triangles, dtype=np.int64)
     if (
-        section.n_points < 1
-        or section.n_cells < 1
-        or np.max(np.abs(points[:, 1] - PLANE_Y)) > 1e-10
+        endpoints.shape != (EXPECTED_SKIN_TRACE_POINTS, 2)
+        or weights.shape != (EXPECTED_SKIN_TRACE_POINTS,)
+        or lines.shape != (EXPECTED_SKIN_TRACE_LINES, 2)
+        or triangles.shape != (EXPECTED_SKIN_TRACE_LINES,)
     ):
-        raise ValueError("material section is empty or left the fixed plane")
-    dominant = np.asarray(section.cell_data["DominantMaterial"], dtype=np.int32)
-    if dominant.shape != (section.n_cells,) or np.any((dominant < 0) | (dominant > 2)):
-        raise ValueError("material section category changed")
-    source_ids = np.asarray(section.cell_data["SourceCellId"], dtype=np.int64)
+        raise ValueError("initial skin-trace topology changed")
+    return endpoints, weights, lines, triangles
+
+
+def write_selection(
+    path: Path,
+    source_tetra_ids: np.ndarray,
+    skin_edge_global_point_ids: np.ndarray,
+    skin_edge_weights: np.ndarray,
+    skin_lines: np.ndarray,
+    skin_source_triangle_ids: np.ndarray,
+) -> dict[str, int | str]:
+    temporary = path.with_name(f".{path.stem}.tmp{path.suffix}")
+    if path.exists() or temporary.exists():
+        raise FileExistsError(path)
+    np.savez_compressed(
+        temporary,
+        source_tetra_ids=np.asarray(source_tetra_ids, dtype=np.int64),
+        skin_edge_global_point_ids=np.asarray(
+            skin_edge_global_point_ids, dtype=np.int64
+        ),
+        skin_edge_weights=np.asarray(skin_edge_weights, dtype=np.float64),
+        skin_lines=np.asarray(skin_lines, dtype=np.int64),
+        skin_source_triangle_ids=np.asarray(skin_source_triangle_ids, dtype=np.int64),
+    )
+    temporary.replace(path)
+    return identity(path)
+
+
+def crinkle_record(
+    grid: pv.UnstructuredGrid,
+    selected_source_ids: np.ndarray,
+) -> dict[str, Any]:
     if (
-        source_ids.shape != (section.n_cells,)
-        or np.unique(source_ids).size != section.n_cells
+        grid.n_points != EXPECTED_CRINKLE_POINTS
+        or grid.n_cells != EXPECTED_CRINKLE_TETS
+        or not np.all(grid.celltypes == pv.CellType.TETRA)
     ):
-        raise ValueError("material section no longer has one polygon per source tet")
-    sized = section.compute_cell_sizes(length=False, area=True, volume=False)
-    areas = np.asarray(sized.cell_data["Area"], dtype=np.float64)
+        raise ValueError("fixed crinkle topology changed")
+    source_ids = np.asarray(grid.cell_data["SourceCellId"], dtype=np.int64)
+    if not np.array_equal(source_ids, selected_source_ids):
+        raise ValueError("fixed crinkle SourceCellId cohort changed")
+    global_point_ids = np.asarray(grid.point_data["GlobalPointId"], dtype=np.int64)
     if (
-        areas.shape != (section.n_cells,)
-        or np.any(~np.isfinite(areas))
-        or np.any(areas <= 0)
+        global_point_ids.shape != (EXPECTED_CRINKLE_POINTS,)
+        or np.unique(global_point_ids).size != EXPECTED_CRINKLE_POINTS
     ):
-        raise ValueError("material section has invalid polygon areas")
-    counts: dict[str, int] = {}
-    areas_by_material: dict[str, float] = {}
-    for index in range(3):
-        name = str(MATERIALS[str(index)]["name"])
-        mask = dominant == index
-        counts[name] = int(mask.sum())
-        areas_by_material[name] = float(areas[mask].sum())
-    if any(value == 0 for value in counts.values()):
-        raise ValueError(f"full section misses a volume material: {counts}")
+        raise ValueError("fixed crinkle GlobalPointId map changed")
+    fractions = np.column_stack(
+        [np.asarray(grid.cell_data[name], dtype=np.float64) for name in FRACTION_FIELDS]
+    )
+    dominant = np.asarray(grid.cell_data["DominantMaterial"], dtype=np.int32)
+    fraction_sum_error = float(np.max(np.abs(fractions.sum(axis=1) - 1.0)))
+    if (
+        fractions.shape != (EXPECTED_CRINKLE_TETS, 3)
+        or np.any(~np.isfinite(fractions))
+        or np.any((fractions < 0.0) | (fractions > 1.0))
+        or fraction_sum_error > 1e-12
+        or not np.array_equal(dominant, np.argmax(fractions, axis=1))
+    ):
+        raise ValueError("crinkle material categories changed")
+    counts = {
+        str(MATERIALS[str(index)]["name"]): int(np.count_nonzero(dominant == index))
+        for index in range(3)
+    }
+    if counts != EXPECTED_CRINKLE_COUNTS:
+        raise ValueError(f"crinkle dominant counts changed: {counts}")
+    topology_sha256 = tetra_topology_sha256(grid)
+    if topology_sha256 != EXPECTED_SELECTION_TOPOLOGY_SHA256:
+        raise ValueError(f"fixed crinkle connectivity changed: {topology_sha256}")
     return {
-        "points": int(section.n_points),
-        "cells": int(section.n_cells),
+        "points": int(grid.n_points),
+        "tetrahedra": int(grid.n_cells),
         "dominant_counts": counts,
-        "dominant_areas_m2": areas_by_material,
+        "fraction_sum_max_abs_error": fraction_sum_error,
+        "source_cell_ids_sha256": source_id_sha256(source_ids),
+        "topology_sha256": topology_sha256,
+        "bounds_m": array_bounds(np.asarray(grid.points, dtype=np.float64)),
+    }
+
+
+def skin_trace_record(
+    trace: pv.PolyData,
+    expected_lines: np.ndarray,
+    expected_source_triangles: np.ndarray,
+) -> dict[str, Any]:
+    packed = np.asarray(trace.lines, dtype=np.int64)
+    if (
+        trace.n_points != EXPECTED_SKIN_TRACE_POINTS
+        or trace.n_cells != EXPECTED_SKIN_TRACE_LINES
+        or trace.n_lines != trace.n_cells
+        or packed.size != 3 * trace.n_cells
+        or not np.array_equal(packed.reshape(-1, 3)[:, 0], np.full(trace.n_cells, 2))
+        or not np.array_equal(packed.reshape(-1, 3)[:, 1:], expected_lines)
+    ):
+        raise ValueError("fixed initial skin trace topology changed")
+    edge_ids = np.asarray(trace.point_data["InitialSkinEdgeId"], dtype=np.int64)
+    source_triangles = np.asarray(
+        trace.cell_data["SourceSkinTriangleId"], dtype=np.int64
+    )
+    if not np.array_equal(edge_ids, np.arange(trace.n_points, dtype=np.int64)):
+        raise ValueError("fixed initial skin edge IDs changed")
+    if not np.array_equal(source_triangles, expected_source_triangles):
+        raise ValueError("fixed initial skin source triangles changed")
+    components = line_component_count(trace)
+    if components != 1:
+        raise ValueError("fixed initial skin trace is disconnected")
+    points = np.asarray(trace.points, dtype=np.float64)
+    return {
+        "points": int(trace.n_points),
+        "lines": int(trace.n_cells),
+        "components": components,
+        "topology_sha256": arrays_sha256(
+            edge_ids, expected_lines, expected_source_triangles
+        ),
         "bounds_m": array_bounds(points),
-        "source_tets": int(np.unique(source_ids).size),
+        "max_abs_distance_from_initial_plane_m": float(
+            np.max(np.abs(points[:, 1] - PLANE_Y))
+        ),
     }
 
 
@@ -384,24 +563,25 @@ def write_trajectory(path: Path, rows: list[dict[str, Any]]) -> None:
         raise FileExistsError(path)
     fieldnames = [
         "step",
-        "section_points",
-        "section_cells",
-        "fat_cells",
-        "muscle_cells",
-        "aponeurosis_cells",
-        "fat_area_m2",
-        "muscle_area_m2",
-        "aponeurosis_area_m2",
+        "crinkle_points",
+        "crinkle_tetrahedra",
+        "fat_tetrahedra",
+        "muscle_tetrahedra",
+        "aponeurosis_tetrahedra",
+        "currently_strictly_straddling_plane_tetrahedra",
+        "currently_touching_or_straddling_plane_tetrahedra",
         "skin_points",
-        "skin_cells",
+        "skin_lines",
         "skin_components",
         "x_min_m",
         "x_max_m",
+        "y_min_m",
+        "y_max_m",
         "z_min_m",
         "z_max_m",
     ]
     with temporary.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fieldnames)
+        writer = csv.DictWriter(stream, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     temporary.replace(path)
@@ -437,10 +617,11 @@ def validate_renderer_receipt(
         "ordered_png_sha256",
         "camera",
         "plane",
+        "selection",
         "material_representation",
-        "filled_material_surface",
+        "opaque_selected_volume_surface",
         "cell_edges_rendered",
-        "internal_tet_section_edges_rendered",
+        "external_tetra_faces_rendered",
         "cell_edge_rgb",
         "cell_edge_width_px",
         "determinant_metrics_rendered",
@@ -458,10 +639,11 @@ def validate_renderer_receipt(
         or receipt["TimestepValues"] != [float(step) for step in STEPS]
         or receipt["camera"] != contract["camera"]
         or receipt["plane"] != contract["plane"]
+        or receipt["selection"] != contract["selection"]
         or receipt["material_representation"] != "Surface With Edges"
-        or receipt["filled_material_surface"] is not True
+        or receipt["opaque_selected_volume_surface"] is not True
         or receipt["cell_edges_rendered"] is not True
-        or receipt["internal_tet_section_edges_rendered"] is not True
+        or receipt["external_tetra_faces_rendered"] is not True
         or receipt["cell_edge_rgb"] != render["cell_edge_rgb"]
         or receipt["cell_edge_width_px"] != render["cell_edge_width_px"]
         or receipt["determinant_metrics_rendered"] is not False
@@ -476,21 +658,26 @@ def validate_renderer_receipt(
     for step, (record, frame_path, source) in enumerate(
         zip(records, frame_paths, contract["frames"], strict=True)
     ):
-        material = record.get("material_section", {})
-        skin = record.get("skin_section", {})
+        material = record.get("material_crinkle", {})
+        skin = record.get("skin_trace", {})
         if (
             record.get("step") != step
             or Path(str(record.get("path"))).resolve() != frame_path.resolve()
             or record.get("identity") != identity(frame_path)
-            or material.get("points") != source["material_section"]["points"]
-            or material.get("cells") != source["material_section"]["cells"]
+            or material.get("points") != source["material_crinkle"]["points"]
+            or material.get("tetrahedra") != source["material_crinkle"]["tetrahedra"]
             or material.get("dominant_counts")
-            != source["material_section"]["dominant_counts"]
+            != source["material_crinkle"]["dominant_counts"]
+            or material.get("source_cell_ids_sha256")
+            != contract["selection"]["source_cell_ids_sha256"]
+            or material.get("topology_sha256")
+            != contract["selection"]["tetra_topology_sha256"]
             or material.get("argmax_of_continuous_fractions") is not True
             or float(material.get("fraction_sum_max_abs_error", float("inf"))) > 1e-12
-            or skin.get("points") != source["skin_section"]["points"]
-            or skin.get("cells") != source["skin_section"]["cells"]
-            or skin.get("components") != source["skin_section"]["components"]
+            or skin.get("points") != source["skin_trace"]["points"]
+            or skin.get("lines") != source["skin_trace"]["lines"]
+            or skin.get("components") != source["skin_trace"]["components"]
+            or skin.get("topology_sha256") != source["skin_trace"]["topology_sha256"]
         ):
             raise ValueError(f"renderer frame receipt changed at step {step}")
 
@@ -662,6 +849,7 @@ def main(cfg: Config) -> None:
     packed_cells = np.asarray(endpoint.cells, dtype=np.int64).copy()
     celltypes = np.asarray(endpoint.celltypes, dtype=np.uint8).copy()
     full_grid = pv.UnstructuredGrid(packed_cells, celltypes, reference_points)
+    full_grid.point_data["GlobalPointId"] = np.arange(EXPECTED_POINTS, dtype=np.int64)
     full_grid.cell_data["SourceCellId"] = np.arange(EXPECTED_TETS, dtype=np.int64)
     full_grid.cell_data["DominantMaterial"] = dominant
     for index, name in enumerate(FRACTION_FIELDS):
@@ -685,12 +873,13 @@ def main(cfg: Config) -> None:
         np.asarray(skin_source.points), reference_points[skin_global_ids]
     ):
         raise ValueError("skin membrane is not mapped to the full head")
-    skin_template = pv.PolyData(
-        np.asarray(skin_source.points).copy(), np.asarray(skin_source.faces).copy()
-    )
+    packed_skin_faces = np.asarray(skin_source.faces, dtype=np.int64).copy()
+    if packed_skin_faces.size != 4 * EXPECTED_SKIN_TRIANGLES or not np.all(
+        packed_skin_faces[::4] == 3
+    ):
+        raise ValueError("skin membrane is not triangle-only")
+    skin_faces = packed_skin_faces.reshape(-1, 4)[:, 1:]
     del skin_source
-    skin_sort_order = np.argsort(skin_global_ids)
-    sorted_skin_global_ids = skin_global_ids[skin_sort_order]
 
     inputs_dir = OUTPUT_DIR / "inputs"
     inputs_dir.mkdir(parents=True, exist_ok=True)
@@ -698,8 +887,17 @@ def main(cfg: Config) -> None:
     skin_paths: list[Path] = []
     frame_records: list[dict[str, Any]] = []
     trajectory_rows: list[dict[str, Any]] = []
-    section_bounds: list[list[float]] = []
+    crinkle_bounds: list[list[float]] = []
     oo_bounds: list[list[float]] = []
+    crinkle_grid: pv.UnstructuredGrid | None = None
+    selected_source_ids: np.ndarray | None = None
+    selected_global_point_ids: np.ndarray | None = None
+    skin_edge_endpoints: np.ndarray | None = None
+    skin_edge_weights: np.ndarray | None = None
+    skin_lines: np.ndarray | None = None
+    skin_source_triangles: np.ndarray | None = None
+    selection_identity: dict[str, int | str] | None = None
+    skin_topology_sha256: str | None = None
     final_points: np.ndarray | None = None
 
     with h5py.File(cfg.source_history, "r") as hdf:
@@ -731,93 +929,180 @@ def main(cfg: Config) -> None:
                     anchor_point, ANCHOR_POINT_M, atol=1e-12, rtol=0.0
                 ):
                     raise ValueError("initial maximum-Z Orbicularis anchor changed")
-            oo_bounds.append(array_bounds(deformed_points[oo_points]))
-            full_grid.points = deformed_points
-            section = full_grid.slice(
-                normal=(0.0, 1.0, 0.0),
-                origin=(0.0, PLANE_Y, 0.0),
-                generate_triangles=False,
-            )
-            material_metrics = section_record(section)
-            expected_counts = EXPECTED_STEP_COUNTS.get(step)
-            if (
-                expected_counts is not None
-                and material_metrics["dominant_counts"] != expected_counts
-            ):
-                raise ValueError(
-                    f"step {step} material counts changed: "
-                    f"{material_metrics['dominant_counts']}"
+                initial_tetra_y = deformed_points[tetrahedra, 1]
+                selection_mask = initial_tetra_y.min(axis=1) <= PLANE_Y
+                selected_source_ids = np.flatnonzero(selection_mask).astype(np.int64)
+                if (
+                    selected_source_ids.shape != (EXPECTED_CRINKLE_TETS,)
+                    or source_id_sha256(selected_source_ids)
+                    != EXPECTED_SELECTION_IDS_SHA256
+                    or np.any(initial_tetra_y[~selection_mask].min(axis=1) <= PLANE_Y)
+                ):
+                    raise ValueError("initial negative-Y crinkle selection changed")
+                strict_boundary = int(
+                    np.count_nonzero(
+                        (initial_tetra_y[:, 0:].min(axis=1) < PLANE_Y)
+                        & (initial_tetra_y[:, 0:].max(axis=1) > PLANE_Y)
+                    )
                 )
-            material_path = inputs_dir / f"material-section-step-{step:03d}.vtp"
-            material_identity = save_dataset(section, material_path)
-            material_paths.append(material_path)
-            section_bounds.append(material_metrics["bounds_m"])
-
-            sorted_skin_points = np.asarray(
-                payload[offset + sorted_skin_global_ids], dtype=np.float64
-            )
-            skin_points = np.empty_like(sorted_skin_points)
-            skin_points[skin_sort_order] = sorted_skin_points
-            dynamic_skin = skin_template.copy(deep=True)
-            dynamic_skin.points = skin_points
-            skin_section = dynamic_skin.slice(
-                normal=(0.0, 1.0, 0.0), origin=(0.0, PLANE_Y, 0.0)
-            )
-            skin_section_points = np.asarray(skin_section.points)
+                inclusive_boundary = int(
+                    np.count_nonzero(
+                        (initial_tetra_y.min(axis=1) <= PLANE_Y)
+                        & (initial_tetra_y.max(axis=1) >= PLANE_Y)
+                    )
+                )
+                if (
+                    strict_boundary != EXPECTED_INITIAL_STRICT_BOUNDARY_TETS
+                    or inclusive_boundary != EXPECTED_INITIAL_INCLUSIVE_BOUNDARY_TETS
+                ):
+                    raise ValueError("initial crinkle-boundary tetrahedra changed")
+                full_grid.points = deformed_points
+                crinkle_grid = full_grid.extract_cells(selected_source_ids)
+                for association, name in (
+                    (crinkle_grid.point_data, "vtkOriginalPointIds"),
+                    (crinkle_grid.cell_data, "vtkOriginalCellIds"),
+                ):
+                    if name in association:
+                        del association[name]
+                selected_global_point_ids = np.asarray(
+                    crinkle_grid.point_data["GlobalPointId"], dtype=np.int64
+                ).copy()
+                if not np.array_equal(
+                    np.asarray(crinkle_grid.cell_data["SourceCellId"], dtype=np.int64),
+                    selected_source_ids,
+                ):
+                    raise ValueError(
+                        "initial extraction reordered the source tetrahedra"
+                    )
+                if (
+                    crinkle_grid.n_points != EXPECTED_CRINKLE_POINTS
+                    or tetra_topology_sha256(crinkle_grid)
+                    != EXPECTED_SELECTION_TOPOLOGY_SHA256
+                ):
+                    raise ValueError("initial crinkle extraction topology changed")
+                (
+                    skin_edge_endpoints,
+                    skin_edge_weights,
+                    skin_lines,
+                    skin_source_triangles,
+                ) = build_initial_skin_trace(
+                    deformed_points, skin_global_ids, skin_faces
+                )
+                skin_topology_sha256 = arrays_sha256(
+                    np.arange(EXPECTED_SKIN_TRACE_POINTS, dtype=np.int64),
+                    skin_lines,
+                    skin_source_triangles,
+                )
+                selection_identity = write_selection(
+                    cfg.output_selection,
+                    selected_source_ids,
+                    skin_edge_endpoints,
+                    skin_edge_weights,
+                    skin_lines,
+                    skin_source_triangles,
+                )
+            oo_bounds.append(array_bounds(deformed_points[oo_points]))
             if (
-                skin_section.n_cells < 1
-                or skin_section.n_lines != skin_section.n_cells
-                or np.max(np.abs(skin_section_points[:, 1] - PLANE_Y)) > 1e-10
+                crinkle_grid is None
+                or selected_source_ids is None
+                or selected_global_point_ids is None
+                or skin_edge_endpoints is None
+                or skin_edge_weights is None
+                or skin_lines is None
+                or skin_source_triangles is None
             ):
-                raise ValueError(f"invalid skin section at step {step}")
-            skin_components = line_component_count(skin_section)
-            if skin_components != 1:
-                raise ValueError(f"skin section is disconnected at step {step}")
-            skin_section.clear_data()
-            skin_section.cell_data["SkinMembrane"] = np.ones(
-                skin_section.n_cells, dtype=np.int8
+                raise RuntimeError("step-0 crinkle selection was not initialized")
+            crinkle_grid.points = deformed_points[selected_global_point_ids]
+            if not np.array_equal(
+                np.asarray(crinkle_grid.points),
+                deformed_points[selected_global_point_ids],
+            ):
+                raise ValueError("crinkle point mapping changed")
+            material_metrics = crinkle_record(crinkle_grid, selected_source_ids)
+            selected_tetra_y = deformed_points[tetrahedra[selected_source_ids], 1]
+            strict_current = int(
+                np.count_nonzero(
+                    (selected_tetra_y.min(axis=1) < PLANE_Y)
+                    & (selected_tetra_y.max(axis=1) > PLANE_Y)
+                )
             )
-            skin_path = inputs_dir / f"skin-section-step-{step:03d}.vtp"
-            skin_identity = save_dataset(skin_section, skin_path)
+            inclusive_current = int(
+                np.count_nonzero(
+                    (selected_tetra_y.min(axis=1) <= PLANE_Y)
+                    & (selected_tetra_y.max(axis=1) >= PLANE_Y)
+                )
+            )
+            material_metrics["currently_strictly_straddling_plane_tetrahedra"] = (
+                strict_current
+            )
+            material_metrics["currently_touching_or_straddling_plane_tetrahedra"] = (
+                inclusive_current
+            )
+            material_path = inputs_dir / f"material-crinkle-step-{step:03d}.vtu"
+            material_identity = save_dataset(crinkle_grid, material_path)
+            material_paths.append(material_path)
+            crinkle_bounds.append(material_metrics["bounds_m"])
+
+            trace_points = (1.0 - skin_edge_weights[:, None]) * deformed_points[
+                skin_edge_endpoints[:, 0]
+            ] + skin_edge_weights[:, None] * deformed_points[skin_edge_endpoints[:, 1]]
+            packed_trace_lines = np.column_stack(
+                [np.full(len(skin_lines), 2, dtype=np.int64), skin_lines]
+            ).ravel()
+            skin_trace = pv.PolyData(trace_points, lines=packed_trace_lines)
+            skin_trace.point_data["InitialSkinEdgeId"] = np.arange(
+                skin_trace.n_points, dtype=np.int64
+            )
+            skin_trace.cell_data["SourceSkinTriangleId"] = skin_source_triangles
+            skin_trace.cell_data["SkinMembrane"] = np.ones(
+                skin_trace.n_cells, dtype=np.int8
+            )
+            skin_metrics = skin_trace_record(
+                skin_trace, skin_lines, skin_source_triangles
+            )
+            if (
+                step == 0
+                and skin_metrics["max_abs_distance_from_initial_plane_m"] > 1e-12
+            ):
+                raise ValueError("initial skin trace left the selection plane")
+            skin_path = inputs_dir / f"skin-initial-trace-step-{step:03d}.vtp"
+            skin_identity = save_dataset(skin_trace, skin_path)
             skin_paths.append(skin_path)
 
             frame_records.append(
                 {
                     "step": step,
-                    "material_section": {
+                    "material_crinkle": {
                         "path": str(material_path.resolve()),
                         "identity": material_identity,
                         **material_metrics,
                     },
-                    "skin_section": {
+                    "skin_trace": {
                         "path": str(skin_path.resolve()),
                         "identity": skin_identity,
-                        "points": int(skin_section.n_points),
-                        "cells": int(skin_section.n_cells),
-                        "components": skin_components,
-                        "bounds_m": array_bounds(skin_section_points),
+                        **skin_metrics,
                     },
                 }
             )
             counts = material_metrics["dominant_counts"]
-            areas = material_metrics["dominant_areas_m2"]
             bounds = material_metrics["bounds_m"]
             trajectory_rows.append(
                 {
                     "step": step,
-                    "section_points": material_metrics["points"],
-                    "section_cells": material_metrics["cells"],
-                    "fat_cells": counts["Fat"],
-                    "muscle_cells": counts["Muscle"],
-                    "aponeurosis_cells": counts["Aponeurosis"],
-                    "fat_area_m2": areas["Fat"],
-                    "muscle_area_m2": areas["Muscle"],
-                    "aponeurosis_area_m2": areas["Aponeurosis"],
-                    "skin_points": skin_section.n_points,
-                    "skin_cells": skin_section.n_cells,
-                    "skin_components": skin_components,
+                    "crinkle_points": material_metrics["points"],
+                    "crinkle_tetrahedra": material_metrics["tetrahedra"],
+                    "fat_tetrahedra": counts["Fat"],
+                    "muscle_tetrahedra": counts["Muscle"],
+                    "aponeurosis_tetrahedra": counts["Aponeurosis"],
+                    "currently_strictly_straddling_plane_tetrahedra": strict_current,
+                    "currently_touching_or_straddling_plane_tetrahedra": inclusive_current,
+                    "skin_points": skin_metrics["points"],
+                    "skin_lines": skin_metrics["lines"],
+                    "skin_components": skin_metrics["components"],
                     "x_min_m": bounds[0],
                     "x_max_m": bounds[1],
+                    "y_min_m": bounds[2],
+                    "y_max_m": bounds[3],
                     "z_min_m": bounds[4],
                     "z_max_m": bounds[5],
                 }
@@ -825,17 +1110,18 @@ def main(cfg: Config) -> None:
             cherries.set_step(step)
             cherries.log_metrics(
                 {
-                    "section/cells": material_metrics["cells"],
-                    "section/fat_cells": counts["Fat"],
-                    "section/muscle_cells": counts["Muscle"],
-                    "section/aponeurosis_cells": counts["Aponeurosis"],
-                    "skin/cells": skin_section.n_cells,
+                    "crinkle/tetrahedra": material_metrics["tetrahedra"],
+                    "crinkle/fat_tetrahedra": counts["Fat"],
+                    "crinkle/muscle_tetrahedra": counts["Muscle"],
+                    "crinkle/aponeurosis_tetrahedra": counts["Aponeurosis"],
+                    "crinkle/currently_straddling": strict_current,
+                    "skin/lines": skin_metrics["lines"],
                 }
             )
             logger.info(
-                "Prepared step %02d: %d full-head polygons (%d fat, %d muscle, %d aponeurosis)",
+                "Prepared step %02d: %d fixed tetrahedra (%d fat, %d muscle, %d aponeurosis)",
                 step,
-                material_metrics["cells"],
+                material_metrics["tetrahedra"],
                 counts["Fat"],
                 counts["Muscle"],
                 counts["Aponeurosis"],
@@ -843,19 +1129,31 @@ def main(cfg: Config) -> None:
             if step == STEPS[-1]:
                 final_points = deformed_points.copy()
 
-    if final_points is None or not np.array_equal(final_points, endpoint_deformed):
+    if (
+        final_points is None
+        or not np.array_equal(final_points, endpoint_deformed)
+        or crinkle_grid is None
+        or selected_source_ids is None
+        or selected_global_point_ids is None
+        or selection_identity is None
+        or skin_topology_sha256 is None
+        or not np.array_equal(
+            np.asarray(crinkle_grid.points),
+            endpoint_deformed[selected_global_point_ids],
+        )
+    ):
         raise ValueError("history step 40 does not reproduce the endpoint")
-    all_bounds = union_bounds(section_bounds)
+    all_bounds = union_bounds(crinkle_bounds)
     expected_union = [
-        1.345802605307577,
-        1.4681043565709346,
-        PLANE_Y,
-        PLANE_Y,
-        -0.022516579048682724,
-        0.10056717297035135,
+        1.3451348154345881,
+        1.4689473780830882,
+        2.110828902932927,
+        2.182122865309264,
+        -0.02446428876198042,
+        0.10129456819534544,
     ]
-    if not np.allclose(all_bounds, expected_union, atol=1e-9, rtol=0.0):
-        raise ValueError(f"full-section union bounds changed: {all_bounds}")
+    if not np.allclose(all_bounds, expected_union, atol=1e-12, rtol=0.0):
+        raise ValueError(f"crinkle union bounds changed: {all_bounds}")
     all_oo_bounds = union_bounds(oo_bounds)
     if not np.allclose(
         all_oo_bounds,
@@ -880,7 +1178,7 @@ def main(cfg: Config) -> None:
         "look_direction": [0.0, -1.0, 0.0],
         "projection": "parallel",
         "parallel_scale": CAMERA_PARALLEL_SCALE_M,
-        "scope": "expanded Orbicularis-oris region; display crop only after full-head sectioning",
+        "scope": "expanded Orbicularis-oris region; display crop only after the full-head initial crinkle clip",
         "focus_source_bounds_m": all_oo_bounds,
     }
     x_min = camera["focus"][0] - camera["parallel_scale"]
@@ -922,7 +1220,9 @@ def main(cfg: Config) -> None:
         "plane": {
             "origin": [0.0, PLANE_Y, 0.0],
             "normal": [0.0, 1.0, 0.0],
-            "fixed_for_all_frames": True,
+            "selection_step": 0,
+            "used_for_initial_selection_only": True,
+            "reapplied_after_initial_frame": False,
             "anchor": {
                 "definition": "Y coordinate of the initial full-Orbicularis maximum-Z vertex",
                 "step": 0,
@@ -933,11 +1233,34 @@ def main(cfg: Config) -> None:
         "topology": {
             "full_head_points": EXPECTED_POINTS,
             "full_head_tetrahedra": EXPECTED_TETS,
-            "spatial_crop_before_section": False,
+            "spatial_crop_before_initial_clip": False,
             "whole_volume_dominant_counts": whole_counts,
             "mixed_tetrahedra_over_0p001_in_multiple_fractions": mixed_tets,
             "fraction_fields": list(FRACTION_FIELDS),
             "fraction_sum_max_abs_error": 0.0,
+        },
+        "selection": {
+            "method": "initial-frame-crinkle-clip",
+            "selection_step": 0,
+            "plane_normal": [0.0, 1.0, 0.0],
+            "plane_y_m": PLANE_Y,
+            "retained_half_space": "y <= plane_y",
+            "predicate": "min(initial tetra vertex y) <= plane_y",
+            "paraview_equivalent": {"Crinkleclip": 1, "Invert": 1},
+            "selected_points": EXPECTED_CRINKLE_POINTS,
+            "selected_tetrahedra": EXPECTED_CRINKLE_TETS,
+            "selected_dominant_counts": EXPECTED_CRINKLE_COUNTS,
+            "initial_strict_plane_straddling_tetrahedra": EXPECTED_INITIAL_STRICT_BOUNDARY_TETS,
+            "initial_touching_or_straddling_tetrahedra": EXPECTED_INITIAL_INCLUSIVE_BOUNDARY_TETS,
+            "source_cell_ids_sha256": EXPECTED_SELECTION_IDS_SHA256,
+            "tetra_topology_sha256": EXPECTED_SELECTION_TOPOLOGY_SHA256,
+            "cell_ids_fixed_across_frames": True,
+            "coordinates_only_change_after_selection": True,
+            "per_frame_reclip": False,
+            "artifact": {
+                "path": str(cfg.output_selection.resolve()),
+                "identity": selection_identity,
+            },
         },
         "materials": MATERIALS,
         "material_view": {
@@ -948,12 +1271,17 @@ def main(cfg: Config) -> None:
             "physics_interpretation": "solver uses continuous fraction-weighted volume energies",
         },
         "skin": {
-            "semantics": "separate Koiter skin membrane intersected by the same plane",
+            "semantics": "step-0 plane intersection of the separate Koiter skin membrane, advected with frozen edge interpolation weights",
             "not_a_volume_material": True,
+            "selection_step": 0,
+            "per_frame_reclip": False,
+            "fixed_points": EXPECTED_SKIN_TRACE_POINTS,
+            "fixed_lines": EXPECTED_SKIN_TRACE_LINES,
+            "topology_sha256": skin_topology_sha256,
             "rgb": SKIN_RGB,
             "line_width_px": SKIN_LINE_WIDTH_PX,
         },
-        "section_union_bounds_m": all_bounds,
+        "crinkle_union_bounds_m": all_bounds,
         "camera": camera,
         "render": {
             "resolution": list(RESOLUTION),
@@ -963,13 +1291,15 @@ def main(cfg: Config) -> None:
             "determinant_metrics_rendered": False,
             "material_representation": "Surface With Edges",
             "cell_edges_rendered": True,
-            "internal_tet_section_edges_rendered": True,
+            "external_tetra_faces_rendered": True,
             "cell_edge_rgb": CELL_EDGE_RGB,
             "cell_edge_width_px": CELL_EDGE_WIDTH_PX,
-            "filled_material_polygons": True,
-            "full_head_section_before_camera": True,
+            "ambient": 0.55,
+            "diffuse": 0.45,
+            "opaque_selected_volume_surface": True,
+            "full_head_before_initial_clip": True,
             "camera_crop_only": True,
-            "complete_section_in_view": False,
+            "complete_crinkle_clip_in_view": False,
             "no_interpolation_or_duplication": True,
             "no_deformation_exaggeration": True,
         },
@@ -981,6 +1311,10 @@ def main(cfg: Config) -> None:
             "skin_series": {
                 "path": str(cfg.output_skin_series.resolve()),
                 "identity": skin_series_identity,
+            },
+            "selection": {
+                "path": str(cfg.output_selection.resolve()),
+                "identity": selection_identity,
             },
         },
         "frames": frame_records,
@@ -1078,7 +1412,7 @@ def main(cfg: Config) -> None:
             },
         },
     )
-    logger.info("Wrote exact HFP1 full-head material section video to %s", OUTPUT_DIR)
+    logger.info("Wrote exact HFP1 fixed crinkle-clip video to %s", OUTPUT_DIR)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 # Images
 *.png filter=lfs diff=lfs merge=lfs -text
-
 # Videos
 *.avi filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
@@ -19,3 +18,14 @@
 *.pvsm filter=lfs diff=lfs merge=lfs -text
 *.npz filter=lfs diff=lfs merge=lfs -text
 *.vtkhdf filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-l1/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-l2-video-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-linf/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/60-focused-h020-materials/shared-release/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/60-focused-h020-materials/shared/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/direct-nu49-video-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/direct-nu49/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-l2/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-linf-video-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/60-focused-h020-materials/direct/render-receipt.json filter=lfs diff=lfs merge=lfs -text
+exp/2026/09/02/pork-shared-release-study/data/70-focused-h010-existing-results/loss-l1-video-receipt.json filter=lfs diff=lfs merge=lfs -text

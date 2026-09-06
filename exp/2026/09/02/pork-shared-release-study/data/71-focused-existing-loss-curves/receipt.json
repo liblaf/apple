@@ -1,0 +1,102 @@
+{
+  "losses_are_separate": true,
+  "physics_runs": 0,
+  "results": [
+    {
+      "case": "h010-direct-nu49",
+      "comparable_only_within_case": true,
+      "curve": {
+        "bytes": 75683,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/71-focused-existing-loss-curves/h010-direct-nu49-loss.png",
+        "sha256": "22227d15917a28701dd60141efc1699ef33d64d72cfa5659d90929ea35fe350b"
+      },
+      "final_raw_objective": 2.2225032332410744e-05,
+      "initial_raw_objective": 0.005387205333333333,
+      "label": "h=.10 | nu=.49 | independent | L2 objective",
+      "source": {
+        "bytes": 526238,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/10-pork-2d/height-high/trace.csv",
+        "sha256": "7e6a8c13bdfeda475a652ef010dca08c79d7b9a45571452c6a71a855392c12c7"
+      },
+      "states": 1237,
+      "y_scale": "log"
+    },
+    {
+      "case": "h020-shared-nu49",
+      "comparable_only_within_case": true,
+      "curve": {
+        "bytes": 61323,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/71-focused-existing-loss-curves/h020-shared-nu49-loss.png",
+        "sha256": "5d48d0b15493418497568026590aa6b2198391d8b4fb3cf5798305e423acc4ea"
+      },
+      "final_raw_objective": 0.010195090404751478,
+      "initial_raw_objective": 0.021548821333333332,
+      "label": "h=.20 | nu=.49 | shared | L2 objective",
+      "source": {
+        "bytes": 755983,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/20-canonical-h020/h020-shared/trace.csv",
+        "sha256": "4fa1a5e30d6075a6bf95d11fed7dfb8e5d6fb173dc1254a0dd0ec23aa1aa5cbe"
+      },
+      "states": 1219,
+      "y_scale": "log"
+    },
+    {
+      "case": "h005-l2",
+      "comparable_only_within_case": true,
+      "curve": {
+        "bytes": 72018,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/71-focused-existing-loss-curves/h005-l2-loss.png",
+        "sha256": "c3f560728e15fa519b08c9a5e4d612f9256771d7b7e4532538404523f6812357"
+      },
+      "final_raw_objective": 2.430807138968348e-06,
+      "initial_raw_objective": 0.0013468013333333333,
+      "label": "h=.05 | L2 objective",
+      "source": {
+        "bytes": 531931,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/10-pork-2d/baseline/trace.csv",
+        "sha256": "a7d5ed61ee09891a24c4959ea647bfc577aa95e789ae369379e42142a8863226"
+      },
+      "states": 1245,
+      "y_scale": "log"
+    },
+    {
+      "case": "h005-linf",
+      "comparable_only_within_case": true,
+      "curve": {
+        "bytes": 87661,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/71-focused-existing-loss-curves/h005-linf-loss.png",
+        "sha256": "c7026fe726b58c39dd407d56c97549c414066241a43c52a2c94855a1ea550e98"
+      },
+      "final_raw_objective": 0.0035424539923901285,
+      "initial_raw_objective": 0.05,
+      "label": "h=.05 | Linf objective",
+      "source": {
+        "bytes": 630503,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/10-pork-2d/loss-linf/trace.csv",
+        "sha256": "de4affe676a6597c1e815cccd234719dee9808c5c95d442b25db8fb9021c7b2c"
+      },
+      "states": 1491,
+      "y_scale": "log"
+    },
+    {
+      "case": "h005-l1",
+      "comparable_only_within_case": true,
+      "curve": {
+        "bytes": 63179,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/09/02/pork-shared-release-study/data/71-focused-existing-loss-curves/h005-l1-loss.png",
+        "sha256": "84c40d94789e0de7491ae82f860da6f01ada0b0f166e827f09f0a5c7a6d0080a"
+      },
+      "final_raw_objective": 0.00043901338566835216,
+      "initial_raw_objective": 0.033666666666666664,
+      "label": "h=.05 | L1 objective",
+      "source": {
+        "bytes": 602805,
+        "path": "/home/liblaf/Projects/liblaf/apple/exp/2026/08/31/unreachable-pork-factor-study/data/10-pork-2d/loss-l1/trace.csv",
+        "sha256": "8dd009b36b79b01320e6ebbbc6b7abdb5302a9ac7218b534dabd6f561225b702"
+      },
+      "states": 1406,
+      "y_scale": "log"
+    }
+  ],
+  "status": "ok"
+}

@@ -1,0 +1,46 @@
+# Interrupted historical runs and controlled continuation
+
+The initial matched historical-configuration runs ended without terminal summaries. At inspection on 7 September 2026, their processes were absent; Raw6 had recorded step 54 and Raw6-S step 60. No exit signal or cause was captured, and no OOM diagnosis is established. The original source, traces, receipts and all saved states remain intact. Separate [Raw6](../data/30-historical-adam-raw6/interruption-observation.json) and [Raw6-S](../data/31-historical-adam-raw6-s/interruption-observation.json) observation records identify and hash those artifacts.
+
+Those first runs saved controls, displacement, active maps and solver status, but did not save Adam moments. Resuming them exactly is therefore impossible. The new comparison uses each method's immutable, solver-valid step-50 checkpoint and explicitly resets Adam in both methods. The later original Raw6 steps 51–54 and Raw6-S steps 51–60 remain valid interrupted-run observations; they are not part of the shared continuation prefix.
+
+The continuation preserves the historical active domain, materials, boundary conditions, fitting objective, regularizer weights and numerical tolerances. Its original configuration permits 150 new local optimizer steps following the common 50-step prefix. The final evaluation uses the early trend around 64 new steps, with graceful checkpointing at the end of an in-flight evaluation. Both methods follow the same reset protocol. This is a matched smoothness comparison with a shared reset, not an uninterrupted reproduction of the June 200-step optimizer trajectory.
+
+The initialization re-evaluates each source control field from its saved displacement and records any change caused by this re-equilibration. Local step 0 denotes that continuation initialization; local step 150 denotes the original configured ceiling and was not reached. Best-state selection considers valid continuation evaluations. The archive keeps local steps and the source-step offset explicit.
+
+Both actual local-step-0 control arrays match their source step-50 arrays exactly. Initial forward and adjoint solves succeeded. Re-equilibration changed the target vertices by 0.00003235 mm RMS for Raw6 and 0.0007135 mm for Raw6-S. These are unweighted RMS values over the historical target vertices, not the area-weighted surface comparison used elsewhere. The [initialization verification](../data/38-39-continuation-initialization-verification.json) records both checks and the common fixture/runtime contract.
+
+The two continuations started at 13:06:12 CST on 7 September 2026 in separate persistent user services: `face-diagnosis-adam-raw6-continuation.service` and `face-diagnosis-adam-raw6-s-continuation.service`. Their launch records retain the exact argument arrays, source hash, service invocation identifiers and initial running state: [Raw6 launch](../data/38-historical-adam-raw6-continuation-service-launch.json) and [Raw6-S launch](../data/39-historical-adam-raw6-s-continuation-service-launch.json). The initial runner hash was `f4a1509aa8ac31149c14be01584c4256ceb65a3f9b04b658b39cc033846f0337`; the checkpoint-copy correction below records its one-line successor.
+
+The services use the repository's existing Python environment, `Restart=no`, and retained terminal logs. An atomic `resume.pt` is written after every completed evaluation. It includes controls, displacement, the current gradient, Adam moments, algorithm counters, the valid best state, receipts and random-generator states. Repeating the same command restores that state and checks the frozen source and input hashes. Previously written terminal summaries and endpoints are archived before a resumed run proceeds. These semantics preserve optimizer state; they do not assert bitwise determinism of a repeated GPU equilibrium solve.
+
+A bounded CPU test verified bitwise equality of the next Adam update and moments after saving and restoring. A failed-recovery test verified restoration of the controls, gradient, moments, learning rate, failure and update counters, and event history. Both actual source checkpoints separately passed the CPU preflight, including finite arrays, exact active-map reconstruction, successful source-step receipts and matching historical fixture hashes. [Raw6 preflight](../data/38-historical-adam-raw6-continuation-preflight.json) · [Raw6-S preflight](../data/39-historical-adam-raw6-s-continuation-preflight.json).
+
+[Reproduction commands](../README.md#numerical-runs) provide the source checkpoints and both weights explicitly. The initial continuation segments have Comet records for [Raw6](https://www.comet.com/liblaf/apple/52237248dc4541db8967c4248ae3faef) and [Raw6-S](https://www.comet.com/liblaf/apple/43d8752b9cc7458384c230f161761fa3).
+
+## Checkpoint-copy correction during the continuation
+
+A further test found that the original tensor-copy helper could retain an alias when an Adam state tensor already resided on the CPU. In particular, Adam's step counter is on the CPU even for CUDA parameters. A failed ordinary optimizer trial could therefore increment the captured counter before rollback. The earlier recovery test cleared the optimizer state and did not exercise that ordinary-step mutation.
+
+Both services were stopped through their checkpoint signal handler, finishing at Raw6 local step 24 and Raw6-S local step 23 with process exit status 0. Every completed evaluation was solver-valid, no numerical failure had occurred, and the saved Adam counters matched the completed updates. The affected failure path had not been executed. The old source, provenance, full optimizer checkpoints, summaries, traces and receipts were preserved under each run's `revisions/01-cpu-tensor-snapshot-copy/`. [Checks before the correction](../data/36-checkpoint-copy-correction-before.json).
+
+The sole source change replaces `value.detach().cpu()` with `value.detach().cpu().clone()`. The corrected runner hash is `691872807eaee0e33ecf222de03ed4880f45344dc7bfeaa5195b17394863e5f6`. Actual-step rollback and the following Adam update now match independent reference states bitwise on both CPU and CUDA. The existing `resume.pt` files were retained byte for byte, and both runs resumed at their next local evaluation with no new moment reset. The correction changes snapshot ownership, not the equations, material arrays, objective, solver tolerances or successful Adam updates. [Correction and test record](../data/36-checkpoint-copy-correction.json) · [Raw6 restart receipt](../data/38-historical-adam-raw6-continuation-service-resume-after-copy-fix.json) · [Raw6-S restart receipt](../data/39-historical-adam-raw6-s-continuation-service-resume-after-copy-fix.json).
+
+The resumed segments have separate Comet records for [Raw6](https://www.comet.com/liblaf/apple/dd7af7a5ed3044cca86d7c537211666a) and [Raw6-S](https://www.comet.com/liblaf/apple/576fbc2301fd42c3826d2787f3e1cce1). Trace steps remain local continuation coordinates across the restart. The `elapsed_s_this_process` column restarts for the new process and must not be read as a continuous wall-time axis.
+
+## Early-trend completion
+
+The experiments were intentionally ended around 64 continuation steps once the fitting and field-variation trends were available. Their original 150-step ceilings remain unchanged in the archived configurations. Each SIGTERM request allowed the in-flight evaluation to finish and retained the best solver-valid state, the complete optimizer checkpoint and all receipts.
+
+| Method | Last local step | Best valid local step | Unsuccessful solver evaluations | Process exit |
+| --- | ---: | ---: | ---: | --- |
+| Raw6 | 65 | 50 | 1 | 0, 14:32:15 CST |
+| Raw6-S | 64 | 64 | 0 | 0, 14:36:27 CST |
+
+Both summaries report `signal_checkpointed_best_valid_retained`, with no convergence claim. The common trace comparison ends at local step 64; the equal-step surface comparison uses the immutable step-60 meshes. Raw6's extra step 65 finished after the signal request and did not improve its selected best state. Local steps follow the documented source step 50 and reset, so the terminal nominal indices are 115 and 114 rather than 65 and 64 total uninterrupted updates.
+
+Raw6's local-step-51 forward solve reached its 5,000-step limit with gradient norm approximately `2.22e-9`; its adjoint succeeded. This finite unsuccessful evaluation advanced Adam under the declared historical-compatible policy, but could not become the selected best state. Local step 52 and all subsequent evaluations passed. No three-failure recovery or extra Adam-moment reset occurred. Raw6-S's entire continuation has successful forward and adjoint receipts.
+
+The [completion record](../data/68-trend-completion.json) retains both process exits, stop requests, exact summary and trace hashes, and the final NPZ/VTU and full optimizer-checkpoint hashes. The services use `RemainAfterExit=yes`: `MainPID=0`, `SubState=exited` and exit status 0 establish process completion even though the retained unit state is `active`.
+
+The durable runs use separate user services and complete optimizer checkpoints. This change addresses execution continuity; it does not change the face equations or silently relax numerical tolerances.

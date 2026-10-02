@@ -1,0 +1,9 @@
+# Weak activation-variation branch
+
+The unregularized 200-to-300 continuation stopped at step 205 after cell 620845 inverted. The independent, already planned smoothness ablation therefore starts from the same canonical step-200 checkpoint. It shares the unregularized path's initial q, displacement seed, and Adam moments. It does not resume from the rejected geometry.
+
+The sole objective change is `L = L_data + lambda R`, where `L_data` remains uniform face coordinate MSE multiplied by 1e6, and `R` is the mean squared Frobenius difference of neighboring Ainv matrices. The graph contains 501,409 active tetrahedron shared-face pairs with the same MuscleId; 22,231 cross-muscle pairs are excluded. MuscleId and ActivationControlId are verified to correspond one-to-one in the fixture. This discrete penalty uses equal edge weights; it is a same-mesh ablation, not a mesh-independent continuum smoothness energy.
+
+Fix lambda once at the origin so that the penalty gradient RMS is 1% of the saved data-gradient RMS. CPU calibration gives approximately 0.0704980169; the run records its exact computed value. The first new optimizer update consumes the cached data gradient plus the analytic penalty gradient at q200. Later states evaluate the combined loss. Original Adam moments, learning rate, eps, materials, constraints, and forward/adjoint tolerances remain unchanged.
+
+Use the same step-300 maximum budget and the exact same geometry guard as the unregularized run. Stop on any new inversion, nonfinite determinant, renewed worsening of the pre-existing inversion beyond its fixed floor, or unsuccessful solver/gradient. Preserve the optimizer state after every accepted evaluation; rejected geometry is labelled solver_valid=false and never selected as best. If this branch also stops early, compare only the available accepted states and do not infer long-run regularization effectiveness or mechanical impossibility.

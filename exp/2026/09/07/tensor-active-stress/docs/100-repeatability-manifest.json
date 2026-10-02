@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "samples": {
+    "512": [
+      "../data/100-step512-sample0",
+      "../data/100-step512-sample1",
+      "../data/100-step512-sample2"
+    ]
+  },
+  "prerun_freeze": "../data/100-frozen-inputs/manifest.json"
+}

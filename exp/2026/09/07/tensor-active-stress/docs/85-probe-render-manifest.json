@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "title": "Saved PSD continuation probe geometry",
+  "output_dir": "../data/85-probe-render",
+  "target_label": "Exact Smile target skin",
+  "reference": {
+    "npz": {
+      "path": "../data/21-psd/step-0000.npz",
+      "sha256": "1d6120cd2e0b35b012864d257e7347090971bcfc8da0ce1e8c2797bb203dddf2"
+    },
+    "vtu": {
+      "path": "../data/21-psd/step-0000.vtu",
+      "sha256": "f89509b7e7fa5600ffb8496cf1d0f5184e3c6ee0daf2deb6bed5efa436644826"
+    }
+  },
+  "verified_comparison": {
+    "summary_json": {
+      "path": "../data/80-probe-comparison-v2/summary.json",
+      "sha256": "4dffc7d2e98b11a27c91c94aa1661875ef82cfe8b17938097a225dce188c8b29"
+    }
+  },
+  "cases": [
+    {
+      "id": "psd-64",
+      "label": "PSD, step 64",
+      "kind": "parent_or_intermediate",
+      "endpoint": {
+        "step": 64,
+        "npz": {
+          "path": "../data/21-psd/final.npz",
+          "sha256": "df5642c97d774bdaacc7bb5fc8c361e352301edab736ac9d92e0306c69903596"
+        },
+        "vtu": {
+          "path": "../data/21-psd/final.vtu",
+          "sha256": "7d0e996c11ac386496db02e88ba820d2126abbe451f0df7a67d88745d8d0e21c"
+        }
+      },
+      "evidence": {
+        "summary_json": {
+          "path": "../data/21-psd/summary.json",
+          "sha256": "23c4dfb498caba11ec3c3702af1f36681c2efddc2a2ba9fc5f759d5e40e11890"
+        },
+        "trace_csv": {
+          "path": "../data/21-psd/trace.csv",
+          "sha256": "71b4fa3401a3e8f4df82e6962a7bc34c7b2555555cb54e85a9cc86c7728695a3"
+        },
+        "reason": "Original completed PSD endpoint used as the common continuation parent."
+      },
+      "history": [
+        {
+          "step": 0,
+          "npz": {
+            "path": "../data/21-psd/step-0000.npz",
+            "sha256": "1d6120cd2e0b35b012864d257e7347090971bcfc8da0ce1e8c2797bb203dddf2"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0000.vtu",
+            "sha256": "f89509b7e7fa5600ffb8496cf1d0f5184e3c6ee0daf2deb6bed5efa436644826"
+          }
+        },
+        {
+          "step": 16,
+          "npz": {
+            "path": "../data/21-psd/step-0016.npz",
+            "sha256": "06dfa334651777feb35180d3f95354e9876b1251dbd7d20cd4996f2473400885"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0016.vtu",
+            "sha256": "629cedbb2dbda7acdf73511fccd5aeb1fe75a82767fdd7c981cf1902c22e1895"
+          }
+        },
+        {
+          "step": 32,
+          "npz": {
+            "path": "../data/21-psd/step-0032.npz",
+            "sha256": "7848ad3d2fbce7b86a8ab9490cf164816e6bf86deaac3238f5a13a5342b30d66"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0032.vtu",
+            "sha256": "27bfe622bff2858b239445b934b26368abf437c89ba0be3c0ab6f49f3df73f06"
+          }
+        },
+        {
+          "step": 48,
+          "npz": {
+            "path": "../data/21-psd/step-0048.npz",
+            "sha256": "4b676955e7aa6eb17ece6f4ad7f59cfb65c154cb736e9ac13d4d07cf5da5e58b"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0048.vtu",
+            "sha256": "773a24e549c3acffe45f86a1774af4d4b05e5ad0b62c4c07343e66fd4b2baa34"
+          }
+        },
+        {
+          "step": 64,
+          "npz": {
+            "path": "../data/21-psd/step-0064.npz",
+            "sha256": "df5642c97d774bdaacc7bb5fc8c361e352301edab736ac9d92e0306c69903596"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0064.vtu",
+            "sha256": "7d0e996c11ac386496db02e88ba820d2126abbe451f0df7a67d88745d8d0e21c"
+          }
+        }
+      ]
+    },
+    {
+      "id": "baseline-80",
+      "label": "Baseline, step 80",
+      "kind": "completed_endpoint",
+      "source80_endpoint_id": "baseline-16",
+      "endpoint": {
+        "step": 80,
+        "npz": {
+          "path": "../data/74-baseline16/final.npz",
+          "sha256": "37c4ed7ea3e4b517e537ee75d194960941d798b3062a0f253dc54d55833a3e7e"
+        },
+        "vtu": {
+          "path": "../data/74-baseline16/final.vtu",
+          "sha256": "d7fbe52b4b2d8a84621a6d8d3f1fbd98a92449daf8156b5459a95e8b35f74731"
+        }
+      },
+      "history": [
+        {
+          "step": 0,
+          "npz": {
+            "path": "../data/21-psd/step-0000.npz",
+            "sha256": "1d6120cd2e0b35b012864d257e7347090971bcfc8da0ce1e8c2797bb203dddf2"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0000.vtu",
+            "sha256": "f89509b7e7fa5600ffb8496cf1d0f5184e3c6ee0daf2deb6bed5efa436644826"
+          }
+        },
+        {
+          "step": 16,
+          "npz": {
+            "path": "../data/21-psd/step-0016.npz",
+            "sha256": "06dfa334651777feb35180d3f95354e9876b1251dbd7d20cd4996f2473400885"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0016.vtu",
+            "sha256": "629cedbb2dbda7acdf73511fccd5aeb1fe75a82767fdd7c981cf1902c22e1895"
+          }
+        },
+        {
+          "step": 32,
+          "npz": {
+            "path": "../data/21-psd/step-0032.npz",
+            "sha256": "7848ad3d2fbce7b86a8ab9490cf164816e6bf86deaac3238f5a13a5342b30d66"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0032.vtu",
+            "sha256": "27bfe622bff2858b239445b934b26368abf437c89ba0be3c0ab6f49f3df73f06"
+          }
+        },
+        {
+          "step": 48,
+          "npz": {
+            "path": "../data/21-psd/step-0048.npz",
+            "sha256": "4b676955e7aa6eb17ece6f4ad7f59cfb65c154cb736e9ac13d4d07cf5da5e58b"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0048.vtu",
+            "sha256": "773a24e549c3acffe45f86a1774af4d4b05e5ad0b62c4c07343e66fd4b2baa34"
+          }
+        },
+        {
+          "step": 64,
+          "npz": {
+            "path": "../data/21-psd/step-0064.npz",
+            "sha256": "df5642c97d774bdaacc7bb5fc8c361e352301edab736ac9d92e0306c69903596"
+          },
+          "vtu": {
+            "path": "../data/21-psd/step-0064.vtu",
+            "sha256": "7d0e996c11ac386496db02e88ba820d2126abbe451f0df7a67d88745d8d0e21c"
+          }
+        },
+        {
+          "step": 80,
+          "npz": {
+            "path": "../data/74-baseline16/step-0080.npz",
+            "sha256": "37c4ed7ea3e4b517e537ee75d194960941d798b3062a0f253dc54d55833a3e7e"
+          },
+          "vtu": {
+            "path": "../data/74-baseline16/step-0080.vtu",
+            "sha256": "d7fbe52b4b2d8a84621a6d8d3f1fbd98a92449daf8156b5459a95e8b35f74731"
+          }
+        }
+      ]
+    }
+  ],
+  "static_panels": [
+    {
+      "id": "probe",
+      "title": "Saved PSD continuation and exact target",
+      "case_ids": [
+        "psd-64",
+        "baseline-80"
+      ]
+    }
+  ]
+}

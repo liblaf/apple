@@ -1,0 +1,20 @@
+{
+  "title": "Manual face-actuation diagnosis: saved no-skin equilibrium",
+  "cases": [
+    {
+      "id": "manual-smile-elevators-50pct-no-skin",
+      "label": "Manual smile elevators · 50% prescribed natural fiber contraction · skin omitted · strict equilibrium success",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Manual smile elevators · 50% · no skin",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

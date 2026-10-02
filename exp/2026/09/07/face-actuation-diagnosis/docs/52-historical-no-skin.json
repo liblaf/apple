@@ -1,0 +1,22 @@
+{
+  "title": "Historical no-skin endpoint: exact saved geometry",
+  "cases": [
+    {
+      "id": "historical-no-skin-saved-endpoint",
+      "label": "Historical saved no-skin endpoint · no new solve · stored distortions retained",
+      "reference_vtu": "../data/11-historical-no-skin/final.vtu",
+      "reference_point_convention": "rest_position_array",
+      "reference_displacement_array": "RestPosition",
+      "endpoint_vtu": "../data/11-historical-no-skin/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical no-skin · saved endpoint",
+      "target_skin": {
+        "vtu": "../data/11-historical-no-skin/final.vtu",
+        "selector": "IsFace",
+        "displacement_array": "TargetDisplacement",
+        "rest_position_array": "RestPosition"
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "fixed_replay": "../data/94-fixed-replay",
+  "samples": {
+    "64": [
+      "../data/90-step64-sample0",
+      "../data/90-step64-sample1",
+      "../data/90-step64-sample2"
+    ],
+    "256": [
+      "../data/90-step256-sample0",
+      "../data/90-step256-sample1",
+      "../data/90-step256-sample2"
+    ]
+  },
+  "prerun_freeze": "../data/90-frozen-inputs/manifest.json",
+  "original_sampling_manifest": "90-repeatability-manifest.json",
+  "fixed_replay_correction": "94-fixed-replay-correction.md"
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "title": "Completed baseline continuation probe",
+  "output_dir": "../data/80-probe-comparison",
+  "surface_protocol": {
+    "fixture_vtu": "../../face-actuation-diagnosis/data/12-historical-fixture/volume.vtu",
+    "skin_vtp": "../../face-actuation-diagnosis/data/12-historical-fixture/skin.vtp",
+    "scales_mm": [
+      2,
+      5,
+      10
+    ],
+    "primary_scale_mm": 5,
+    "mouth_radius_mm": 10
+  },
+  "common_root_checkpoint": {
+    "path": "../data/21-psd/optimizer-latest.pt",
+    "sha256": "adf99d031850d423979feb11a0d844ee343757ffaa749ab77fe4aa4fd0de490d",
+    "global_step": 64
+  },
+  "runs": [
+    {
+      "id": "baseline-16",
+      "label": "Baseline, global step 80",
+      "role": "baseline16probe",
+      "path": "../data/74-baseline16",
+      "parent_checkpoint": {
+        "path": "../data/21-psd/optimizer-latest.pt",
+        "sha256": "adf99d031850d423979feb11a0d844ee343757ffaa749ab77fe4aa4fd0de490d",
+        "global_step": 64
+      },
+      "expected": {
+        "final_global_step": 80,
+        "final_local_step": 16
+      },
+      "matched_group": "probe-16"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "title": "Tensor active-stress face comparison",
+  "target_label": "Exact Smile target",
+  "reference_vtu": "../data/20-raw6-reference/step-0000.vtu",
+  "history_steps": [0, 16, 32, 48, 64],
+  "static_material": "uniform-skin",
+  "viewer_material": "DominantMaterialPhase",
+  "cases": [
+    {
+      "id": "raw6",
+      "label": "Raw6 reference",
+      "endpoint_vtu": "../data/20-raw6-reference/final.vtu",
+      "summary_json": "../data/20-raw6-reference/summary.json",
+      "expected_final_step": 64,
+      "history": [
+        {"step": 0, "vtu": "../data/20-raw6-reference/step-0000.vtu"},
+        {"step": 16, "vtu": "../data/20-raw6-reference/step-0016.vtu"},
+        {"step": 32, "vtu": "../data/20-raw6-reference/step-0032.vtu"},
+        {"step": 48, "vtu": "../data/20-raw6-reference/step-0048.vtu"},
+        {"step": 64, "vtu": "../data/20-raw6-reference/step-0064.vtu"}
+      ]
+    },
+    {
+      "id": "psd",
+      "label": "PSD active stress",
+      "endpoint_vtu": "../data/21-psd/final.vtu",
+      "summary_json": "../data/21-psd/summary.json",
+      "expected_final_step": 64,
+      "history": [
+        {"step": 0, "vtu": "../data/21-psd/step-0000.vtu"},
+        {"step": 16, "vtu": "../data/21-psd/step-0016.vtu"},
+        {"step": 32, "vtu": "../data/21-psd/step-0032.vtu"},
+        {"step": 48, "vtu": "../data/21-psd/step-0048.vtu"},
+        {"step": 64, "vtu": "../data/21-psd/step-0064.vtu"}
+      ]
+    },
+    {
+      "id": "psd-smooth",
+      "label": "PSD plus smoothness",
+      "endpoint_vtu": "../data/22-psd-smooth/final.vtu",
+      "summary_json": "../data/22-psd-smooth/summary.json",
+      "expected_final_step": 64,
+      "history": [
+        {"step": 0, "vtu": "../data/22-psd-smooth/step-0000.vtu"},
+        {"step": 16, "vtu": "../data/22-psd-smooth/step-0016.vtu"},
+        {"step": 32, "vtu": "../data/22-psd-smooth/step-0032.vtu"},
+        {"step": 48, "vtu": "../data/22-psd-smooth/step-0048.vtu"},
+        {"step": 64, "vtu": "../data/22-psd-smooth/step-0064.vtu"}
+      ]
+    },
+    {
+      "id": "psd-smooth-rank",
+      "label": "PSD plus smoothness and soft rank",
+      "endpoint_vtu": "../data/23-psd-smooth-rank/final.vtu",
+      "summary_json": "../data/23-psd-smooth-rank/summary.json",
+      "expected_final_step": 64,
+      "history": [
+        {"step": 0, "vtu": "../data/23-psd-smooth-rank/step-0000.vtu"},
+        {"step": 16, "vtu": "../data/23-psd-smooth-rank/step-0016.vtu"},
+        {"step": 32, "vtu": "../data/23-psd-smooth-rank/step-0032.vtu"},
+        {"step": 48, "vtu": "../data/23-psd-smooth-rank/step-0048.vtu"},
+        {"step": 64, "vtu": "../data/23-psd-smooth-rank/step-0064.vtu"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,561 @@
+{
+  "title": "Face actuation diagnosis · final saved endpoint comparison",
+  "inventory": "58-final-viewer-inventory.json",
+  "cases": [
+    {
+      "id": "historical-adam-raw6",
+      "label": "Raw6 · continuation best local 50 · terminal 65",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/38-historical-adam-raw6-continuation/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin · source endpoint required",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": [
+          "../data/46-historical-adam-raw6-continuation-history/step-0000.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0010.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0020.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0030.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0040.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0050.vtu",
+          "../data/46-historical-adam-raw6-continuation-history/step-0060.vtu",
+          "../data/38-historical-adam-raw6-continuation/final.vtu"
+        ],
+        "steps": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          50
+        ],
+        "labels": [
+          "saved solver-valid continuation local checkpoint step 0",
+          "saved solver-valid continuation local checkpoint step 10",
+          "saved solver-valid continuation local checkpoint step 20",
+          "saved solver-valid continuation local checkpoint step 30",
+          "saved solver-valid continuation local checkpoint step 40",
+          "saved solver-valid continuation local checkpoint step 50",
+          "saved solver-valid continuation local checkpoint step 60",
+          "best solver-valid continuation local step 50 · terminal local step 65"
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "historical-adam-raw6-smooth",
+      "label": "Raw6-S · continuation best local 64 · terminal 64",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/39-historical-adam-raw6-s-continuation/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin · source endpoint required",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": [
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0000.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0010.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0020.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0030.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0040.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0050.vtu",
+          "../data/47-historical-adam-raw6-s-continuation-history/step-0060.vtu",
+          "../data/39-historical-adam-raw6-s-continuation/final.vtu"
+        ],
+        "steps": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          64
+        ],
+        "labels": [
+          "saved solver-valid continuation local checkpoint step 0",
+          "saved solver-valid continuation local checkpoint step 10",
+          "saved solver-valid continuation local checkpoint step 20",
+          "saved solver-valid continuation local checkpoint step 30",
+          "saved solver-valid continuation local checkpoint step 40",
+          "saved solver-valid continuation local checkpoint step 50",
+          "saved solver-valid continuation local checkpoint step 60",
+          "best solver-valid continuation local step 64 · terminal local step 64"
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "historical-no-skin",
+      "label": "Historical saved no-skin endpoint · stored distortion retained",
+      "reference_vtu": "../data/11-historical-no-skin/final.vtu",
+      "reference_point_convention": "rest_position_array",
+      "reference_displacement_array": "RestPosition",
+      "endpoint_vtu": "../data/11-historical-no-skin/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical no-skin target skin · saved evidence",
+      "target_skin": {
+        "vtu": "../data/11-historical-no-skin/final.vtu",
+        "selector": "IsFace",
+        "displacement_array": "TargetDisplacement",
+        "rest_position_array": "RestPosition"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-selected-muscle-lame-x10",
+      "label": "Manual smile elevators · c50 no skin · selected-muscle Lamé parameters ×10 · successful equilibrium with recorded inversions",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/selected-muscle-lame-x10/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-30pct-skin-000",
+      "label": "Manual orbicularis-oris · 30% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-10pct-skin-000",
+      "label": "Manual smile-elevators · 10% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-30pct-skin-000",
+      "label": "Manual smile-elevators · 30% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-50pct-skin-000",
+      "label": "Manual smile-elevators · 50% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-10pct-skin-000",
+      "label": "Manual risorius · 10% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-30pct-skin-000",
+      "label": "Manual risorius · 30% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-50pct-skin-000",
+      "label": "Manual risorius · 50% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-10pct-skin-000",
+      "label": "Manual orbicularis-oris · 10% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-50pct-skin-000",
+      "label": "Manual orbicularis-oris · 50% prescribed contraction · skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-10pct-skin-012",
+      "label": "Manual smile-elevators · 10% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-30pct-skin-012",
+      "label": "Manual smile-elevators · 30% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-50pct-skin-012",
+      "label": "Manual smile-elevators · 50% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-10pct-skin-012",
+      "label": "Manual risorius · 10% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-30pct-skin-012",
+      "label": "Manual risorius · 30% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-risorius-50pct-skin-012",
+      "label": "Manual risorius · 50% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-10pct-skin-012",
+      "label": "Manual orbicularis-oris · 10% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-30pct-skin-012",
+      "label": "Manual orbicularis-oris · 30% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-orbicularis-oris-50pct-skin-012",
+      "label": "Manual orbicularis-oris · 50% prescribed contraction · skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-fat-lame-x0.1",
+      "label": "Manual smile elevators · c50 no skin · fat Lamé parameters ×0.1 · successful equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/fat-lame-x0.1/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-aponeurosis-lame-x0.1",
+      "label": "Manual smile elevators · c50 no skin · aponeurosis Lamé parameters ×0.1 · successful equilibrium with recorded inversions",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/aponeurosis-lame-x0.1/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "raw6-no-skin",
+      "label": "Raw6 no-skin inverse · saved line-search-stalled endpoint (step 48)",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/20-raw6-no-skin/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": [
+          "../data/20-raw6-no-skin/step-0000.vtu",
+          "../data/20-raw6-no-skin/step-0010.vtu",
+          "../data/20-raw6-no-skin/step-0020.vtu",
+          "../data/20-raw6-no-skin/step-0030.vtu",
+          "../data/20-raw6-no-skin/step-0040.vtu",
+          "../data/20-raw6-no-skin/final.vtu"
+        ],
+        "steps": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          48
+        ],
+        "labels": [
+          "accepted saved optimization step 0",
+          "accepted saved optimization step 10",
+          "accepted saved optimization step 20",
+          "accepted saved optimization step 30",
+          "accepted saved optimization step 40",
+          "accepted final iteration step 48 · termination line_search_stalled"
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "raw6-smooth-no-skin",
+      "label": "Raw6-S no-skin inverse · saved line-search-stalled endpoint (step 9)",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/21-raw6-smooth-no-skin/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": [
+          "../data/21-raw6-smooth-no-skin/step-0000.vtu",
+          "../data/21-raw6-smooth-no-skin/final.vtu"
+        ],
+        "steps": [
+          0,
+          9
+        ],
+        "labels": [
+          "accepted saved optimization step 0",
+          "accepted final iteration step 9 · termination line_search_stalled"
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "region5-modes-no-floor",
+      "label": "Region5Modes no-skin inverse · saved step-budget endpoint (step 40)",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/22-region5-no-floor/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": [
+          "../data/22-region5-no-floor/step-0000.vtu",
+          "../data/22-region5-no-floor/step-0005.vtu",
+          "../data/22-region5-no-floor/step-0010.vtu",
+          "../data/22-region5-no-floor/step-0015.vtu",
+          "../data/22-region5-no-floor/step-0020.vtu",
+          "../data/22-region5-no-floor/step-0025.vtu",
+          "../data/22-region5-no-floor/step-0030.vtu",
+          "../data/22-region5-no-floor/step-0035.vtu",
+          "../data/22-region5-no-floor/step-0040.vtu",
+          "../data/22-region5-no-floor/final.vtu"
+        ],
+        "steps": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          40
+        ],
+        "labels": [
+          "accepted saved optimization step 0",
+          "accepted saved optimization step 5",
+          "accepted saved optimization step 10",
+          "accepted saved optimization step 15",
+          "accepted saved optimization step 20",
+          "accepted saved optimization step 25",
+          "accepted saved optimization step 30",
+          "accepted saved optimization step 35",
+          "accepted saved optimization step 40",
+          "accepted final iteration step 40 · termination step_budget"
+        ],
+        "fps": 2
+      }
+    }
+  ],
+  "history_interpretation": "Optimization history is a sequence of exact saved solver states, not physical time. Historical Adam best solver-valid endpoints are labeled separately from their final evaluated iterations."
+}

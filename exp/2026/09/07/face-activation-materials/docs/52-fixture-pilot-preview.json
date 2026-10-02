@@ -1,0 +1,17 @@
+{
+  "title": "September face fixture and pilot endpoint",
+  "cases": [{
+    "id": "pilot-first-physical-endpoint",
+    "label": "Fixture rest and first physical pilot endpoint",
+    "reference_vtu": "../data/10-fixture/volume.vtu",
+    "endpoint_vtu": "../data/20-pilot/final.vtu",
+    "point_convention": "positions_are_state",
+    "material_array": "MuscleId",
+    "target_skin": {
+      "vtu": "../data/10-fixture/volume.vtu",
+      "selector": "IsFace",
+      "displacement_array": "Smile",
+      "valid_selector": "TargetFinite"
+    }
+  }]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "scope": "Forward counterfactual from one frozen Raw6 inverse field: compare unchanged, mildly diffused, and strongly diffused fields at independently solved equilibria; achieved field roughness ratios are measured against the unchanged field",
+  "fixture_vtu": "../data/12-historical-fixture/volume.vtu",
+  "skin_vtp": "../data/12-historical-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "baseline",
+      "label": "Unchanged Raw6 field · achieved field roughness ratio 1.000000",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/baseline/final.vtu"
+    },
+    {
+      "id": "mild",
+      "label": "Mild field diffusion · achieved field roughness ratio 0.899977",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/mild/final.vtu"
+    },
+    {
+      "id": "strong",
+      "label": "Strong field diffusion · achieved field roughness ratio 0.499966",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/strong/final.vtu"
+    }
+  ]
+}

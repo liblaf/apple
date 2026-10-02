@@ -1,0 +1,12 @@
+{
+  "title": "Exact saved geometry smoke test",
+  "cases": [
+    {
+      "id": "saved-section",
+      "label": "Saved local face section",
+      "reference_vtu": "../../../../09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-section-reference.vtu",
+      "endpoint_vtu": "../../../../09/01/human-face-muscle-section-folding/data/10-face-muscle-section/20-human-face-smile-no-skin-lr3-section-deformed.vtu",
+      "material_array": "MuscleId"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Matched historical Adam \u00b7 ongoing shared-reset continuation \u00b7 source 50 + local step 10 \u00b7 incomplete 150-step budget",
+  "scope": "Two exact receipt-valid saved continuation-local-step-10 checkpoints. Each began from immutable source step 50 with an identical explicit Adam-moment reset. These ongoing optimizer states are neither completed 150-local-step runs, converged endpoints, final-best selections, nor physical time.",
+  "cases": [
+    {
+      "id": "historical-adam-raw6-continuation-local-step10",
+      "label": "Raw6 \u00b7 ongoing continuation \u00b7 local step 10",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/64-continuation-raw6-step10-export/step-0010.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "historical-adam-raw6-s-continuation-local-step10",
+      "label": "Raw6-S \u00b7 ongoing continuation \u00b7 local step 10",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/65-continuation-raw6-s-step10-export/step-0010.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

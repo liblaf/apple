@@ -1,0 +1,263 @@
+[
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/analysis-summary.json",
+    "bytes": 650,
+    "sha256": "6c79ef3c553da938e3b9f68076d9a1ac06e1a5d9c3ca0532fdf2afd397bc4768",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/analysis-summary.json",
+    "member_sha256": "6c79ef3c553da938e3b9f68076d9a1ac06e1a5d9c3ca0532fdf2afd397bc4768",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/endpoint-metrics.csv",
+    "bytes": 32693,
+    "sha256": "a4ba759ea49eab677d007a3b865daeee1a086376902ba2f90eef7b215a9f4636",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/endpoint-metrics.csv",
+    "member_sha256": "a4ba759ea49eab677d007a3b865daeee1a086376902ba2f90eef7b215a9f4636",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/followup-endpoint-metrics.csv",
+    "bytes": 14637,
+    "sha256": "d747aca3a3c770b28ec107d82edd13b5189408890ffb49debf2c52b55b05a85d",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/followup-endpoint-metrics.csv",
+    "member_sha256": "d747aca3a3c770b28ec107d82edd13b5189408890ffb49debf2c52b55b05a85d",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/refinement-comparison.csv",
+    "bytes": 769,
+    "sha256": "d875f053e8b5553613273849b1d32ff0d1833ed104973592bb117d788194f2c2",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/refinement-comparison.csv",
+    "member_sha256": "d875f053e8b5553613273849b1d32ff0d1833ed104973592bb117d788194f2c2",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/smoothing-heldout-comparison.csv",
+    "bytes": 7431,
+    "sha256": "49197b749a1d25a589d36ea4f9249123c679c3226bacc7317ce28484eb587b29",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/smoothing-heldout-comparison.csv",
+    "member_sha256": "49197b749a1d25a589d36ea4f9249123c679c3226bacc7317ce28484eb587b29",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/clean-convergence.png",
+    "bytes": 265773,
+    "sha256": "35ea6f47c57429296c351c948578e31f8dc343a4e04ab002749122db9985aa67",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/clean-convergence.png",
+    "member_sha256": "35ea6f47c57429296c351c948578e31f8dc343a4e04ab002749122db9985aa67",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/noisy-convergence.png",
+    "bytes": 280006,
+    "sha256": "1c41b3156373f6d3130add2f95ba9f98b2f3a9105b42cf1138d936351a9850d4",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/noisy-convergence.png",
+    "member_sha256": "1c41b3156373f6d3130add2f95ba9f98b2f3a9105b42cf1138d936351a9850d4",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "activation-space-constraints",
+    "path": "exp/2026/09/06/activation-space-constraints/data/50-analysis/smoothing-heldout-comparison.png",
+    "bytes": 153486,
+    "sha256": "2e79bc37ba0aa7dd24e735005f7f5a90115e749c479d95a909434ee62a0eda77",
+    "bundle_member": "activation-space-constraints/source/exp/2026/09/06/activation-space-constraints/data/50-analysis/smoothing-heldout-comparison.png",
+    "member_sha256": "2e79bc37ba0aa7dd24e735005f7f5a90115e749c479d95a909434ee62a0eda77",
+    "bundle": "activation-space-constraints.tar.gz"
+  },
+  {
+    "group": "dominant-activation-ablation",
+    "path": "exp/2026/09/14/dominant-activation-ablation/data/90-released-axes/summary.json",
+    "bytes": 21092,
+    "sha256": "f20ccb2d970b7de4990ca0cee17aff340237e0f3c3e92e33a0966768ef02866d",
+    "bundle_member": "dominant-activation-ablation/source/exp/2026/09/14/dominant-activation-ablation/data/90-released-axes/summary.json",
+    "member_sha256": "f20ccb2d970b7de4990ca0cee17aff340237e0f3c3e92e33a0966768ef02866d",
+    "bundle": "dominant-activation-ablation.tar.gz"
+  },
+  {
+    "group": "activation-direction-smoothness",
+    "path": "exp/2026/09/15/activation-direction-smoothness/data/30-figures/tuning-tradeoff.png",
+    "bytes": 186346,
+    "sha256": "cc463fb4452efabe81c2a40ff18f531849d6b8b99f5e34f25cb6d7de4deb6c7f",
+    "bundle_member": "activation-direction-smoothness/source/exp/2026/09/15/activation-direction-smoothness/data/30-figures/tuning-tradeoff.png",
+    "member_sha256": "cc463fb4452efabe81c2a40ff18f531849d6b8b99f5e34f25cb6d7de4deb6c7f",
+    "bundle": "activation-direction-smoothness.tar.gz"
+  },
+  {
+    "group": "activation-direction-smoothness",
+    "path": "exp/2026/09/15/activation-direction-smoothness/data/30-figures/loss-and-roughness.png",
+    "bytes": 349142,
+    "sha256": "8f4d646e8d2ca19c2946bce06264533f8dcdc3e00e4f6e6f0e2cedfe04e181bf",
+    "bundle_member": "activation-direction-smoothness/source/exp/2026/09/15/activation-direction-smoothness/data/30-figures/loss-and-roughness.png",
+    "member_sha256": "8f4d646e8d2ca19c2946bce06264533f8dcdc3e00e4f6e6f0e2cedfe04e181bf",
+    "bundle": "activation-direction-smoothness.tar.gz"
+  },
+  {
+    "group": "activation-direction-smoothness",
+    "path": "exp/2026/09/15/activation-direction-smoothness/data/150-reset-figures/reset-vs-no-reset-history.png",
+    "bytes": 238164,
+    "sha256": "81f055fb247eadf19f9f86099e8b2ba81609b4ec416093d4b2eec9e95f68a6b7",
+    "bundle_member": "activation-direction-smoothness/source/exp/2026/09/15/activation-direction-smoothness/data/150-reset-figures/reset-vs-no-reset-history.png",
+    "member_sha256": "81f055fb247eadf19f9f86099e8b2ba81609b4ec416093d4b2eec9e95f68a6b7",
+    "bundle": "activation-direction-smoothness.tar.gz"
+  },
+  {
+    "group": "activation-direction-smoothness",
+    "path": "exp/2026/09/15/activation-direction-smoothness/data/190-completed-height-figures/free-activation-height-comparison-16x9-preview.png",
+    "bytes": 804177,
+    "sha256": "a704aefc21f64a7146020412b446098f10bd1aa3926f98885d7808ba63a3c730",
+    "bundle_member": "activation-direction-smoothness/source/exp/2026/09/15/activation-direction-smoothness/data/190-completed-height-figures/free-activation-height-comparison-16x9-preview.png",
+    "member_sha256": "a704aefc21f64a7146020412b446098f10bd1aa3926f98885d7808ba63a3c730",
+    "bundle": "activation-direction-smoothness.tar.gz"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/10-gradient/summary.json",
+    "bytes": 28936,
+    "sha256": "1670695fe36f31301608f558c3a1ee612c3150ae58f752d2f761da2f37e15cd7",
+    "bundle_member": "gradient-only-profile/source/exp/2026/09/19/gradient-only-profile/data/10-gradient/summary.json",
+    "member_sha256": "1670695fe36f31301608f558c3a1ee612c3150ae58f752d2f761da2f37e15cd7",
+    "bundle": "gradient-only-profile.tar.gz"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/30-figures/summary.csv",
+    "bytes": 5606,
+    "sha256": "44578e77052d31e99a48fdc16689c2c79ef74bfc36a6ce0eaac4b81d1ec4e726",
+    "bundle_member": "gradient-only-profile/source/exp/2026/09/19/gradient-only-profile/data/30-figures/summary.csv",
+    "member_sha256": "44578e77052d31e99a48fdc16689c2c79ef74bfc36a6ce0eaac4b81d1ec4e726",
+    "bundle": "gradient-only-profile.tar.gz"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/30-figures/final-shape-metrics.png",
+    "bytes": 124003,
+    "sha256": "b847fa155f923c5417ae53f24abe01b3bbea2d629bbac433e4439b50f719de89",
+    "bundle_member": "gradient-only-profile/source/exp/2026/09/19/gradient-only-profile/data/30-figures/final-shape-metrics.png",
+    "member_sha256": "b847fa155f923c5417ae53f24abe01b3bbea2d629bbac433e4439b50f719de89",
+    "bundle": "gradient-only-profile.tar.gz"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/30-figures/profiles-all-cases.png",
+    "bytes": 240407,
+    "sha256": "42b3292f1b529a0aee432c9770957d125059b8014dfaeeb5393c6f71ab4a3040",
+    "bundle_member": "gradient-only-profile/source/exp/2026/09/19/gradient-only-profile/data/30-figures/profiles-all-cases.png",
+    "member_sha256": "42b3292f1b529a0aee432c9770957d125059b8014dfaeeb5393c6f71ab4a3040",
+    "bundle": "gradient-only-profile.tar.gz"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/30-figures/slope-error-profiles.png",
+    "bytes": 393086,
+    "sha256": "487ca4175e12e63cfbaf63c4c0a8437e4a754b505586ad466b01743017f9db3f",
+    "bundle_member": "gradient-only-profile/source/exp/2026/09/19/gradient-only-profile/data/30-figures/slope-error-profiles.png",
+    "member_sha256": "487ca4175e12e63cfbaf63c4c0a8437e4a754b505586ad466b01743017f9db3f",
+    "bundle": "gradient-only-profile.tar.gz"
+  },
+  {
+    "group": "normal-matching-profile",
+    "path": "exp/2026/09/21/normal-matching-profile/data/10-comparison/summary.json",
+    "bytes": 206991,
+    "sha256": "11e2a3ceede15adbac330df9529427bb81aabba53a1a1fff266cfe52651c8faa",
+    "bundle_member": "normal-matching-profile/source/exp/2026/09/21/normal-matching-profile/data/10-comparison/summary.json",
+    "member_sha256": "11e2a3ceede15adbac330df9529427bb81aabba53a1a1fff266cfe52651c8faa",
+    "bundle": "normal-matching-profile.tar.gz"
+  },
+  {
+    "group": "normal-matching-profile",
+    "path": "exp/2026/09/21/normal-matching-profile/data/30-figures/selection-and-endpoints.json",
+    "bytes": 15559,
+    "sha256": "b69ce22f03ecb8d1bd93128af749712be5565bd6b558dfc3cb974d2a8b0d503d",
+    "bundle_member": "normal-matching-profile/source/exp/2026/09/21/normal-matching-profile/data/30-figures/selection-and-endpoints.json",
+    "member_sha256": "b69ce22f03ecb8d1bd93128af749712be5565bd6b558dfc3cb974d2a8b0d503d",
+    "bundle": "normal-matching-profile.tar.gz"
+  },
+  {
+    "group": "normal-matching-profile",
+    "path": "exp/2026/09/21/normal-matching-profile/data/30-figures/shared-step-profile-comparison.png",
+    "bytes": 458378,
+    "sha256": "3c53ffc1c79daa364489c65a81a5cdff7cf749d7370a9731a660900e0de468e2",
+    "bundle_member": "normal-matching-profile/source/exp/2026/09/21/normal-matching-profile/data/30-figures/shared-step-profile-comparison.png",
+    "member_sha256": "3c53ffc1c79daa364489c65a81a5cdff7cf749d7370a9731a660900e0de468e2",
+    "bundle": "normal-matching-profile.tar.gz"
+  },
+  {
+    "group": "normal-matching-profile",
+    "path": "exp/2026/09/21/normal-matching-profile/data/30-figures/objective-and-projected-gradient-histories.png",
+    "bytes": 1120923,
+    "sha256": "69b631740a98f5055baea44c7dfb19f6c138a26c383cecbfd4b2a7fb3b736dba",
+    "bundle_member": "normal-matching-profile/source/exp/2026/09/21/normal-matching-profile/data/30-figures/objective-and-projected-gradient-histories.png",
+    "member_sha256": "69b631740a98f5055baea44c7dfb19f6c138a26c383cecbfd4b2a7fb3b736dba",
+    "bundle": "normal-matching-profile.tar.gz"
+  },
+  {
+    "group": "new-neutral",
+    "path": "exp/2026/09/23/new-neutral/data/mouthopen-joint-constraints-001/attempt-00/summary.json",
+    "bytes": 416,
+    "sha256": "2110a5bc94ba3e626a8d868a7b4bf86b08e9a7fa0c638b77619759a34f4dba83",
+    "bundle_member": "new-neutral/source/exp/2026/09/23/new-neutral/data/mouthopen-joint-constraints-001/attempt-00/summary.json",
+    "member_sha256": "2110a5bc94ba3e626a8d868a7b4bf86b08e9a7fa0c638b77619759a34f4dba83",
+    "bundle": "new-neutral.tar.gz"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/neutral-convergence-010-contact-metric-bfgs-segment-003/summary.json",
+    "bytes": 55804,
+    "sha256": "df746f744523609995843f4e45d11dae08192b6abc800c94a4377a8cf74f6c54",
+    "bundle_member": "joint-activation-material-mandible/source/exp/2026/09/21/joint-activation-material-mandible/data/neutral-convergence-010-contact-metric-bfgs-segment-003/summary.json",
+    "member_sha256": "df746f744523609995843f4e45d11dae08192b6abc800c94a4377a8cf74f6c54",
+    "bundle": "joint-activation-material-mandible.tar.gz"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/contact-validation-newton/summary.json",
+    "bytes": 31734,
+    "sha256": "4c6ed4e9739c47a304c9af6f6ca4597b7821d03c3995eaf8143c1687d31274d8",
+    "bundle_member": "joint-activation-material-mandible/source/exp/2026/09/21/joint-activation-material-mandible/data/contact-validation-newton/summary.json",
+    "member_sha256": "4c6ed4e9739c47a304c9af6f6ca4597b7821d03c3995eaf8143c1687d31274d8",
+    "bundle": "joint-activation-material-mandible.tar.gz"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/expression-fitting-008/summary.json",
+    "bytes": 23501,
+    "sha256": "56d0503af566e10329d6d074c2e9d61b280a11d438d330a02b145b292b907c71",
+    "bundle_member": "joint-activation-material-mandible/source/exp/2026/09/21/joint-activation-material-mandible/data/expression-fitting-008/summary.json",
+    "member_sha256": "56d0503af566e10329d6d074c2e9d61b280a11d438d330a02b145b292b907c71",
+    "bundle": "joint-activation-material-mandible.tar.gz"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/face-gradient-validation-contact-newton/summary.json",
+    "bytes": 119095,
+    "sha256": "47c429d244d5e5ffe43e35e77f56ca774017cc54add2542000bbe1ae05bad68a",
+    "bundle_member": "joint-activation-material-mandible/source/exp/2026/09/21/joint-activation-material-mandible/data/face-gradient-validation-contact-newton/summary.json",
+    "member_sha256": "47c429d244d5e5ffe43e35e77f56ca774017cc54add2542000bbe1ae05bad68a",
+    "bundle": "joint-activation-material-mandible.tar.gz"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/10-contact-checks-005/summary.json",
+    "bytes": 1934,
+    "sha256": "a8d1d5e04517b10c38aca8c8ccb73039b4566ceb7bbca76ad361b2249abd89ef",
+    "bundle_member": "mouthopen-smile-collisions/source/exp/2026/09/30/mouthopen-smile-collisions/data/10-contact-checks-005/summary.json",
+    "member_sha256": "a8d1d5e04517b10c38aca8c8ccb73039b4566ceb7bbca76ad361b2249abd89ef",
+    "bundle": "mouthopen-smile-collisions.tar.gz"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/54-fixed-contact-audit-003/summary.json",
+    "bytes": 201865,
+    "sha256": "d46c37790defdb386bd222dccd52cad25f98f3b34a4fa99cab8e7734400f1ed1",
+    "bundle_member": "mouthopen-smile-collisions/source/exp/2026/09/30/mouthopen-smile-collisions/data/54-fixed-contact-audit-003/summary.json",
+    "member_sha256": "d46c37790defdb386bd222dccd52cad25f98f3b34a4fa99cab8e7734400f1ed1",
+    "bundle": "mouthopen-smile-collisions.tar.gz"
+  }
+]

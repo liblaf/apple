@@ -1,0 +1,10 @@
+{
+  "scope": "exp/2026/09/**/data",
+  "initial_selection_boundary": "allow-listed result tables, receipts, and synthetic/profile plots; no runtime archives, copied code, raw meshes, checkpoints, meeting/proposal material, downloaded anatomy, or model-face renders",
+  "selected_files": 29,
+  "derived_sanitized_records": 25,
+  "selected_source_bytes": 5382604,
+  "excluded_candidates": 25,
+  "bundle_bytes": 5498416,
+  "full_text_scan": "all allow-listed text and derived JSON scanned for local paths, private and Tailnet addresses, tailnet names, and credential markers"
+}

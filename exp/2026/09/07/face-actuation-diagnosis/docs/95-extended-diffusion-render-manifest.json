@@ -1,0 +1,100 @@
+{
+  "title": "Face actuation diagnosis \u00b7 extended conservative field diffusion",
+  "scope": "Six independently solved equilibria from one frozen Raw6 activation field and one common displacement seed; no output geometry smoothing",
+  "producer_summaries": [
+    "../data/80-forward-field-diffusion/summary.json",
+    "../data/94-extended-field-diffusion/summary.json"
+  ],
+  "cases": [
+    {
+      "id": "baseline",
+      "label": "Unchanged Raw6 field \u00b7 achieved R/R0 = 1.000000",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/baseline/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "mild",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.899977",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/mild/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "strong",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.499966",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/strong/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "r010",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.100086",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/r010/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "r001",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.010066",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/r001/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "component_constant",
+      "label": "Component-constant within each connected muscle \u00b7 achieved R/R0 = 0.000000",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/component_constant/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin \u00b7 post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

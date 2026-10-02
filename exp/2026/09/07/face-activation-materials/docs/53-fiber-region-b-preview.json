@@ -1,0 +1,48 @@
+{
+  "title": "FiberRegion scalar inverse endpoint: underfitting and compression-limited",
+  "cases": [
+    {
+      "id": "fiber-region-b-v2",
+      "label": "FiberRegion scalar endpoint \u00b7 underfitting \u00b7 compression-limited at detF floor",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/21-fiber-region-B-v2/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "history": {
+        "frames": [
+          "../data/21-fiber-region-B-v2/step-0000.vtu",
+          "../data/21-fiber-region-B-v2/step-0005.vtu",
+          "../data/21-fiber-region-B-v2/step-0010.vtu",
+          "../data/21-fiber-region-B-v2/step-0015.vtu",
+          "../data/21-fiber-region-B-v2/step-0020.vtu",
+          "../data/21-fiber-region-B-v2/step-0025.vtu",
+          "../data/21-fiber-region-B-v2/step-0030.vtu"
+        ],
+        "steps": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ],
+        "fps": 2
+      }
+    }
+  ]
+}

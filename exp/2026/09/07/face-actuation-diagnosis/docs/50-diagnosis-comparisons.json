@@ -1,0 +1,24 @@
+{
+  "title": "Face actuation diagnosis: saved equilibria",
+  "cases": [
+    {
+      "id": "raw6-no-skin-step0",
+      "label": "Raw6 no-skin inverse · provisional saved optimization step 0 · not physical time",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/20-raw6-no-skin/step-0000.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "history": {
+        "frames": ["../data/20-raw6-no-skin/step-0000.vtu"],
+        "steps": [0],
+        "fps": 1
+      }
+    }
+  ]
+}

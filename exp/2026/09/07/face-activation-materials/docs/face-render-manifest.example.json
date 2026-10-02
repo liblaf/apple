@@ -1,0 +1,21 @@
+{
+  "title": "Saved face endpoint comparison",
+  "cases": [
+    {
+      "id": "raw-endpoint",
+      "label": "Raw saved endpoint",
+      "reference_vtu": "/absolute/path/to/rest.vtu",
+      "endpoint_vtu": "/absolute/path/to/final.vtu",
+      "history": {
+        "frames": [
+          "/absolute/path/to/step-000.vtu",
+          "/absolute/path/to/step-001.vtu"
+        ],
+        "fps": 30
+      },
+      "material_array": "MuscleId",
+      "skin_surface_name": "IsSkin",
+      "cutaway_plane": {"origin": [0.0, 0.0, 0.0], "normal": [0.0, 1.0, 0.0]}
+    }
+  ]
+}

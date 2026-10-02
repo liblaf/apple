@@ -1,0 +1,267 @@
+{
+  "title": "Saved face activation comparisons and fixed-control replays",
+  "cases": [
+    {
+      "id": "raw6-step8",
+      "label": "Raw6 diagnostic checkpoint \u00b7 incomplete after accepted step 8",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/23-raw6-diagnostic-step8/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "fiber-modes-fat049",
+      "label": "FiberModes fat nu 0.49 \u00b7 incomplete \u00b7 40-step budget",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/24-fiber-modes-fat049/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "history": {
+        "frames": [
+          "../data/24-fiber-modes-fat049/step-0000.vtu",
+          "../data/24-fiber-modes-fat049/step-0005.vtu",
+          "../data/24-fiber-modes-fat049/step-0010.vtu",
+          "../data/24-fiber-modes-fat049/step-0015.vtu",
+          "../data/24-fiber-modes-fat049/step-0020.vtu",
+          "../data/24-fiber-modes-fat049/step-0025.vtu",
+          "../data/24-fiber-modes-fat049/step-0030.vtu",
+          "../data/24-fiber-modes-fat049/step-0035.vtu",
+          "../data/24-fiber-modes-fat049/step-0040.vtu"
+        ],
+        "steps": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "fps": 2
+      },
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "region5-modes-fat049",
+      "label": "Region5Modes fat nu 0.49 \u00b7 incomplete \u00b7 line-search stalled",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/25-region5-modes-fat049/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "history": {
+        "frames": [
+          "../data/25-region5-modes-fat049/step-0000.vtu",
+          "../data/25-region5-modes-fat049/step-0005.vtu"
+        ],
+        "steps": [
+          0,
+          5
+        ],
+        "fps": 2
+      },
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "latent-region-fat049",
+      "label": "Learned regional axes \u00b7 99 free controls \u00b7 incomplete \u00b7 line-search stalled",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/26-latent-region-fat049/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "history": {
+        "frames": [
+          "../data/26-latent-region-fat049/step-0000.vtu",
+          "../data/26-latent-region-fat049/step-0005.vtu",
+          "../data/26-latent-region-fat049/step-0010.vtu",
+          "../data/26-latent-region-fat049/final.vtu"
+        ],
+        "steps": [
+          0,
+          5,
+          10,
+          13
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "fiber-region-b-v2",
+      "label": "FiberRegion scalar endpoint \u00b7 floor-limited",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/21-fiber-region-B-v2/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_skin": {
+        "vtu": "../data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      },
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "history": {
+        "frames": [
+          "../data/21-fiber-region-B-v2/step-0000.vtu",
+          "../data/21-fiber-region-B-v2/step-0005.vtu",
+          "../data/21-fiber-region-B-v2/step-0010.vtu",
+          "../data/21-fiber-region-B-v2/step-0015.vtu",
+          "../data/21-fiber-region-B-v2/step-0020.vtu",
+          "../data/21-fiber-region-B-v2/step-0025.vtu",
+          "../data/21-fiber-region-B-v2/step-0030.vtu"
+        ],
+        "steps": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ],
+        "fps": 2
+      }
+    },
+    {
+      "id": "baseline-b",
+      "label": "Fixed-control replay \u00b7 baseline B \u00b7 success",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/22-replays-v2/baseline-B/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "depressor-labii-0pct",
+      "label": "Fixed-control replay \u00b7 depressor labii 0% \u00b7 success",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/22-replays-v2/depressor-labii-0pct/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "fat-stable-nu049",
+      "label": "Fixed-control replay \u00b7 fat Stable nu 0.49 \u00b7 success",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/22-replays-v2/fat-stable-nu049/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "fat-neo-nu049",
+      "label": "Fixed-control replay \u00b7 fat Neo-Hookean nu 0.49 \u00b7 success",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/22-replays-v2/fat-neo-nu049/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "fat-nu0499-continuation",
+      "label": "Fixed controls \u00b7 fat nu 0.499 \u00b7 activation continuation",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/29-fat0499-ramp/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "fixed_rest_cohort": {
+        "culprit_cell_id": 662949,
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  ]
+}

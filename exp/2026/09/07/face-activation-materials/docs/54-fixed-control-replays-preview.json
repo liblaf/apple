@@ -1,0 +1,28 @@
+{
+  "title": "Saved FiberRegion inverse and fixed-control replay equilibria",
+  "cases": [
+    {
+      "id": "fiber-region-b-v2",
+      "label": "FiberRegion scalar endpoint · underfitting · compression-limited at detF floor",
+      "reference_vtu": "../data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/21-fiber-region-B-v2/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_skin": {"vtu": "../data/10-fixture/volume.vtu", "selector": "IsFace", "displacement_array": "Smile", "valid_selector": "TargetFinite"},
+      "fixed_rest_cohort": {"culprit_cell_id": 662949, "normal": [0.0, 0.0, 1.0]},
+      "history": {"frames": ["../data/21-fiber-region-B-v2/step-0000.vtu", "../data/21-fiber-region-B-v2/step-0005.vtu", "../data/21-fiber-region-B-v2/step-0010.vtu", "../data/21-fiber-region-B-v2/step-0015.vtu", "../data/21-fiber-region-B-v2/step-0020.vtu", "../data/21-fiber-region-B-v2/step-0025.vtu", "../data/21-fiber-region-B-v2/step-0030.vtu"], "steps": [0,5,10,15,20,25,30], "fps": 2}
+    },
+    {
+      "id": "baseline-b", "label": "Fixed-control replay · baseline B · success", "reference_vtu": "../data/10-fixture/volume.vtu", "endpoint_vtu": "../data/22-replays-v2/baseline-B/final.vtu", "point_convention": "positions_are_state", "material_array": "DominantMaterialPhase", "fixed_rest_cohort": {"culprit_cell_id": 662949, "normal": [0.0,0.0,1.0]}
+    },
+    {
+      "id": "depressor-labii-0pct", "label": "Fixed-control replay · depressor labii 0% · success", "reference_vtu": "../data/10-fixture/volume.vtu", "endpoint_vtu": "../data/22-replays-v2/depressor-labii-0pct/final.vtu", "point_convention": "positions_are_state", "material_array": "DominantMaterialPhase", "fixed_rest_cohort": {"culprit_cell_id": 662949, "normal": [0.0,0.0,1.0]}
+    },
+    {
+      "id": "fat-stable-nu049", "label": "Fixed-control replay · fat Stable nu 0.49 · success", "reference_vtu": "../data/10-fixture/volume.vtu", "endpoint_vtu": "../data/22-replays-v2/fat-stable-nu049/final.vtu", "point_convention": "positions_are_state", "material_array": "DominantMaterialPhase", "fixed_rest_cohort": {"culprit_cell_id": 662949, "normal": [0.0,0.0,1.0]}
+    },
+    {
+      "id": "fat-neo-nu049", "label": "Fixed-control replay · fat Neo-Hookean nu 0.49 · success", "reference_vtu": "../data/10-fixture/volume.vtu", "endpoint_vtu": "../data/22-replays-v2/fat-neo-nu049/final.vtu", "point_convention": "positions_are_state", "material_array": "DominantMaterialPhase", "fixed_rest_cohort": {"culprit_cell_id": 662949, "normal": [0.0,0.0,1.0]}
+    }
+  ]
+}

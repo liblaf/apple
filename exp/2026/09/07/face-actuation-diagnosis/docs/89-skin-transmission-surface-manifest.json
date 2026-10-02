@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "Forward 2 by 2 skin-transmission counterfactual from one frozen Raw6 field: unchanged versus strongly diffused activation at skin factors 0.00 and 0.12; all cells use the same historical seed, fixture, and target",
+  "fixture_vtu": "../data/12-historical-fixture/volume.vtu",
+  "skin_vtp": "../data/12-historical-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "baseline_skin_0",
+      "label": "Unchanged field · skin factor 0.00 · field roughness ratio 1.000000",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/baseline/final.vtu"
+    },
+    {
+      "id": "baseline_skin_0.12",
+      "label": "Unchanged field · skin factor 0.12 · field roughness ratio 1.000000",
+      "endpoint_vtu": "../data/85-forward-field-skin-transmission/baseline_skin_0.12/final.vtu"
+    },
+    {
+      "id": "strong_skin_0",
+      "label": "Strong field diffusion · skin factor 0.00 · achieved field roughness ratio 0.499966",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/strong/final.vtu"
+    },
+    {
+      "id": "strong_skin_0.12",
+      "label": "Strong field diffusion · skin factor 0.12 · achieved field roughness ratio 0.499966",
+      "endpoint_vtu": "../data/85-forward-field-skin-transmission/strong_skin_0.12/final.vtu"
+    }
+  ]
+}

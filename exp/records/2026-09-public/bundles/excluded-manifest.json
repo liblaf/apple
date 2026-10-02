@@ -1,0 +1,177 @@
+[
+  {
+    "group": "dominant-activation-ablation",
+    "path": "exp/2026/09/14/dominant-activation-ablation/data/94-released-axes-verification/receipt.json",
+    "bytes": 34974,
+    "sha256": "ed44c7f84ababd5f7aeb89ea1b705a9f9d1c2b80d1caa742256136f36c39bd38",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "dominant-activation-ablation",
+    "path": "exp/2026/09/14/dominant-activation-ablation/data/98-aligned-errors/summary.json",
+    "bytes": 34392,
+    "sha256": "7621b76348ec21341e0c671a4d5c305ac21a1c42a2296fd3703ebea93d83ff4e",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "activation-direction-smoothness",
+    "path": "exp/2026/09/15/activation-direction-smoothness/data/30-figures/manifest.json",
+    "bytes": 6574,
+    "sha256": "fe91bb6e6c56141b0c7f4135e5a9aed95af96b18592c70bb08d02ec036248fea",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "gradient-only-profile",
+    "path": "exp/2026/09/19/gradient-only-profile/data/30-figures/summary.json",
+    "bytes": 17514,
+    "sha256": "5db43b8855368da0fda6beefcdc21645434b569ca13b8fa7fa678fc03c5c41ff",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "normal-matching-profile",
+    "path": "exp/2026/09/21/normal-matching-profile/data/30-figures/summary.json",
+    "bytes": 773,
+    "sha256": "3c6e30f5bda92a1b75f6886eb15f396e61af3771b10a782dc6df2e88b3d1ae06",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "solver-performance",
+    "path": "exp/2026/09/22/solver-performance/data/neutral-ablation-full-001/summary.json",
+    "bytes": 676165,
+    "sha256": "f8e966d56db4a2ea1c61dffb89cdbcec32f1e88de4640445befca10de9119a13",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "solver-performance",
+    "path": "exp/2026/09/22/solver-performance/data/neutral-adaptive-ipc-final-fixed-002/summary.json",
+    "bytes": 800846,
+    "sha256": "84330bfbca414ef8445d2a2ac43c64b17232985c17a73d7539e0a058c81cdaee",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "solver-performance",
+    "path": "exp/2026/09/22/solver-performance/data/adaptive-pncg-cold-003/summary.json",
+    "bytes": 902309,
+    "sha256": "0879fbfc7ae4fe1d272f822b9bc342746398f3a88fd00a3f2f9724cbb6ce3b94",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "new-neutral",
+    "path": "exp/2026/09/23/new-neutral/data/forward-isfixed-001/summary.json",
+    "bytes": 1086447,
+    "sha256": "10ca889cae2e3a238e78288de8913184f4569c4549f4fb7d058b9fb9ef24f22d",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "new-neutral",
+    "path": "exp/2026/09/23/new-neutral/data/forward-repaired-reference-001/summary.json",
+    "bytes": 975062,
+    "sha256": "aed6de8e12fadee25f81c759b7c5b9bb8246616663adf0f98df335b4f6ee58d9",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "new-neutral",
+    "path": "exp/2026/09/23/new-neutral/data/review-isfixed-001/mouthopen-continuation/receipt.json",
+    "bytes": 402,
+    "sha256": "b308300a3a633690d08e84ed11d9dbb369bfe0813a3e82e347671522e3431ce2",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "new-neutral",
+    "path": "exp/2026/09/23/new-neutral/data/pose-jump-002/summary.json",
+    "bytes": 690152,
+    "sha256": "4d7c3ea03fa47a23c91d9ae48a80d9f332f5ad25228dd22ddc7799433224b37b",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/frozen-neutral-004/manifest.json",
+    "bytes": 47410,
+    "sha256": "8f904db7d3a8658b57fd60408f9aa6f9158b95f2806a7f5215a8d920b39fd46f",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "joint-activation-material-mandible",
+    "path": "exp/2026/09/21/joint-activation-material-mandible/data/precise-hvp-expression-validation-001/summary.json",
+    "bytes": 13022,
+    "sha256": "3c2fb5dc187e6ffe0d035bf3f5595215d63cfcf721fb3a1b1345e12fb77bd80e",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-activation",
+    "path": "exp/2026/09/29/mouthopen-activation/data/91-smile-mouthopen-transition-003/summary.json",
+    "bytes": 912731,
+    "sha256": "a92ccde816d362fa04ad05bb896eece7ced6e3dce98f298d4f2277084e247533",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-activation",
+    "path": "exp/2026/09/29/mouthopen-activation/data/92-smile-mouthopen-transition-render/manifest.json",
+    "bytes": 983747,
+    "sha256": "3b4e7735424688cd59b0b9b34f8c48766fde4b898d877d7ed4083b99bf08d3fe",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "collision-off-expressions",
+    "path": "exp/2026/09/30/collision-off-expressions/data/smile-baseline-resolution-001/summary.json",
+    "bytes": 717948,
+    "sha256": "0b429cfaad0dcf6340663d7fab533705c80fa06ee50c8e720d4532caccffd207",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "collision-off-expressions",
+    "path": "exp/2026/09/30/collision-off-expressions/data/mouthopen-probe-001/summary.json",
+    "bytes": 813063,
+    "sha256": "ff2cf2a60ea68a48aa27642e6fc785c71c8f3f255eefc4f9c29483a38a79f390",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "collision-off-expressions",
+    "path": "exp/2026/09/30/collision-off-expressions/data/feasible-descent-partial-2313.json",
+    "bytes": 863984,
+    "sha256": "440053652f2961d6b4965ae4f9c42f8f74c790a3c56c055504293064bfe1a589",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "projected-newton-neutral",
+    "path": "exp/2026/09/30/projected-newton-neutral/data/forward-exact-control-001/summary.json",
+    "bytes": 885773,
+    "sha256": "9ec1afb54ec3d39e9f107197087798e5a95e3a9b65e7b8cf906cbfca8ca2712e",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "stage3-mouthopen-smile-contact",
+    "path": "exp/2026/09/30/stage3-mouthopen-smile-contact-comparison/data/22-ten-frame-collision-off/summary.json",
+    "bytes": 902646,
+    "sha256": "8090803ce2334c4df094497718fb53ba4e605e64664a8b518e49f1b560a55a8a",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/17-contact-set-reproducibility/summary.json",
+    "bytes": 29558,
+    "sha256": "a50a1b8041f4f0aafc7e579fbd10767ee337b62fa079d0f5048c2822046221d7",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/20-contact-transition/summary.json",
+    "bytes": 236592,
+    "sha256": "a9d01726d9987bf274a85ebc8febedeb62353adfb64f7d11f3282ff8146f18ea",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/50-fixed-reference/summary.json",
+    "bytes": 5313,
+    "sha256": "4dae3e0c3c9e1fb2793dc5cdc154c18fd0713343fcb02ee4b2f368b1e5c324c6",
+    "reason": "sensitive text pattern"
+  },
+  {
+    "group": "mouthopen-smile-collisions",
+    "path": "exp/2026/09/30/mouthopen-smile-collisions/data/72-linear-cap-pilot/summary.json",
+    "bytes": 256035,
+    "sha256": "5833c6f95c9db7496af0338db0aef53b8b4c6d94474b18009499e01e4fb288b7",
+    "reason": "sensitive text pattern"
+  }
+]

@@ -1,0 +1,15 @@
+# Smile continuation after update 48
+
+Smile008 accepted four updates from the audited Smile006 optimizer state. The last durable endpoint has q and pose counters 48, loss 1.4583670817080778, weighted skin RMS 4.944834033817685 mm, and force residual 0.0008681875855114987 N. The independent audit passed the declared force, collision, boundary and retained-inversion policies. Inverse convergence remains unproven.
+
+The next trial stopped with `Bounded dual Newton direction unresolved`. Its saved bounded-dual certificate shows a successful L-BFGS-B solve with projected gradient 3.1427e-12, followed by an unresolved Newton polishing direction. The trial had no forward evaluation and committed no state. This is evidence for rejecting that numerical proposal and reducing its step size; it does not establish a valid physical candidate.
+
+The additive 3180 worker recognizes this exact assertion only when the trial summary, input receipt and bounded-dual certificate bind the cache and row order, report the expected solver result, and retain the box and trust checks. Other errors remain terminal. The existing limits of three projection failures, three forward failures and one known sparse-adjoint failure per outer iteration remain in place. Failed proposals commit no coordinates, optimizer moments or counters.
+
+A CPU replay from Smile008's frozen direction cache certified alpha 0.00048828125 with the unchanged projection certificate and a negative objective slope. Alpha 0.0009765625 remained unresolved. The new alpha must still pass the complete forward, collision, geometry, adjoint and nonlinear Armijo checks before an update is accepted.
+
+Evidence is retained in `data/smile008-terminal-verification.json`, the complete `data/remote-smile-retries-008` bundle, and `data/smile008-dual-diagnostic/sweep.json`. The existing and new failure-classifier tests passed: eight tests in total.
+
+Smile009 launched at 2026-09-30T07:28:46.694372+00:00 after verifying the full 443-file parent source closure. The complete main CPU preflight preserved the state with CUDA uninitialized; independent source review passed. New local iteration numbering starts at zero while cumulative q and pose counters retain 48, so the maximum of 25 local iterations permits 25 new accepted updates. The supervisor limits fitting to 2026-09-30T08:28:45.105408+00:00, then runs an independent audit.
+
+At 2026-09-30T07:34:09.885384+00:00, Smile009 had saved three new updates, reaching cumulative counters 51. Its running endpoint had RMS 4.944780107909226 mm and force residual 0.0008691529928674772 N, passing the declared forward policy. Its new fixed-state derivative check passed; the best q relative error was 1.0168e-7, and the maximum best error among the six jaw coordinates was 2.6141e-6, below the 1e-3 worker threshold. These new updates are pending independent audit, and inverse convergence remains unproven. The active heartbeat monitors and continues reviewed batches; the previous served visualization still shows Smile006.

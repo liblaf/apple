@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scope": "CPU-only post-hoc surface audit across six independently solved equilibria; R/R0 changes the activation field, never the saved output geometry",
+  "producer_summaries": [
+    "../data/80-forward-field-diffusion/summary.json",
+    "../data/94-extended-field-diffusion/summary.json"
+  ],
+  "fixture_vtu": "../data/12-historical-fixture/volume.vtu",
+  "skin_vtp": "../data/12-historical-fixture/skin.vtp",
+  "scales_mm": [
+    2.0,
+    5.0,
+    10.0
+  ],
+  "cases": [
+    {
+      "id": "baseline",
+      "label": "Unchanged Raw6 field \u00b7 achieved R/R0 = 1.000000",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/baseline/final.vtu"
+    },
+    {
+      "id": "mild",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.899977",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/mild/final.vtu"
+    },
+    {
+      "id": "strong",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.499966",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/strong/final.vtu"
+    },
+    {
+      "id": "r010",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.100086",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/r010/final.vtu"
+    },
+    {
+      "id": "r001",
+      "label": "Conservative field diffusion \u00b7 achieved R/R0 = 0.010066",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/r001/final.vtu"
+    },
+    {
+      "id": "component_constant",
+      "label": "Component-constant within each connected muscle \u00b7 achieved R/R0 = 0.000000",
+      "endpoint_vtu": "../data/94-extended-field-diffusion/component_constant/final.vtu"
+    }
+  ]
+}

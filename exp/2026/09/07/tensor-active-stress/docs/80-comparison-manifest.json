@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "title": "PSD continuation and regularization",
+  "output_dir": "../data/80-continuation-comparison",
+  "surface_protocol": {
+    "fixture_vtu": "../../face-actuation-diagnosis/data/12-historical-fixture/volume.vtu",
+    "skin_vtp": "../../face-actuation-diagnosis/data/12-historical-fixture/skin.vtp",
+    "scales_mm": [
+      2,
+      5,
+      10
+    ],
+    "primary_scale_mm": 5,
+    "mouth_radius_mm": 10
+  },
+  "common_root_checkpoint": {
+    "path": "../data/21-psd/optimizer-latest.pt",
+    "sha256": "adf99d031850d423979feb11a0d844ee343757ffaa749ab77fe4aa4fd0de490d",
+    "global_step": 64
+  },
+  "runs": [
+    {
+      "id": "baseline-16",
+      "label": "Baseline to step 80",
+      "role": "baseline16probe",
+      "path": "../data/74-baseline16",
+      "parent_checkpoint": {
+        "path": "../data/21-psd/optimizer-latest.pt",
+        "sha256": "adf99d031850d423979feb11a0d844ee343757ffaa749ab77fe4aa4fd0de490d",
+        "global_step": 64
+      },
+      "expected": {
+        "final_global_step": 80,
+        "final_local_step": 16
+      },
+      "matched_group": "probe-16"
+    },
+    {
+      "id": "fit-144",
+      "label": "Fit-only to step 144",
+      "role": "selectedcontinuationblock",
+      "path": "../data/74-fit144",
+      "parent_checkpoint": {
+        "path": "../data/74-baseline16/optimizer-latest.pt",
+        "sha256": "f48e771683556af866658cca30b9efbfa14f6844cdd519f66d2b15405c0e284f",
+        "global_step": 80
+      },
+      "expected": {
+        "final_global_step": 144,
+        "final_local_step": 64
+      },
+      "matched_group": "fit-only"
+    },
+    {
+      "id": "fit-208",
+      "label": "Fit-only to step 208",
+      "role": "selectedcontinuationblock",
+      "path": "../data/74-fit208",
+      "parent_checkpoint": {
+        "path": "../data/74-fit144/optimizer-latest.pt",
+        "sha256": "b5cacfbfc7b224662a9b1cba76960ff3f229a34a311ae121c34c2322d964cfd2",
+        "global_step": 144
+      },
+      "expected": {
+        "final_global_step": 208,
+        "final_local_step": 64
+      },
+      "matched_group": "fit-only"
+    },
+    {
+      "id": "fit-256",
+      "label": "Fit-only to step 256",
+      "role": "selectedcontinuationblock",
+      "path": "../data/74-fit256",
+      "parent_checkpoint": {
+        "path": "../data/74-fit208/optimizer-latest.pt",
+        "sha256": "bdca3b84e46bec3b8da60bd66c6208e967dc4102aff5eb99ec65fa02f3db9e01",
+        "global_step": 208
+      },
+      "expected": {
+        "final_global_step": 256,
+        "final_local_step": 48
+      },
+      "matched_group": "fit-only"
+    },
+    {
+      "id": "reg-control",
+      "label": "Fit-only control",
+      "role": "laterregularization",
+      "path": "../data/74-reg-control",
+      "parent_checkpoint": {
+        "path": "../data/74-fit256/optimizer-latest.pt",
+        "sha256": "3566e630fba5dae173fed2db7a0f70eacafb63bfe3bf0ef84e67025bce4d8ca9",
+        "global_step": 256
+      },
+      "expected": {
+        "final_global_step": 272,
+        "final_local_step": 16
+      },
+      "matched_group": "regularization-16"
+    },
+    {
+      "id": "reg-weak",
+      "label": "Weak smoothness",
+      "role": "laterregularization",
+      "path": "../data/74-reg-weak",
+      "parent_checkpoint": {
+        "path": "../data/74-fit256/optimizer-latest.pt",
+        "sha256": "3566e630fba5dae173fed2db7a0f70eacafb63bfe3bf0ef84e67025bce4d8ca9",
+        "global_step": 256
+      },
+      "expected": {
+        "final_global_step": 272,
+        "final_local_step": 16
+      },
+      "matched_group": "regularization-16"
+    },
+    {
+      "id": "reg-full",
+      "label": "Full smoothness",
+      "role": "laterregularization",
+      "path": "../data/74-reg-full",
+      "parent_checkpoint": {
+        "path": "../data/74-fit256/optimizer-latest.pt",
+        "sha256": "3566e630fba5dae173fed2db7a0f70eacafb63bfe3bf0ef84e67025bce4d8ca9",
+        "global_step": 256
+      },
+      "expected": {
+        "final_global_step": 272,
+        "final_local_step": 16
+      },
+      "matched_group": "regularization-16"
+    }
+  ]
+}

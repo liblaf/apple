@@ -1,0 +1,36 @@
+{
+  "title": "Matched historical Adam · interim saved step 20 · ongoing inversions",
+  "scope": "Two exact receipt-valid optimizer checkpoints at common saved step 20. These are ongoing optimizer states, not converged endpoints or physical time.",
+  "cases": [
+    {
+      "id": "historical-adam-raw6-step20",
+      "label": "Matched historical Adam Raw6 · saved receipt-valid optimizer step 20 · ongoing, no convergence claim",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/36-interim-adam-raw6-step20-checkpoint/step-0020.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "historical-adam-raw6-s-step20",
+      "label": "Matched historical Adam Raw6-S · saved receipt-valid optimizer step 20 · ongoing, no convergence claim",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/37-interim-adam-raw6-s-step20-checkpoint/step-0020.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin · comparison reference only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

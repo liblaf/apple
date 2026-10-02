@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "Interim same-local-step comparison of saved continuation checkpoints; source step 50 plus 10 new evaluations, not final step 150 or a regularization-weight selection",
+  "fixture_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+  "skin_vtp": "../../face-activation-materials/data/10-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "continuation-raw6-local10",
+      "label": "Ongoing Raw6 continuation, local step 10 (source step 50 + 10 new evaluations)",
+      "endpoint_vtu": "../data/64-continuation-raw6-step10-export/step-0010.vtu"
+    },
+    {
+      "id": "continuation-raw6-s-local10",
+      "label": "Ongoing Raw6-S continuation, local step 10 (source step 50 + 10 new evaluations)",
+      "endpoint_vtu": "../data/65-continuation-raw6-s-step10-export/step-0010.vtu"
+    }
+  ]
+}

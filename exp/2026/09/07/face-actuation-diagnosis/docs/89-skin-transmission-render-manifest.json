@@ -1,0 +1,65 @@
+{
+  "title": "Face actuation diagnosis · field diffusion × skin transmission",
+  "cases": [
+    {
+      "id": "baseline_skin_0",
+      "label": "Unchanged field · skin factor 0.00 · field roughness ratio 1.000000",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/baseline/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "baseline_skin_0.12",
+      "label": "Unchanged field · skin factor 0.12 · field roughness ratio 1.000000",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/85-forward-field-skin-transmission/baseline_skin_0.12/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "strong_skin_0",
+      "label": "Strong field diffusion · skin factor 0.00 · achieved field roughness ratio 0.499966",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/80-forward-field-diffusion/strong/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "strong_skin_0.12",
+      "label": "Strong field diffusion · skin factor 0.12 · achieved field roughness ratio 0.499966",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/85-forward-field-skin-transmission/strong_skin_0.12/final.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Historical fixture Smile target skin",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

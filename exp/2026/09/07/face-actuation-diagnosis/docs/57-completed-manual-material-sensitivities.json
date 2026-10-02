@@ -1,0 +1,65 @@
+{
+  "title": "Face actuation diagnosis \u00b7 completed saved c50 material sensitivities",
+  "cases": [
+    {
+      "id": "manual-smile-elevators-c50-no-skin-baseline",
+      "label": "Manual smile elevators \u00b7 50% prescribed contraction \u00b7 no skin \u00b7 saved strict-equilibrium baseline",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-selected-muscle-lame-x10",
+      "label": "Manual smile elevators \u00b7 c50 no skin \u00b7 selected-muscle Lam\u00e9 parameters \u00d710 \u00b7 saved strict equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/selected-muscle-lame-x10/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-fat-lame-x0.1",
+      "label": "Manual smile elevators \u00b7 c50 no skin \u00b7 fat Lam\u00e9 parameters \u00d70.1 \u00b7 saved strict equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/fat-lame-x0.1/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "manual-smile-elevators-c50-aponeurosis-lame-x0.1",
+      "label": "Manual smile elevators \u00b7 c50 no skin \u00b7 aponeurosis Lam\u00e9 parameters \u00d70.1 \u00b7 saved strict equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/aponeurosis-lame-x0.1/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin \u00b7 comparison reference only",
+      "target_skin": {
+        "vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

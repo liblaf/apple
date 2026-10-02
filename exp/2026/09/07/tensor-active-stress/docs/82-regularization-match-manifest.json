@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "title": "PSD regularization at matched fit and motion",
+  "output_dir": "../data/82-regularization-match",
+  "surface_protocol": {
+    "fixture_vtu": "../../face-actuation-diagnosis/data/12-historical-fixture/volume.vtu",
+    "skin_vtp": "../../face-actuation-diagnosis/data/12-historical-fixture/skin.vtp",
+    "scales_mm": [
+      2,
+      5,
+      10
+    ],
+    "primary_scale_mm": 5,
+    "mouth_radius_mm": 10
+  },
+  "arms": {
+    "control": {
+      "id": "reg-control",
+      "label": "Fit-only control",
+      "path": "../data/74-reg-control"
+    },
+    "weak": {
+      "id": "reg-weak",
+      "label": "Weak smoothness",
+      "path": "../data/74-reg-weak"
+    },
+    "full": {
+      "id": "reg-full",
+      "label": "Full smoothness",
+      "path": "../data/74-reg-full"
+    }
+  }
+}

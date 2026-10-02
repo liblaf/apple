@@ -1,0 +1,55 @@
+{
+  "title": "Face actuation diagnosis · manual active tension",
+  "scope": "Target-independent manual active-tension equilibria rendered as exact saved geometry at shared true scale; the target overlay is post-hoc context only",
+  "producer_outcome": "../data/93-active-tension-face-outcome.json",
+  "omitted_cases": [
+    {
+      "id": "gain-1000",
+      "reason": "fixed-budget forward failure; no converged saved state exists and no placeholder geometry is shown"
+    }
+  ],
+  "cases": [
+    {
+      "id": "gain-0000",
+      "label": "Active tension gain 0 · T = 0 MPa · rest control",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0000/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_label": "Historical fixture Smile target skin · post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "gain-0100",
+      "label": "Active tension gain 1 · T = 0.0246575 MPa",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0100/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_label": "Historical fixture Smile target skin · post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    },
+    {
+      "id": "gain-0300",
+      "label": "Active tension gain 3 · T = 0.0739726 MPa",
+      "reference_vtu": "../data/12-historical-fixture/volume.vtu",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0300/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_label": "Historical fixture Smile target skin · post-hoc context only",
+      "target_skin": {
+        "vtu": "../data/12-historical-fixture/volume.vtu",
+        "selector": "IsFace",
+        "displacement_array": "Smile",
+        "valid_selector": "TargetFinite"
+      }
+    }
+  ]
+}

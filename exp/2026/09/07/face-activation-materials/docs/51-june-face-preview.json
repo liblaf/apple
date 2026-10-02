@@ -1,0 +1,16 @@
+{
+  "title": "June saved smile target skin preview",
+  "cases": [{
+    "id": "june-smile-target",
+    "label": "June prepared face and saved smile target",
+    "reference_vtu": "../../../../06/10/human-face-inverse-activation/data/10-human-face-prepared.vtu",
+    "endpoint_vtu": "../../../../06/10/human-face-inverse-activation/data/10-human-face-prepared.vtu",
+    "point_convention": "positions_are_state",
+    "material_array": "MuscleId",
+    "target_skin": {
+      "vtu": "../../../../06/10/human-face-inverse-activation/data/20-human-face-smile-lr03-target.vtu",
+      "selector": "IsFace",
+      "displacement_array": "TargetDisplacement"
+    }
+  }]
+}

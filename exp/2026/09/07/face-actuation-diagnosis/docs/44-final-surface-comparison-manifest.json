@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "fixture_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+  "skin_vtp": "../../face-activation-materials/data/10-fixture/skin.vtp",
+  "historical_fixture_vtu": "../data/12-historical-fixture/volume.vtu",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "historical-saved-no-skin",
+      "label": "Historical saved no-skin endpoint",
+      "category": "historical_saved",
+      "endpoint_vtu": "../data/11-historical-no-skin/final.vtu",
+      "summary_json": "../data/11-historical-no-skin/summary.json",
+      "summary_schema": "historical_saved"
+    },
+    {
+      "id": "manual-c50-no-skin-baseline",
+      "label": "Manual smile elevators c50 no-skin baseline",
+      "category": "manual",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "declared_status": "manual strict equilibrium"
+    },
+    {
+      "id": "manual-c50-selected-muscle-lame-x10",
+      "label": "Manual c50 selected-muscle Lame parameters x10",
+      "category": "manual_material",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/selected-muscle-lame-x10/state.vtu",
+      "declared_status": "manual material strict equilibrium"
+    },
+    {
+      "id": "manual-c50-fat-lame-x0.1",
+      "label": "Manual c50 fat Lame parameters x0.1",
+      "category": "manual_material",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/fat-lame-x0.1/state.vtu",
+      "declared_status": "manual material strict equilibrium"
+    },
+    {
+      "id": "manual-c50-aponeurosis-lame-x0.1",
+      "label": "Manual c50 aponeurosis Lame parameters x0.1",
+      "category": "manual_material",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/aponeurosis-lame-x0.1/state.vtu",
+      "declared_status": "manual material strict equilibrium"
+    },
+    {
+      "id": "current-raw6-smooth-no-skin",
+      "label": "Current-fixture Raw6-S no-skin endpoint, step 9",
+      "category": "current_inverse",
+      "endpoint_vtu": "../data/21-raw6-smooth-no-skin/final.vtu",
+      "summary_json": "../data/21-raw6-smooth-no-skin/summary.json",
+      "summary_schema": "current_inverse"
+    },
+    {
+      "id": "current-region5-no-floor",
+      "label": "Current-fixture Region5Modes endpoint, step 40",
+      "category": "current_inverse",
+      "endpoint_vtu": "../data/22-region5-no-floor/final.vtu",
+      "summary_json": "../data/22-region5-no-floor/summary.json",
+      "summary_schema": "current_inverse"
+    },
+    {
+      "id": "current-raw6-no-skin",
+      "label": "Current-fixture Raw6 no-skin final endpoint",
+      "category": "current_inverse",
+      "endpoint_vtu": "../data/20-raw6-no-skin/final.vtu",
+      "summary_json": "../data/20-raw6-no-skin/summary.json",
+      "summary_schema": "current_inverse"
+    },
+    {
+      "id": "historical-adam-raw6",
+      "label": "Matched historical-fixture Adam Raw6 continuation best endpoint",
+      "category": "historical_adam",
+      "endpoint_vtu": "../data/38-historical-adam-raw6-continuation/final.vtu",
+      "summary_json": "../data/38-historical-adam-raw6-continuation/summary.json",
+      "solver_receipts_jsonl": "../data/38-historical-adam-raw6-continuation/solver-receipts.jsonl",
+      "summary_schema": "historical_adam"
+    },
+    {
+      "id": "historical-adam-raw6-s",
+      "label": "Matched historical-fixture Adam Raw6-S continuation best endpoint",
+      "category": "historical_adam",
+      "endpoint_vtu": "../data/39-historical-adam-raw6-s-continuation/final.vtu",
+      "summary_json": "../data/39-historical-adam-raw6-s-continuation/summary.json",
+      "solver_receipts_jsonl": "../data/39-historical-adam-raw6-s-continuation/solver-receipts.jsonl",
+      "summary_schema": "historical_adam"
+    }
+  ]
+}

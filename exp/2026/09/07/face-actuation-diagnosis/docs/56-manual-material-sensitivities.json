@@ -1,0 +1,35 @@
+{
+  "title": "Face actuation diagnosis · saved c50 material sensitivities",
+  "cases": [
+    {
+      "id": "manual-smile-elevators-c50-no-skin-baseline",
+      "label": "Manual smile elevators · 50% prescribed contraction · no skin · saved strict-equilibrium baseline",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {"vtu": "../../face-activation-materials/data/10-fixture/volume.vtu", "selector": "IsFace", "displacement_array": "Smile", "valid_selector": "TargetFinite"}
+    },
+    {
+      "id": "manual-smile-elevators-c50-selected-muscle-lame-x10",
+      "label": "Manual smile elevators · c50 no skin · selected-muscle Lamé parameters ×10 · saved strict equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/selected-muscle-lame-x10/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {"vtu": "../../face-activation-materials/data/10-fixture/volume.vtu", "selector": "IsFace", "displacement_array": "Smile", "valid_selector": "TargetFinite"}
+    },
+    {
+      "id": "manual-smile-elevators-c50-fat-lame-x0.1",
+      "label": "Manual smile elevators · c50 no skin · fat Lamé parameters ×0.1 · saved strict equilibrium",
+      "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/fat-lame-x0.1/state.vtu",
+      "point_convention": "positions_are_state",
+      "material_array": "DominantMaterialPhase",
+      "target_label": "Fixture Smile target skin · comparison reference only",
+      "target_skin": {"vtu": "../../face-activation-materials/data/10-fixture/volume.vtu", "selector": "IsFace", "displacement_array": "Smile", "valid_selector": "TargetFinite"}
+    }
+  ]
+}

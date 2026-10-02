@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "scope": "Descriptive post-hoc surface audit of target-independent manual active-tension equilibria; the Smile target was absent from the control and equilibrium solve, so residual and projection metrics are comparisons rather than fitting claims",
+  "producer_outcome": "../data/93-active-tension-face-outcome.json",
+  "omitted_cases": [
+    {
+      "id": "gain-1000",
+      "reason": "fixed-budget forward failure; no converged saved state exists and no placeholder geometry is shown"
+    }
+  ],
+  "fixture_vtu": "../data/12-historical-fixture/volume.vtu",
+  "skin_vtp": "../data/12-historical-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "gain-0000",
+      "label": "Active tension gain 0 · T = 0 MPa · rest control",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0000/state.vtu"
+    },
+    {
+      "id": "gain-0100",
+      "label": "Active tension gain 1 · T = 0.0246575 MPa",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0100/state.vtu"
+    },
+    {
+      "id": "gain-0300",
+      "label": "Active tension gain 3 · T = 0.0739726 MPa",
+      "endpoint_vtu": "../data/88-active-tension-face/cases/gain-0300/state.vtu"
+    }
+  ]
+}

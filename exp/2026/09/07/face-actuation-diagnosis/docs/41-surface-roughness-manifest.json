@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "fixture_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+  "skin_vtp": "../../face-activation-materials/data/10-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "historical-saved-no-skin",
+      "label": "Historical saved no-skin endpoint",
+      "endpoint_vtu": "../data/11-historical-no-skin/final.vtu"
+    },
+    {
+      "id": "manual-c50-no-skin-baseline",
+      "label": "Manual smile elevators c50 no-skin baseline",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu"
+    },
+    {
+      "id": "manual-c50-selected-muscle-lame-x10",
+      "label": "Manual c50 selected-muscle Lame parameters x10",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/selected-muscle-lame-x10/state.vtu"
+    },
+    {
+      "id": "manual-c50-fat-lame-x0.1",
+      "label": "Manual c50 fat Lame parameters x0.1",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/fat-lame-x0.1/state.vtu"
+    },
+    {
+      "id": "manual-c50-aponeurosis-lame-x0.1",
+      "label": "Manual c50 aponeurosis Lame parameters x0.1",
+      "endpoint_vtu": "../data/11-manual-sensitivities-v2/aponeurosis-lame-x0.1/state.vtu"
+    }
+  ]
+}

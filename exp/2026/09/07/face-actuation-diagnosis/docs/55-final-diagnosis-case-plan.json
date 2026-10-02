@@ -1,0 +1,187 @@
+{
+  "title": "Final face-actuation diagnosis case plan",
+  "reference_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+  "manual_cases": [
+    {
+      "id": "manual-smile-elevators-10pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 10% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-smile-elevators-30pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 30% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-smile-elevators-50pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 50% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-10pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 10% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-30pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 30% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-50pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 50% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/risorius/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-orbicularis-oris-10pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 10% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-orbicularis-oris-30pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 30% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-orbicularis-oris-50pct-skin-000",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 50% prescribed contraction \u00b7 skin factor 0.00",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.00/orbicularis-oris/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-smile-elevators-10pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 10% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-smile-elevators-30pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 30% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-smile-elevators-50pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual smile-elevators \u00b7 50% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/smile-elevators/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-10pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 10% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-30pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 30% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-risorius-50pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual risorius \u00b7 50% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/risorius/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "saved equilibrium available"
+    },
+    {
+      "id": "manual-orbicularis-oris-10pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 10% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c10/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "awaiting saved equilibrium"
+    },
+    {
+      "id": "manual-orbicularis-oris-30pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 30% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c30/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "awaiting saved equilibrium"
+    },
+    {
+      "id": "manual-orbicularis-oris-50pct-skin-012",
+      "kind": "manual prescribed contraction",
+      "label": "Manual orbicularis-oris \u00b7 50% prescribed contraction \u00b7 skin factor 0.12",
+      "endpoint_vtu": "../data/10-manual-activation/skin-0.12/orbicularis-oris/c50/state.vtu",
+      "point_convention": "positions_are_state",
+      "target_skin": "fixture Smile/IsFace/TargetFinite",
+      "availability": "awaiting saved equilibrium"
+    }
+  ],
+  "future_inverse_cases": [
+    {
+      "id": "raw6-no-skin",
+      "endpoint_vtu": "../data/20-raw6-no-skin/final.vtu",
+      "label": "Raw6 no-skin inverse \u00b7 status from summary.json",
+      "availability": "awaiting final"
+    },
+    {
+      "id": "raw6-smooth-no-skin",
+      "endpoint_vtu": "../data/21-raw6-smooth-no-skin/final.vtu",
+      "label": "Raw6-S no-skin inverse \u00b7 status from summary.json",
+      "availability": "awaiting final"
+    }
+  ],
+  "notes": [
+    "Use saved VTU points directly; never interpolate or smooth geometry.",
+    "Only actual saved optimizer frames may be shown as optimization history; they are not physical time.",
+    "Build renderer input from available cases only, preserving the endpoint status from its receipt or summary."
+  ]
+}

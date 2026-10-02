@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "Completed early-trend runs at matched continuation local step 60 (nominal step 110): each began from source step 50 with an explicit Adam-moment reset; this saved-step comparison is not a convergence or uninterrupted-trajectory claim",
+  "fixture_vtu": "../../face-activation-materials/data/10-fixture/volume.vtu",
+  "skin_vtp": "../../face-activation-materials/data/10-fixture/skin.vtp",
+  "scales_mm": [2.0, 5.0, 10.0],
+  "cases": [
+    {
+      "id": "completed-trend-raw6-local60",
+      "label": "Completed early-trend Raw6, matched local step 60 (source 50 + reset Adam; nominal 110)",
+      "endpoint_vtu": "../data/46-historical-adam-raw6-continuation-history/step-0060.vtu"
+    },
+    {
+      "id": "completed-trend-raw6-s-local60",
+      "label": "Completed early-trend Raw6-S, matched local step 60 (source 50 + reset Adam; nominal 110)",
+      "endpoint_vtu": "../data/47-historical-adam-raw6-s-continuation-history/step-0060.vtu"
+    }
+  ]
+}

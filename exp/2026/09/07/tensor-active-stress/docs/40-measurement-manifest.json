@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "fixture_vtu": "../../face-actuation-diagnosis/data/12-historical-fixture/volume.vtu",
+  "skin_vtp": "../../face-actuation-diagnosis/data/12-historical-fixture/skin.vtp",
+  "scales_mm": [2, 5, 10],
+  "primary_scale_mm": 5,
+  "mouth_radius_mm": 10,
+  "include_target": true,
+  "cases": [
+    {
+      "id": "raw6",
+      "label": "Raw6 historical active-strain continuity reference",
+      "endpoint_vtu": "../data/20-raw6-reference/final.vtu"
+    },
+    {
+      "id": "psd",
+      "label": "PSD tensor active stress",
+      "endpoint_vtu": "../data/21-psd/final.vtu"
+    },
+    {
+      "id": "psd-smooth",
+      "label": "PSD tensor active stress with smoothness",
+      "endpoint_vtu": "../data/22-psd-smooth/final.vtu"
+    },
+    {
+      "id": "psd-smooth-rank",
+      "label": "PSD tensor active stress with smoothness and rank penalty",
+      "endpoint_vtu": "../data/23-psd-smooth-rank/final.vtu"
+    }
+  ]
+}

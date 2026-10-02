@@ -3,9 +3,9 @@ from typing import override
 import attrs
 import torch
 from jaxtyping import Float
-from liblaf.peach.optim import Problem
 from torch import Tensor
 
+from liblaf.apple.solvers.optim import Problem
 from liblaf.apple.torch.utils import method_with_device
 
 from ._model import Model

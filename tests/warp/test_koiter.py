@@ -322,6 +322,182 @@ def test_koiter_filtered_surface_uses_global_point_ids() -> None:
     )
 
 
+def test_koiter_scalar_thickness_matches_constant_field() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    mesh = _make_mesh()
+    scalar = Koiter.from_pyvista(mesh, thickness=0.7)
+    field = Koiter.from_pyvista(mesh, thickness=np.full(mesh.n_cells, 0.7))
+    u = torch.tensor(
+        [
+            [0.03, -0.02, 0.01],
+            [-0.01, 0.04, -0.02],
+            [0.02, 0.01, 0.03],
+            [-0.04, 0.015, 0.02],
+        ],
+        dtype=torch.float64,
+    )
+    p = torch.tensor(
+        [
+            [0.04, -0.03, 0.02],
+            [0.01, 0.05, -0.04],
+            [-0.02, 0.03, 0.01],
+            [0.03, -0.01, 0.05],
+        ],
+        dtype=torch.float64,
+    )
+
+    torch.testing.assert_close(_fun(field, u), _fun(scalar, u))
+    torch.testing.assert_close(_grad(field, u), _grad(scalar, u))
+    torch.testing.assert_close(_hess_diag(field, u), _hess_diag(scalar, u))
+    torch.testing.assert_close(_hess_prod(field, u, p), _hess_prod(scalar, u, p))
+    torch.testing.assert_close(_hess_quad(field, u, p), _hess_quad(scalar, u, p))
+
+
+def test_koiter_materials_follow_geometry_device() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    mesh = _make_mesh()
+    cpu = Koiter.from_pyvista(mesh, thickness=np.array([0.4, 1.1]))
+
+    assert cpu.cells.device.is_cpu
+    assert all(
+        value.device == cpu.cells.device for value in cpu.get_materials().values()
+    )
+
+    if not torch.cuda.is_available():
+        return
+
+    with torch.device("cuda"):
+        cuda = Koiter.from_pyvista(mesh, thickness=np.array([0.4, 1.1]))
+        u = torch.tensor(
+            [
+                [0.03, -0.02, 0.01],
+                [-0.01, 0.04, -0.02],
+                [0.02, 0.01, 0.03],
+                [-0.04, 0.015, 0.02],
+            ],
+            dtype=torch.float64,
+        )
+
+    assert cuda.cells.device.is_cuda
+    assert all(
+        value.device == cuda.cells.device for value in cuda.get_materials().values()
+    )
+    torch.testing.assert_close(_fun(cuda, u).cpu(), _fun(cpu, u.cpu()))
+    torch.testing.assert_close(_grad(cuda, u).cpu(), _grad(cpu, u.cpu()))
+
+
+def test_koiter_set_materials_updates_thickness_response() -> None:
+    from liblaf.apple.warp.fem import Koiter
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    mesh = _make_mesh()
+    scalar = Koiter.from_pyvista(mesh, thickness=0.7)
+    field = Koiter.from_pyvista(mesh, thickness=np.array([0.4, 1.1], dtype=np.float64))
+    u = torch.tensor(
+        [
+            [0.03, -0.02, 0.01],
+            [-0.01, 0.04, -0.02],
+            [0.02, 0.01, 0.03],
+            [-0.04, 0.015, 0.02],
+        ],
+        dtype=torch.float64,
+    )
+    before = _fun(field, u)
+
+    field.set_materials({"thickness": torch.full((mesh.n_cells,), 0.7)})
+
+    assert not torch.isclose(before, _fun(scalar, u))
+    torch.testing.assert_close(
+        wp.to_torch(field.get_materials()["thickness"]).cpu(),
+        torch.full((mesh.n_cells,), 0.7),
+    )
+    torch.testing.assert_close(_fun(field, u), _fun(scalar, u))
+    torch.testing.assert_close(_grad(field, u), _grad(scalar, u))
+    torch.testing.assert_close(_hess_diag(field, u), _hess_diag(scalar, u))
+
+
+def test_koiter_thickness_material_gradient_matches_finite_difference() -> None:
+    from liblaf.apple.warp.fem import Koiter
+    from liblaf.apple.warp.model import WarpModel
+
+    torch.set_default_dtype(torch.float64)
+    wp.init()
+
+    mesh = _make_mesh()
+    thickness = np.array([0.4, 1.1], dtype=np.float64)
+    potential = Koiter.from_pyvista(
+        mesh, thickness=thickness, requires_grad=("thickness",)
+    )
+    u = torch.tensor(
+        [
+            [0.03, -0.02, 0.01],
+            [-0.01, 0.04, -0.02],
+            [0.02, 0.01, 0.03],
+            [-0.04, 0.015, 0.02],
+        ],
+        dtype=torch.float64,
+    )
+    output = wp.zeros((1,), dtype=wp.float64, device="cpu", requires_grad=True)
+    tape = wp.Tape()
+    with tape:
+        potential.fun(_from_torch_vec3(u), output)
+    tape.backward(loss=output)
+    gradient = wp.to_torch(potential.get_materials()["thickness"].grad).cpu()
+
+    eps = 1.0e-6
+    fd = torch.empty(mesh.n_cells, dtype=torch.float64)
+    for index in range(mesh.n_cells):
+        plus = thickness.copy()
+        minus = thickness.copy()
+        plus[index] += eps
+        minus[index] -= eps
+        fd[index] = (
+            _fun(Koiter.from_pyvista(mesh, thickness=plus), u)
+            - _fun(Koiter.from_pyvista(mesh, thickness=minus), u)
+        ) / (2.0 * eps)
+    torch.testing.assert_close(gradient, fd, rtol=2.0e-8, atol=2.0e-10)
+
+    direction = torch.tensor(
+        [
+            [0.04, -0.03, 0.02],
+            [0.01, 0.05, -0.04],
+            [-0.02, 0.03, 0.01],
+            [0.03, -0.01, 0.05],
+        ],
+        dtype=torch.float64,
+    )
+    potential = Koiter.from_pyvista(
+        mesh, thickness=thickness, requires_grad=("thickness",)
+    )
+    WarpModel(potentials={"skin": potential}).mixed_derivative_prod(
+        _from_torch_vec3(u), _from_torch_vec3(direction)
+    )
+    mixed = wp.to_torch(potential.get_materials()["thickness"].grad).cpu()
+    for index in range(mesh.n_cells):
+        plus = thickness.copy()
+        minus = thickness.copy()
+        plus[index] += eps
+        minus[index] -= eps
+        fd[index] = torch.sum(
+            (
+                _grad(Koiter.from_pyvista(mesh, thickness=plus), u)
+                - _grad(Koiter.from_pyvista(mesh, thickness=minus), u)
+            )
+            * direction
+        ) / (2.0 * eps)
+    torch.testing.assert_close(mixed, fd, rtol=2.0e-8, atol=2.0e-10)
+
+
 def test_koiter_derivatives_match_finite_difference() -> None:
     from liblaf.apple.warp.fem import Koiter
 
@@ -329,7 +505,9 @@ def test_koiter_derivatives_match_finite_difference() -> None:
     wp.init()
 
     mesh = _make_mesh()
-    potential = Koiter.from_pyvista(mesh, thickness=0.7)
+    potential = Koiter.from_pyvista(
+        mesh, thickness=np.array([0.4, 1.1], dtype=np.float64)
+    )
     u = torch.tensor(
         [
             [0.03, -0.02, 0.01],

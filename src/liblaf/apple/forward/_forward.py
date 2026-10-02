@@ -3,8 +3,9 @@ import logging
 
 import attrs
 from jaxtyping import Float
-from liblaf.peach.optim import Optimizer
 from torch import Tensor
+
+from liblaf.apple.solvers.optim import Optimizer
 
 from ._model import Model
 from ._problem import ForwardProblem
@@ -20,7 +21,7 @@ class Forward:
     def default_optimizer(
         self, *, max_steps: int = 5000, atol: float = 0.0, rtol: float = 5e-4
     ) -> Optimizer:
-        from liblaf.peach.optim import Pncg
+        from liblaf.apple.solvers.optim import Pncg
 
         # max_step_norm: float = torch.inf
         # if self.model.collision is not None:

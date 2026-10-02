@@ -1,3 +1,4 @@
+import functools
 from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar, Self, cast, no_type_check, override
 
@@ -10,7 +11,14 @@ from torch import Tensor
 
 from liblaf.apple.common import ACTIVATION, ACTIVATION_INV, FRACTION, LAMBDA, MU
 from liblaf.apple.torch.fem import Region
-from liblaf.apple.warp.model import ArrayAnnotation, MaterialField, WarpPotential
+from liblaf.apple.warp.model import (
+    ArrayAnnotation,
+    MaterialField,
+    Struct,
+    WarpPotential,
+    make_struct,
+)
+from liblaf.apple.warp.utils import warp_default_dtype
 
 floating = Any
 mat22 = Any
@@ -42,10 +50,10 @@ def _metric_inv(materials: Materials, cid: int) -> mat22:
 
 
 @wp.func
-def _energy_weight(materials: Materials, cid: int, thickness: floating) -> floating:
-    fraction = materials.fraction[cid]
-    h = fraction.dtype(thickness)
-    return h * fraction * materials.rest_metric_sqrt_det[cid] / fraction.dtype(8.0)
+def _energy_weight(
+    fraction: floating, thickness: floating, rest_metric_sqrt_det: floating
+) -> floating:
+    return thickness * fraction * rest_metric_sqrt_det / fraction.dtype(8.0)
 
 
 @wp.func
@@ -140,7 +148,6 @@ def _fun_kernel(
     u: wp.array1d[vec3],
     cells: wp.array1d[vec3i],
     materials: Materials,
-    thickness: floating,
     output: wp.array1d[floating],
 ) -> None:
     cid = wp.tid()
@@ -150,7 +157,12 @@ def _fun_kernel(
     S = _metric_inv(materials, cid)
     g = _metric(a, b)
     W = _metric_energy_density(g, S, materials.lmbda[cid], materials.mu[cid])
-    wp.atomic_add(output, 0, _energy_weight(materials, cid, thickness) * W)
+    weight = _energy_weight(
+        materials.fraction[cid],
+        materials.thickness[cid],
+        materials.rest_metric_sqrt_det[cid],
+    )
+    wp.atomic_add(output, 0, weight * W)
 
 
 @wp.kernel(module="unique")
@@ -159,14 +171,17 @@ def _grad_kernel(
     u: wp.array1d[vec3],
     cells: wp.array1d[vec3i],
     materials: Materials,
-    thickness: floating,
     output: wp.array1d[vec3],
 ) -> None:
     cid = wp.tid()
     cell = cells[cid]
     a = materials.rest_edge_01[cid] + u[cell[1]] - u[cell[0]]
     b = materials.rest_edge_02[cid] + u[cell[2]] - u[cell[0]]
-    weight = _energy_weight(materials, cid, thickness)
+    weight = _energy_weight(
+        materials.fraction[cid],
+        materials.thickness[cid],
+        materials.rest_metric_sqrt_det[cid],
+    )
     grad_a, grad_b = _edge_grad(a, b, materials, cid)
     grad_a = weight * grad_a
     grad_b = weight * grad_b
@@ -181,7 +196,6 @@ def _hess_diag_kernel(
     u: wp.array1d[vec3],
     cells: wp.array1d[vec3i],
     materials: Materials,
-    thickness: floating,
     output: wp.array1d[vec3],
 ) -> None:
     cid = wp.tid()
@@ -192,7 +206,11 @@ def _hess_diag_kernel(
     g = _metric(a, b)
     w = _metric_gradient(g, S, materials.lmbda[cid], materials.mu[cid])
     H = _metric_hessian(S, materials.lmbda[cid], materials.mu[cid])
-    weight = _energy_weight(materials, cid, thickness)
+    weight = _energy_weight(
+        materials.fraction[cid],
+        materials.thickness[cid],
+        materials.rest_metric_sqrt_det[cid],
+    )
     diag_0 = weight * wp.vector(
         _diag_component(H, w, a[0], b[0], 0),
         _diag_component(H, w, a[1], b[1], 0),
@@ -220,7 +238,6 @@ def _hess_prod_kernel(
     p: wp.array1d[vec3],
     cells: wp.array1d[vec3i],
     materials: Materials,
-    thickness: floating,
     output: wp.array1d[vec3],
 ) -> None:
     cid = wp.tid()
@@ -239,7 +256,11 @@ def _hess_prod_kernel(
         b.dtype(2.0) * wp.dot(b, p_b),
     )
     dw = H @ dg
-    weight = _energy_weight(materials, cid, thickness)
+    weight = _energy_weight(
+        materials.fraction[cid],
+        materials.thickness[cid],
+        materials.rest_metric_sqrt_det[cid],
+    )
     Hp_a = weight * (
         a.dtype(2.0) * dw[0] * a + a.dtype(2.0) * w[0] * p_a + dw[1] * b + w[1] * p_b
     )
@@ -258,7 +279,6 @@ def _hess_quad_kernel(
     p: wp.array1d[vec3],
     cells: wp.array1d[vec3i],
     materials: Materials,
-    thickness: floating,
     output: wp.array1d[floating],
 ) -> None:
     cid = wp.tid()
@@ -279,9 +299,12 @@ def _hess_quad_kernel(
     dw = H @ dg
     Hp_a = a.dtype(2.0) * dw[0] * a + a.dtype(2.0) * w[0] * p_a + dw[1] * b + w[1] * p_b
     Hp_b = dw[1] * a + w[1] * p_a + b.dtype(2.0) * dw[2] * b + b.dtype(2.0) * w[2] * p_b
-    h_quad = _energy_weight(materials, cid, thickness) * (
-        wp.dot(p_a, Hp_a) + wp.dot(p_b, Hp_b)
+    weight = _energy_weight(
+        materials.fraction[cid],
+        materials.thickness[cid],
+        materials.rest_metric_sqrt_det[cid],
     )
+    h_quad = weight * (wp.dot(p_a, Hp_a) + wp.dot(p_b, Hp_b))
     wp.atomic_add(output, 0, h_quad)
 
 
@@ -388,6 +411,10 @@ class Koiter(WarpPotential):
     ``ActivationInv`` changes the stress-free metric while the energy remains
     integrated over the original triangle reference area. It does not change
     the amount of membrane material represented by a triangle.
+
+    ``thickness`` is a construction input accepting one scalar or one positive
+    value per triangle. After construction, update the normalized per-triangle
+    field with ``set_materials({"thickness": values})``.
     """
 
     class Materials(WarpPotential.Materials):
@@ -399,6 +426,7 @@ class Koiter(WarpPotential):
         rest_edge_02: wp.array
         rest_metric_inv: wp.array
         rest_metric_sqrt_det: wp.array
+        thickness: wp.array
 
     MATERIAL_FIELDS: ClassVar[Mapping[str, MaterialField]] = {
         ACTIVATION_INV.value: MaterialField(
@@ -433,6 +461,7 @@ class Koiter(WarpPotential):
             annotation=lambda dtype: wp.array1d(dtype=dtype),
             factory=_get_rest_metric_sqrt_det,
         ),
+        "thickness": MaterialField.CELL.floating("thickness"),
     }
 
     fun_kernel: ClassVar[wp.Kernel] = cast("wp.Kernel", _fun_kernel)
@@ -442,7 +471,44 @@ class Koiter(WarpPotential):
     hess_quad_kernel: ClassVar[wp.Kernel] = cast("wp.Kernel", _hess_quad_kernel)
 
     cells: wp.array
-    thickness: float = attrs.field(default=1.0, kw_only=True)
+    thickness: float | np.ndarray = attrs.field(default=1.0, kw_only=True)
+
+    @functools.cached_property
+    def material_struct(self) -> Struct:
+        return _koiter_material_struct(warp_default_dtype())
+
+    def _material_from_region(
+        self, region: Region, requires_grad: Sequence[str]
+    ) -> Materials:
+        thickness = np.asarray(self.thickness)
+        if thickness.ndim == 0:
+            thickness = np.full(region.n_cells, thickness.item())
+        expected = (region.n_cells,)
+        if thickness.shape != expected:
+            msg = f"thickness must be a scalar or have shape {expected}, got {thickness.shape}"
+            raise ValueError(msg)
+        if not np.all(np.isfinite(thickness)) or np.any(thickness <= 0):
+            msg = "thickness values must be finite and positive"
+            raise ValueError(msg)
+
+        unknown = set(requires_grad) - self.MATERIAL_FIELDS.keys()
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            msg = f"unknown Koiter material fields: {names}"
+            raise ValueError(msg)
+
+        materials = self.material_struct()
+        with wp.ScopedDevice(self.cells.device):
+            for field in self.material_vars.values():
+                if field.name == "thickness":
+                    value = wp.from_numpy(
+                        np.ascontiguousarray(thickness), dtype=field.annotation.dtype
+                    )
+                else:
+                    value = field.from_region(region)
+                value.requires_grad = field.name in requires_grad
+                setattr(materials, field.name, value)
+        return cast("Materials", materials)
 
     @classmethod
     @override
@@ -456,7 +522,7 @@ class Koiter(WarpPotential):
             )
             raise ValueError(msg)
         self: Self = cls(cells=wp.from_torch(cells, dtype=wp.vec3i), **kwargs)
-        self.materials = self.material_from_region(region, requires_grad=requires_grad)
+        self.materials = self._material_from_region(region, requires_grad=requires_grad)
         return self
 
     @property
@@ -468,8 +534,9 @@ class Koiter(WarpPotential):
         wp.launch(
             self.fun_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.cells, self.materials, self.thickness],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
+            device=self.cells.device,
         )
 
     @override
@@ -477,8 +544,9 @@ class Koiter(WarpPotential):
         wp.launch(
             self.grad_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.cells, self.materials, self.thickness],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
+            device=self.cells.device,
         )
 
     @override
@@ -486,8 +554,9 @@ class Koiter(WarpPotential):
         wp.launch(
             self.hess_diag_kernel,
             dim=self.launch_dim,
-            inputs=[u, self.cells, self.materials, self.thickness],
+            inputs=[u, self.cells, self.materials],
             outputs=[output],
+            device=self.cells.device,
         )
 
     @override
@@ -495,8 +564,9 @@ class Koiter(WarpPotential):
         wp.launch(
             self.hess_prod_kernel,
             dim=self.launch_dim,
-            inputs=[u, p, self.cells, self.materials, self.thickness],
+            inputs=[u, p, self.cells, self.materials],
             outputs=[output],
+            device=self.cells.device,
         )
 
     @override
@@ -504,6 +574,19 @@ class Koiter(WarpPotential):
         wp.launch(
             self.hess_quad_kernel,
             dim=self.launch_dim,
-            inputs=[u, p, self.cells, self.materials, self.thickness],
+            inputs=[u, p, self.cells, self.materials],
             outputs=[output],
+            device=self.cells.device,
         )
+
+
+@functools.cache
+def _koiter_material_struct(dtype: Any) -> Struct:
+    material_vars = tuple(
+        field.make(dtype) for field in Koiter.MATERIAL_FIELDS.values()
+    )
+    return make_struct(
+        material_vars,
+        module=Koiter.__module__,
+        qualname=Koiter.__qualname__,
+    )

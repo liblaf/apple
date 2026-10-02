@@ -1,0 +1,41 @@
+[project]
+name = "apple-cuda12"
+version = "0.0.0"
+description = "Separate Linux x86-64 CUDA 12 environment for Apple experiments and V100 validation"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "liblaf-apple[cuda12]",
+  "liblaf-melon==1.5.0",
+  "liblaf-cherries==3.0.2",
+  "liblaf-grapes==9.3.5",
+  "torch==2.12.0+cu126",
+  "warp-lang==1.14.0+cu12",
+  "cupy-cuda12x==14.1.1",
+  "jax[cuda12]==0.10.1",
+  "pytest>=9",
+  "pytest-codspeed>=4.5.0",
+  "pytest-cov>=7",
+  "pytest-randomly>=4",
+  "hypothesis>=6",
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.12.17"
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+liblaf-apple = { path = "../..", editable = true }
+torch = { index = "pytorch-cu126" }
+warp-lang = { url = "https://github.com/NVIDIA/warp/releases/download/v1.14.0/warp_lang-1.14.0%2Bcu12-py3-none-manylinux_2_28_x86_64.whl" }
+ipctk = { index = "pypi" }
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+explicit = true

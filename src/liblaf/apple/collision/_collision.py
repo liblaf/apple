@@ -165,16 +165,31 @@ class Collision:
         Hp: VDim = torch.as_tensor(Hp).reshape(self.vertices.shape)
         output.index_add_(0, self.indices, Hp)
 
-    def hess_quad(self, state: State, u: Full, p: Full) -> Scalar:
+    def raw_hess_quad_terms(self, state: State, u: Full, p: Full) -> tuple[float, ...]:
+        """Return one Gauss-Newton quadratic-form contribution per contact."""
         vertices: VDim = self.vertices + u[self.indices]
-        vertices: Float[np.ndarray, "V dim"] = vertices.numpy(force=True)
-        p: VDim = p[self.indices]
-        p: Float[Tensor, " V*dim"] = p.flatten()
-        p: Float[np.ndarray, " V*dim"] = p.numpy(force=True)
-        pHp: float = self.potential.gauss_newton_hessian_quadratic_form(
-            collisions=state.collisions,
-            mesh=self.collision_mesh,
-            vertices=vertices,
-            p=p,
+        vertices: Float[np.ndarray, "V dim"] = np.asfortranarray(
+            vertices.numpy(force=True)
+        )
+        direction: VDim = p[self.indices]
+        direction: Float[np.ndarray, "V dim"] = np.asfortranarray(
+            direction.numpy(force=True)
+        )
+        edges = self.collision_mesh.edges
+        faces = self.collision_mesh.faces
+        return tuple(
+            self.potential.gauss_newton_hessian_quadratic_form(
+                collision=collision,
+                positions=collision.dof(vertices, edges, faces),
+                p=collision.dof(direction, edges, faces),
+            )
+            for collision in state.collisions
+        )
+
+    def hess_quad(self, state: State, u: Full, p: Full) -> Scalar:
+        """Return the per-contact-clamped Gauss-Newton PNCG curvature surrogate."""
+        pHp: float = sum(
+            (max(pHp_term, 0.0) for pHp_term in self.raw_hess_quad_terms(state, u, p)),
+            start=0.0,
         )
         return torch.as_tensor(pHp)

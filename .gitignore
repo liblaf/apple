@@ -38,3 +38,12 @@ junit.xml
 
 # [hatch-vcs](https://github.com/ofek/hatch-vcs)
 _version.py
+
+# Local experiment inputs, generated outputs, and runtime snapshots.
+/exp/**/data/
+/exp/**/logs/
+/exp/**/tmp/
+/exp/**/site/
+/docs/research/data/
+/output/
+/tmp/

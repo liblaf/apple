@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.14.*"
 resolution-markers = [
     "platform_machine == 'x86_64' and sys_platform == 'linux'",
@@ -64,7 +64,7 @@ requires-dist = [
     { name = "hypothesis", specifier = ">=6" },
     { name = "jax", extras = ["cuda12"], specifier = "==0.10.1" },
     { name = "liblaf-apple", extras = ["cuda12"], editable = "../../" },
-    { name = "liblaf-cherries", specifier = "==3.0.2" },
+    { name = "liblaf-cherries", specifier = "==3.0.3" },
     { name = "liblaf-grapes", specifier = "==9.3.5" },
     { name = "liblaf-melon", specifier = "==1.5.0" },
     { name = "pytest", specifier = ">=9" },
@@ -858,7 +858,7 @@ typing = [
 
 [[package]]
 name = "liblaf-cherries"
-version = "3.0.2"
+version = "3.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -876,9 +876,9 @@ dependencies = [
     { name = "python-slugify" },
     { name = "toolz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/5e/28a8ecb537338e42275907d88eb4e5dba68f4575e896ca9699bb36fcdb0e/liblaf_cherries-3.0.2.tar.gz", hash = "sha256:9fb020b3b407180a8d5891f672d7dbc1c6725f4d5e628db94d801be086ed3908", size = 23246, upload-time = "2026-06-15T08:29:48.103Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/56/a9f122151c1983ba28e0bd4850aae199bc1c29bb4830f6adbd3cc8582292/liblaf_cherries-3.0.3.tar.gz", hash = "sha256:0fa0285dc3709eee857345307684dfcabd0f45262a1328f216b1c4c24db1a817", size = 23257, upload-time = "2026-06-17T06:55:20.996Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/83/e25debaa88fca662a81025de82e29279fb7fc4d4b691c77faddbbfa639cb/liblaf_cherries-3.0.2-py3-none-any.whl", hash = "sha256:1d343c3046713616d3b82142f7edd4f91a5d00801a04299c36e016c01d79c4bc", size = 41071, upload-time = "2026-06-15T08:29:46.775Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/4e/4a1051d4452306605672f5f4752e66e710197590ceabb9674e41806b46b3/liblaf_cherries-3.0.3-py3-none-any.whl", hash = "sha256:a6cd5da75f6f8c32f485ae9bc85ebd3021b5a8452e13875f0370217b6e1a588e", size = 41096, upload-time = "2026-06-17T06:55:19.346Z" },
 ]
 
 [[package]]

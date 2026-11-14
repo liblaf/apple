@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.14.*"
 resolution-markers = [
     "platform_machine == 'x86_64' and sys_platform == 'linux'",
@@ -347,16 +347,16 @@ wheels = [
 
 [[package]]
 name = "dulwich"
-version = "1.2.6"
+version = "1.2.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/3d/7ea85d70d85f7d5ed5bf28dc742f106d8334e84286fbc852d983273dd890/dulwich-1.2.6.tar.gz", hash = "sha256:405cfd53a99374ff03aacdd7a86d6a07615feca072ed69721f49ae2ebaa3eab4", size = 1257895, upload-time = "2026-05-31T14:32:52.758Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/17/0a0fa2b998cd9a852b1aa901e3f6145f13a4334f64b91564847e5880968d/dulwich-1.2.9.tar.gz", hash = "sha256:b395466b78eb5c36baf34381b8b831fd26da8a44b428a2eea1d57ba53f68a234", size = 1309797, upload-time = "2026-07-06T20:57:23.202Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/b7/53afa6cf1fb3bdf6669a73a6b1978f0adc2ac24f03fc414f45c5902e66e7/dulwich-1.2.6-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:c639a8c9fb7e745749f2dcbd5b63a82df2fc99cfe62e2c3654ec025a42d2e51f", size = 1442317, upload-time = "2026-05-31T14:32:37.216Z" },
-    { url = "https://files.pythonhosted.org/packages/df/40/94c0d609206a770d3b4bc8dc30601e3c63642af637c5c12035e9645e0c85/dulwich-1.2.6-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:f682671a2e19b7b4caa572ff3073557de049a153946305e051a4f50bb0e5e1bd", size = 1491547, upload-time = "2026-05-31T14:32:47.12Z" },
-    { url = "https://files.pythonhosted.org/packages/24/15/61bd455d33979584f19d3a6e0b49b49e0d891bc680fc8cc7b028aea7360d/dulwich-1.2.6-py3-none-any.whl", hash = "sha256:8d8175dbe4feaf62bcafc8708448bfe223b4dfc71609be25c0cf2b0962abc36c", size = 688260, upload-time = "2026-05-31T14:32:51.285Z" },
+    { url = "https://files.pythonhosted.org/packages/27/34/8c66d16d04cf6deb5bc8b3c63a43a8798ef6dfb615416339c38cacd3663f/dulwich-1.2.9-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:342e86cae4de7eb92ab575e73d582008045c7d6167e26190f21396a53b6eefd6", size = 1513064, upload-time = "2026-07-06T20:57:04.965Z" },
+    { url = "https://files.pythonhosted.org/packages/23/1a/9f8f9b3e4d4d3a7f49967100e48b65d017f6864080e73ce6ed18e29ec999/dulwich-1.2.9-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:19a9c89066329d6a8089eebb300c9d78d4927db51c48dc3e30973971b524807d", size = 1466584, upload-time = "2026-07-06T20:57:15.348Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/f9/a6677c0e698b5b781d663eb394bd15cc69c4a270b11cdcc128076753d75c/dulwich-1.2.9-py3-none-any.whl", hash = "sha256:79ff0ff35c4e17ccd58f9bfb23f4f8d416b0b09337b8c99ee3b4f10459bb0d68", size = 711459, upload-time = "2026-07-06T20:57:21.516Z" },
 ]
 
 [[package]]
